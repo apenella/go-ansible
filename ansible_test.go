@@ -10,12 +10,12 @@ import (
 func TestAnsible(t *testing.T) {
 
 	playbook := &ansible.AnsiblePlaybookCmd{
-		Playbook: "test/ansible/test_site.yml",
+		Playbook: "test/test_site.yml",
 		ConnectionOptions: &ansible.AnsiblePlaybookConnectionOptions{
 			Connection: "local",
 		},
 		Options: &ansible.AnsiblePlaybookOptions{
-			Inventory: "test/ansible/inventory/all",
+			Inventory: "test/all",
 			ExtraVars: map[string]interface{}{
 				"string": "testing an string",
 				"bool":   true,
