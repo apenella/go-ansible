@@ -32,5 +32,4 @@ func TestAnsible(t *testing.T) {
 	if err != nil && assert.Error(t, err) {
 		assert.Equal(t, nil, err)
 	}
-
 }
