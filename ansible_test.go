@@ -1,7 +1,6 @@
 package ansible
 
 import (
-	"oc-images-utils/ansible"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -9,12 +8,12 @@ import (
 
 func TestAnsible(t *testing.T) {
 
-	playbook := &ansible.AnsiblePlaybookCmd{
+	playbook := &AnsiblePlaybookCmd{
 		Playbook: "test/test_site.yml",
-		ConnectionOptions: &ansible.AnsiblePlaybookConnectionOptions{
+		ConnectionOptions: &AnsiblePlaybookConnectionOptions{
 			Connection: "local",
 		},
-		Options: &ansible.AnsiblePlaybookOptions{
+		Options: &AnsiblePlaybookOptions{
 			Inventory: "test/all",
 			ExtraVars: map[string]interface{}{
 				"string": "testing an string",
