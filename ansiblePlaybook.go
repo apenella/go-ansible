@@ -1,4 +1,4 @@
-package ansible
+package ansibler
 
 import (
 	"errors"
@@ -8,50 +8,92 @@ import (
 )
 
 const (
-	AnsiblePlaybookBin    = "ansible-playbook"
-	ConnectionFlag        = "--connection"
-	ExtraVarsFlag         = "--extra-vars"
-	FlushCacheFlag        = "--flush-cache"
-	InventoryFlag         = "--inventory"
-	LimitFlag             = "--limit"
-	ListHostsFlag         = "--list-hosts"
-	ListTagsFlag          = "--list-tags"
-	ListTasksFlag         = "--list-tasks"
-	TagsFlag              = "--tags"
-	SyntaxCheckFlag       = "--syntax-check"
+	// AnsiblePlaybookBin is the ansible-playbook binary file value
+	AnsiblePlaybookBin = "ansible-playbook"
+
+	// ConnectionFlag is the connection flag for ansible-playbook
+	ConnectionFlag = "--connection"
+
+	// ExtraVarsFlag is the extra variables flag for ansible-playbook
+	ExtraVarsFlag = "--extra-vars"
+
+	// FlushCacheFlag is the flush cache flag for ansible-playbook
+	FlushCacheFlag = "--flush-cache"
+
+	// InventoryFlag is the inventory flag for ansible-playbook
+	InventoryFlag = "--inventory"
+
+	// LimitFlag is the limit flag for ansible-playbook
+	LimitFlag = "--limit"
+
+	// ListHostsFlag is the list hosts flag for ansible-playbook
+	ListHostsFlag = "--list-hosts"
+
+	// ListTagsFlag is the list tags flag for ansible-playbook
+	ListTagsFlag = "--list-tags"
+
+	// ListTasksFlag is the list tasks flag for ansible-playbook
+	ListTasksFlag = "--list-tasks"
+
+	// TagsFlag is the tags flag for ansible-playbook
+	TagsFlag = "--tags"
+
+	// SyntaxCheckFlag is the syntax check flag for ansible-playbook
+	SyntaxCheckFlag = "--syntax-check"
+
+	// VaultPasswordFileFlag is the vault password file flag for ansible-playbook
 	VaultPasswordFileFlag = "--vault-password-file"
 
+	// AnsibleForceColorEnv is the environment variable which forces color mode
 	AnsibleForceColorEnv = "ANSIBLE_FORCE_COLOR"
 )
 
-// Executor interface of executors
+// Executor is and interface that should be implemented for those item which could run ansible playbooks
 type Executor interface {
 	Execute(command string, args []string, prefix string) error
 }
 
+// AnsiblePlaybookCmd defines de ansible-playbook command
 type AnsiblePlaybookCmd struct {
-	Exec              Executor
-	ExecPrefix        string
-	Playbook          string
-	Options           *AnsiblePlaybookOptions
+	// Exec is the executor item
+	Exec Executor
+	// ExecPrefix is a text that is set at the beginning of each execution line
+	ExecPrefix string
+	// Playbook is the ansible's playbook name to be used
+	Playbook string
+	// Options are the ansible's playbook options
+	Options *AnsiblePlaybookOptions
+	// ConnectionOptions are the ansible's playbook specific options for connection
 	ConnectionOptions *AnsiblePlaybookConnectionOptions
 }
 
+// AnsiblePlaybookOptions are a set of options to be used by ansible-playbook command
 type AnsiblePlaybookOptions struct {
-	ExtraVars  map[string]interface{}
+	// ExtraVars is a map of extra variables used on ansible-playbook execution
+	ExtraVars map[string]interface{}
+	// FlushCache clear the fact cache for every host in inventory
 	FlushCache bool
-	Inventory  string
-	Limit      string
-	ListHosts  bool
-	ListTags   bool
-	ListTasks  bool
-	Tags       string
+	// Inventory specify inventory host path
+	Inventory string
+	// Limit is selected hosts additional pattern
+	Limit string
+	// ListHosts outputs a list of matching hosts
+	ListHosts bool
+	// ListTags list all available tags
+	ListTags bool
+	// ListTasks
+	ListTasks bool
+	// Tags list all tasks that would be executed
+	Tags string
 }
 
+// AnsiblePlaybookConnectionOptions are a set of connection options to be used by ansible-playbook command
 type AnsiblePlaybookConnectionOptions struct {
+	// Connection is the type of connection used by ansible-playbook
 	Connection string
 }
 
+// AnsibleForceColor change to a forced color mode
 func AnsibleForceColor() {
 	os.Setenv(AnsibleForceColorEnv, "true")
 }
@@ -62,28 +104,35 @@ func (p *AnsiblePlaybookCmd) Run() error {
 		return errors.New("(ansible:Run) AnsiblePlaybookCmd is nil")
 	}
 
+	// Define a default executor when it is not defined on AnsiblePlaybookCmd
 	if p.Exec == nil {
 		p.Exec = &DefaultExecute{
 			Write: os.Stdout,
 		}
 	}
 
+	// Generate the command to be run
 	cmd, err := p.Command()
 	if err != nil {
 		return errors.New("(ansible:Run) -> " + err.Error())
 	}
 
+	// Set default prefix
 	if len(p.ExecPrefix) <= 0 {
 		p.ExecPrefix = ""
 	}
 
+	// Execute the command an return
 	return p.Exec.Execute(cmd[0], cmd[1:], p.ExecPrefix)
 }
 
+// Command generate the ansible-playbook command which will be executed
 func (p *AnsiblePlaybookCmd) Command() ([]string, error) {
 	cmd := []string{}
+	// Set the ansible-playbook binary file
 	cmd = append(cmd, AnsiblePlaybookBin)
 
+	// Determine the options to be set
 	if p.Options != nil {
 		options, err := p.Options.GenerateCommandOptions()
 		if err != nil {
@@ -94,6 +143,7 @@ func (p *AnsiblePlaybookCmd) Command() ([]string, error) {
 		}
 	}
 
+	// Determine the connection options to be set
 	if p.ConnectionOptions != nil {
 		options, err := p.ConnectionOptions.GenerateCommandConnectionOptions()
 		if err != nil {
@@ -104,11 +154,13 @@ func (p *AnsiblePlaybookCmd) Command() ([]string, error) {
 		}
 	}
 
+	// Include the ansible playbook
 	cmd = append(cmd, p.Playbook)
 
 	return cmd, nil
 }
 
+// GenerateCommandOptions return a list of options flags to be used on ansible-playbook execution
 func (o *AnsiblePlaybookOptions) GenerateCommandOptions() ([]string, error) {
 	cmd := []string{}
 
@@ -159,6 +211,7 @@ func (o *AnsiblePlaybookOptions) GenerateCommandOptions() ([]string, error) {
 	return cmd, nil
 }
 
+// generateExtraVarsCommand return an string which is a json structure having all the extra variable
 func (o *AnsiblePlaybookOptions) generateExtraVarsCommand() (string, error) {
 
 	extraVars, err := helpers.ObjectToJSONString(o.ExtraVars)
@@ -168,6 +221,7 @@ func (o *AnsiblePlaybookOptions) generateExtraVarsCommand() (string, error) {
 	return extraVars, nil
 }
 
+// AddExtraVar registers a new extra variable on ansible-playbook options item
 func (o *AnsiblePlaybookOptions) AddExtraVar(name string, value interface{}) error {
 
 	if o.ExtraVars == nil {
@@ -183,6 +237,7 @@ func (o *AnsiblePlaybookOptions) AddExtraVar(name string, value interface{}) err
 	return nil
 }
 
+// GenerateCommandConnectionOptions return a list of connection options flags to be used on ansible-playbook execution
 func (o *AnsiblePlaybookConnectionOptions) GenerateCommandConnectionOptions() ([]string, error) {
 	cmd := []string{}
 
