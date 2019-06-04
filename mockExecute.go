@@ -7,6 +7,7 @@ import (
 	"os"
 )
 
+// MockExecute defines a simple executor for testing purposal
 type MockExecute struct {
 	Write io.Writer
 }

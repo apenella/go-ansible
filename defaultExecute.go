@@ -10,6 +10,7 @@ import (
 	"time"
 )
 
+// DefaultExecute is a simple definition of an executor
 type DefaultExecute struct {
 	Write io.Writer
 }
