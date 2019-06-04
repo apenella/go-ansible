@@ -228,7 +228,7 @@ func TestAddExtraVar(t *testing.T) {
 					"extra": "var",
 				},
 			},
-			err:           errors.New("(ansible::AddExtraVar) ExtraVar 'extra' already exist."),
+			err:           errors.New("(ansible::AddExtraVar) ExtraVar 'extra' already exist"),
 			extraVarName:  "extra",
 			extraVarValue: "var",
 			res:           nil,

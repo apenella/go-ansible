@@ -4,7 +4,7 @@ import (
 	"errors"
 	"os"
 
-	"oc-images-utils/helpers"
+	common "github.com/apenella/go-common-utils/data"
 )
 
 const (
@@ -214,7 +214,7 @@ func (o *AnsiblePlaybookOptions) GenerateCommandOptions() ([]string, error) {
 // generateExtraVarsCommand return an string which is a json structure having all the extra variable
 func (o *AnsiblePlaybookOptions) generateExtraVarsCommand() (string, error) {
 
-	extraVars, err := helpers.ObjectToJSONString(o.ExtraVars)
+	extraVars, err := common.ObjectToJSONString(o.ExtraVars)
 	if err != nil {
 		return "", errors.New("(ansible::generateExtraVarsCommand) -> " + err.Error())
 	}
@@ -229,7 +229,7 @@ func (o *AnsiblePlaybookOptions) AddExtraVar(name string, value interface{}) err
 	}
 	_, exists := o.ExtraVars[name]
 	if exists {
-		return errors.New("(ansible::AddExtraVar) ExtraVar '" + name + "' already exist.")
+		return errors.New("(ansible::AddExtraVar) ExtraVar '" + name + "' already exist")
 	}
 
 	o.ExtraVars[name] = value
