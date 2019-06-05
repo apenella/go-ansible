@@ -1,4 +1,6 @@
 # CHANGELOG
 
 ## v0.2
-[WIP] change package name to ansibler
+- Change package name to ansibler
+- Use package github.com/apenella/go-common-utils
+
