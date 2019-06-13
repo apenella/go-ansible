@@ -2,6 +2,7 @@ package ansibler
 
 import (
 	"errors"
+	"io"
 	"os"
 
 	common "github.com/apenella/go-common-utils/data"
@@ -65,6 +66,8 @@ type AnsiblePlaybookCmd struct {
 	Options *AnsiblePlaybookOptions
 	// ConnectionOptions are the ansible's playbook specific options for connection
 	ConnectionOptions *AnsiblePlaybookConnectionOptions
+	// Writer manages the output
+	Writer io.Writer
 }
 
 // AnsiblePlaybookOptions are a set of options to be used by ansible-playbook command
@@ -107,7 +110,7 @@ func (p *AnsiblePlaybookCmd) Run() error {
 	// Define a default executor when it is not defined on AnsiblePlaybookCmd
 	if p.Exec == nil {
 		p.Exec = &DefaultExecute{
-			Write: os.Stdout,
+			Write: p.Writer,
 		}
 	}
 
