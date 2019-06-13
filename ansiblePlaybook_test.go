@@ -336,7 +336,6 @@ func TestRun(t *testing.T) {
 				Options: &AnsiblePlaybookOptions{
 					Inventory: "test/all",
 				},
-				Writer: os.Stdout,
 			},
 			res: "",
 			err: nil,

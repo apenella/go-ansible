@@ -6,6 +6,7 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"os"
 	"os/exec"
 	"time"
 )
@@ -21,7 +22,7 @@ func (e *DefaultExecute) Execute(command string, args []string, prefix string) e
 	stderr := &bytes.Buffer{}
 
 	if e.Write == nil {
-		return errors.New("(DefaultExecute::Execute) A writer must be defined")
+		e.Write = os.Stdout
 	}
 
 	cmd := exec.Command(command, args...)

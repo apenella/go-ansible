@@ -1,7 +1,6 @@
 package ansibler
 
 import (
-	"os"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -27,7 +26,6 @@ func TestAnsible(t *testing.T) {
 				},
 			},
 		},
-		Writer: os.Stdout,
 	}
 
 	err := playbook.Run()
