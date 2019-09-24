@@ -2,3 +2,4 @@ vendor/*
 *.lock
 .vscode
 
+go.sum

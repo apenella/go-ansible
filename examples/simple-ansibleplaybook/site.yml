@@ -1,0 +1,9 @@
+---
+
+- hosts: all
+
+  tasks:
+    - name: simple-ansibleplaybook 
+      debug:
+        msg: Your are running 'simple-ansibleplaybook' example
+
