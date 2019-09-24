@@ -18,6 +18,7 @@ func main() {
 		Playbook:          "site.yml",
 		ConnectionOptions: ansiblePlaybookConnectionOptions,
 		Options:           ansiblePlaybookOptions,
+		ExecPrefix:        "Go-ansible example",
 	}
 
 	err := playbook.Run()
