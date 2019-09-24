@@ -54,7 +54,7 @@ type Executor interface {
 	Execute(command string, args []string, prefix string) error
 }
 
-// AnsiblePlaybookCmd defines de ansible-playbook command
+// AnsiblePlaybookCmd object is the main object which defines the `ansible-playbook` command and how to execute it.
 type AnsiblePlaybookCmd struct {
 	// Exec is the executor item
 	Exec Executor
@@ -70,7 +70,7 @@ type AnsiblePlaybookCmd struct {
 	Writer io.Writer
 }
 
-// AnsiblePlaybookOptions are a set of options to be used by ansible-playbook command
+// AnsiblePlaybookOptions object has those parameters described on `Options` section within ansible-playbook's man page, and which defines which should be the ansible-playbook execution behavior.
 type AnsiblePlaybookOptions struct {
 	// ExtraVars is a map of extra variables used on ansible-playbook execution
 	ExtraVars map[string]interface{}
@@ -90,7 +90,7 @@ type AnsiblePlaybookOptions struct {
 	Tags string
 }
 
-// AnsiblePlaybookConnectionOptions are a set of connection options to be used by ansible-playbook command
+// AnsiblePlaybookConnectionOptions object has those parameters described on `Connections Options` section within ansible-playbook's man page, and which defines how to connect to hosts.
 type AnsiblePlaybookConnectionOptions struct {
 	// Connection is the type of connection used by ansible-playbook
 	Connection string
