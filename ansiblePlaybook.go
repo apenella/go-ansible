@@ -12,6 +12,21 @@ const (
 	// AnsiblePlaybookBin is the ansible-playbook binary file value
 	AnsiblePlaybookBin = "ansible-playbook"
 
+	// AskBecomePassFlag is ansble-playbook's ask for become user password flag
+	AskBecomePassFlag = "--ask-become-pass"
+
+	// AskPassFlag is ansble-playbook's ask for connection password flag
+	AskPassFlag = "--ask-pass"
+
+	// BecomeFlag is ansble-playbook's become flag
+	BecomeFlag = "--become"
+
+	// BecomeMethodFlag is ansble-playbook's become method flag
+	BecomeMethodFlag = "--become-method"
+
+	// BecomeUserFlag is ansble-playbook's become user flag
+	BecomeUserFlag = "--become-user"
+
 	// ConnectionFlag is the connection flag for ansible-playbook
 	ConnectionFlag = "--connection"
 
@@ -36,11 +51,20 @@ const (
 	// ListTasksFlag is the list tasks flag for ansible-playbook
 	ListTasksFlag = "--list-tasks"
 
+	// PrivateKeyFlag is the private key file flag for ansible-playbook
+	PrivateKeyFlag = "--private-key "
+
 	// TagsFlag is the tags flag for ansible-playbook
 	TagsFlag = "--tags"
 
 	// SyntaxCheckFlag is the syntax check flag for ansible-playbook
 	SyntaxCheckFlag = "--syntax-check"
+
+	// TimeoutFlag is the timeout flag for ansible-playbook
+	TimeoutFlag = "--timeout"
+
+	// UserFlag is the user flag for ansible-playbook
+	UserFlag = "--user"
 
 	// VaultPasswordFileFlag is the vault password file flag for ansible-playbook
 	VaultPasswordFileFlag = "--vault-password-file"
@@ -52,6 +76,11 @@ const (
 // Executor is and interface that should be implemented for those item which could run ansible playbooks
 type Executor interface {
 	Execute(command string, args []string, prefix string) error
+}
+
+// AnsibleForceColor change to a forced color mode
+func AnsibleForceColor() {
+	os.Setenv(AnsibleForceColorEnv, "true")
 }
 
 // AnsiblePlaybookCmd object is the main object which defines the `ansible-playbook` command and how to execute it.
@@ -66,39 +95,10 @@ type AnsiblePlaybookCmd struct {
 	Options *AnsiblePlaybookOptions
 	// ConnectionOptions are the ansible's playbook specific options for connection
 	ConnectionOptions *AnsiblePlaybookConnectionOptions
+	// PrivilegeEscalationOptions are the ansible's playbook privilage escalation options
+	PrivilegeEscalationOptions *AnsiblePlaybookPrivilegeEscalationOptions
 	// Writer manages the output
 	Writer io.Writer
-}
-
-// AnsiblePlaybookOptions object has those parameters described on `Options` section within ansible-playbook's man page, and which defines which should be the ansible-playbook execution behavior.
-type AnsiblePlaybookOptions struct {
-	// ExtraVars is a map of extra variables used on ansible-playbook execution
-	ExtraVars map[string]interface{}
-	// FlushCache clear the fact cache for every host in inventory
-	FlushCache bool
-	// Inventory specify inventory host path
-	Inventory string
-	// Limit is selected hosts additional pattern
-	Limit string
-	// ListHosts outputs a list of matching hosts
-	ListHosts bool
-	// ListTags list all available tags
-	ListTags bool
-	// ListTasks
-	ListTasks bool
-	// Tags list all tasks that would be executed
-	Tags string
-}
-
-// AnsiblePlaybookConnectionOptions object has those parameters described on `Connections Options` section within ansible-playbook's man page, and which defines how to connect to hosts.
-type AnsiblePlaybookConnectionOptions struct {
-	// Connection is the type of connection used by ansible-playbook
-	Connection string
-}
-
-// AnsibleForceColor change to a forced color mode
-func AnsibleForceColor() {
-	os.Setenv(AnsibleForceColorEnv, "true")
 }
 
 // Run method runs the ansible-playbook
@@ -157,10 +157,41 @@ func (p *AnsiblePlaybookCmd) Command() ([]string, error) {
 		}
 	}
 
+	// Determine the privilege escalation options to be set
+	if p.PrivilegeEscalationOptions != nil {
+		options, err := p.PrivilegeEscalationOptions.GenerateCommandPrivilegeEscalationOptions()
+		if err != nil {
+			return nil, errors.New("(ansible::Command) -> " + err.Error())
+		}
+		for _, option := range options {
+			cmd = append(cmd, option)
+		}
+	}
+
 	// Include the ansible playbook
 	cmd = append(cmd, p.Playbook)
 
 	return cmd, nil
+}
+
+// AnsiblePlaybookOptions object has those parameters described on `Options` section within ansible-playbook's man page, and which defines which should be the ansible-playbook execution behavior.
+type AnsiblePlaybookOptions struct {
+	// ExtraVars is a map of extra variables used on ansible-playbook execution
+	ExtraVars map[string]interface{}
+	// FlushCache clear the fact cache for every host in inventory
+	FlushCache bool
+	// Inventory specify inventory host path
+	Inventory string
+	// Limit is selected hosts additional pattern
+	Limit string
+	// ListHosts outputs a list of matching hosts
+	ListHosts bool
+	// ListTags list all available tags
+	ListTags bool
+	// ListTasks
+	ListTasks bool
+	// Tags list all tasks that would be executed
+	Tags string
 }
 
 // GenerateCommandOptions return a list of options flags to be used on ansible-playbook execution
@@ -240,13 +271,98 @@ func (o *AnsiblePlaybookOptions) AddExtraVar(name string, value interface{}) err
 	return nil
 }
 
+// AnsiblePlaybookConnectionOptions object has those parameters described on `Connections Options` section within ansible-playbook's man page, and which defines how to connect to hosts.
+type AnsiblePlaybookConnectionOptions struct {
+	// AskPass defines whether user's password should be asked to connect to host
+	AskPass bool
+	// Connection is the type of connection used by ansible-playbook
+	Connection string
+	// PrivateKey is the user's private key file used to connect to a host
+	PrivateKey string
+	// Timeout is the connection timeout on ansible-playbook. Take care because Timeout is defined ad string
+	Timeout string
+	// User is the user to use to connect to a host
+	User string
+}
+
 // GenerateCommandConnectionOptions return a list of connection options flags to be used on ansible-playbook execution
 func (o *AnsiblePlaybookConnectionOptions) GenerateCommandConnectionOptions() ([]string, error) {
 	cmd := []string{}
 
+	if o.AskPass {
+		cmd = append(cmd, AskPassFlag)
+	}
+
 	if o.Connection != "" {
 		cmd = append(cmd, ConnectionFlag)
 		cmd = append(cmd, o.Connection)
+	}
+
+	if o.PrivateKey != "" {
+		cmd = append(cmd, PrivateKeyFlag)
+		cmd = append(cmd, o.PrivateKey)
+	}
+
+	if o.User != "" {
+		cmd = append(cmd, UserFlag)
+		cmd = append(cmd, o.User)
+	}
+
+	if o.Timeout != "" {
+		cmd = append(cmd, TimeoutFlag)
+		cmd = append(cmd, o.Timeout)
+	}
+
+	return cmd, nil
+}
+
+/* become methods
+ksu        Kerberos substitute user
+pbrun      PowerBroker run
+enable     Switch to elevated permissions on a network device
+sesu       CA Privileged Access Manager
+pmrun      Privilege Manager run
+runas      Run As user
+sudo       Substitute User DO
+su         Substitute User
+doas       Do As user
+pfexec     profile based execution
+machinectl Systemd's machinectl privilege escalation
+dzdo       Centrify's Direct Authorize
+*/
+
+// AnsiblePlaybookPrivilegeEscalationOptions object has those parameters described on `Privilege Escalation Options` section within ansible-playbook's man page, and which controls how and which user you become as on target hosts.
+type AnsiblePlaybookPrivilegeEscalationOptions struct {
+	// Become
+	Become bool
+	// BecomeMethod
+	BecomeMethod string
+	// BecomeUser
+	BecomeUser string
+	// AskBecomePass
+	AskBecomePass bool
+}
+
+// GenerateCommandPrivilegeEscalationOptions return a list of privilege escalation options flags to be used on ansible-playbook execution
+func (o *AnsiblePlaybookPrivilegeEscalationOptions) GenerateCommandPrivilegeEscalationOptions() ([]string, error) {
+	cmd := []string{}
+
+	if o.AskBecomePass {
+		cmd = append(cmd, AskBecomePassFlag)
+	}
+
+	if o.Become {
+		cmd = append(cmd, BecomeFlag)
+	}
+
+	if o.BecomeMethod != "" {
+		cmd = append(cmd, BecomeMethodFlag)
+		cmd = append(cmd, o.BecomeMethod)
+	}
+
+	if o.BecomeUser != "" {
+		cmd = append(cmd, BecomeUserFlag)
+		cmd = append(cmd, o.BecomeUser)
 	}
 
 	return cmd, nil
