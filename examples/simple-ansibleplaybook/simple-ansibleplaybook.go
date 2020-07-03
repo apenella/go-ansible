@@ -8,6 +8,7 @@ func main() {
 
 	ansiblePlaybookConnectionOptions := &ansibler.AnsiblePlaybookConnectionOptions{
 		Connection: "local",
+		User:       "aleix",
 	}
 
 	ansiblePlaybookOptions := &ansibler.AnsiblePlaybookOptions{

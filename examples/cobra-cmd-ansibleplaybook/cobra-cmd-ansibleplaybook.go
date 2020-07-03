@@ -69,6 +69,7 @@ func commandHandler(cmd *cobra.Command, args []string) error {
 		Playbook:          playbook,
 		ConnectionOptions: ansiblePlaybookConnectionOptions,
 		Options:           ansiblePlaybookOptions,
+		ExecPrefix:        "Example cobra-cmd-ansibleplaybook",
 	}
 
 	ansibler.AnsibleForceColor()
