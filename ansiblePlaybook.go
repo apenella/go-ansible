@@ -107,9 +107,7 @@ func (p *AnsiblePlaybookCmd) Run() error {
 
 	// Define a default executor when it is not defined on AnsiblePlaybookCmd
 	if p.Exec == nil {
-		p.Exec = &DefaultExecute{
-			Write: p.Writer,
-		}
+		p.Exec = &DefaultExecute{}
 	}
 
 	// Generate the command to be run

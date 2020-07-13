@@ -1,7 +1,6 @@
 package ansibler
 
 import (
-	"os"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -18,9 +17,7 @@ func TestDefaultExecute(t *testing.T) {
 		{
 			desc: "Testing an execution",
 			err:  nil,
-			execute: &DefaultExecute{
-				Write: os.Stdout,
-			},
+			execute: &DefaultExecute{},
 			command: []string{"echo", "hello"},
 		},
 	}

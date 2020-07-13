@@ -5,7 +5,6 @@ import (
 	"bytes"
 	"errors"
 	"fmt"
-	"io"
 	"os"
 	"os/exec"
 	//"time"
@@ -13,7 +12,7 @@ import (
 
 // DefaultExecute is a simple definition of an executor
 type DefaultExecute struct {
-	Write io.Writer
+	timeElapsed string
 }
 
 // Execute takes a command and args and runs it, streaming output to stdout
