@@ -51,15 +51,13 @@ const (
 
 // Executor is and interface that should be implemented for those item which could run ansible playbooks
 type Executor interface {
-	Execute(command string, args []string, prefix string) error
+	Execute(command string, args []string) error
 }
 
 // AnsiblePlaybookCmd object is the main object which defines the `ansible-playbook` command and how to execute it.
 type AnsiblePlaybookCmd struct {
 	// Exec is the executor item
 	Exec Executor
-	// ExecPrefix is a text that is set at the beginning of each execution line
-	ExecPrefix string
 	// Playbook is the ansible's playbook name to be used
 	Playbook string
 	// Options are the ansible's playbook options
@@ -120,13 +118,8 @@ func (p *AnsiblePlaybookCmd) Run() error {
 		return errors.New("(ansible:Run) -> " + err.Error())
 	}
 
-	// Set default prefix
-	if len(p.ExecPrefix) <= 0 {
-		p.ExecPrefix = ""
-	}
-
 	// Execute the command an return
-	return p.Exec.Execute(cmd[0], cmd[1:], p.ExecPrefix)
+	return p.Exec.Execute(cmd[0], cmd[1:])
 }
 
 // Command generate the ansible-playbook command which will be executed

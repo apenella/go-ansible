@@ -13,7 +13,7 @@ type MockExecute struct {
 }
 
 // Execute takes a command and args and runs it, streaming output to stdout
-func (e *MockExecute) Execute(command string, args []string, prefix string) error {
+func (e *MockExecute) Execute(command string, args []string) error {
 	if e.Write == nil {
 		e.Write = os.Stdout
 	}

@@ -8,7 +8,7 @@ import (
 	"io"
 	"os"
 	"os/exec"
-	"time"
+	//"time"
 )
 
 // DefaultExecute is a simple definition of an executor
@@ -17,7 +17,7 @@ type DefaultExecute struct {
 }
 
 // Execute takes a command and args and runs it, streaming output to stdout
-func (e *DefaultExecute) Execute(command string, args []string, prefix string) error {
+func (e *DefaultExecute) Execute(command string, args []string) error {
 
 	stderr := &bytes.Buffer{}
 
@@ -26,6 +26,9 @@ func (e *DefaultExecute) Execute(command string, args []string, prefix string) e
 	}
 
 	cmd := exec.Command(command, args...)
+	cmd.Env = os.Environ()
+    cmd.Env = append(cmd.Env, "ANSIBLE_STDOUT_CALLBACK=json")
+    cmd.Env = append(cmd.Env, "ANSIBLE_HOST_KEY_CHECKING=False")
 	cmd.Stderr = stderr
 
 	cmdReader, err := cmd.StdoutPipe()
@@ -36,23 +39,23 @@ func (e *DefaultExecute) Execute(command string, args []string, prefix string) e
 	scanner := bufio.NewScanner(cmdReader)
 	go func() {
 		for scanner.Scan() {
-			fmt.Fprintf(e.Write, "%s =>  %s\n", prefix, scanner.Text())
+			fmt.Fprintf(e.Write, "%s\n",scanner.Text())
 		}
 	}()
 
-	timeInit := time.Now()
+	//timeInit := time.Now()
 	err = cmd.Start()
 	if err != nil {
 		return errors.New("(DefaultExecute::Execute) -> " + err.Error())
 	}
 
 	err = cmd.Wait()
-	elapsedTime := time.Since(timeInit)
+	//elapsedTime := time.Since(timeInit)
 	if err != nil {
 		return errors.New("(DefaultExecute::Execute) -> " + stderr.String())
 	}
 
-	fmt.Fprintf(e.Write, "Duration: %s\n", elapsedTime.String())
+	//fmt.Fprintf(e.Write, "Duration: %s\n", elapsedTime.String())
 
 	return nil
 }
