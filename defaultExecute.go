@@ -4,15 +4,15 @@ import (
 	"bufio"
 	"bytes"
 	"errors"
-	"fmt"
 	"os"
 	"os/exec"
-	//"time"
+	"time"
 )
 
 // DefaultExecute is a simple definition of an executor
 type DefaultExecute struct {
-	timeElapsed string
+	TimeElapsed string
+	Stdout string
 }
 
 // Execute takes a command and args and runs it, streaming output to stdout
@@ -39,20 +39,19 @@ func (e *DefaultExecute) Execute(command string, args []string) error {
 		}
 	}()
 
-	//timeInit := time.Now()
+	timeInit := time.Now()
 	err = cmd.Start()
 	if err != nil {
 		return errors.New("(DefaultExecute::Execute) -> " + err.Error())
 	}
 
 	err = cmd.Wait()
-	//elapsedTime := time.Since(timeInit)
 	if err != nil {
 		return errors.New("(DefaultExecute::Execute) -> " + stderr.String())
 	}
 
-	//fmt.Fprintf(e.Write, "Duration: %s\n", elapsedTime.String())
-	fmt.Println(stdBuf)
+	e.TimeElapsed = time.Since(timeInit).String()
+	e.Stdout = stdBuf
 
 	return nil
 }

@@ -4,6 +4,7 @@ import (
 	"errors"
 	"io"
 	"os"
+	"fmt"
 
 	common "github.com/apenella/go-common-utils/data"
 )
@@ -107,7 +108,7 @@ func (p *AnsiblePlaybookCmd) Run() error {
 
 	// Define a default executor when it is not defined on AnsiblePlaybookCmd
 	if p.Exec == nil {
-		p.Exec = &DefaultExecute{}
+		p.Exec = &DefaultExecute{TimeElapsed:"",Stdout:"",}
 	}
 
 	// Generate the command to be run
@@ -116,8 +117,13 @@ func (p *AnsiblePlaybookCmd) Run() error {
 		return errors.New("(ansible:Run) -> " + err.Error())
 	}
 
+	err = p.Exec.Execute(cmd[0], cmd[1:])
+	fmt.Printf("%+v", p.Exec)
+	//jsonOut := p.Exec.Stdout()
+	//timeElapsed := p.Exec.TimeElapsed()
+
 	// Execute the command an return
-	return p.Exec.Execute(cmd[0], cmd[1:])
+	return err
 }
 
 // Command generate the ansible-playbook command which will be executed
