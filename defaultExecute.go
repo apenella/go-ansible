@@ -10,13 +10,13 @@ import (
 )
 
 // DefaultExecute is a simple definition of an executor
-type DefaultExecute struct {
+type Executor struct {
 	TimeElapsed string
 	Stdout string
 }
 
 // Execute takes a command and args and runs it, streaming output to stdout
-func (e *DefaultExecute) Execute(command string, args []string) error {
+func (e *Executor) Execute(command string, args []string) error {
 
 	var stdBuf string
 	stderr := &bytes.Buffer{}

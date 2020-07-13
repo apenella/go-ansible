@@ -2,9 +2,8 @@ package ansibler
 
 import (
 	"errors"
-	"io"
+
 	"os"
-	"fmt"
 
 	common "github.com/apenella/go-common-utils/data"
 )
@@ -50,11 +49,6 @@ const (
 	AnsibleForceColorEnv = "ANSIBLE_FORCE_COLOR"
 )
 
-// Executor is and interface that should be implemented for those item which could run ansible playbooks
-type Executor interface {
-	Execute(command string, args []string) error
-}
-
 // AnsiblePlaybookCmd object is the main object which defines the `ansible-playbook` command and how to execute it.
 type AnsiblePlaybookCmd struct {
 	// Exec is the executor item
@@ -66,7 +60,7 @@ type AnsiblePlaybookCmd struct {
 	// ConnectionOptions are the ansible's playbook specific options for connection
 	ConnectionOptions *AnsiblePlaybookConnectionOptions
 	// Writer manages the output
-	Writer io.Writer
+	//Results *AnsiblePlaybookResults
 }
 
 // AnsiblePlaybookOptions object has those parameters described on `Options` section within ansible-playbook's man page, and which defines which should be the ansible-playbook execution behavior.
@@ -95,6 +89,11 @@ type AnsiblePlaybookConnectionOptions struct {
 	Connection string
 }
 
+type AnsiblePlaybookResults struct {
+	Stdout string
+	TimeElapsed string
+}
+
 // AnsibleForceColor change to a forced color mode
 func AnsibleForceColor() {
 	os.Setenv(AnsibleForceColorEnv, "true")
@@ -106,11 +105,6 @@ func (p *AnsiblePlaybookCmd) Run() error {
 		return errors.New("(ansible:Run) AnsiblePlaybookCmd is nil")
 	}
 
-	// Define a default executor when it is not defined on AnsiblePlaybookCmd
-	if p.Exec == nil {
-		p.Exec = &DefaultExecute{TimeElapsed:"",Stdout:"",}
-	}
-
 	// Generate the command to be run
 	cmd, err := p.Command()
 	if err != nil {
@@ -118,9 +112,8 @@ func (p *AnsiblePlaybookCmd) Run() error {
 	}
 
 	err = p.Exec.Execute(cmd[0], cmd[1:])
-	fmt.Printf("%+v", p.Exec)
-	//jsonOut := p.Exec.Stdout()
-	//timeElapsed := p.Exec.TimeElapsed()
+	//p.Res.Stdout = p.Exec.Stdout
+	//p.Res.TimeElapsed = p.Exec.TimeElapsed
 
 	// Execute the command an return
 	return err

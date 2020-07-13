@@ -311,10 +311,7 @@ func TestRun(t *testing.T) {
 		{
 			desc: "Run a ansiblePlaybookCmd",
 			ansiblePlaybookCmd: &AnsiblePlaybookCmd{
-				Exec: &MockExecute{
-					Write: &w,
-				},
-				Playbook: "test/ansible/site.yml",
+				Playbook: "test/test_site.yml",
 				ConnectionOptions: &AnsiblePlaybookConnectionOptions{
 					Connection: "local",
 				},
@@ -322,13 +319,12 @@ func TestRun(t *testing.T) {
 					Inventory: "test/ansible/inventory/all",
 				},
 			},
-			res: "ansible-playbook [--inventory test/ansible/inventory/all --connection local test/ansible/site.yml]",
+			res: "",
 			err: nil,
 		},
 		{
 			desc: "Run a ansiblePlaybookCmd without executor",
 			ansiblePlaybookCmd: &AnsiblePlaybookCmd{
-				Exec:     nil,
 				Playbook: "test/test_site.yml",
 				ConnectionOptions: &AnsiblePlaybookConnectionOptions{
 					Connection: "local",

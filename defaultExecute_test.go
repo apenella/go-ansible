@@ -10,14 +10,14 @@ func TestDefaultExecute(t *testing.T) {
 	tests := []struct {
 		desc    string
 		err     error
-		execute *DefaultExecute
+		execute *Executor
 		command []string
 		res     string
 	}{
 		{
 			desc: "Testing an execution",
 			err:  nil,
-			execute: &DefaultExecute{},
+			execute: &Executor{},
 			command: []string{"echo", "hello"},
 		},
 	}
