@@ -19,11 +19,8 @@ type DefaultExecute struct {
 // Execute takes a command and args and runs it, streaming output to stdout
 func (e *DefaultExecute) Execute(command string, args []string) error {
 
+	var stdBuf string
 	stderr := &bytes.Buffer{}
-
-	if e.Write == nil {
-		e.Write = os.Stdout
-	}
 
 	cmd := exec.Command(command, args...)
 	cmd.Env = os.Environ()
@@ -39,7 +36,7 @@ func (e *DefaultExecute) Execute(command string, args []string) error {
 	scanner := bufio.NewScanner(cmdReader)
 	go func() {
 		for scanner.Scan() {
-			fmt.Fprintf(e.Write, "%s\n",scanner.Text())
+			stdBuf = stdBuf +"\n"+ scanner.Text()
 		}
 	}()
 
@@ -56,6 +53,7 @@ func (e *DefaultExecute) Execute(command string, args []string) error {
 	}
 
 	//fmt.Fprintf(e.Write, "Duration: %s\n", elapsedTime.String())
+	fmt.Println(stdBuf)
 
 	return nil
 }
