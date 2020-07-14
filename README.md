@@ -4,10 +4,11 @@ Go-ansible is a package for running Ansible playbooks from Golang.
 This implementation is a fork of an upstream project and allows to better manipulate ansible output
 It only supports to run `ansible-playbook` with the most of its options.
 
-To run a `ansible-playbook` command you must define three objectes:
+To run a `ansible-playbook` command you must define four objectes:
 - **PlaybookCmd** object is the main object which defines the `ansible-playbook` command and how to execute it.
 - **PlaybookOptions** object has those parameters described on `Options` section within ansible-playbook's man page, and which defines how should be the `ansible-playbook` execution behavior and where to find execution configuration
 - **PlaybookConnectionOptions** object has those parameters described on `Connections Options` section within ansible-playbook's man page, and which defines how to connect to hosts.
+- **PlaybookResults** object that will be filled up with results after a ansible run
 
 ## Executor
 Go-ansible package has its own and default executor implementation which runs the `ansible-playbook`command and prints its output with a prefix on each line.
