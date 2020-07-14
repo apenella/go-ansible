@@ -1,6 +1,7 @@
 # go-ansible
 
 Go-ansible is a package for running Ansible playbooks from Golang.
+This implementation is a fork of an upstream project and allows to better manipulate ansible output
 It only supports to run `ansible-playbook` with the most of its options.
 
 To run a `ansible-playbook` command you must define three objectes:
@@ -10,40 +11,39 @@ To run a `ansible-playbook` command you must define three objectes:
 
 ## Executor
 Go-ansible package has its own and default executor implementation which runs the `ansible-playbook`command and prints its output with a prefix on each line.
-Whenever is required, you could write your own executor implementation and set it on `PlaybookCmd` object, it will expect that the executor implements `Executor` interface.
-```go
-type Executor interface {
-	Execute(command string, args []string, prefix string) error
+As opposed to the upstream project executor is not defined as an interface and user cannot use custom executor within modifying the library code , on the other hands library provides an embedded output parser that fills up using json output from ansible runs. In the example section below is described an example on how to grab data. Below is reported informations available in PlaybookResults struct that you can retrive after running an ansible playbook
+```
+type PlaybookResults struct {
+	RawStdout string //json output of the playbook run
+	TimeElapsed string //time elapsed for the playbook run
+	Changed  int64 //number of items changed
+    Failures int64 //number of failures
+    Ignored int64  // so on ...
+    Ok int64
+    Rescued int64
+    Skipped int64
+    Unreachable int64
 }
 ```
-
-Its possible to define your own executor and set it on `PlaybookCmd`.
-```go
-type MyExecutor struct {}
-func (e *MyExecutor) Execute(command string, args []string, prefix string) error {
-    fmt.Println("I am doing nothing")
-
-    return nil
-}
-
-playbook := &ansibler.PlaybookCmd{
-    Playbook:          "site.yml",
-    ConnectionOptions: ansiblePlaybookConnectionOptions,
-    Options:           ansiblePlaybookOptions,
-    Exec:              &MyExecutor{},
+To help you parse the PlaybookResults object ther is a function PlaybookResultsChecks that applies to PlaybookResults object and return error if failures > 0 or if host is unreachable.
+```
+func (r *PlaybookResults) PlaybookResultsChecks() error {
+	if r == nil {
+		return errors.New("(ansible:PlaybookResultsChecks) -> passed result is nil")
+	}
+	if r.Unreachable > 0 {
+		return errors.New("(ansible:Run) -> host is not reachable")
+	}
+	if r.Failures > 0 {
+		return errors.New("(ansible:Run) -> one of tasks defined in playbook is failing")
+	}
+	return nil
 }
 ```
-
-When you run the playbook using your dummy executor, the output received is the next one.
-```
-$ go run myexecutor-ansibleplaybook.go
-I am doing nothing
-```
-
 
 ## Example
 
-When is needed to run an `ansible-playbook` from your Golang application using `go-ansible` package, you must define a `PlaybookCmd`,`PlaybookOptions`, `PlaybookConnectionOptions` as its shown below.
+When is needed to run an `ansible-playbook` from your Golang application using `go-ansible` package, you must define a `PlaybookCmd`,`PlaybookOptions`, `PlaybookConnectionOptions` and `PlaybookResults` as its shown below.
 
 
 `PlaybookConnectionOptions` where is defined how to connect to hosts.
@@ -72,27 +72,12 @@ playbook := &ansibler.PlaybookCmd{
 
 Once the `PlaybookCmd` is already defined it could be run it using the `Run` method.
 ```go
-err := playbook.Run()
+
+res := &PlaybookResults{}
+res, err := playbook.Run()
+err = res.PlaybookResultsChecks() //you can obviously use a separated err var
 if err != nil {
     panic(err)
 }
-```
-
-The result of the `ansible-playbook` execution is shown below.
-```
-Go-ansible example =>
-Go-ansible example =>  PLAY [all] *********************************************************************
-Go-ansible example =>
-Go-ansible example =>  TASK [Gathering Facts] *********************************************************
-Go-ansible example =>  ok: [127.0.0.1]
-Go-ansible example =>
-Go-ansible example =>  TASK [simple-ansibleplaybook] **************************************************
-Go-ansible example =>  ok: [127.0.0.1] =>
-Go-ansible example =>    msg: Your are running 'simple-ansibleplaybook' example
-Go-ansible example =>
-Go-ansible example =>  PLAY RECAP *********************************************************************
-Go-ansible example =>  127.0.0.1                  : ok=2    changed=0    unreachable=0    failed=0    skipped=0    rescued=0    ignored=0
-Go-ansible example =>
-Go-ansible example =>  Playbook run took 0 days, 0 hours, 0 minutes, 1 seconds
-Duration: 1.816272213s
+fmt.Println(res.RawStdout)
 ```
