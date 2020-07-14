@@ -30,8 +30,10 @@ func TestAnsible(t *testing.T) {
 
 	res := &PlaybookResults{}
 	res, err := playbook.Run()
-	fmt.Println(res.Changed)
+	err = res.PlaybookResultsChecks()
 	if err != nil && assert.Error(t, err) {
 		assert.Equal(t, nil, err)
 	}
+	fmt.Println(res.Changed)
+
 }
