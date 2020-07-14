@@ -3,6 +3,7 @@ package ansibler
 import (
 	"bytes"
 	"errors"
+	"fmt"
 	"os"
 	"testing"
 
@@ -342,9 +343,10 @@ func TestRun(t *testing.T) {
 		w = bytes.Buffer{}
 
 		t.Log(test.desc)
-
-		err := test.ansiblePlaybookCmd.Run()
-		if err != nil && assert.Error(t, err) {
+		res := &PlaybookResults{}
+		res, err := test.ansiblePlaybookCmd.Run()
+		if err != nil && res!=nil && assert.Error(t, err) {
+			fmt.Println(res.Changed)
 			assert.Equal(t, test.err, err)
 		} else {
 			assert.Equal(t, test.res, w.String(), "Unexpected value")

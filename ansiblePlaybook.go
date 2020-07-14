@@ -2,7 +2,6 @@ package ansibler
 
 import (
 	"errors"
-	"fmt"
 	"github.com/tidwall/gjson"
 	"os"
 	common "github.com/apenella/go-common-utils/data"
@@ -107,7 +106,7 @@ func AnsibleForceColor() {
 }
 
 // Run method runs the ansible-playbook
-func (p *PlaybookCmd) Run() (*PlaybookResults ,error) {
+func (p *PlaybookCmd) Run() (*PlaybookResults,error) {
 	if p == nil {
 		return nil,errors.New("(ansible:Run) PlaybookCmd is nil")
 	}
@@ -120,7 +119,6 @@ func (p *PlaybookCmd) Run() (*PlaybookResults ,error) {
 
 	err = p.Exec.Execute(cmd[0], cmd[1:])
 
-	fmt.Println(p.Exec.Stdout)
 	if p.Exec.Stdout == "" {
 		return nil,errors.New("(ansible:Run) -> no stdout returned from playbook run")
 	}
@@ -321,7 +319,10 @@ func (r *PlaybookResults) AnsibleJsonParse(e Executor) error {
 }
 
 // PlaybookResultsChecks return a error if a critical issue is found in playbook stats
-func (r *PlaybookResults) PlaybookResultsChecks(e Executor) error {
+func (r *PlaybookResults) PlaybookResultsChecks() error {
+	if r == nil {
+		return errors.New("(ansible:PlaybookResultsChecks) -> passed result is nil")
+	}
 	if r.Unreachable > 0 {
 		return errors.New("(ansible:Run) -> host is not reachable")
 	}

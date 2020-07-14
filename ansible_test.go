@@ -2,7 +2,7 @@ package ansibler
 
 import (
 	"testing"
-
+	"fmt"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -28,8 +28,10 @@ func TestAnsible(t *testing.T) {
 		},
 	}
 
-	err := playbook.Run()
+	res := &PlaybookResults{}
+	res, err := playbook.Run()
 	if err != nil && assert.Error(t, err) {
+		fmt.Println(res.Changed)
 		assert.Equal(t, nil, err)
 	}
 }
