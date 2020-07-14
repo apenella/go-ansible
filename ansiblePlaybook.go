@@ -49,22 +49,22 @@ const (
 	AnsibleForceColorEnv = "ANSIBLE_FORCE_COLOR"
 )
 
-// AnsiblePlaybookCmd object is the main object which defines the `ansible-playbook` command and how to execute it.
-type AnsiblePlaybookCmd struct {
+// PlaybookCmd object is the main object which defines the `ansible-playbook` command and how to execute it.
+type PlaybookCmd struct {
 	// Exec is the executor item
 	Exec Executor
 	// Playbook is the ansible's playbook name to be used
 	Playbook string
 	// Options are the ansible's playbook options
-	Options *AnsiblePlaybookOptions
+	Options *PlaybookOptions
 	// ConnectionOptions are the ansible's playbook specific options for connection
-	ConnectionOptions *AnsiblePlaybookConnectionOptions
+	ConnectionOptions *PlaybookConnectionOptions
 	// Writer manages the output
-	Res AnsiblePlaybookResults
+	Res PlaybookResults
 }
 
-// AnsiblePlaybookOptions object has those parameters described on `Options` section within ansible-playbook's man page, and which defines which should be the ansible-playbook execution behavior.
-type AnsiblePlaybookOptions struct {
+// PlaybookOptions object has those parameters described on `Options` section within ansible-playbook's man page, and which defines which should be the ansible-playbook execution behavior.
+type PlaybookOptions struct {
 	// ExtraVars is a map of extra variables used on ansible-playbook execution
 	ExtraVars map[string]interface{}
 	// FlushCache clear the fact cache for every host in inventory
@@ -83,13 +83,13 @@ type AnsiblePlaybookOptions struct {
 	Tags string
 }
 
-// AnsiblePlaybookConnectionOptions object has those parameters described on `Connections Options` section within ansible-playbook's man page, and which defines how to connect to hosts.
-type AnsiblePlaybookConnectionOptions struct {
+// PlaybookConnectionOptions object has those parameters described on `Connections Options` section within ansible-playbook's man page, and which defines how to connect to hosts.
+type PlaybookConnectionOptions struct {
 	// Connection is the type of connection used by ansible-playbook
 	Connection string
 }
 
-type AnsiblePlaybookResults struct {
+type PlaybookResults struct {
 	Stdout string
 	TimeElapsed string
 }
@@ -100,9 +100,9 @@ func AnsibleForceColor() {
 }
 
 // Run method runs the ansible-playbook
-func (p *AnsiblePlaybookCmd) Run() error {
+func (p *PlaybookCmd) Run() error {
 	if p == nil {
-		return errors.New("(ansible:Run) AnsiblePlaybookCmd is nil")
+		return errors.New("(ansible:Run) PlaybookCmd is nil")
 	}
 
 	// Generate the command to be run
@@ -120,7 +120,7 @@ func (p *AnsiblePlaybookCmd) Run() error {
 }
 
 // Command generate the ansible-playbook command which will be executed
-func (p *AnsiblePlaybookCmd) Command() ([]string, error) {
+func (p *PlaybookCmd) Command() ([]string, error) {
 	cmd := []string{}
 	// Set the ansible-playbook binary file
 	cmd = append(cmd, AnsiblePlaybookBin)
@@ -154,11 +154,11 @@ func (p *AnsiblePlaybookCmd) Command() ([]string, error) {
 }
 
 // GenerateCommandOptions return a list of options flags to be used on ansible-playbook execution
-func (o *AnsiblePlaybookOptions) GenerateCommandOptions() ([]string, error) {
+func (o *PlaybookOptions) GenerateCommandOptions() ([]string, error) {
 	cmd := []string{}
 
 	if o == nil {
-		return nil, errors.New("(ansible::GenerateCommandOptions) AnsiblePlaybookOptions is nil")
+		return nil, errors.New("(ansible::GenerateCommandOptions) PlaybookOptions is nil")
 	}
 
 	if o.FlushCache {
@@ -205,7 +205,7 @@ func (o *AnsiblePlaybookOptions) GenerateCommandOptions() ([]string, error) {
 }
 
 // generateExtraVarsCommand return an string which is a json structure having all the extra variable
-func (o *AnsiblePlaybookOptions) generateExtraVarsCommand() (string, error) {
+func (o *PlaybookOptions) generateExtraVarsCommand() (string, error) {
 
 	extraVars, err := common.ObjectToJSONString(o.ExtraVars)
 	if err != nil {
@@ -215,7 +215,7 @@ func (o *AnsiblePlaybookOptions) generateExtraVarsCommand() (string, error) {
 }
 
 // AddExtraVar registers a new extra variable on ansible-playbook options item
-func (o *AnsiblePlaybookOptions) AddExtraVar(name string, value interface{}) error {
+func (o *PlaybookOptions) AddExtraVar(name string, value interface{}) error {
 
 	if o.ExtraVars == nil {
 		o.ExtraVars = map[string]interface{}{}
@@ -231,7 +231,7 @@ func (o *AnsiblePlaybookOptions) AddExtraVar(name string, value interface{}) err
 }
 
 // GenerateCommandConnectionOptions return a list of connection options flags to be used on ansible-playbook execution
-func (o *AnsiblePlaybookConnectionOptions) GenerateCommandConnectionOptions() ([]string, error) {
+func (o *PlaybookConnectionOptions) GenerateCommandConnectionOptions() ([]string, error) {
 	cmd := []string{}
 
 	if o.Connection != "" {

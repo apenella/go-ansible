@@ -6,15 +6,15 @@ import (
 
 func main() {
 
-	ansiblePlaybookConnectionOptions := &ansibler.AnsiblePlaybookConnectionOptions{
+	ansiblePlaybookConnectionOptions := &ansibler.PlaybookConnectionOptions{
 		Connection: "local",
 	}
 
-	ansiblePlaybookOptions := &ansibler.AnsiblePlaybookOptions{
+	ansiblePlaybookOptions := &ansibler.PlaybookOptions{
 		Inventory: "127.0.0.1,",
 	}
 
-	playbook := &ansibler.AnsiblePlaybookCmd{
+	playbook := &ansibler.PlaybookCmd{
 		Playbook:          "site.yml",
 		ConnectionOptions: ansiblePlaybookConnectionOptions,
 		Options:           ansiblePlaybookOptions,

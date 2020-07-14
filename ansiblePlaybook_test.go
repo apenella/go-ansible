@@ -13,13 +13,13 @@ import (
 func TestGenerateCommandConnectionOptions(t *testing.T) {
 	tests := []struct {
 		desc                             string
-		ansiblePlaybookConnectionOptions *AnsiblePlaybookConnectionOptions
+		ansiblePlaybookConnectionOptions *PlaybookConnectionOptions
 		err                              error
 		options                          []string
 	}{
 		{
 			desc: "Testing generate connection options",
-			ansiblePlaybookConnectionOptions: &AnsiblePlaybookConnectionOptions{
+			ansiblePlaybookConnectionOptions: &PlaybookConnectionOptions{
 				Connection: "local",
 			},
 			err: nil,
@@ -48,25 +48,25 @@ func TestGenerateCommandConnectionOptions(t *testing.T) {
 func TestGenerateCommandOptions(t *testing.T) {
 	tests := []struct {
 		desc                   string
-		ansiblePlaybookOptions *AnsiblePlaybookOptions
+		ansiblePlaybookOptions *PlaybookOptions
 		err                    error
 		options                []string
 	}{
 		{
-			desc:                   "Testing nil AnsiblePlaybookOptions definition",
+			desc:                   "Testing nil PlaybookOptions definition",
 			ansiblePlaybookOptions: nil,
-			err:                    errors.New("(ansible::GenerateCommandOptions) AnsiblePlaybookOptions is nil"),
+			err:                    errors.New("(ansible::GenerateCommandOptions) PlaybookOptions is nil"),
 			options:                nil,
 		},
 		{
-			desc:                   "Testing an empty AnsiblePlaybookOptions definition",
-			ansiblePlaybookOptions: &AnsiblePlaybookOptions{},
+			desc:                   "Testing an empty PlaybookOptions definition",
+			ansiblePlaybookOptions: &PlaybookOptions{},
 			err:                    nil,
 			options:                []string{},
 		},
 		{
-			desc: "Testing AnsiblePlaybookOptions except extra vars",
-			ansiblePlaybookOptions: &AnsiblePlaybookOptions{
+			desc: "Testing PlaybookOptions except extra vars",
+			ansiblePlaybookOptions: &PlaybookOptions{
 				FlushCache: true,
 				Inventory:  "inventory",
 				Limit:      "limit",
@@ -79,8 +79,8 @@ func TestGenerateCommandOptions(t *testing.T) {
 			options: []string{"--flush-cache", "--inventory", "inventory", "--limit", "limit", "--list-hosts", "--list-tags", "--list-tasks", "--tags", "tags"},
 		},
 		{
-			desc: "Testing AnsiblePlaybookOptions with extra vars",
-			ansiblePlaybookOptions: &AnsiblePlaybookOptions{
+			desc: "Testing PlaybookOptions with extra vars",
+			ansiblePlaybookOptions: &PlaybookOptions{
 				ExtraVars: map[string]interface{}{
 					"extra": "var",
 				},
@@ -114,13 +114,13 @@ func TestGenerateExtraVarsCommand(t *testing.T) {
 
 	tests := []struct {
 		desc                   string
-		ansiblePlaybookOptions *AnsiblePlaybookOptions
+		ansiblePlaybookOptions *PlaybookOptions
 		err                    error
 		extravars              string
 	}{
 		{
 			desc: "Testing extra vars map[string]string",
-			ansiblePlaybookOptions: &AnsiblePlaybookOptions{
+			ansiblePlaybookOptions: &PlaybookOptions{
 				ExtraVars: map[string]interface{}{
 					"extra": "var",
 				},
@@ -130,7 +130,7 @@ func TestGenerateExtraVarsCommand(t *testing.T) {
 		},
 		{
 			desc: "Testing extra vars map[string]bool",
-			ansiblePlaybookOptions: &AnsiblePlaybookOptions{
+			ansiblePlaybookOptions: &PlaybookOptions{
 				ExtraVars: map[string]interface{}{
 					"extra": true,
 				},
@@ -140,7 +140,7 @@ func TestGenerateExtraVarsCommand(t *testing.T) {
 		},
 		{
 			desc: "Testing extra vars map[string]int",
-			ansiblePlaybookOptions: &AnsiblePlaybookOptions{
+			ansiblePlaybookOptions: &PlaybookOptions{
 				ExtraVars: map[string]interface{}{
 					"extra": 10,
 				},
@@ -150,7 +150,7 @@ func TestGenerateExtraVarsCommand(t *testing.T) {
 		},
 		{
 			desc: "Testing extra vars map[string][]string",
-			ansiblePlaybookOptions: &AnsiblePlaybookOptions{
+			ansiblePlaybookOptions: &PlaybookOptions{
 				ExtraVars: map[string]interface{}{
 					"extra": []string{"var"},
 				},
@@ -160,7 +160,7 @@ func TestGenerateExtraVarsCommand(t *testing.T) {
 		},
 		{
 			desc: "Testing extra vars map[string]map[string]string",
-			ansiblePlaybookOptions: &AnsiblePlaybookOptions{
+			ansiblePlaybookOptions: &PlaybookOptions{
 				ExtraVars: map[string]interface{}{
 					"extra": map[string]string{
 						"var": "value",
@@ -188,7 +188,7 @@ func TestGenerateExtraVarsCommand(t *testing.T) {
 func TestAddExtraVar(t *testing.T) {
 	tests := []struct {
 		desc                   string
-		ansiblePlaybookOptions *AnsiblePlaybookOptions
+		ansiblePlaybookOptions *PlaybookOptions
 		err                    error
 		extraVarName           string
 		extraVarValue          interface{}
@@ -196,7 +196,7 @@ func TestAddExtraVar(t *testing.T) {
 	}{
 		{
 			desc: "Testing add an extraVar to a nil data structure",
-			ansiblePlaybookOptions: &AnsiblePlaybookOptions{
+			ansiblePlaybookOptions: &PlaybookOptions{
 				ExtraVars: nil,
 			},
 			err:           nil,
@@ -208,7 +208,7 @@ func TestAddExtraVar(t *testing.T) {
 		},
 		{
 			desc: "Testing add an extraVar",
-			ansiblePlaybookOptions: &AnsiblePlaybookOptions{
+			ansiblePlaybookOptions: &PlaybookOptions{
 				ExtraVars: map[string]interface{}{
 					"extra1": "var1",
 				},
@@ -223,7 +223,7 @@ func TestAddExtraVar(t *testing.T) {
 		},
 		{
 			desc: "Testing add an existing extraVar",
-			ansiblePlaybookOptions: &AnsiblePlaybookOptions{
+			ansiblePlaybookOptions: &PlaybookOptions{
 				ExtraVars: map[string]interface{}{
 					"extra": "var",
 				},
@@ -254,18 +254,18 @@ func TestCommand(t *testing.T) {
 	tests := []struct {
 		desc               string
 		err                error
-		ansiblePlaybookCmd *AnsiblePlaybookCmd
+		ansiblePlaybookCmd *PlaybookCmd
 		command            []string
 	}{
 		{
 			desc: "",
 			err:  nil,
-			ansiblePlaybookCmd: &AnsiblePlaybookCmd{
+			ansiblePlaybookCmd: &PlaybookCmd{
 				Playbook: "test/ansible/site.yml",
-				ConnectionOptions: &AnsiblePlaybookConnectionOptions{
+				ConnectionOptions: &PlaybookConnectionOptions{
 					Connection: "local",
 				},
-				Options: &AnsiblePlaybookOptions{
+				Options: &PlaybookOptions{
 					Inventory: "test/ansible/inventory/all",
 				},
 			},
@@ -298,7 +298,7 @@ func TestRun(t *testing.T) {
 
 	tests := []struct {
 		desc               string
-		ansiblePlaybookCmd *AnsiblePlaybookCmd
+		ansiblePlaybookCmd *PlaybookCmd
 		res                string
 		err                error
 	}{
@@ -306,16 +306,16 @@ func TestRun(t *testing.T) {
 			desc:               "Run nil ansiblePlaybookCmd",
 			ansiblePlaybookCmd: nil,
 			res:                "",
-			err:                errors.New("(ansible:Run) AnsiblePlaybookCmd is nil"),
+			err:                errors.New("(ansible:Run) PlaybookCmd is nil"),
 		},
 		{
 			desc: "Run a ansiblePlaybookCmd",
-			ansiblePlaybookCmd: &AnsiblePlaybookCmd{
+			ansiblePlaybookCmd: &PlaybookCmd{
 				Playbook: "test/test_site.yml",
-				ConnectionOptions: &AnsiblePlaybookConnectionOptions{
+				ConnectionOptions: &PlaybookConnectionOptions{
 					Connection: "local",
 				},
-				Options: &AnsiblePlaybookOptions{
+				Options: &PlaybookOptions{
 					Inventory: "test/ansible/inventory/all",
 				},
 			},
@@ -324,12 +324,12 @@ func TestRun(t *testing.T) {
 		},
 		{
 			desc: "Run a ansiblePlaybookCmd without executor",
-			ansiblePlaybookCmd: &AnsiblePlaybookCmd{
+			ansiblePlaybookCmd: &PlaybookCmd{
 				Playbook: "test/test_site.yml",
-				ConnectionOptions: &AnsiblePlaybookConnectionOptions{
+				ConnectionOptions: &PlaybookConnectionOptions{
 					Connection: "local",
 				},
-				Options: &AnsiblePlaybookOptions{
+				Options: &PlaybookOptions{
 					Inventory: "test/all",
 				},
 			},

@@ -4,20 +4,20 @@ Go-ansible is a package for running Ansible playbooks from Golang.
 It only supports to run `ansible-playbook` with the most of its options.
 
 To run a `ansible-playbook` command you must define three objectes:
-- **AnsiblePlaybookCmd** object is the main object which defines the `ansible-playbook` command and how to execute it.
-- **AnsiblePlaybookOptions** object has those parameters described on `Options` section within ansible-playbook's man page, and which defines how should be the `ansible-playbook` execution behavior and where to find execution configuration
-- **AnsiblePlaybookConnectionOptions** object has those parameters described on `Connections Options` section within ansible-playbook's man page, and which defines how to connect to hosts.
+- **PlaybookCmd** object is the main object which defines the `ansible-playbook` command and how to execute it.
+- **PlaybookOptions** object has those parameters described on `Options` section within ansible-playbook's man page, and which defines how should be the `ansible-playbook` execution behavior and where to find execution configuration
+- **PlaybookConnectionOptions** object has those parameters described on `Connections Options` section within ansible-playbook's man page, and which defines how to connect to hosts.
 
 ## Executor
 Go-ansible package has its own and default executor implementation which runs the `ansible-playbook`command and prints its output with a prefix on each line.
-Whenever is required, you could write your own executor implementation and set it on `AnsiblePlaybookCmd` object, it will expect that the executor implements `Executor` interface.
+Whenever is required, you could write your own executor implementation and set it on `PlaybookCmd` object, it will expect that the executor implements `Executor` interface.
 ```go
 type Executor interface {
 	Execute(command string, args []string, prefix string) error
 }
 ```
 
-Its possible to define your own executor and set it on `AnsiblePlaybookCmd`.
+Its possible to define your own executor and set it on `PlaybookCmd`.
 ```go
 type MyExecutor struct {}
 func (e *MyExecutor) Execute(command string, args []string, prefix string) error {
@@ -26,7 +26,7 @@ func (e *MyExecutor) Execute(command string, args []string, prefix string) error
     return nil
 }
 
-playbook := &ansibler.AnsiblePlaybookCmd{
+playbook := &ansibler.PlaybookCmd{
     Playbook:          "site.yml",
     ConnectionOptions: ansiblePlaybookConnectionOptions,
     Options:           ansiblePlaybookOptions,
@@ -43,26 +43,26 @@ I am doing nothing
 
 ## Example
 
-When is needed to run an `ansible-playbook` from your Golang application using `go-ansible` package, you must define a `AnsiblePlaybookCmd`,`AnsiblePlaybookOptions`, `AnsiblePlaybookConnectionOptions` as its shown below.
+When is needed to run an `ansible-playbook` from your Golang application using `go-ansible` package, you must define a `PlaybookCmd`,`PlaybookOptions`, `PlaybookConnectionOptions` as its shown below.
 
 
-`AnsiblePlaybookConnectionOptions` where is defined how to connect to hosts.
+`PlaybookConnectionOptions` where is defined how to connect to hosts.
 ```go
-ansiblePlaybookConnectionOptions := &ansibler.AnsiblePlaybookConnectionOptions{
+ansiblePlaybookConnectionOptions := &ansibler.PlaybookConnectionOptions{
 	Connection: "local",
 }
 ```
 
-`AnsiblePlaybookOptions` where is defined which should be the `ansible-playbook` execution behavior and where to find execution configuration.
+`PlaybookOptions` where is defined which should be the `ansible-playbook` execution behavior and where to find execution configuration.
 ```go
-ansiblePlaybookOptions := &ansibler.AnsiblePlaybookOptions{
+ansiblePlaybookOptions := &ansibler.PlaybookOptions{
     Inventory: "127.0.0.1,",
 }
 ```
 
-`AnsiblePlaybookCmd` where is defined the command execution.
+`PlaybookCmd` where is defined the command execution.
 ```go
-playbook := &ansibler.AnsiblePlaybookCmd{
+playbook := &ansibler.PlaybookCmd{
     Playbook:          "site.yml",
     ConnectionOptions: ansiblePlaybookConnectionOptions,
     Options:           ansiblePlaybookOptions,
@@ -70,7 +70,7 @@ playbook := &ansibler.AnsiblePlaybookCmd{
 }
 ```
 
-Once the `AnsiblePlaybookCmd` is already defined it could be run it using the `Run` method.
+Once the `PlaybookCmd` is already defined it could be run it using the `Run` method.
 ```go
 err := playbook.Run()
 if err != nil {
