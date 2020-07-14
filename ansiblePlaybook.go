@@ -120,6 +120,7 @@ func (p *PlaybookCmd) Run() error {
 
 	err = p.Exec.Execute(cmd[0], cmd[1:])
 
+	fmt.Println(p.Exec.Stdout)
 	if p.Exec.Stdout == "" {
 		return errors.New("(ansible:Run) -> no stdout returned from playbook run")
 	}
@@ -254,9 +255,13 @@ func (o *PlaybookConnectionOptions) GenerateCommandConnectionOptions() ([]string
 	return cmd, nil
 }
 
+// AnsibleJsonParse parse output and retrive playbook stats
 func (r *PlaybookResults) AnsibleJsonParse(e Executor) error {
 	stdout := e.Stdout
 
+	r.RawStdout = stdout
+
+	//verify json
 	if !gjson.Valid(stdout) {
 		return errors.New("(ansible:Run) -> invalid json returned after ansible run")
 	}
@@ -312,6 +317,16 @@ func (r *PlaybookResults) AnsibleJsonParse(e Executor) error {
 		r.Unreachable = value.Int()
 	}
 
-	fmt.Println(r.Unreachable)
+	return nil
+}
+
+// PlaybookResultsChecks return a error if a critical issue is found in playbook stats
+func (r *PlaybookResults) PlaybookResultsChecks(e Executor) error {
+	if r.Unreachable > 0 {
+		return errors.New("(ansible:Run) -> host is not reachable")
+	}
+	if r.Failures > 0 {
+		return errors.New("(ansible:Run) -> one of tasks defined in playbook is failing")
+	}
 	return nil
 }

@@ -1,9 +1,8 @@
 ---
 
 - hosts: local
+  gather_facts: no
 
   tasks:
     - name: Print line
-      debug:
-        msg: That's a message to debug
-
+      command: ping -c 4 8.8.8.8
