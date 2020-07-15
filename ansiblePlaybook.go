@@ -106,7 +106,7 @@ func AnsibleForceColor() {
 }
 
 // Run method runs the ansible-playbook
-func (p *PlaybookCmd) Run() (*PlaybookResults,error) {
+func (p *PlaybookCmd) Run() (PlaybookResults,error) {
 	if p == nil {
 		return nil,errors.New("(ansible:Run) PlaybookCmd is nil")
 	}
