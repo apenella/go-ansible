@@ -106,24 +106,21 @@ func AnsibleForceColor() {
 }
 
 // Run method runs the ansible-playbook
-func (p *PlaybookCmd) Run() (PlaybookResults,error) {
+func (p *PlaybookCmd) Run() (*PlaybookResults,error) {
 	if p == nil {
-		r := &PlaybookResults{}
-		return r,errors.New("(ansible:Run) PlaybookCmd is nil")
+		return nil,errors.New("(ansible:Run) PlaybookCmd is nil")
 	}
 
 	// Generate the command to be run
 	cmd, err := p.Command()
 	if err != nil {
-		r := &PlaybookResults{}
-		return r,errors.New("(ansible:Run) -> " + err.Error())
+		return nil,errors.New("(ansible:Run) -> " + err.Error())
 	}
 
 	err = p.Exec.Execute(cmd[0], cmd[1:])
 
 	if p.Exec.Stdout == "" {
-		r := &PlaybookResults{}
-		return r,errors.New("(ansible:Run) -> no stdout returned from playbook run")
+		return nil,errors.New("(ansible:Run) -> no stdout returned from playbook run")
 	}
 
 	r := &PlaybookResults{}
