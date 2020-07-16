@@ -1,4 +1,4 @@
-/*
+
 package ansibler
 
 import (
@@ -352,4 +352,3 @@ func TestRun(t *testing.T) {
 		}
 	}
 }
-*/
