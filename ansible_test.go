@@ -34,6 +34,6 @@ func TestAnsible(t *testing.T) {
 	if err != nil && assert.Error(t, err) {
 		assert.Equal(t, nil, err)
 	}
-	fmt.Println(res.Changed)
+	fmt.Println(res.RawStdout)
 
 }
