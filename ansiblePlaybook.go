@@ -119,8 +119,8 @@ func (p *PlaybookCmd) Run() (*PlaybookResults,error) {
 
 	exe, err := p.Exec.Execute(cmd[0], cmd[1:])
 
-	if exe.Stdout == "" {
-		return nil,errors.New("(ansible:Run) -> no stdout returned from playbook run")
+	if exe == nil {
+		return nil, errors.New("(ansible:Run) -> no stdout returned from playbook run")
 	}
 
 	r := &PlaybookResults{}
