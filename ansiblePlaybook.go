@@ -117,14 +117,14 @@ func (p *PlaybookCmd) Run() (*PlaybookResults,error) {
 		return nil,errors.New("(ansible:Run) -> " + err.Error())
 	}
 
-	err = p.Exec.Execute(cmd[0], cmd[1:])
+	exe, err = p.Exec.Execute(cmd[0], cmd[1:])
 
-	if p.Exec.Stdout == "" {
+	if exe.Stdout == "" {
 		return nil,errors.New("(ansible:Run) -> no stdout returned from playbook run")
 	}
 
 	r := &PlaybookResults{}
-	r.AnsibleJsonParse(p.Exec)
+	r.AnsibleJsonParse(exe)
 
 	// Execute the command an return
 	return r,err

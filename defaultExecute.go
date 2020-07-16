@@ -17,7 +17,7 @@ type Executor struct {
 }
 
 // Execute takes a command and args and runs it, streaming output to stdout
-func (e *Executor) Execute(command string, args []string) error {
+func (e *Executor) Execute(command string, args []string) (*Executor, error) {
 
 	var stdBuf string
 	stderr := &bytes.Buffer{}
@@ -30,7 +30,7 @@ func (e *Executor) Execute(command string, args []string) error {
 
 	cmdReader, err := cmd.StdoutPipe()
 	if err != nil {
-		return errors.New("(DefaultExecute::Execute) -> " + err.Error())
+		return nil,errors.New("(DefaultExecute::Execute) -> " + err.Error())
 	}
 
 	scanner := bufio.NewScanner(cmdReader)
@@ -44,17 +44,16 @@ func (e *Executor) Execute(command string, args []string) error {
 	timeInit := time.Now()
 	err = cmd.Start()
 	if err != nil {
-		return errors.New("(DefaultExecute::Execute) -> " + err.Error())
+		return nil,errors.New("(DefaultExecute::Execute) -> " + err.Error())
 	}
 
 	err = cmd.Wait()
 	if err != nil {
-		return errors.New("(DefaultExecute::Execute) -> " + stderr.String())
+		return nil,errors.New("(DefaultExecute::Execute) -> " + stderr.String())
 	}
 
 	e.TimeElapsed = time.Since(timeInit).String()
-	//e.Stdout = stdBuf
-	e.Stdout = "HELLO"
-	
-	return nil
+	e.Stdout = stdBuf
+
+	return e, nil
 }
