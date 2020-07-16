@@ -52,6 +52,7 @@ func (e *Executor) Execute(command string, args []string) error {
 
 	e.TimeElapsed = time.Since(timeInit).String()
 	e.Stdout = stdBuf
+	fmt.Println(stdbuf)
 
 	return nil
 }
