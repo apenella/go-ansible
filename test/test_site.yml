@@ -1,6 +1,6 @@
 ---
 
-- hosts: local
+- hosts: all
   gather_facts: no
 
   tasks:

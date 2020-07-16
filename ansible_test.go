@@ -14,7 +14,7 @@ func TestAnsible(t *testing.T) {
 			Connection: "local",
 		},
 		Options: &PlaybookOptions{
-			Inventory: "test/all",
+			Inventory: "127.0.0.1,",
 			ExtraVars: map[string]interface{}{
 				"string": "testing an string",
 				"bool":   true,
@@ -28,6 +28,7 @@ func TestAnsible(t *testing.T) {
 		},
 	}
 
+	
 	res := &PlaybookResults{}
 	res, err := playbook.Run()
 	err = res.PlaybookResultsChecks()

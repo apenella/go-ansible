@@ -58,8 +58,6 @@ type PlaybookCmd struct {
 	Options *PlaybookOptions
 	// ConnectionOptions are the ansible's playbook specific options for connection
 	ConnectionOptions *PlaybookConnectionOptions
-	// Writer manages the output
-	Res PlaybookResults
 }
 
 // PlaybookOptions object has those parameters described on `Options` section within ansible-playbook's man page, and which defines which should be the ansible-playbook execution behavior.
@@ -116,7 +114,6 @@ func (p *PlaybookCmd) Run() (*PlaybookResults,error) {
 	if err != nil {
 		return nil,errors.New("(ansible:Run) -> " + err.Error())
 	}
-
 	err = p.Exec.Execute(cmd[0], cmd[1:])
 
 	if p.Exec.Stdout == "" {
