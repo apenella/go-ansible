@@ -34,11 +34,10 @@ func (e *Executor) Execute(command string, args []string) error {
 	}
 
 	scanner := bufio.NewScanner(cmdReader)
-	go func() {
-		for scanner.Scan() {
+
+	for scanner.Scan() {
 			stdBuf = stdBuf +"\n"+ scanner.Text()
-		}
-	}()
+	}
 
 	timeInit := time.Now()
 	err = cmd.Start()
