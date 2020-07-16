@@ -124,7 +124,7 @@ func (p *PlaybookCmd) Run() (*PlaybookResults,error) {
 	}
 
 	r := &PlaybookResults{}
-	r.AnsibleJsonParse(&exe)
+	r.AnsibleJsonParse(exe)
 
 	// Execute the command an return
 	return r,err
@@ -254,7 +254,7 @@ func (o *PlaybookConnectionOptions) GenerateCommandConnectionOptions() ([]string
 }
 
 // AnsibleJsonParse parse output and retrive playbook stats
-func (r *PlaybookResults) AnsibleJsonParse(e Executor) error {
+func (r *PlaybookResults) AnsibleJsonParse(e *Executor) error {
 	stdout := e.Stdout
 
 	r.RawStdout = stdout
