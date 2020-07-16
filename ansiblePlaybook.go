@@ -124,7 +124,7 @@ func (p *PlaybookCmd) Run() (*PlaybookResults,error) {
 	}
 
 	r := &PlaybookResults{}
-	r.AnsibleJsonParse(exe)
+	r.AnsibleJsonParse(&exe)
 
 	// Execute the command an return
 	return r,err
