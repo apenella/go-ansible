@@ -34,6 +34,7 @@ func (e *Executor) Execute(command string, args []string) error {
 	}
 
 	scanner := bufio.NewScanner(cmdReader)
+	stdBuf = "HELLO"
 	go func() {
 		for scanner.Scan() {
 			stdBuf = stdBuf +"\n"+ scanner.Text()
