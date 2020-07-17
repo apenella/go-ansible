@@ -1,9 +1,7 @@
 package ansibler
 
 import (
-
 	"bufio"
-	"bytes"
 	"errors"
 	"os"
 	"os/exec"
@@ -13,20 +11,19 @@ import (
 // DefaultExecute is a simple definition of an executor
 type Executor struct {
 	TimeElapsed string
-	Stdout string
+	Stdout      string
+	ExitCode    string
 }
 
 // Execute takes a command and args and runs it, streaming output to stdout
-func (e *Executor) Execute(command string, args []string) ( error) {
+func (e *Executor) Execute(command string, args []string) error {
 
 	var stdBuf string
-	stderr := &bytes.Buffer{}
 
 	cmd := exec.Command(command, args...)
 	cmd.Env = os.Environ()
-    cmd.Env = append(cmd.Env, "ANSIBLE_STDOUT_CALLBACK=json")
-    cmd.Env = append(cmd.Env, "ANSIBLE_HOST_KEY_CHECKING=False")
-	cmd.Stderr = stderr
+	cmd.Env = append(cmd.Env, "ANSIBLE_STDOUT_CALLBACK=json")
+	cmd.Env = append(cmd.Env, "ANSIBLE_HOST_KEY_CHECKING=False")
 
 	cmdReader, err := cmd.StdoutPipe()
 	if err != nil {
@@ -37,23 +34,30 @@ func (e *Executor) Execute(command string, args []string) ( error) {
 
 	go func() {
 		for scanner.Scan() {
-			stdBuf = stdBuf +"\n"+ scanner.Text()
+			stdBuf = stdBuf + "\n" + scanner.Text()
 		}
 	}()
 
 	timeInit := time.Now()
 	err = cmd.Start()
+
 	if err != nil {
 		return errors.New("(DefaultExecute::Execute) -> " + err.Error())
 	}
 
 	err = cmd.Wait()
+
+	//playbook failed, return empty executor with just exit code
 	if err != nil {
-		return errors.New("(DefaultExecute::Execute) -> " + stderr.String())
+		e.TimeElapsed = "0"
+		e.Stdout = ""
+		e.ExitCode = err.Error()
+		return nil
 	}
 
 	e.TimeElapsed = time.Since(timeInit).String()
 	e.Stdout = stdBuf
+	e.ExitCode = "exit status 0"
 
 	return nil
 }

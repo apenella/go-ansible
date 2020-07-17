@@ -14,7 +14,7 @@ func TestAnsible(t *testing.T) {
 			Connection: "local",
 		},
 		Options: &PlaybookOptions{
-			Inventory: "127.0.0.1,",
+			Inventory: "test/all",
 			ExtraVars: map[string]interface{}{
 				"string": "testing an string",
 				"bool":   true,
@@ -28,13 +28,16 @@ func TestAnsible(t *testing.T) {
 		},
 	}
 
-	
-	res := &PlaybookResults{}
+
 	res, err := playbook.Run()
-	err = res.PlaybookResultsChecks()
 	if err != nil && assert.Error(t, err) {
+		fmt.Println(err.Error())
 		assert.Equal(t, nil, err)
 	}
-	fmt.Println(res.RawStdout)
+	err = res.PlaybookResultsChecks()
+	if err == nil {
+		fmt.Println(res.RawStdout)
+	}
+
 
 }

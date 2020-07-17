@@ -5,4 +5,4 @@
 
   tasks:
     - name: Print line
-      command: ping -c 4 8.8.8.8
+      command: ping -c 1 8.8.80.80
