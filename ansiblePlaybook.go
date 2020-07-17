@@ -127,17 +127,17 @@ func (p *PlaybookCmd) Run() (*PlaybookResults,error) {
 	string.Replace(cmdump, "}", "}'", 1)
 	switch p.Exec.ExitCode {
 		case "exit status 2":
-			return nil, errors.New("(ansible:Run) -> process exited with exit code 2, this means that one or more host failed running playbook "+p.Playbook+"\nthis most likely is a playbook error, try to run it standalone using command:\n[CMDUMP] "+cmd+"\nif you expect this behavior by playbook you can set 'ignore_errors: yes' on failing blocks")
+			return nil, errors.New("(ansible:Run) -> process exited with exit code 2, this means that one or more host failed running playbook "+p.Playbook+"\nthis most likely is a playbook error, try to run it standalone using command:\n[CMDUMP] "+cmdump+"\nif you expect this behavior by playbook you can set 'ignore_errors: yes' on failing blocks")
 		case "exit status 3":
-			return nil, errors.New("(ansible:Run) -> process exited with exit code 3, this means that one or more hosts are unreachable "+p.Playbook+"\n[CMDUMP] "+cmd)
+			return nil, errors.New("(ansible:Run) -> process exited with exit code 3, this means that one or more hosts are unreachable "+p.Playbook+"\n[CMDUMP] "+cmdump)
 		case "exit status 4":
-			return nil, errors.New("(ansible:Run) -> process exited with exit code 4, this means that an error occurred parsing playbook or the host is unreachable"+p.Playbook+"\n[CMDUMP] "+cmd)
+			return nil, errors.New("(ansible:Run) -> process exited with exit code 4, this means that an error occurred parsing playbook or the host is unreachable"+p.Playbook+"\n[CMDUMP] "+cmdump)
 		case "exit status 5":
-			return nil, errors.New("(ansible:Run) -> process exited with exit code 5, this means that playbook "+p.Playbook+" options are bad or incomplete \n[CMDUMP] "+cmd)
+			return nil, errors.New("(ansible:Run) -> process exited with exit code 5, this means that playbook "+p.Playbook+" options are bad or incomplete \n[CMDUMP] "+cmdump)
 		case "exit status 99":
 			return nil, errors.New("(ansible:Run) -> process exited with exit code 99, user interrupt "+p.Playbook)
 		case "exit status 250":
-			return nil, errors.New("(ansible:Run) -> process exited with exit code 250, unexpected error occurred running "+p.Playbook+"\n[CMDUMP] "+cmd)
+			return nil, errors.New("(ansible:Run) -> process exited with exit code 250, unexpected error occurred running "+p.Playbook+"\n[CMDUMP] "+cmdump)
 	}
 
 	r := &PlaybookResults{}
