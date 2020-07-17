@@ -123,8 +123,8 @@ func (p *PlaybookCmd) Run() (*PlaybookResults,error) {
 
 	//return specific error based on playbook run exit code
 	cmdump := strings.Join(cmd, " ")
-	strings.Replace(cmdump, "{", "'{", 1)
-	strings.Replace(cmdump, "}", "}'", 1)
+	strings.Replace(cmdump, "{", "\'{", 1)
+	strings.Replace(cmdump, "}", "}\'", 1)
 	switch p.Exec.ExitCode {
 		case "exit status 2":
 			return nil, errors.New("(ansible:Run) -> process exited with exit code 2, this means that one or more host failed running playbook "+p.Playbook+"\nthis most likely is a playbook error, try to run it standalone using command:\n[CMDUMP] "+cmdump+"\nif you expect this behavior by playbook you can set 'ignore_errors: yes' on failing blocks")
