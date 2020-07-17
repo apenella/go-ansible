@@ -124,7 +124,7 @@ func (p *PlaybookCmd) Run() (*PlaybookResults,error) {
 	//return specific error based on playbook run exit code
 	switch p.Exec.ExitCode {
 		case "exit status 2":
-			return nil, errors.New("(ansible:Run) -> process exited with exit code 2, this means that one or more host failed running playbook "+p.Playbook+"\nthis most likely is a playbook error, try to run it standalone using command:\n[CMDUMP] "+cmd+"\nor use ignore_errors: yes on failing tasks")
+			return nil, errors.New("(ansible:Run) -> process exited with exit code 2, this means that one or more host failed running playbook "+p.Playbook+"\nthis most likely is a playbook error, try to run it standalone using command:\n[CMDUMP] "+cmd+"\nif you expect this behavior by playbook you can set 'ignore_errors: yes' on failing blocks")
 		case "exit status 3":
 			return nil, errors.New("(ansible:Run) -> process exited with exit code 3, this means that one or more hosts are unreachable "+p.Playbook+"\n[CMDUMP] "+cmd)
 		case "exit status 4":
