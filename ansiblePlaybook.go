@@ -121,8 +121,7 @@ func (p *PlaybookCmd) Run() (*PlaybookResults,error) {
 		return nil, errors.New("(ansible:Run) -> " + err.Error())
 	}
 
-	//add cases when run is ok but ansible playbook fails
-	fmt.Println(p.Exec.ExitCode)
+	//return specific error based on playbook run exit code
 	switch p.Exec.ExitCode {
 		case "exit status 2":
 			return nil, errors.New("(ansible:Run) -> process exited with exit code 2, this means that one or more host failed running playbook "+p.Playbook)
