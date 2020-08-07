@@ -52,7 +52,7 @@ const (
 	ListTasksFlag = "--list-tasks"
 
 	// PrivateKeyFlag is the private key file flag for ansible-playbook
-	PrivateKeyFlag = "--private-key "
+	PrivateKeyFlag = "--private-key"
 
 	// TagsFlag is the tags flag for ansible-playbook
 	TagsFlag = "--tags"
