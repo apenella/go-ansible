@@ -79,10 +79,7 @@ func (e *DefaultExecute) Execute(command string, args []string, prefix string) e
 		if err != nil {
 			panic(err.Error())
 		}
-		// scanner := bufio.NewScanner(cmdReader)
-		// for scanner.Scan() {
-		// 	fmt.Fprintf(e.Write, "%s =>  %s\n", prefix, scanner.Text())
-		// }
+
 	}()
 
 	timeInit := time.Now()
