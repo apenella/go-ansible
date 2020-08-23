@@ -33,8 +33,12 @@ func init() {
 var rootCmd = &cobra.Command{
 	Use:   "cobra-cmd-ansibleplaybook",
 	Short: "cobra-cmd-ansibleplaybook",
-	Long:  `cobra-cmd-ansibleplaybook is an example which show how to use go-ansible library from cobra cli`,
-	RunE:  commandHandler,
+	Long: `cobra-cmd-ansibleplaybook is an example which show how to use go-ansible library from cobra cli
+	
+ Run the example:
+go run cobra-cmd-ansibleplaybook.go -L -i 127.0.0.1, -p site.yml -e example="hello go-ansible!"
+`,
+	RunE: commandHandler,
 }
 
 func commandHandler(cmd *cobra.Command, args []string) error {
@@ -52,12 +56,12 @@ func commandHandler(cmd *cobra.Command, args []string) error {
 		return errors.New("Error parsing extra variables. " + err.Error())
 	}
 
-	ansiblePlaybookConnectionOptions := &ansibler.PlaybookConnectionOptions{}
+	ansiblePlaybookConnectionOptions := &ansibler.AnsiblePlaybookConnectionOptions{}
 	if connectionLocal {
 		ansiblePlaybookConnectionOptions.Connection = "local"
 	}
 
-	ansiblePlaybookOptions := &ansibler.PlaybookOptions{
+	ansiblePlaybookOptions := &ansibler.AnsiblePlaybookOptions{
 		Inventory: inventory,
 	}
 
@@ -65,7 +69,7 @@ func commandHandler(cmd *cobra.Command, args []string) error {
 		ansiblePlaybookOptions.AddExtraVar(keyVar, valueVar)
 	}
 
-	playbook := &ansibler.PlaybookCmd{
+	playbook := &ansibler.AnsiblePlaybookCmd{
 		Playbook:          playbook,
 		ConnectionOptions: ansiblePlaybookConnectionOptions,
 		Options:           ansiblePlaybookOptions,

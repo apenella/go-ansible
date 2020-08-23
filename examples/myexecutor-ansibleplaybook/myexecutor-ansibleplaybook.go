@@ -16,15 +16,15 @@ func (e *MyExecutor) Execute(command string, args []string, prefix string) error
 
 func main() {
 
-	ansiblePlaybookConnectionOptions := &ansibler.PlaybookConnectionOptions{
+	ansiblePlaybookConnectionOptions := &ansibler.AnsiblePlaybookConnectionOptions{
 		Connection: "local",
 	}
 
-	ansiblePlaybookOptions := &ansibler.PlaybookOptions{
+	ansiblePlaybookOptions := &ansibler.AnsiblePlaybookOptions{
 		Inventory: "127.0.0.1,",
 	}
 
-	playbook := &ansibler.PlaybookCmd{
+	playbook := &ansibler.AnsiblePlaybookCmd{
 		Playbook:          "site.yml",
 		ConnectionOptions: ansiblePlaybookConnectionOptions,
 		Options:           ansiblePlaybookOptions,
