@@ -2,9 +2,12 @@ package ansibler
 
 import (
 	"errors"
+	"fmt"
 	"io"
 	"os"
 
+	"github.com/apenella/go-ansible/execute"
+	"github.com/apenella/go-ansible/stdoutcallback"
 	common "github.com/apenella/go-common-utils/data"
 )
 
@@ -52,7 +55,7 @@ const (
 	ListTasksFlag = "--list-tasks"
 
 	// PrivateKeyFlag is the private key file flag for ansible-playbook
-	PrivateKeyFlag = "--private-key "
+	PrivateKeyFlag = "--private-key"
 
 	// TagsFlag is the tags flag for ansible-playbook
 	TagsFlag = "--tags"
@@ -69,8 +72,13 @@ const (
 	// VaultPasswordFileFlag is the vault password file flag for ansible-playbook
 	VaultPasswordFileFlag = "--vault-password-file"
 
+	// ansible configuration consts
+
 	// AnsibleForceColorEnv is the environment variable which forces color mode
 	AnsibleForceColorEnv = "ANSIBLE_FORCE_COLOR"
+
+	// AnsibleHostKeyCheckingEnv
+	AnsibleHostKeyCheckingEnv = "ANSIBLE_HOST_KEY_CHECKING"
 )
 
 // Executor is and interface that should be implemented for those item which could run ansible playbooks
@@ -78,9 +86,19 @@ type Executor interface {
 	Execute(command string, args []string, prefix string) error
 }
 
-// AnsibleForceColor change to a forced color mode
+// AnsibleForceColor changes to a forced color mode
 func AnsibleForceColor() {
 	os.Setenv(AnsibleForceColorEnv, "true")
+}
+
+// AnsibleAvoidHostKeyChecking sets the hosts key checking to false
+func AnsibleAvoidHostKeyChecking() {
+	os.Setenv(AnsibleHostKeyCheckingEnv, "false")
+}
+
+// AnsibleSetEnv set any configuration by environment variables. Check ansible configuration at https://docs.ansible.com/ansible/latest/reference_appendices/config.html
+func AnsibleSetEnv(key, value string) {
+	os.Setenv(key, value)
 }
 
 // AnsiblePlaybookCmd object is the main object which defines the `ansible-playbook` command and how to execute it.
@@ -97,6 +115,8 @@ type AnsiblePlaybookCmd struct {
 	ConnectionOptions *AnsiblePlaybookConnectionOptions
 	// PrivilegeEscalationOptions are the ansible's playbook privilage escalation options
 	PrivilegeEscalationOptions *AnsiblePlaybookPrivilegeEscalationOptions
+	// StdoutCallback defines which is the stdout callback method. By default is used 'default' method. Supported stdout method by go-ansible are: debug, default, dense, json, minimal, null, oneline, stderr, timer, yaml
+	StdoutCallback string
 	// Writer manages the output
 	Writer io.Writer
 }
@@ -109,21 +129,25 @@ func (p *AnsiblePlaybookCmd) Run() error {
 
 	// Define a default executor when it is not defined on AnsiblePlaybookCmd
 	if p.Exec == nil {
-		p.Exec = &DefaultExecute{
-			Write: p.Writer,
+		p.Exec = &execute.DefaultExecute{
+			Write:       p.Writer,
+			ResultsFunc: stdoutcallback.GetResultsFunc(p.StdoutCallback),
 		}
 	}
 
 	// Generate the command to be run
 	cmd, err := p.Command()
 	if err != nil {
-		return errors.New("(ansible:Run) -> " + err.Error())
+		return errors.New("(ansible:Run) Error running " + p.String() + "\n	" + err.Error())
 	}
 
 	// Set default prefix
 	if len(p.ExecPrefix) <= 0 {
 		p.ExecPrefix = ""
 	}
+
+	// Configure StdoutCallback method by default is used ansible's 'default' callback method
+	stdoutcallback.AnsibleStdoutCallbackSetEnv(p.StdoutCallback)
 
 	// Execute the command an return
 	return p.Exec.Execute(cmd[0], cmd[1:], p.ExecPrefix)
@@ -172,6 +196,25 @@ func (p *AnsiblePlaybookCmd) Command() ([]string, error) {
 	cmd = append(cmd, p.Playbook)
 
 	return cmd, nil
+}
+
+// String returns AnsiblePlaybookCmd as string
+func (p *AnsiblePlaybookCmd) String() string {
+	str := AnsiblePlaybookBin
+
+	if p.Options != nil {
+		str = fmt.Sprintf("%s %s", str, p.Options.String())
+	}
+	if p.ConnectionOptions != nil {
+		str = fmt.Sprintf("%s %s", str, p.ConnectionOptions.String())
+	}
+	if p.PrivilegeEscalationOptions != nil {
+		str = fmt.Sprintf("%s %s", str, p.PrivilegeEscalationOptions.String())
+	}
+
+	str = fmt.Sprintf("%s %s", str, p.Playbook)
+
+	return str
 }
 
 // AnsiblePlaybookOptions object has those parameters described on `Options` section within ansible-playbook's man page, and which defines which should be the ansible-playbook execution behavior.
@@ -271,6 +314,46 @@ func (o *AnsiblePlaybookOptions) AddExtraVar(name string, value interface{}) err
 	return nil
 }
 
+// String returns AnsiblePlaybookOptions as string
+func (o *AnsiblePlaybookOptions) String() string {
+	str := ""
+
+	if o.FlushCache {
+		str = fmt.Sprintf("%s %s", str, FlushCacheFlag)
+	}
+
+	if o.Inventory != "" {
+		str = fmt.Sprintf("%s %s %s", str, InventoryFlag, o.Inventory)
+	}
+
+	if o.Limit != "" {
+		str = fmt.Sprintf("%s %s %s", str, LimitFlag, o.Limit)
+	}
+
+	if o.ListHosts {
+		str = fmt.Sprintf("%s %s", str, ListHostsFlag)
+	}
+
+	if o.ListTags {
+		str = fmt.Sprintf("%s %s", str, ListTagsFlag)
+	}
+
+	if o.ListTasks {
+		str = fmt.Sprintf("%s %s", str, ListTasksFlag)
+	}
+
+	if o.Tags != "" {
+		str = fmt.Sprintf("%s %s %s", str, TagsFlag, o.Tags)
+	}
+
+	if len(o.ExtraVars) > 0 {
+		extraVars, _ := o.generateExtraVarsCommand()
+		str = fmt.Sprintf("%s %s %s", str, ExtraVarsFlag, extraVars)
+	}
+
+	return str
+}
+
 // AnsiblePlaybookConnectionOptions object has those parameters described on `Connections Options` section within ansible-playbook's man page, and which defines how to connect to hosts.
 type AnsiblePlaybookConnectionOptions struct {
 	// AskPass defines whether user's password should be asked to connect to host
@@ -314,6 +397,33 @@ func (o *AnsiblePlaybookConnectionOptions) GenerateCommandConnectionOptions() ([
 	}
 
 	return cmd, nil
+}
+
+// String return a list of connection options flags to be used on ansible-playbook execution
+func (o *AnsiblePlaybookConnectionOptions) String() string {
+	str := ""
+
+	if o.AskPass {
+		str = fmt.Sprintf("%s %s", str, AskPassFlag)
+	}
+
+	if o.Connection != "" {
+		str = fmt.Sprintf("%s %s %s", str, ConnectionFlag, o.Connection)
+	}
+
+	if o.PrivateKey != "" {
+		str = fmt.Sprintf("%s %s %s", str, PrivateKeyFlag, o.PrivateKey)
+	}
+
+	if o.User != "" {
+		str = fmt.Sprintf("%s %s %s", str, UserFlag, o.User)
+	}
+
+	if o.Timeout != "" {
+		str = fmt.Sprintf("%s %s %s", str, TimeoutFlag, o.Timeout)
+	}
+
+	return str
 }
 
 /* become methods
@@ -366,4 +476,27 @@ func (o *AnsiblePlaybookPrivilegeEscalationOptions) GenerateCommandPrivilegeEsca
 	}
 
 	return cmd, nil
+}
+
+// String return an string
+func (o *AnsiblePlaybookPrivilegeEscalationOptions) String() string {
+	str := ""
+
+	if o.AskBecomePass {
+		str = fmt.Sprintf("%s %s", str, AskBecomePassFlag)
+	}
+
+	if o.Become {
+		str = fmt.Sprintf("%s %s", str, BecomeFlag)
+	}
+
+	if o.BecomeMethod != "" {
+		str = fmt.Sprintf("%s %s %s", str, BecomeMethodFlag, o.BecomeMethod)
+	}
+
+	if o.BecomeUser != "" {
+		str = fmt.Sprintf("%s %s %s", str, BecomeUserFlag, o.BecomeUser)
+	}
+
+	return str
 }

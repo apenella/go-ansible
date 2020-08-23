@@ -2,18 +2,18 @@ package ansibler
 
 import (
 	"testing"
-
+	"fmt"
 	"github.com/stretchr/testify/assert"
 )
 
 func TestAnsible(t *testing.T) {
 
-	playbook := &AnsiblePlaybookCmd{
+	playbook := &PlaybookCmd{
 		Playbook: "test/test_site.yml",
-		ConnectionOptions: &AnsiblePlaybookConnectionOptions{
+		ConnectionOptions: &PlaybookConnectionOptions{
 			Connection: "local",
 		},
-		Options: &AnsiblePlaybookOptions{
+		Options: &PlaybookOptions{
 			Inventory: "test/all",
 			ExtraVars: map[string]interface{}{
 				"string": "testing an string",
@@ -28,8 +28,16 @@ func TestAnsible(t *testing.T) {
 		},
 	}
 
-	err := playbook.Run()
+
+	res, err := playbook.Run()
 	if err != nil && assert.Error(t, err) {
+		fmt.Println(err.Error())
 		assert.Equal(t, nil, err)
 	}
+	err = res.PlaybookResultsChecks()
+	if err == nil {
+		fmt.Println(res.RawStdout)
+	}
+
+
 }

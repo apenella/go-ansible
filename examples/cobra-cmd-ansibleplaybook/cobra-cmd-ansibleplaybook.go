@@ -52,12 +52,12 @@ func commandHandler(cmd *cobra.Command, args []string) error {
 		return errors.New("Error parsing extra variables. " + err.Error())
 	}
 
-	ansiblePlaybookConnectionOptions := &ansibler.AnsiblePlaybookConnectionOptions{}
+	ansiblePlaybookConnectionOptions := &ansibler.PlaybookConnectionOptions{}
 	if connectionLocal {
 		ansiblePlaybookConnectionOptions.Connection = "local"
 	}
 
-	ansiblePlaybookOptions := &ansibler.AnsiblePlaybookOptions{
+	ansiblePlaybookOptions := &ansibler.PlaybookOptions{
 		Inventory: inventory,
 	}
 
@@ -65,7 +65,7 @@ func commandHandler(cmd *cobra.Command, args []string) error {
 		ansiblePlaybookOptions.AddExtraVar(keyVar, valueVar)
 	}
 
-	playbook := &ansibler.AnsiblePlaybookCmd{
+	playbook := &ansibler.PlaybookCmd{
 		Playbook:          playbook,
 		ConnectionOptions: ansiblePlaybookConnectionOptions,
 		Options:           ansiblePlaybookOptions,
