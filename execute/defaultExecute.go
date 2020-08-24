@@ -54,7 +54,10 @@ const (
 // Execute takes a command and args and runs it, streaming output to stdout
 func (e *DefaultExecute) Execute(command string, args []string, prefix string) error {
 
-	// stderr := &bytes.Buffer{}
+	execDoneChan := make(chan int8)
+	defer close(execDoneChan)
+	execErrChan := make(chan error)
+	defer close(execErrChan)
 
 	if e.Write == nil {
 		e.Write = os.Stdout
@@ -77,9 +80,10 @@ func (e *DefaultExecute) Execute(command string, args []string, prefix string) e
 		}
 		err := e.ResultsFunc(prefix, cmdReader, e.Write)
 		if err != nil {
-			panic(err.Error())
+			execErrChan <- err
 		}
 
+		execDoneChan <- int8(0)
 	}()
 
 	timeInit := time.Now()
@@ -115,6 +119,13 @@ func (e *DefaultExecute) Execute(command string, args []string, prefix string) e
 	}
 
 	elapsedTime := time.Since(timeInit)
+
+	select {
+	case <-execDoneChan:
+	case err := <-execErrChan:
+		return errors.New("(DefaultExecute::Execute) " + err.Error())
+	}
+
 	fmt.Fprintf(e.Write, "Duration: %s\n", elapsedTime.String())
 
 	return nil
