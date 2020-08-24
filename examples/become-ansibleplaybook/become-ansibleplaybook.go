@@ -7,11 +7,11 @@ import (
 func main() {
 
 	ansiblePlaybookConnectionOptions := &ansibler.AnsiblePlaybookConnectionOptions{
-		User: "aleix",
+		User: "apenella",
 	}
 
 	ansiblePlaybookOptions := &ansibler.AnsiblePlaybookOptions{
-		Inventory: "192.168.0.19,",
+		Inventory: "127.0.0.1,",
 	}
 
 	ansiblePlaybookPrivilegeEscalationOptions := &ansibler.AnsiblePlaybookPrivilegeEscalationOptions{

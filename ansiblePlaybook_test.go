@@ -6,6 +6,7 @@ import (
 	"os"
 	"testing"
 
+	"github.com/apenella/go-ansible/stdoutcallback"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -263,13 +264,29 @@ func TestCommand(t *testing.T) {
 			ansiblePlaybookCmd: &AnsiblePlaybookCmd{
 				Playbook: "test/ansible/site.yml",
 				ConnectionOptions: &AnsiblePlaybookConnectionOptions{
+					AskPass:    true,
 					Connection: "local",
+					PrivateKey: "pk",
+					Timeout:    "10",
+					User:       "apenella",
 				},
 				Options: &AnsiblePlaybookOptions{
-					Inventory: "test/ansible/inventory/all",
+					Inventory:  "test/ansible/inventory/all",
+					Limit:      "myhost",
+					FlushCache: true,
+					ExtraVars: map[string]interface{}{
+						"var1": "value1",
+					},
+					Tags: "tag1",
+				},
+				PrivilegeEscalationOptions: &AnsiblePlaybookPrivilegeEscalationOptions{
+					Become:        true,
+					BecomeMethod:  "sudo",
+					BecomeUser:    "apenella",
+					AskBecomePass: true,
 				},
 			},
-			command: []string{"ansible-playbook", "--inventory", "test/ansible/inventory/all", "--connection", "local", "test/ansible/site.yml"},
+			command: []string{"ansible-playbook", "--flush-cache", "--inventory", "test/ansible/inventory/all", "--limit", "myhost", "--tags", "tag1", "--extra-vars", "{\"var1\":\"value1\"}", "--ask-pass", "--connection", "local", "--private-key", "pk", "--user", "apenella", "--timeout", "10", "--ask-become-pass", "--become", "--become-method", "sudo", "--become-user", "apenella", "test/ansible/site.yml"},
 		},
 	}
 
@@ -281,9 +298,58 @@ func TestCommand(t *testing.T) {
 		if err != nil && assert.Error(t, err) {
 			assert.Equal(t, test.err, err)
 		} else {
-			assert.Equal(t, command, test.command, "Unexpected value")
+			assert.Equal(t, test.command, command, "Unexpected value")
 		}
 	}
+}
+
+func TestAnsiblePlaybookCmdString(t *testing.T) {
+	tests := []struct {
+		desc               string
+		err                error
+		ansiblePlaybookCmd *AnsiblePlaybookCmd
+		res                string
+	}{
+		{
+			desc: "Testing AnsiblePlaybookCmd to string",
+			err:  nil,
+			ansiblePlaybookCmd: &AnsiblePlaybookCmd{
+				Playbook: "test/ansible/site.yml",
+				ConnectionOptions: &AnsiblePlaybookConnectionOptions{
+					AskPass:    true,
+					Connection: "local",
+					PrivateKey: "pk",
+					Timeout:    "10",
+					User:       "apenella",
+				},
+				Options: &AnsiblePlaybookOptions{
+					Inventory:  "test/ansible/inventory/all",
+					Limit:      "myhost",
+					FlushCache: true,
+					ExtraVars: map[string]interface{}{
+						"var1": "value1",
+					},
+					Tags: "tag1",
+				},
+				PrivilegeEscalationOptions: &AnsiblePlaybookPrivilegeEscalationOptions{
+					Become:        true,
+					BecomeMethod:  "sudo",
+					BecomeUser:    "apenella",
+					AskBecomePass: true,
+				},
+			},
+			res: "ansible-playbook  --flush-cache --inventory test/ansible/inventory/all --limit myhost --tags tag1 --extra-vars {\"var1\":\"value1\"}  --ask-pass --connection local --private-key pk --user apenella --timeout 10  --ask-become-pass --become --become-method sudo --become-user apenella test/ansible/site.yml",
+		},
+	}
+
+	for _, test := range tests {
+		t.Log(test.desc)
+
+		res := test.ansiblePlaybookCmd.String()
+
+		assert.Equal(t, test.res, res, "Unexpected value")
+	}
+
 }
 
 func TestAnsibleForceColor(t *testing.T) {
@@ -309,7 +375,7 @@ func TestRun(t *testing.T) {
 			err:                errors.New("(ansible:Run) AnsiblePlaybookCmd is nil"),
 		},
 		{
-			desc: "Run a ansiblePlaybookCmd",
+			desc: "Testing run a ansiblePlaybookCmd",
 			ansiblePlaybookCmd: &AnsiblePlaybookCmd{
 				Exec: &MockExecute{
 					Write: &w,
@@ -326,7 +392,7 @@ func TestRun(t *testing.T) {
 			err: nil,
 		},
 		{
-			desc: "Run a ansiblePlaybookCmd without executor",
+			desc: "Testing run a ansiblePlaybookCmd without executor",
 			ansiblePlaybookCmd: &AnsiblePlaybookCmd{
 				Exec:     nil,
 				Playbook: "test/test_site.yml",
@@ -338,6 +404,48 @@ func TestRun(t *testing.T) {
 				},
 			},
 			res: "",
+			err: nil,
+		},
+		{
+			desc: "Testing run a ansiblePlaybookCmd with JSON stdout callback",
+			ansiblePlaybookCmd: &AnsiblePlaybookCmd{
+				StdoutCallback: stdoutcallback.JSONStdoutCallback,
+				Playbook:       "test/test_site.yml",
+				ConnectionOptions: &AnsiblePlaybookConnectionOptions{
+					Connection: "local",
+				},
+				Options: &AnsiblePlaybookOptions{
+					Inventory: "test/all",
+				},
+			},
+			res: "",
+			err: nil,
+		},
+		{
+			desc: "Testing run a ansiblePlaybookCmd with multiple extravars",
+			ansiblePlaybookCmd: &AnsiblePlaybookCmd{
+				Exec: &MockExecute{
+					Write: &w,
+				},
+				Playbook: "test/test_site.yml",
+				ConnectionOptions: &AnsiblePlaybookConnectionOptions{
+					Connection: "local",
+				},
+				Options: &AnsiblePlaybookOptions{
+					Inventory: "test/all",
+					ExtraVars: map[string]interface{}{
+						"string": "testing an string",
+						"bool":   true,
+						"int":    10,
+						"array":  []string{"one", "two"},
+						"dict": map[string]bool{
+							"one": true,
+							"two": false,
+						},
+					},
+				},
+			},
+			res: "ansible-playbook [--inventory test/all --extra-vars {\"array\":[\"one\",\"two\"],\"bool\":true,\"dict\":{\"one\":true,\"two\":false},\"int\":10,\"string\":\"testing an string\"} --connection local test/test_site.yml]",
 			err: nil,
 		},
 	}

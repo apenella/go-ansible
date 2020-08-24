@@ -1,4 +1,4 @@
-package ansibler
+package execute
 
 import (
 	"os"
@@ -23,6 +23,15 @@ func TestDefaultExecute(t *testing.T) {
 				Write: os.Stdout,
 			},
 			command: []string{"echo", "hello"},
+			prefix:  "test",
+		},
+		{
+			desc: "Testing an ansible-playbook --version execution",
+			err:  nil,
+			execute: &DefaultExecute{
+				Write: os.Stdout,
+			},
+			command: []string{"ansible-playbook", "--version"},
 			prefix:  "test",
 		},
 	}

@@ -1,9 +1,9 @@
 ---
 
 - hosts: local
+  gather_facts: false
 
   tasks:
-    - name: Print line
+    - name: Print test message
       debug:
-        msg: That's a message to debug
-
+        msg: That's a message to test
