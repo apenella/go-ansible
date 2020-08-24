@@ -97,24 +97,14 @@ func TestStdoutCallbackJSONResults(t *testing.T) {
 					}
 				}
 			}`,
-			expectedResult: `
+			expectedResult: `[127.0.0.1] (Print line)	That's a message to debug
+[192.198.1.1] (Print line)	That's a message to debug
+
 Host: 127.0.0.1
- Changed: 0
- Failures: 0
- Ignored: 0
- Ok: 1
- Rescued: 0
- Skipped: 0
- Unreachable: 0
+ Changed: 0 Failures: 0 Ignored: 0 Ok: 1 Rescued: 0 Skipped: 0 Unreachable: 0
 
 Host: 192.168.1.1
- Changed: 0
- Failures: 0
- Ignored: 0
- Ok: 1
- Rescued: 0
- Skipped: 0
- Unreachable: 0
+ Changed: 0 Failures: 0 Ignored: 0 Ok: 1 Rescued: 0 Skipped: 0 Unreachable: 0
 
 `,
 			err: nil,
@@ -170,15 +160,10 @@ Host: 192.168.1.1
 				}
 			}
 			Playbook run took 0 days, 0 hours, 0 minutes, 0 seconds`,
-			expectedResult: `
+			expectedResult: `[127.0.0.1] (Print line)	That's a message to debug
+
 Host: 127.0.0.1
- Changed: 0
- Failures: 0
- Ignored: 0
- Ok: 1
- Rescued: 0
- Skipped: 0
- Unreachable: 0
+ Changed: 0 Failures: 0 Ignored: 0 Ok: 1 Rescued: 0 Skipped: 0 Unreachable: 0
 
 `,
 			err: nil,
@@ -388,12 +373,12 @@ func TestJSONParser(t *testing.T) {
 									},
 								},
 								// TODOx
-								Hosts: map[string]map[string]interface{}{
+								Hosts: map[string]*AnsiblePlaybookJSONResultsPlayTaskHostsItem{
 									"127.0.0.1": {
-										"_ansible_no_log": false, "_ansible_verbose_always": true,
-										"action":  "debug",
-										"changed": false,
-										"msg":     "That's a message to debug",
+										//"_ansible_no_log": false, "_ansible_verbose_always": true,
+										Action:  "debug",
+										Changed: false,
+										Msg:     "That's a message to debug",
 									},
 								},
 							},
@@ -453,13 +438,7 @@ func TestAnsiblePlaybookJSONResultsString(t *testing.T) {
 			},
 			res: `
 Host: 127.0.0.1
- Changed: 0
- Failures: 0
- Ignored: 0
- Ok: 0
- Rescued: 0
- Skipped: 0
- Unreachable: 0
+ Changed: 0 Failures: 0 Ignored: 0 Ok: 0 Rescued: 0 Skipped: 0 Unreachable: 0
 `,
 		},
 	}
@@ -489,13 +468,7 @@ func TestAnsiblePlaybookJSONResultsStatsString(t *testing.T) {
 				Skipped:     0,
 				Unreachable: 0,
 			},
-			res: ` Changed: 0
- Failures: 0
- Ignored: 0
- Ok: 0
- Rescued: 0
- Skipped: 0
- Unreachable: 0`,
+			res: " Changed: 0 Failures: 0 Ignored: 0 Ok: 0 Rescued: 0 Skipped: 0 Unreachable: 0",
 		},
 	}
 
