@@ -24,7 +24,7 @@ To run an `ansible-playbook` command you could define four objects, depending on
 - **AnsiblePlaybookConnectionOptions** object has those parameters described on `Connections Options` section within ansible-playbook's man page, and defines how to connect to hosts.
 - **PrivilegeEscalationOptions** object has those parameters described on `Escalation Options` section within ansible-playbook's man page, and defines how to become a user.
 
-## Execute
+### Execute
 Go-ansible package has its own and default executor implementation which runs the `ansible-playbook` command and prints its output with a prefix on each line.
 Whenever is required, you could write your own executor implementation and set it on `AnsiblePlaybookCmd` object, it will expect that the executor implements `Executor` interface.
 ```go
