@@ -3,6 +3,19 @@
 Go-ansible is a package for running Ansible playbooks from Golang applications.
 It supports `ansible-playbook` command with the most of its options.
 
+## Table of Contents
+- [Packages](#packages)
+  - [Ansibler](#ansibler)
+  - [Execute](#execute)
+  - [Stdout Callback](#stdout-callback)
+  - [Results](#results)
+- [Examples](#examples)
+- [License](#license)
+
+## Packages
+
+### Ansibler
+
 To run an `ansible-playbook` command you could define four objects, depending on your needs:
 - **AnsiblePlaybookCmd** object is the main object which defines the `ansible-playbook` command and how to execute it. `AnsiblePlaybookCmd` definition is mandatory to run any `ansible-playbook` command.
 `AnsiblePlaybookCmd` has a parameter that defines the `Executor` to use, the worker who launches the execution. If no `Executor` is specified, is used `DefaultExecutor`.
@@ -11,7 +24,7 @@ To run an `ansible-playbook` command you could define four objects, depending on
 - **AnsiblePlaybookConnectionOptions** object has those parameters described on `Connections Options` section within ansible-playbook's man page, and defines how to connect to hosts.
 - **PrivilegeEscalationOptions** object has those parameters described on `Escalation Options` section within ansible-playbook's man page, and defines how to become a user.
 
-## Executor
+## Execute
 Go-ansible package has its own and default executor implementation which runs the `ansible-playbook` command and prints its output with a prefix on each line.
 Whenever is required, you could write your own executor implementation and set it on `AnsiblePlaybookCmd` object, it will expect that the executor implements `Executor` interface.
 ```go
@@ -43,20 +56,45 @@ $ go run myexecutor-ansibleplaybook.go
 I am doing nothing
 ```
 
-## Stdout Callback
+### Stdout Callback
 It is possible to define and specific stdout callback method on `go-ansible`. To do that is needed to set `StdoutCallback` attribute on `AnsiblePlaybookCmd` object. Depending on the used method, the results are managed by one function or another one. The functions to manage `ansible-playbook`'s output are defined on the package `github.com/apenella/go-ansible/stdoutcallback/results` and must be defined following the next signature:
 ```go
 // StdoutCallbackResultsFunc defines a function which manages ansible's stdout callbacks. The function expects and string for prefixing output lines, a reader that receives the data to be wrote and a writer that defines where to write the data comming from reader
 type StdoutCallbackResultsFunc func(string, io.Reader, io.Writer) error
 ```
 
+### Results
 Below are defined the ways which could manage ansible playbooks:
-### Default
+**Default**
 By default any stdout callback results will be managed by this results way and it prints the `ansible-playbook`'s output as it is.
 
-### JSON
-When the stdout callback method is defined as `json`, and specific results method is used. The json method summarizes the `ansible-playbooks`'s stats for each host.
-The json schema expected is the defined on https://github.com/ansible/ansible/blob/v2.9.11/lib/ansible/plugins/callback/json.py.
+**JSON**
+The json schema expected from `ansible-playbook` is the defined on https://github.com/ansible/ansible/blob/v2.9.11/lib/ansible/plugins/callback/json.py.
+
+When the stdout callback method is defined as `json`, and specific results method is used. The json method summarizes the `ansible-playbooks`'s following the pattern below.
+
+```
+[<host>] (<task name>)  <task message>
+[<host>] (<task name>)  <task message>
+...
+[<host>] (<task name>)  <task message>
+
+Host: <host>
+ <host stats>
+
+```
+
+For example:
+```
+[127.0.0.1] (Gathering Facts)
+[127.0.0.1] (simple-ansibleplaybook)    Your are running 'simple-ansibleplaybook' example
+
+Host: 127.0.0.1
+ Changed: 0 Failures: 0 Ignored: 0 Ok: 2 Rescued: 0 Skipped: 0 Unreachable: 0
+
+```
+
+When there is any host stat is on `failure` or `unrecheable` stdout callback results method return an error to the `Executor`.
 
 ## Example
 
@@ -122,3 +160,6 @@ Go-ansible example =>
 Go-ansible example =>  Playbook run took 0 days, 0 hours, 0 minutes, 1 seconds
 Duration: 1.816272213s
 ```
+
+## License
+go-ansible is available under [MIT](https://github.com/apenella/go-ansible/blob/master/LICENSE) license.

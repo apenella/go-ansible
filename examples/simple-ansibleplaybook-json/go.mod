@@ -1,4 +1,4 @@
-module myexecutor-ansibleplaybook
+module simple-ansibleplaybook-json
 
 go 1.13
 
