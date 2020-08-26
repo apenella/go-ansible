@@ -1,3 +1,7 @@
+
+![go-ansible-logo](docs/logo/go-ansible_logo.png "Go-ansible Logo" )
+
+
 # go-ansible
 
 Go-ansible is a package for running Ansible playbooks from Golang applications.
