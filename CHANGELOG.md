@@ -6,6 +6,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [v0.6.0]
+
+### Added
+- New method CheckStats on results package which validates AnsiblePlaybookJSONResults stats
+
+### Changed
+- __JSONStdoutCallbackResults__ on results package does not manipulates ansible JSON output, writes output as is on writer
+- __JSONParser__ on results package has changed its signature to _JSONParse(data []byte) (*AnsiblePlaybookJSONResults, error)_
+- __simple-ansibleplaybook-json__ example has been modified to use a custom executor to manipulate the JSON output.
+
 ## [v0.5.0]
 ### Added
 - Changelog based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
