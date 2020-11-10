@@ -6,6 +6,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [v0.5.1]
+### Fixed
+- #12: Fix the concurrency issue in the defaultExecute.go
+
 ## [v0.5.0]
 ### Added
 - Changelog based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
