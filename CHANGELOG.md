@@ -8,7 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [v0.5.1]
 ### Fixed
-- #12: Fix the concurrency issue in the defaultExecute.go
+- [#12](https://github.com/apenella/go-ansible/pull/12): Fix the concurrency issue in the defaultExecute.go
 
 ## [v0.5.0]
 ### Added
