@@ -73,6 +73,12 @@ func (e *DefaultExecute) Execute(command string, args []string, prefix string) e
 		return errors.New("(DefaultExecute::Execute) -> " + err.Error())
 	}
 
+	timeInit := time.Now()
+	err = cmd.Start()
+	if err != nil {
+		return errors.New("(DefaultExecute::Execute) -> " + err.Error())
+	}
+
 	go func() {
 
 		if e.ResultsFunc == nil {
@@ -86,10 +92,10 @@ func (e *DefaultExecute) Execute(command string, args []string, prefix string) e
 		execDoneChan <- int8(0)
 	}()
 
-	timeInit := time.Now()
-	err = cmd.Start()
-	if err != nil {
-		return errors.New("(DefaultExecute::Execute) -> " + err.Error())
+	select {
+	case <-execDoneChan:
+	case err := <-execErrChan:
+		return errors.New("(DefaultExecute::Execute) " + err.Error())
 	}
 
 	err = cmd.Wait()
@@ -119,12 +125,6 @@ func (e *DefaultExecute) Execute(command string, args []string, prefix string) e
 	}
 
 	elapsedTime := time.Since(timeInit)
-
-	select {
-	case <-execDoneChan:
-	case err := <-execErrChan:
-		return errors.New("(DefaultExecute::Execute) " + err.Error())
-	}
 
 	fmt.Fprintf(e.Write, "Duration: %s\n", elapsedTime.String())
 
