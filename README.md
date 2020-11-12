@@ -121,7 +121,7 @@ ansiblePlaybookOptions := &ansibler.AnsiblePlaybookOptions{
 
 `AnsiblePlaybookPrivilegeEscalationOptions` where is defined wether to become another and how to do it.
 ```go
-privilegeEscalationOptions := &AnsiblePlaybookPrivilegeEscalationOptions{
+privilegeEscalationOptions := &ansibler.AnsiblePlaybookPrivilegeEscalationOptions{
     Become:        true,
     BecomeMethod:  "sudo",
 }
