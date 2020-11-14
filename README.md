@@ -69,19 +69,20 @@ type StdoutCallbackResultsFunc func(string, io.Reader, io.Writer) error
 
 ### Results
 Below are defined the methods to manage ansible playbooks outputs:
-**Default**
+
+#### Default
 By default, any stdout callback results is managed by **DefaultStdoutCallbackResults** results method, which writes to io.Writer `ansible-playbook`'s output, without manipulates it.
 
-**JSON**
+#### JSON
 When the stdout callback method is defined to be in json format, the output is managed by **JSONStdoutCallbackResults** results method. This method parses the output json received from `ansible-playbook`'s output skipping the unrequired lines from the output, and writes result into io.Writer.
 
-#### JSON output Skipped lines
+##### JSON output Skipped lines
 Those lines from `ansible-playbook`'s output which do not belong to json are skipped and are not wrote to io.Writer.
 
 Skip lines matching regexp are:
 - "^[\\s\\t]*Playbook run took [0-9]+ days, [0-9]+ hours, [0-9]+ minutes, [0-9]+ seconds$",
 
-#### JSON output manages
+##### JSON output manages
 **JSONStdoutCallbackResults** method writes to io.Writer parameter the json output.
 Results packages provides a **JSONParser** that returns an **AnsiblePlaybookJSONResults**, holding the unmarshalled json on it. You could manipulate AnsiblePlaybookJSONResults object to achieve and format the json output depending on your needs.
 
