@@ -61,49 +61,36 @@ I am doing nothing
 ```
 
 ### Stdout Callback
-It is possible to define and specific stdout callback method on `go-ansible`. To do that is needed to set `StdoutCallback` attribute on `AnsiblePlaybookCmd` object. Depending on the used method, the results are managed by one function or another one. The functions to manage `ansible-playbook`'s output are defined on the package `github.com/apenella/go-ansible/stdoutcallback/results` and must be defined following the next signature:
+It is possible to define and specific stdout callback method on `go-ansible`. To do that is needed to set `StdoutCallback` attribute on `AnsiblePlaybookCmd` object. Depending on the used method, the results are managed by one function or another. The functions to manage `ansible-playbook`'s output are defined on the package `github.com/apenella/go-ansible/stdoutcallback/results` and must be defined following the next signature:
 ```go
 // StdoutCallbackResultsFunc defines a function which manages ansible's stdout callbacks. The function expects and string for prefixing output lines, a reader that receives the data to be wrote and a writer that defines where to write the data comming from reader
 type StdoutCallbackResultsFunc func(string, io.Reader, io.Writer) error
 ```
 
 ### Results
-Below are defined the ways which could manage ansible playbooks:
+Below are defined the methods to manage ansible playbooks outputs:
 **Default**
-By default any stdout callback results will be managed by this results way and it prints the `ansible-playbook`'s output as it is.
+By default, any stdout callback results is managed by **DefaultStdoutCallbackResults** results method, which writes to io.Writer `ansible-playbook`'s output, without manipulates it.
 
 **JSON**
+When the stdout callback method is defined to be in json format, the output is managed by **JSONStdoutCallbackResults** results method. This method parses the output json received from `ansible-playbook`'s output skipping the unrequired lines from the output, and writes result into io.Writer.
+
+#### JSON output Skipped lines
+Those lines from `ansible-playbook`'s output which do not belong to json are skipped and are not wrote to io.Writer.
+
+Skip lines matching regexp are:
+- "^[\\s\\t]*Playbook run took [0-9]+ days, [0-9]+ hours, [0-9]+ minutes, [0-9]+ seconds$",
+
+#### JSON output manages
+**JSONStdoutCallbackResults** method writes to io.Writer parameter the json output.
+Results packages provides a **JSONParser** that returns an **AnsiblePlaybookJSONResults**, holding the unmarshalled json on it. You could manipulate AnsiblePlaybookJSONResults object to achieve and format the json output depending on your needs.
+
 The json schema expected from `ansible-playbook` is the defined on https://github.com/ansible/ansible/blob/v2.9.11/lib/ansible/plugins/callback/json.py.
 
-When the stdout callback method is defined as `json`, and specific results method is used. The json method summarizes the `ansible-playbooks`'s following the pattern below.
-
-```
-[<host>] (<task name>)  <task message>
-[<host>] (<task name>)  <task message>
-...
-[<host>] (<task name>)  <task message>
-
-Host: <host>
- <host stats>
-
-```
-
-For example:
-```
-[127.0.0.1] (Gathering Facts)
-[127.0.0.1] (simple-ansibleplaybook)    Your are running 'simple-ansibleplaybook' example
-
-Host: 127.0.0.1
- Changed: 0 Failures: 0 Ignored: 0 Ok: 2 Rescued: 0 Skipped: 0 Unreachable: 0
-
-```
-
-When there is any host stat is on `failure` or `unrecheable` stdout callback results method return an error to the `Executor`.
-
 ## Example
+Below you could find a simple example of how to use `go-ansbile` but on [examples](https://github.com/apenella/go-ansible/tree/master/examples) folder there are more examples.
 
 When is needed to run an `ansible-playbook` from your Golang application using `go-ansible` package, you must define a `AnsiblePlaybookCmd`,`AnsiblePlaybookOptions`, `AnsiblePlaybookConnectionOptions` as its shown below.
-
 
 `AnsiblePlaybookConnectionOptions` where is defined how to connect to hosts.
 ```go
