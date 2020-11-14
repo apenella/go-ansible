@@ -17,7 +17,7 @@ const (
 func DefaultStdoutCallbackResults(prefix string, r io.Reader, w io.Writer) error {
 
 	if r == nil {
-		return errors.New("(results::Results) Reader is not defined")
+		return errors.New("(results::DefaultStdoutCallbackResults) Reader is not defined")
 	}
 
 	if w == nil {
