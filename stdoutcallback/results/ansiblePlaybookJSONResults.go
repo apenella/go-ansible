@@ -6,6 +6,7 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"os"
 	"regexp"
 	"strconv"
 )
@@ -136,9 +137,16 @@ func (s *AnsiblePlaybookJSONResultsStats) String() string {
 // JSONStdoutCallbackResults method manges the ansible' JSON stdout callback and print the result stats
 func JSONStdoutCallbackResults(prefix string, r io.Reader, w io.Writer) error {
 
+	if r == nil {
+		return errors.New("(results::JSONStdoutCallbackResults) Reader is not defined")
+	}
+
+	if w == nil {
+		w = os.Stdout
+	}
+
 	scanner := bufio.NewScanner(r)
 	for scanner.Scan() {
-
 		line := scanner.Text()
 		if !skipLine(line) {
 			fmt.Fprintf(w, "%s", line)
