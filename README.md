@@ -13,6 +13,10 @@ It supports `ansible-playbook` command with the most of its options.
   - [Execute](#execute)
   - [Stdout Callback](#stdout-callback)
   - [Results](#results)
+    -[Default](#default)
+    -[JSON](#json)
+      - [Ansible-playbook output skipped lines](#ansible-playbook-output-skipped-lines)
+      - [Manage JSON output](#manage-json-output)
 - [Examples](#examples)
 - [License](#license)
 
@@ -76,13 +80,13 @@ By default, any stdout callback results is managed by **DefaultStdoutCallbackRes
 #### JSON
 When the stdout callback method is defined to be in json format, the output is managed by **JSONStdoutCallbackResults** results method. This method parses the output json received from `ansible-playbook`'s output skipping the unrequired lines from the output, and writes result into io.Writer.
 
-##### JSON output Skipped lines
+##### Ansible-playbook output skipped lines
 Those lines from `ansible-playbook`'s output which do not belong to json are skipped and are not wrote to io.Writer.
 
 Skip lines matching regexp are:
 - "^[\\s\\t]*Playbook run took [0-9]+ days, [0-9]+ hours, [0-9]+ minutes, [0-9]+ seconds$",
 
-##### JSON output manages
+##### Manage JSON output
 **JSONStdoutCallbackResults** method writes to io.Writer parameter the json output.
 Results packages provides a **JSONParser** that returns an **AnsiblePlaybookJSONResults**, holding the unmarshalled json on it. You could manipulate AnsiblePlaybookJSONResults object to achieve and format the json output depending on your needs.
 
