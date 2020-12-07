@@ -3,11 +3,11 @@ package results
 import (
 	"bufio"
 	"bytes"
-	"errors"
 	"io"
 	"strings"
 	"testing"
 
+	errors "github.com/apenella/go-common-utils/error"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -205,7 +205,7 @@ func TestStdoutCallbackJSONResults(t *testing.T) {
 				}
 			}`,
 			expectedResult: `{				"custom_stats": {},				"global_custom_stats": {},				"plays": [					{						"play": {							"duration": {								"end": "2020-08-07T20:51:30.942955Z",								"start": "2020-08-07T20:51:30.607525Z"							},							"id": "a0a4c5d1-62fd-b6f1-98ea-000000000006",							"name": "local"						},						"tasks": [							{								"hosts": {									"127.0.0.1": {										"_ansible_no_log": false,										"_ansible_verbose_always": true,										"action": "debug",										"changed": false,										"msg": "That's a message to debug"									}								},								"task": {									"duration": {										"end": "2020-08-07T20:51:30.942955Z",										"start": "2020-08-07T20:51:30.908539Z"									},									"id": "a0a4c5d1-62fd-b6f1-98ea-000000000008",									"name": "Print line"								}							}						]					}				],				"stats": {					"127.0.0.1": {						"changed": 0,						"failures": 1,						"ignored": 0,						"ok": 0,						"rescued": 0,						"skipped": 0,						"unreachable": 0					}				}			}`,
-			err: errors.New("(results::JSONStdoutCallbackResults) Host 127.0.0.1 finished with 1 failures"),
+			err: errors.New("(results::JSONStdoutCallbackResults)", "Host 127.0.0.1 finished with 1 failures"),
 		},
 		{
 			desc: "Testing stdout callback json result with hosts unrecheable",
@@ -258,7 +258,7 @@ func TestStdoutCallbackJSONResults(t *testing.T) {
 				}
 			}`,
 			expectedResult: `{				"custom_stats": {},				"global_custom_stats": {},				"plays": [					{						"play": {							"duration": {								"end": "2020-08-07T20:51:30.942955Z",								"start": "2020-08-07T20:51:30.607525Z"							},							"id": "a0a4c5d1-62fd-b6f1-98ea-000000000006",							"name": "local"						},						"tasks": [							{								"hosts": {									"127.0.0.1": {										"_ansible_no_log": false,										"_ansible_verbose_always": true,										"action": "debug",										"changed": false,										"msg": "That's a message to debug"									}								},								"task": {									"duration": {										"end": "2020-08-07T20:51:30.942955Z",										"start": "2020-08-07T20:51:30.908539Z"									},									"id": "a0a4c5d1-62fd-b6f1-98ea-000000000008",									"name": "Print line"								}							}						]					}				],				"stats": {					"127.0.0.1": {						"changed": 0,						"failures": 0,						"ignored": 0,						"ok": 0,						"rescued": 0,						"skipped": 0,						"unreachable": 1					}				}			}`,
-			err: errors.New("(results::JSONStdoutCallbackResults) Host 127.0.0.1 finished with 1 unrecheable hosts"),
+			err: errors.New("(results::JSONStdoutCallbackResults)", "Host 127.0.0.1 finished with 1 unrecheable hosts"),
 		},
 	}
 

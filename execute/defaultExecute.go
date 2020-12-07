@@ -1,7 +1,6 @@
 package execute
 
 import (
-	"errors"
 	"fmt"
 	"io"
 	"os"
@@ -11,6 +10,7 @@ import (
 
 	"github.com/apenella/go-ansible/stdoutcallback"
 	"github.com/apenella/go-ansible/stdoutcallback/results"
+	errors "github.com/apenella/go-common-utils/error"
 )
 
 // DefaultExecute is a simple definition of an executor
@@ -69,13 +69,13 @@ func (e *DefaultExecute) Execute(command string, args []string, prefix string) e
 	cmdReader, err := cmd.StdoutPipe()
 	defer cmdReader.Close()
 	if err != nil {
-		return errors.New("(DefaultExecute::Execute) Error creating a stdout pipe. " + err.Error())
+		return errors.New("(DefaultExecute::Execute)", "Error creating stdout pipe", err)
 	}
 
 	timeInit := time.Now()
 	err = cmd.Start()
 	if err != nil {
-		return errors.New("(DefaultExecute::Execute) Error starting command. " + err.Error())
+		return errors.New("(DefaultExecute::Execute)", "Error starting command", err)
 	}
 
 	go func() {
@@ -95,7 +95,7 @@ func (e *DefaultExecute) Execute(command string, args []string, prefix string) e
 	select {
 	case <-execDoneChan:
 	case err := <-execErrChan:
-		return errors.New("(DefaultExecute::Execute) Error managing results output. " + err.Error())
+		return errors.New("(DefaultExecute::Execute)", "Error managing results output", err)
 	}
 
 	err = cmd.Wait()
@@ -123,7 +123,7 @@ func (e *DefaultExecute) Execute(command string, args []string, prefix string) e
 				errorMessage = fmt.Sprintf("%s\n\n%s", AnsiblePlaybookErrorMessageUnexpectedError, errorMessage)
 			}
 		}
-		return errors.New("(DefaultExecute::Execute) Error during command execution. " + errorMessage)
+		return errors.New("(DefaultExecute::Execute)", fmt.Sprintf("Error during command execution: %s", errorMessage))
 	}
 
 	elapsedTime := time.Since(timeInit)

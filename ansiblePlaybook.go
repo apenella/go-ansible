@@ -1,7 +1,6 @@
 package ansibler
 
 import (
-	"errors"
 	"fmt"
 	"io"
 	"os"
@@ -9,6 +8,7 @@ import (
 	"github.com/apenella/go-ansible/execute"
 	"github.com/apenella/go-ansible/stdoutcallback"
 	common "github.com/apenella/go-common-utils/data"
+	errors "github.com/apenella/go-common-utils/error"
 )
 
 const (
@@ -124,7 +124,7 @@ type AnsiblePlaybookCmd struct {
 // Run method runs the ansible-playbook
 func (p *AnsiblePlaybookCmd) Run() error {
 	if p == nil {
-		return errors.New("(ansible:Run) AnsiblePlaybookCmd is nil")
+		return errors.New("(ansible:Run)", "AnsiblePlaybookCmd is nil")
 	}
 
 	// Define a default executor when it is not defined on AnsiblePlaybookCmd
@@ -138,7 +138,7 @@ func (p *AnsiblePlaybookCmd) Run() error {
 	// Generate the command to be run
 	cmd, err := p.Command()
 	if err != nil {
-		return errors.New("(ansible:Run) Error running " + p.String() + "\n	" + err.Error())
+		return errors.New("(ansible:Run)", fmt.Sprintf("Error running '%s'", p.String()), err)
 	}
 
 	// Set default prefix
@@ -163,7 +163,7 @@ func (p *AnsiblePlaybookCmd) Command() ([]string, error) {
 	if p.Options != nil {
 		options, err := p.Options.GenerateCommandOptions()
 		if err != nil {
-			return nil, errors.New("(ansible::Command) -> " + err.Error())
+			return nil, errors.New("(ansible::Command)", "Error creating options", err)
 		}
 		for _, option := range options {
 			cmd = append(cmd, option)
@@ -174,7 +174,7 @@ func (p *AnsiblePlaybookCmd) Command() ([]string, error) {
 	if p.ConnectionOptions != nil {
 		options, err := p.ConnectionOptions.GenerateCommandConnectionOptions()
 		if err != nil {
-			return nil, errors.New("(ansible::Command) -> " + err.Error())
+			return nil, errors.New("(ansible::Command)", "Error creating connection options", err)
 		}
 		for _, option := range options {
 			cmd = append(cmd, option)
@@ -185,7 +185,7 @@ func (p *AnsiblePlaybookCmd) Command() ([]string, error) {
 	if p.PrivilegeEscalationOptions != nil {
 		options, err := p.PrivilegeEscalationOptions.GenerateCommandPrivilegeEscalationOptions()
 		if err != nil {
-			return nil, errors.New("(ansible::Command) -> " + err.Error())
+			return nil, errors.New("(ansible::Command)", "Error creating privilege escalation options", err)
 		}
 		for _, option := range options {
 			cmd = append(cmd, option)
@@ -242,7 +242,7 @@ func (o *AnsiblePlaybookOptions) GenerateCommandOptions() ([]string, error) {
 	cmd := []string{}
 
 	if o == nil {
-		return nil, errors.New("(ansible::GenerateCommandOptions) AnsiblePlaybookOptions is nil")
+		return nil, errors.New("(ansible::GenerateCommandOptions)", "AnsiblePlaybookOptions is nil")
 	}
 
 	if o.FlushCache {
@@ -280,7 +280,7 @@ func (o *AnsiblePlaybookOptions) GenerateCommandOptions() ([]string, error) {
 		cmd = append(cmd, ExtraVarsFlag)
 		extraVars, err := o.generateExtraVarsCommand()
 		if err != nil {
-			return nil, errors.New("(ansible::GenerateCommandOptions) -> " + err.Error())
+			return nil, errors.New("(ansible::GenerateCommandOptions)", "Error generating extra-vars", err)
 		}
 		cmd = append(cmd, extraVars)
 	}
@@ -293,7 +293,7 @@ func (o *AnsiblePlaybookOptions) generateExtraVarsCommand() (string, error) {
 
 	extraVars, err := common.ObjectToJSONString(o.ExtraVars)
 	if err != nil {
-		return "", errors.New("(ansible::generateExtraVarsCommand) -> " + err.Error())
+		return "", errors.New("(ansible::generateExtraVarsCommand)", "Error creationg extra-vars JSON object to string", err)
 	}
 	return extraVars, nil
 }
@@ -306,7 +306,7 @@ func (o *AnsiblePlaybookOptions) AddExtraVar(name string, value interface{}) err
 	}
 	_, exists := o.ExtraVars[name]
 	if exists {
-		return errors.New("(ansible::AddExtraVar) ExtraVar '" + name + "' already exist")
+		return errors.New("(ansible::AddExtraVar)", fmt.Sprintf("ExtraVar '%s' already exist", name))
 	}
 
 	o.ExtraVars[name] = value

@@ -3,12 +3,13 @@ package results
 import (
 	"bufio"
 	"encoding/json"
-	"errors"
 	"fmt"
 	"io"
 	"os"
 	"regexp"
 	"strconv"
+
+	errors "github.com/apenella/go-common-utils/error"
 )
 
 // AnsiblePlaybookJSONResults
@@ -52,7 +53,7 @@ func (r *AnsiblePlaybookJSONResults) CheckStats() error {
 		}
 
 		if len(errorMsg) > 0 {
-			return errors.New("(results::JSONStdoutCallbackResults) " + errorMsg)
+			return errors.New("(results::JSONStdoutCallbackResults)", errorMsg)
 		}
 	}
 
@@ -138,7 +139,7 @@ func (s *AnsiblePlaybookJSONResultsStats) String() string {
 func JSONStdoutCallbackResults(prefix string, r io.Reader, w io.Writer) error {
 
 	if r == nil {
-		return errors.New("(results::JSONStdoutCallbackResults) Reader is not defined")
+		return errors.New("(results::JSONStdoutCallbackResults)", "Reader is not defined")
 	}
 
 	if w == nil {
@@ -179,7 +180,7 @@ func JSONParse(data []byte) (*AnsiblePlaybookJSONResults, error) {
 
 	err := json.Unmarshal(data, result)
 	if err != nil {
-		return nil, errors.New("(results::JSONParser) Unmarshall error. " + err.Error())
+		return nil, errors.New("(results::JSONParser)", "Unmarshall error", err)
 	}
 
 	return result, nil

@@ -2,10 +2,11 @@ package results
 
 import (
 	"bufio"
-	"errors"
 	"fmt"
 	"io"
 	"os"
+
+	errors "github.com/apenella/go-common-utils/error"
 )
 
 const (
@@ -17,7 +18,7 @@ const (
 func DefaultStdoutCallbackResults(prefix string, r io.Reader, w io.Writer) error {
 
 	if r == nil {
-		return errors.New("(results::DefaultStdoutCallbackResults) Reader is not defined")
+		return errors.New("(results::DefaultStdoutCallbackResults)", "Reader is not defined")
 	}
 
 	if w == nil {
