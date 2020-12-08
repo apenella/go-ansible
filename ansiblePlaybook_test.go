@@ -2,11 +2,11 @@ package ansibler
 
 import (
 	"bytes"
-	"errors"
 	"os"
 	"testing"
 
 	"github.com/apenella/go-ansible/stdoutcallback"
+	errors "github.com/apenella/go-common-utils/error"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -56,7 +56,7 @@ func TestGenerateCommandOptions(t *testing.T) {
 		{
 			desc:                   "Testing nil AnsiblePlaybookOptions definition",
 			ansiblePlaybookOptions: nil,
-			err:                    errors.New("(ansible::GenerateCommandOptions) AnsiblePlaybookOptions is nil"),
+			err:                    errors.New("(ansible::GenerateCommandOptions)", "AnsiblePlaybookOptions is nil"),
 			options:                nil,
 		},
 		{
@@ -229,7 +229,7 @@ func TestAddExtraVar(t *testing.T) {
 					"extra": "var",
 				},
 			},
-			err:           errors.New("(ansible::AddExtraVar) ExtraVar 'extra' already exist"),
+			err:           errors.New("(ansible::AddExtraVar)", "ExtraVar 'extra' already exist"),
 			extraVarName:  "extra",
 			extraVarValue: "var",
 			res:           nil,
@@ -372,7 +372,7 @@ func TestRun(t *testing.T) {
 			desc:               "Run nil ansiblePlaybookCmd",
 			ansiblePlaybookCmd: nil,
 			res:                "",
-			err:                errors.New("(ansible:Run) AnsiblePlaybookCmd is nil"),
+			err:                errors.New("(ansible:Run)", "AnsiblePlaybookCmd is nil"),
 		},
 		{
 			desc: "Testing run a ansiblePlaybookCmd",

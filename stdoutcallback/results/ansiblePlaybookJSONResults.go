@@ -2,13 +2,14 @@ package results
 
 import (
 	"bufio"
-	"bytes"
 	"encoding/json"
-	"errors"
 	"fmt"
 	"io"
+	"os"
 	"regexp"
 	"strconv"
+
+	errors "github.com/apenella/go-common-utils/error"
 )
 
 // AnsiblePlaybookJSONResults
@@ -37,6 +38,26 @@ func (r *AnsiblePlaybookJSONResults) String() string {
 	}
 
 	return str
+}
+
+// CheckStats return error when is found a failure or unreachable host
+func (r *AnsiblePlaybookJSONResults) CheckStats() error {
+	errorMsg := ""
+	for host, stats := range r.Stats {
+		if stats.Failures > 0 {
+			errorMsg = fmt.Sprintf("Host %s finished with %d failures", host, stats.Failures)
+		}
+
+		if stats.Unreachable > 0 {
+			errorMsg = fmt.Sprintf("Host %s finished with %d unrecheable hosts", host, stats.Unreachable)
+		}
+
+		if len(errorMsg) > 0 {
+			return errors.New("(results::JSONStdoutCallbackResults)", errorMsg)
+		}
+	}
+
+	return nil
 }
 
 // AnsiblePlaybookJSONResultsPlay
@@ -68,9 +89,10 @@ type AnsiblePlaybookJSONResultsPlayTask struct {
 }
 
 type AnsiblePlaybookJSONResultsPlayTaskHostsItem struct {
-	Action  string `json:"action"`
-	Changed bool   `json:"changed"`
-	Msg     string `json:"msg"`
+	Action       string                 `json:"action"`
+	Changed      bool                   `json:"changed"`
+	Msg          string                 `json:"msg"`
+	AnsibleFacts map[string]interface{} `json:"ansible_facts"`
 }
 
 type AnsiblePlaybookJSONResultsPlayTaskItem struct {
@@ -116,43 +138,21 @@ func (s *AnsiblePlaybookJSONResultsStats) String() string {
 // JSONStdoutCallbackResults method manges the ansible' JSON stdout callback and print the result stats
 func JSONStdoutCallbackResults(prefix string, r io.Reader, w io.Writer) error {
 
-	var buff bytes.Buffer
-	result := &AnsiblePlaybookJSONResults{}
+	if r == nil {
+		return errors.New("(results::JSONStdoutCallbackResults)", "Reader is not defined")
+	}
 
-	reader := bufio.NewReader(r)
+	if w == nil {
+		w = os.Stdout
+	}
 
-	scanner := bufio.NewScanner(reader)
-
+	scanner := bufio.NewScanner(r)
 	for scanner.Scan() {
-
 		line := scanner.Text()
 		if !skipLine(line) {
-			fmt.Fprintf(io.Writer(&buff), "%s", line)
+			fmt.Fprintf(w, "%s", line)
 		}
 	}
-
-	err := json.Unmarshal(buff.Bytes(), result)
-	if err != nil {
-		return err
-	}
-
-	errorMsg := ""
-	for host, stats := range result.Stats {
-
-		if stats.Failures > 0 {
-			errorMsg = fmt.Sprintf("Host %s finished with %d failures", host, stats.Failures)
-		}
-
-		if stats.Unreachable > 0 {
-			errorMsg = fmt.Sprintf("Host %s finished with %d unrecheable hosts", host, stats.Unreachable)
-		}
-
-		if len(errorMsg) > 0 {
-			return errors.New("(results::JSONStdoutCallbackResults) " + errorMsg)
-		}
-	}
-
-	fmt.Fprintln(w, result.String())
 
 	return nil
 }
@@ -173,19 +173,14 @@ func skipLine(line string) bool {
 	return false
 }
 
-func JSONParse(reader *bufio.Reader) (*AnsiblePlaybookJSONResults, error) {
+// JSONParse return an AnsiblePlaybookJSONResults from
+func JSONParse(data []byte) (*AnsiblePlaybookJSONResults, error) {
 
-	var buff bytes.Buffer
 	result := &AnsiblePlaybookJSONResults{}
 
-	scanner := bufio.NewScanner(reader)
-	for scanner.Scan() {
-		fmt.Fprintf(io.Writer(&buff), "%s", scanner.Text())
-	}
-
-	err := json.Unmarshal(buff.Bytes(), result)
+	err := json.Unmarshal(data, result)
 	if err != nil {
-		return nil, err
+		return nil, errors.New("(results::JSONParser)", "Unmarshall error", err)
 	}
 
 	return result, nil

@@ -1,7 +1,6 @@
 package execute
 
 import (
-	"errors"
 	"fmt"
 	"io"
 	"os"
@@ -11,12 +10,14 @@ import (
 
 	"github.com/apenella/go-ansible/stdoutcallback"
 	"github.com/apenella/go-ansible/stdoutcallback/results"
+	errors "github.com/apenella/go-common-utils/error"
 )
 
 // DefaultExecute is a simple definition of an executor
 type DefaultExecute struct {
-	Write       io.Writer
-	ResultsFunc stdoutcallback.StdoutCallbackResultsFunc
+	Write        io.Writer
+	ResultsFunc  stdoutcallback.StdoutCallbackResultsFunc
+	ShowDuration bool
 }
 
 const (
@@ -64,19 +65,17 @@ func (e *DefaultExecute) Execute(command string, args []string, prefix string) e
 	}
 
 	cmd := exec.Command(command, args...)
-	cmd.Stderr = e.Write
 
 	cmdReader, err := cmd.StdoutPipe()
 	defer cmdReader.Close()
-
 	if err != nil {
-		return errors.New("(DefaultExecute::Execute) -> " + err.Error())
+		return errors.New("(DefaultExecute::Execute)", "Error creating stdout pipe", err)
 	}
 
 	timeInit := time.Now()
 	err = cmd.Start()
 	if err != nil {
-		return errors.New("(DefaultExecute::Execute) -> " + err.Error())
+		return errors.New("(DefaultExecute::Execute)", "Error starting command", err)
 	}
 
 	go func() {
@@ -87,6 +86,7 @@ func (e *DefaultExecute) Execute(command string, args []string, prefix string) e
 		err := e.ResultsFunc(prefix, cmdReader, e.Write)
 		if err != nil {
 			execErrChan <- err
+			return
 		}
 
 		execDoneChan <- int8(0)
@@ -95,12 +95,14 @@ func (e *DefaultExecute) Execute(command string, args []string, prefix string) e
 	select {
 	case <-execDoneChan:
 	case err := <-execErrChan:
-		return errors.New("(DefaultExecute::Execute) " + err.Error())
+		return errors.New("(DefaultExecute::Execute)", "Error managing results output", err)
 	}
 
 	err = cmd.Wait()
 	if err != nil {
-		errorMessage := err.Error()
+		errorMessage := string(err.(*exec.ExitError).Stderr)
+		errorMessage = fmt.Sprintf("%s\n%s", errorMessage, err.Error())
+
 		exitError, exists := err.(*exec.ExitError)
 		if exists {
 			ws := exitError.Sys().(syscall.WaitStatus)
@@ -121,12 +123,14 @@ func (e *DefaultExecute) Execute(command string, args []string, prefix string) e
 				errorMessage = fmt.Sprintf("%s\n\n%s", AnsiblePlaybookErrorMessageUnexpectedError, errorMessage)
 			}
 		}
-		return errors.New("(DefaultExecute::Execute) " + errorMessage)
+		return errors.New("(DefaultExecute::Execute)", fmt.Sprintf("Error during command execution: %s", errorMessage))
 	}
 
 	elapsedTime := time.Since(timeInit)
 
-	fmt.Fprintf(e.Write, "Duration: %s\n", elapsedTime.String())
+	if e.ShowDuration {
+		fmt.Fprintf(e.Write, "Duration: %s\n", elapsedTime.String())
+	}
 
 	return nil
 }
