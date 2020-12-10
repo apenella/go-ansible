@@ -92,7 +92,7 @@ Results packages provides a **JSONParser** that returns an **AnsiblePlaybookJSON
 
 The json schema expected from `ansible-playbook` is the defined on https://github.com/ansible/ansible/blob/v2.9.11/lib/ansible/plugins/callback/json.py.
 
-## Example
+## Examples
 Below you could find a simple example of how to use `go-ansbile` but on [examples](https://github.com/apenella/go-ansible/tree/master/examples) folder there are more examples.
 
 When is needed to run an `ansible-playbook` from your Golang application using `go-ansible` package, you must define a `AnsiblePlaybookCmd`,`AnsiblePlaybookOptions`, `AnsiblePlaybookConnectionOptions` as its shown below.
