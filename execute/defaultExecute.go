@@ -101,7 +101,7 @@ func (e *DefaultExecute) Execute(command string, args []string, prefix string) e
 	err = cmd.Wait()
 	if err != nil {
 		errorMessage := string(err.(*exec.ExitError).Stderr)
-		errorMessage = fmt.Sprintf("%s\n%s", errorMessage, err.Error())
+		errorMessage = fmt.Sprintf("%s\n%s\nCommand executed: %s %v", errorMessage, command, args, err.Error())
 
 		exitError, exists := err.(*exec.ExitError)
 		if exists {

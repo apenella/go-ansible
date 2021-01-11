@@ -348,7 +348,7 @@ func (o *AnsiblePlaybookOptions) String() string {
 
 	if len(o.ExtraVars) > 0 {
 		extraVars, _ := o.generateExtraVarsCommand()
-		str = fmt.Sprintf("%s %s %s", str, ExtraVarsFlag, extraVars)
+		str = fmt.Sprintf("%s %s %s", str, ExtraVarsFlag, fmt.Sprintf("'%s'", extraVars))
 	}
 
 	return str
