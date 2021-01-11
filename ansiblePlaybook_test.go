@@ -338,7 +338,7 @@ func TestAnsiblePlaybookCmdString(t *testing.T) {
 					AskBecomePass: true,
 				},
 			},
-			res: "ansible-playbook  --flush-cache --inventory test/ansible/inventory/all --limit myhost --tags tag1 --extra-vars {\"var1\":\"value1\"}  --ask-pass --connection local --private-key pk --user apenella --timeout 10  --ask-become-pass --become --become-method sudo --become-user apenella test/ansible/site.yml",
+			res: "ansible-playbook  --flush-cache --inventory test/ansible/inventory/all --limit myhost --tags tag1 --extra-vars '{\"var1\":\"value1\"}'  --ask-pass --connection local --private-key pk --user apenella --timeout 10  --ask-become-pass --become --become-method sudo --become-user apenella test/ansible/site.yml",
 		},
 	}
 
