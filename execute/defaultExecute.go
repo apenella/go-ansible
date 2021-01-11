@@ -55,6 +55,10 @@ const (
 // Execute takes a command and args and runs it, streaming output to stdout
 func (e *DefaultExecute) Execute(command string, args []string, prefix string) error {
 
+	var err error
+	var cmdStderr, cmdStdout io.ReadCloser
+	var cmdReader io.Reader
+
 	execDoneChan := make(chan int8)
 	defer close(execDoneChan)
 	execErrChan := make(chan error)
@@ -66,11 +70,19 @@ func (e *DefaultExecute) Execute(command string, args []string, prefix string) e
 
 	cmd := exec.Command(command, args...)
 
-	cmdReader, err := cmd.StdoutPipe()
-	defer cmdReader.Close()
+	cmdStdout, err = cmd.StdoutPipe()
+	defer cmdStdout.Close()
 	if err != nil {
 		return errors.New("(DefaultExecute::Execute)", "Error creating stdout pipe", err)
 	}
+
+	cmdStderr, err = cmd.StderrPipe()
+	defer cmdStderr.Close()
+	if err != nil {
+		return errors.New("(DefaultExecute::Execute)", "Error creating stderr pipe", err)
+	}
+
+	cmdReader = io.MultiReader(cmdStdout, cmdStderr)
 
 	timeInit := time.Now()
 	err = cmd.Start()
@@ -101,7 +113,7 @@ func (e *DefaultExecute) Execute(command string, args []string, prefix string) e
 	err = cmd.Wait()
 	if err != nil {
 		errorMessage := string(err.(*exec.ExitError).Stderr)
-		errorMessage = fmt.Sprintf("%s\n%s\nCommand executed: %s %v", errorMessage, command, args, err.Error())
+		errorMessage = fmt.Sprintf("Command executed: %s\n%s\n%s", cmd.String(), errorMessage, err.Error())
 
 		exitError, exists := err.(*exec.ExitError)
 		if exists {
