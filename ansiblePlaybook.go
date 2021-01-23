@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"os/exec"
 
 	"github.com/apenella/go-ansible/execute"
 	"github.com/apenella/go-ansible/stdoutcallback"
@@ -12,9 +13,6 @@ import (
 )
 
 const (
-	// AnsiblePlaybookBin is the ansible-playbook binary file value
-	AnsiblePlaybookBin = "ansible-playbook"
-
 	// AskBecomePassFlag is ansble-playbook's ask for become user password flag
 	AskBecomePassFlag = "--ask-become-pass"
 
@@ -32,6 +30,9 @@ const (
 
 	// ConnectionFlag is the connection flag for ansible-playbook
 	ConnectionFlag = "--connection"
+
+	// DefaultAnsiblePlaybookBinary is the ansible-playbook binary file default value
+	DefaultAnsiblePlaybookBinary = "ansible-playbook"
 
 	// ExtraVarsFlag is the extra variables flag for ansible-playbook
 	ExtraVarsFlag = "--extra-vars"
@@ -103,6 +104,8 @@ func AnsibleSetEnv(key, value string) {
 
 // AnsiblePlaybookCmd object is the main object which defines the `ansible-playbook` command and how to execute it.
 type AnsiblePlaybookCmd struct {
+	// Ansible binary file
+	Binary string
 	// Exec is the executor item
 	Exec Executor
 	// ExecPrefix is a text that is set at the beginning of each execution line
@@ -123,8 +126,21 @@ type AnsiblePlaybookCmd struct {
 
 // Run method runs the ansible-playbook
 func (p *AnsiblePlaybookCmd) Run() error {
+	var err error
+	var cmd []string
+
 	if p == nil {
 		return errors.New("(ansible:Run)", "AnsiblePlaybookCmd is nil")
+	}
+
+	// Use default binary when it is not already defined
+	if p.Binary == "" {
+		p.Binary = DefaultAnsiblePlaybookBinary
+	}
+
+	_, err = exec.LookPath(p.Binary)
+	if err != nil {
+		return errors.New("(ansible:Run)", fmt.Sprintf("Binary file '%s' does not exists", p.Binary), err)
 	}
 
 	// Define a default executor when it is not defined on AnsiblePlaybookCmd
@@ -136,7 +152,7 @@ func (p *AnsiblePlaybookCmd) Run() error {
 	}
 
 	// Generate the command to be run
-	cmd, err := p.Command()
+	cmd, err = p.Command()
 	if err != nil {
 		return errors.New("(ansible:Run)", fmt.Sprintf("Error running '%s'", p.String()), err)
 	}
@@ -146,7 +162,7 @@ func (p *AnsiblePlaybookCmd) Run() error {
 		p.ExecPrefix = ""
 	}
 
-	// Configure StdoutCallback method by default is used ansible's 'default' callback method
+	// Configure StdoutCallback method. By default is used ansible's 'default' callback method
 	stdoutcallback.AnsibleStdoutCallbackSetEnv(p.StdoutCallback)
 
 	// Execute the command an return
@@ -156,8 +172,14 @@ func (p *AnsiblePlaybookCmd) Run() error {
 // Command generate the ansible-playbook command which will be executed
 func (p *AnsiblePlaybookCmd) Command() ([]string, error) {
 	cmd := []string{}
+
+	// Use default binary when it is not already defined
+	if p.Binary == "" {
+		p.Binary = DefaultAnsiblePlaybookBinary
+	}
+
 	// Set the ansible-playbook binary file
-	cmd = append(cmd, AnsiblePlaybookBin)
+	cmd = append(cmd, p.Binary)
 
 	// Determine the options to be set
 	if p.Options != nil {
@@ -200,7 +222,13 @@ func (p *AnsiblePlaybookCmd) Command() ([]string, error) {
 
 // String returns AnsiblePlaybookCmd as string
 func (p *AnsiblePlaybookCmd) String() string {
-	str := AnsiblePlaybookBin
+
+	// Use default binary when it is not already defined
+	if p.Binary == "" {
+		p.Binary = DefaultAnsiblePlaybookBinary
+	}
+
+	str := p.Binary
 
 	if p.Options != nil {
 		str = fmt.Sprintf("%s %s", str, p.Options.String())
