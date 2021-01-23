@@ -263,6 +263,8 @@ type AnsiblePlaybookOptions struct {
 	ListTasks bool
 	// Tags list all tasks that would be executed
 	Tags string
+	// VaultPasswordFile path to the file holding vault decryption key
+	VaultPasswordFile string
 }
 
 // GenerateCommandOptions return a list of options flags to be used on ansible-playbook execution
@@ -302,6 +304,11 @@ func (o *AnsiblePlaybookOptions) GenerateCommandOptions() ([]string, error) {
 	if o.Tags != "" {
 		cmd = append(cmd, TagsFlag)
 		cmd = append(cmd, o.Tags)
+	}
+
+	if o.VaultPasswordFile != "" {
+		cmd = append(cmd, VaultPasswordFileFlag)
+		cmd = append(cmd, o.VaultPasswordFile)
 	}
 
 	if len(o.ExtraVars) > 0 {
