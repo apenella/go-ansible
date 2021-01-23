@@ -11,3 +11,5 @@ changelog:
     exclude:
     - '^docs:'
     - '^test:'
+    - '^Merge branch'
+    - '^Merge pull request'
