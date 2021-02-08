@@ -161,6 +161,8 @@ func skipLine(line string) bool {
 	skipPatterns := []string{
 		// This pattern skips timer's callback whitelist output
 		"^[\\s\\t]*Playbook run took [0-9]+ days, [0-9]+ hours, [0-9]+ minutes, [0-9]+ seconds$",
+		"^\\[WARNING\\]:.+ use",
+		"^\\-vvvv",
 	}
 
 	for _, pattern := range skipPatterns {
