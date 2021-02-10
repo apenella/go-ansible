@@ -1,6 +1,7 @@
 package ansibler
 
 import (
+	"context"
 	"fmt"
 	"io"
 	"os"
@@ -84,7 +85,7 @@ const (
 
 // Executor is and interface that should be implemented for those item which could run ansible playbooks
 type Executor interface {
-	Execute(command string, args []string, prefix string) error
+	Execute(ctx context.Context, command string, args []string, prefix string) error
 }
 
 // AnsibleForceColor changes to a forced color mode

@@ -1,6 +1,7 @@
 package execute
 
 import (
+	"context"
 	"fmt"
 	"io"
 	"os"
@@ -53,7 +54,7 @@ const (
 )
 
 // Execute takes a command and args and runs it, streaming output to stdout
-func (e *DefaultExecute) Execute(command string, args []string, prefix string) error {
+func (e *DefaultExecute) Execute(ctx context.Context, command string, args []string, prefix string) error {
 
 	var err error
 	var cmdStderr, cmdStdout io.ReadCloser
@@ -68,7 +69,8 @@ func (e *DefaultExecute) Execute(command string, args []string, prefix string) e
 		e.Write = os.Stdout
 	}
 
-	cmd := exec.Command(command, args...)
+	//cmd := exec.Command(command, args...)
+	cmd := exec.CommandContext(ctx, command, args...)
 
 	cmdStdout, err = cmd.StdoutPipe()
 	defer cmdStdout.Close()
