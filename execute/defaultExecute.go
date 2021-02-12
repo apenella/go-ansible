@@ -5,6 +5,7 @@ import (
 	"io"
 	"os"
 	"os/exec"
+	"sync"
 	"syscall"
 	"time"
 
@@ -16,6 +17,7 @@ import (
 // DefaultExecute is a simple definition of an executor
 type DefaultExecute struct {
 	Write        io.Writer
+	WriterError  io.Writer
 	ResultsFunc  stdoutcallback.StdoutCallbackResultsFunc
 	ShowDuration bool
 }
@@ -58,11 +60,9 @@ func (e *DefaultExecute) Execute(command string, args []string, prefix string) e
 	var err error
 	var cmdStderr, cmdStdout io.ReadCloser
 	var cmdReader io.Reader
+	var wg sync.WaitGroup
 
-	execDoneChan := make(chan int8)
-	defer close(execDoneChan)
 	execErrChan := make(chan error)
-	defer close(execErrChan)
 
 	if e.Write == nil {
 		e.Write = os.Stdout
@@ -82,7 +82,8 @@ func (e *DefaultExecute) Execute(command string, args []string, prefix string) e
 		return errors.New("(DefaultExecute::Execute)", "Error creating stderr pipe", err)
 	}
 
-	cmdReader = io.MultiReader(cmdStdout, cmdStderr)
+	//cmdReader = io.MultiReader(cmdStdout, cmdStderr)
+	cmdReader = io.MultiReader(cmdStdout)
 
 	timeInit := time.Now()
 	err = cmd.Start()
@@ -90,23 +91,35 @@ func (e *DefaultExecute) Execute(command string, args []string, prefix string) e
 		return errors.New("(DefaultExecute::Execute)", "Error starting command", err)
 	}
 
+	// Waig for stdout and stderr
+	wg.Add(2)
+
+	// stdout management
 	go func() {
+		defer close(execErrChan)
 
 		if e.ResultsFunc == nil {
 			e.ResultsFunc = results.DefaultStdoutCallbackResults
 		}
-		err := e.ResultsFunc(prefix, cmdReader, e.Write)
-		if err != nil {
-			execErrChan <- err
-			return
-		}
 
-		execDoneChan <- int8(0)
+		err := e.ResultsFunc(prefix, cmdReader, e.Write)
+		wg.Done()
+		execErrChan <- err
 	}()
 
-	select {
-	case <-execDoneChan:
-	case err := <-execErrChan:
+	// stderr management
+	go func() {
+		if e.WriterError == nil {
+			e.WriterError = os.Stderr
+		}
+
+		results.DefaultStdoutCallbackResults(prefix, cmdStderr, e.WriterError)
+		wg.Done()
+	}()
+
+	wg.Wait()
+
+	if err := <-execErrChan; err != nil {
 		return errors.New("(DefaultExecute::Execute)", "Error managing results output", err)
 	}
 
