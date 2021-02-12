@@ -59,7 +59,6 @@ func (e *DefaultExecute) Execute(command string, args []string, prefix string) e
 
 	var err error
 	var cmdStderr, cmdStdout io.ReadCloser
-	var cmdReader io.Reader
 	var wg sync.WaitGroup
 
 	execErrChan := make(chan error)
@@ -82,9 +81,6 @@ func (e *DefaultExecute) Execute(command string, args []string, prefix string) e
 		return errors.New("(DefaultExecute::Execute)", "Error creating stderr pipe", err)
 	}
 
-	//cmdReader = io.MultiReader(cmdStdout, cmdStderr)
-	cmdReader = io.MultiReader(cmdStdout)
-
 	timeInit := time.Now()
 	err = cmd.Start()
 	if err != nil {
@@ -102,7 +98,7 @@ func (e *DefaultExecute) Execute(command string, args []string, prefix string) e
 			e.ResultsFunc = results.DefaultStdoutCallbackResults
 		}
 
-		err := e.ResultsFunc(prefix, cmdReader, e.Write)
+		err := e.ResultsFunc(prefix, cmdStdout, e.Write)
 		wg.Done()
 		execErrChan <- err
 	}()
@@ -113,6 +109,7 @@ func (e *DefaultExecute) Execute(command string, args []string, prefix string) e
 			e.WriterError = os.Stderr
 		}
 
+		// show stderr messages using default stdout callback results
 		results.DefaultStdoutCallbackResults(prefix, cmdStderr, e.WriterError)
 		wg.Done()
 	}()
