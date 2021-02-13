@@ -16,13 +16,13 @@ import (
 func TestGenerateCommandConnectionOptions(t *testing.T) {
 	tests := []struct {
 		desc                             string
-		ansiblePlaybookConnectionOptions *AnsiblePlaybookConnectionOptions
+		ansiblePlaybookConnectionOptions *AnsibleConnectionOptions
 		err                              error
 		options                          []string
 	}{
 		{
 			desc: "Testing generate connection options",
-			ansiblePlaybookConnectionOptions: &AnsiblePlaybookConnectionOptions{
+			ansiblePlaybookConnectionOptions: &AnsibleConnectionOptions{
 				Connection: "local",
 			},
 			err: nil,
@@ -276,7 +276,7 @@ func TestCommand(t *testing.T) {
 			err:  nil,
 			ansiblePlaybookCmd: &AnsiblePlaybookCmd{
 				Playbook: "test/ansible/site.yml",
-				ConnectionOptions: &AnsiblePlaybookConnectionOptions{
+				ConnectionOptions: &AnsibleConnectionOptions{
 					AskPass:    true,
 					Connection: "local",
 					PrivateKey: "pk",
@@ -292,7 +292,7 @@ func TestCommand(t *testing.T) {
 					},
 					Tags: "tag1",
 				},
-				PrivilegeEscalationOptions: &AnsiblePlaybookPrivilegeEscalationOptions{
+				PrivilegeEscalationOptions: &AnsiblePrivilegeEscalationOptions{
 					Become:        true,
 					BecomeMethod:  "sudo",
 					BecomeUser:    "apenella",
@@ -331,7 +331,7 @@ func TestAnsiblePlaybookCmdString(t *testing.T) {
 			err:  nil,
 			ansiblePlaybookCmd: &AnsiblePlaybookCmd{
 				Playbook: "test/ansible/site.yml",
-				ConnectionOptions: &AnsiblePlaybookConnectionOptions{
+				ConnectionOptions: &AnsibleConnectionOptions{
 					AskPass:    true,
 					Connection: "local",
 					PrivateKey: "pk",
@@ -347,7 +347,7 @@ func TestAnsiblePlaybookCmdString(t *testing.T) {
 					},
 					Tags: "tag1",
 				},
-				PrivilegeEscalationOptions: &AnsiblePlaybookPrivilegeEscalationOptions{
+				PrivilegeEscalationOptions: &AnsiblePrivilegeEscalationOptions{
 					Become:        true,
 					BecomeMethod:  "sudo",
 					BecomeUser:    "apenella",
@@ -407,7 +407,7 @@ func TestRun(t *testing.T) {
 					Write: &w,
 				},
 				Playbook: "test/ansible/site.yml",
-				ConnectionOptions: &AnsiblePlaybookConnectionOptions{
+				ConnectionOptions: &AnsibleConnectionOptions{
 					Connection: "local",
 				},
 				Options: &AnsiblePlaybookOptions{
@@ -422,7 +422,7 @@ func TestRun(t *testing.T) {
 			ansiblePlaybookCmd: &AnsiblePlaybookCmd{
 				Exec:     nil,
 				Playbook: "test/test_site.yml",
-				ConnectionOptions: &AnsiblePlaybookConnectionOptions{
+				ConnectionOptions: &AnsibleConnectionOptions{
 					Connection: "local",
 				},
 				Options: &AnsiblePlaybookOptions{
@@ -437,7 +437,7 @@ func TestRun(t *testing.T) {
 			ansiblePlaybookCmd: &AnsiblePlaybookCmd{
 				StdoutCallback: stdoutcallback.JSONStdoutCallback,
 				Playbook:       "test/test_site.yml",
-				ConnectionOptions: &AnsiblePlaybookConnectionOptions{
+				ConnectionOptions: &AnsibleConnectionOptions{
 					Connection: "local",
 				},
 				Options: &AnsiblePlaybookOptions{
@@ -454,7 +454,7 @@ func TestRun(t *testing.T) {
 					Write: &w,
 				},
 				Playbook: "test/test_site.yml",
-				ConnectionOptions: &AnsiblePlaybookConnectionOptions{
+				ConnectionOptions: &AnsibleConnectionOptions{
 					Connection: "local",
 				},
 				Options: &AnsiblePlaybookOptions{

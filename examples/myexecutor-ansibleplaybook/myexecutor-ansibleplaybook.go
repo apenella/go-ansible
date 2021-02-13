@@ -16,7 +16,7 @@ func (e *MyExecutor) Execute(command string, args []string, prefix string) error
 
 func main() {
 
-	ansiblePlaybookConnectionOptions := &ansibler.AnsiblePlaybookConnectionOptions{
+	ansiblePlaybookConnectionOptions := &ansibler.AnsibleConnectionOptions{
 		Connection: "local",
 	}
 

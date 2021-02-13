@@ -15,7 +15,7 @@ func main() {
 	res := &results.AnsiblePlaybookJSONResults{}
 	buff := new(bytes.Buffer)
 
-	ansiblePlaybookConnectionOptions := &ansibler.AnsiblePlaybookConnectionOptions{
+	ansiblePlaybookConnectionOptions := &ansibler.AnsibleConnectionOptions{
 		Connection: "local",
 		User:       "apenella",
 	}

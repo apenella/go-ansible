@@ -56,7 +56,7 @@ func commandHandler(cmd *cobra.Command, args []string) error {
 		return errors.New("(commandHandler)", "Error parsing extra variables", err)
 	}
 
-	ansiblePlaybookConnectionOptions := &ansibler.AnsiblePlaybookConnectionOptions{}
+	ansiblePlaybookConnectionOptions := &ansibler.AnsibleConnectionOptions{}
 	if connectionLocal {
 		ansiblePlaybookConnectionOptions.Connection = "local"
 	}

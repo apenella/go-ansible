@@ -6,7 +6,7 @@ import (
 
 func main() {
 
-	ansiblePlaybookConnectionOptions := &ansibler.AnsiblePlaybookConnectionOptions{
+	ansiblePlaybookConnectionOptions := &ansibler.AnsibleConnectionOptions{
 		Connection: "local",
 		User:       "aleix",
 	}
