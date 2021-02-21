@@ -7,18 +7,33 @@
 Go-ansible is a package for running Ansible playbooks from Golang applications.
 It supports `ansible-playbook` command with the most of its options.
 
-## Table of Contents
-- [Packages](#packages)
-  - [Ansibler](#ansibler)
-  - [Execute](#execute)
-  - [Stdout Callback](#stdout-callback)
-  - [Results](#results)
-    - [Default](#default)
-    - [JSON](#json)
-      - [Ansible-playbook output skipped lines](#ansible-playbook-output-skipped-lines)
-      - [Manage JSON output](#manage-json-output)
-- [Examples](#examples)
-- [License](#license)
+
+<!-- @import "[TOC]" {cmd="toc" depthFrom=1 depthTo=6 orderedList=false} -->
+
+<!-- code_chunk_output -->
+
+- [go-ansible](#go-ansible)
+  - [Install](#install)
+  - [Packages](#packages)
+    - [Ansibler](#ansibler)
+    - [Execute](#execute)
+    - [Stdout Callback](#stdout-callback)
+    - [Results](#results)
+      - [Default](#default)
+      - [JSON](#json)
+        - [Ansible-playbook output skipped lines](#ansible-playbook-output-skipped-lines)
+        - [Manage JSON output](#manage-json-output)
+  - [Examples](#examples)
+  - [License](#license)
+
+<!-- /code_chunk_output -->
+
+## Install 
+
+To install the lastest stable version run the command below:
+```
+$ go get github.com/apenella/go-ansible@v0.7.1
+```
 
 ## Packages
 
