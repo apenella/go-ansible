@@ -2,6 +2,7 @@ package results
 
 import (
 	"bufio"
+	"context"
 	"fmt"
 	"io"
 	"os"
@@ -15,7 +16,10 @@ const (
 )
 
 // DefaultStdoutCallbackResults is the default method to print ansible-playbook results
-func DefaultStdoutCallbackResults(prefix string, r io.Reader, w io.Writer) error {
+func DefaultStdoutCallbackResults(ctx context.Context, prefix string, r io.Reader, w io.Writer) error {
+
+	printChan := make(chan string)
+	done := make(chan struct{})
 
 	if r == nil {
 		return errors.New("(results::DefaultStdoutCallbackResults)", "Reader is not defined")
@@ -25,10 +29,25 @@ func DefaultStdoutCallbackResults(prefix string, r io.Reader, w io.Writer) error
 		w = os.Stdout
 	}
 
-	scanner := bufio.NewScanner(r)
-	for scanner.Scan() {
-		fmt.Fprintf(w, "%s %s %s\n", prefix, PrefixTokenSeparator, scanner.Text())
-	}
+	go func() {
+		defer close(done)
+		defer close(printChan)
 
-	return nil
+		scanner := bufio.NewScanner(r)
+		for scanner.Scan() {
+			printChan <- fmt.Sprintf("%s %s %s", prefix, PrefixTokenSeparator, scanner.Text())
+		}
+		done <- struct{}{}
+	}()
+
+	for {
+		select {
+		case line := <-printChan:
+			fmt.Fprintf(w, "%s\n", line)
+		case <-done:
+			return nil
+		case <-ctx.Done():
+			return nil
+		}
+	}
 }

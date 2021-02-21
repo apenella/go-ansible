@@ -5,6 +5,7 @@ package main
 */
 
 import (
+	"context"
 	"fmt"
 	"os"
 	"strings"
@@ -78,7 +79,7 @@ func commandHandler(cmd *cobra.Command, args []string) error {
 
 	ansibler.AnsibleForceColor()
 
-	err = playbook.Run()
+	err = playbook.Run(context.TODO())
 	if err != nil {
 		return err
 	}

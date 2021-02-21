@@ -100,7 +100,7 @@ func (e *DefaultExecute) Execute(ctx context.Context, command string, args []str
 			e.ResultsFunc = results.DefaultStdoutCallbackResults
 		}
 
-		err := e.ResultsFunc(prefix, cmdStdout, e.Write)
+		err := e.ResultsFunc(ctx, prefix, cmdStdout, e.Write)
 		wg.Done()
 		execErrChan <- err
 	}()
@@ -112,7 +112,7 @@ func (e *DefaultExecute) Execute(ctx context.Context, command string, args []str
 		}
 
 		// show stderr messages using default stdout callback results
-		results.DefaultStdoutCallbackResults(prefix, cmdStderr, e.WriterError)
+		results.DefaultStdoutCallbackResults(ctx, prefix, cmdStderr, e.WriterError)
 		wg.Done()
 	}()
 
@@ -124,30 +124,35 @@ func (e *DefaultExecute) Execute(ctx context.Context, command string, args []str
 
 	err = cmd.Wait()
 	if err != nil {
-		errorMessage := string(err.(*exec.ExitError).Stderr)
-		errorMessage = fmt.Sprintf("Command executed: %s\n%s\n%s", cmd.String(), errorMessage, err.Error())
 
-		exitError, exists := err.(*exec.ExitError)
-		if exists {
-			ws := exitError.Sys().(syscall.WaitStatus)
-			switch ws.ExitStatus() {
-			case AnsiblePlaybookErrorCodeGeneralError:
-				errorMessage = fmt.Sprintf("%s\n\n%s", AnsiblePlaybookErrorMessageGeneralError, errorMessage)
-			case AnsiblePlaybookErrorCodeOneOrMoreHostFailed:
-				errorMessage = fmt.Sprintf("%s\n\n%s", AnsiblePlaybookErrorMessageOneOrMoreHostFailed, errorMessage)
-			case AnsiblePlaybookErrorCodeOneOrMoreHostUnreachable:
-				errorMessage = fmt.Sprintf("%s\n\n%s", AnsiblePlaybookErrorMessageOneOrMoreHostUnreachable, errorMessage)
-			case AnsiblePlaybookErrorCodeParserError:
-				errorMessage = fmt.Sprintf("%s\n\n%s", AnsiblePlaybookErrorMessageParserError, errorMessage)
-			case AnsiblePlaybookErrorCodeBadOrIncompleteOptions:
-				errorMessage = fmt.Sprintf("%s\n\n%s", AnsiblePlaybookErrorMessageBadOrIncompleteOptions, errorMessage)
-			case AnsiblePlaybookErrorCodeUserInterruptedExecution:
-				errorMessage = fmt.Sprintf("%s\n\n%s", AnsiblePlaybookErrorMessageUserInterruptedExecution, errorMessage)
-			case AnsiblePlaybookErrorCodeUnexpectedError:
-				errorMessage = fmt.Sprintf("%s\n\n%s", AnsiblePlaybookErrorMessageUnexpectedError, errorMessage)
+		if ctx.Err() != nil {
+			fmt.Fprintf(e.Write, "%s\n", fmt.Sprintf("\nWhoops! %s\n", ctx.Err()))
+		} else {
+			errorMessage := string(err.(*exec.ExitError).Stderr)
+			errorMessage = fmt.Sprintf("Command executed: %s\n%s\n%s", cmd.String(), errorMessage, err.Error())
+
+			exitError, exists := err.(*exec.ExitError)
+			if exists {
+				ws := exitError.Sys().(syscall.WaitStatus)
+				switch ws.ExitStatus() {
+				case AnsiblePlaybookErrorCodeGeneralError:
+					errorMessage = fmt.Sprintf("%s\n\n%s", AnsiblePlaybookErrorMessageGeneralError, errorMessage)
+				case AnsiblePlaybookErrorCodeOneOrMoreHostFailed:
+					errorMessage = fmt.Sprintf("%s\n\n%s", AnsiblePlaybookErrorMessageOneOrMoreHostFailed, errorMessage)
+				case AnsiblePlaybookErrorCodeOneOrMoreHostUnreachable:
+					errorMessage = fmt.Sprintf("%s\n\n%s", AnsiblePlaybookErrorMessageOneOrMoreHostUnreachable, errorMessage)
+				case AnsiblePlaybookErrorCodeParserError:
+					errorMessage = fmt.Sprintf("%s\n\n%s", AnsiblePlaybookErrorMessageParserError, errorMessage)
+				case AnsiblePlaybookErrorCodeBadOrIncompleteOptions:
+					errorMessage = fmt.Sprintf("%s\n\n%s", AnsiblePlaybookErrorMessageBadOrIncompleteOptions, errorMessage)
+				case AnsiblePlaybookErrorCodeUserInterruptedExecution:
+					errorMessage = fmt.Sprintf("%s\n\n%s", AnsiblePlaybookErrorMessageUserInterruptedExecution, errorMessage)
+				case AnsiblePlaybookErrorCodeUnexpectedError:
+					errorMessage = fmt.Sprintf("%s\n\n%s", AnsiblePlaybookErrorMessageUnexpectedError, errorMessage)
+				}
 			}
+			return errors.New("(DefaultExecute::Execute)", fmt.Sprintf("Error during command execution: %s", errorMessage))
 		}
-		return errors.New("(DefaultExecute::Execute)", fmt.Sprintf("Error during command execution: %s", errorMessage))
 	}
 
 	elapsedTime := time.Since(timeInit)

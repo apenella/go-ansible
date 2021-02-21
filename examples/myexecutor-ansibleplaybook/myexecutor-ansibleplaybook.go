@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"fmt"
 
 	ansibler "github.com/apenella/go-ansible"
@@ -8,7 +9,7 @@ import (
 
 type MyExecutor struct{}
 
-func (e *MyExecutor) Execute(command string, args []string, prefix string) error {
+func (e *MyExecutor) Execute(ctx context.Context, command string, args []string, prefix string) error {
 	fmt.Println("I am doing nothing")
 
 	return nil
@@ -31,7 +32,7 @@ func main() {
 		Exec:              &MyExecutor{},
 	}
 
-	err := playbook.Run()
+	err := playbook.Run(context.TODO())
 	if err != nil {
 		panic(err)
 	}

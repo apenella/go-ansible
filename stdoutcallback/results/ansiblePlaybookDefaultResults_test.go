@@ -3,6 +3,7 @@ package results
 import (
 	"bufio"
 	"bytes"
+	"context"
 	"io"
 	"strings"
 	"testing"
@@ -52,7 +53,7 @@ Playbook run took 0 days, 0 hours, 0 minutes, 0 seconds
 			wbuff := bytes.Buffer{}
 			writer := io.Writer(&wbuff)
 			reader := bufio.NewReader(strings.NewReader(test.input))
-			err := DefaultStdoutCallbackResults("", reader, writer)
+			err := DefaultStdoutCallbackResults(context.TODO(), "", reader, writer)
 			if err != nil && assert.Error(t, err) {
 				assert.Equal(t, test.err, err)
 			} else {

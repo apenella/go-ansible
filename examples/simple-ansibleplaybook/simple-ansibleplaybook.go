@@ -1,6 +1,8 @@
 package main
 
 import (
+	"context"
+
 	ansibler "github.com/apenella/go-ansible"
 )
 
@@ -22,7 +24,7 @@ func main() {
 		ExecPrefix:        "Go-ansible example",
 	}
 
-	err := playbook.Run()
+	err := playbook.Run(context.TODO())
 	if err != nil {
 		panic(err)
 	}
