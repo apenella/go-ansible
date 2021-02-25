@@ -9,7 +9,8 @@ import (
 
 // MockExecute defines a simple executor for testing purposal
 type MockExecute struct {
-	Write io.Writer
+	Write     io.Writer
+	CmdRunDir string
 }
 
 // Execute takes a command and args and runs it, streaming output to stdout
@@ -23,4 +24,8 @@ func (e *MockExecute) Execute(command string, args []string, prefix string) erro
 
 	fmt.Fprintf(e.Write, "%s %v", command, args)
 	return nil
+}
+
+func (e *MockExecute) SetCmdRunDir(Dir string) {
+	e.CmdRunDir = Dir
 }
