@@ -20,6 +20,8 @@ type DefaultExecute struct {
 	WriterError  io.Writer
 	ResultsFunc  stdoutcallback.StdoutCallbackResultsFunc
 	ShowDuration bool
+	// use for Cmd.Dir
+	CmdRunDir string
 }
 
 const (
@@ -68,6 +70,10 @@ func (e *DefaultExecute) Execute(command string, args []string, prefix string) e
 	}
 
 	cmd := exec.Command(command, args...)
+
+	if e.CmdRunDir != "" {
+		cmd.Dir = e.CmdRunDir
+	}
 
 	cmdStdout, err = cmd.StdoutPipe()
 	defer cmdStdout.Close()
@@ -155,4 +161,9 @@ func (e *DefaultExecute) Execute(command string, args []string, prefix string) e
 	}
 
 	return nil
+}
+
+// SetCmdRunDir will set the command dir to run at
+func (e *DefaultExecute) SetCmdRunDir(Dir string) {
+	e.CmdRunDir = Dir
 }

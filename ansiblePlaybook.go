@@ -85,6 +85,7 @@ const (
 // Executor is and interface that should be implemented for those item which could run ansible playbooks
 type Executor interface {
 	Execute(command string, args []string, prefix string) error
+	SetCmdRunDir(Dir string)
 }
 
 // AnsibleForceColor changes to a forced color mode
@@ -106,6 +107,8 @@ func AnsibleSetEnv(key, value string) {
 type AnsiblePlaybookCmd struct {
 	// Ansible binary file
 	Binary string
+	// The directory where the ansible-playboor command is run
+	CmdRunDir string
 	// Exec is the executor item
 	Exec Executor
 	// ExecPrefix is a text that is set at the beginning of each execution line
@@ -155,6 +158,10 @@ func (p *AnsiblePlaybookCmd) Run() error {
 	cmd, err = p.Command()
 	if err != nil {
 		return errors.New("(ansible:Run)", fmt.Sprintf("Error running '%s'", p.String()), err)
+	}
+
+	if p.CmdRunDir != "" {
+		p.Exec.SetCmdRunDir(p.CmdRunDir)
 	}
 
 	// Set default prefix
