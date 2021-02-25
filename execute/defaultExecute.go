@@ -16,11 +16,15 @@ import (
 
 // DefaultExecute is a simple definition of an executor
 type DefaultExecute struct {
-	Write        io.Writer
-	WriterError  io.Writer
-	ResultsFunc  stdoutcallback.StdoutCallbackResultsFunc
+	// Writer is where is written the command stdout
+	Write io.Writer
+	// WriterError is where is written the command stderr
+	WriterError io.Writer
+	// ResultsFunc is the function that manages execution output
+	ResultsFunc stdoutcallback.StdoutCallbackResultsFunc
+	// ShowDuration enables to show the execution duration time after the command finishes
 	ShowDuration bool
-	// use for Cmd.Dir
+	// CmdRunDir specifies the working directory of the command.
 	CmdRunDir string
 }
 
@@ -164,6 +168,6 @@ func (e *DefaultExecute) Execute(command string, args []string, prefix string) e
 }
 
 // SetCmdRunDir will set the command dir to run at
-func (e *DefaultExecute) SetCmdRunDir(Dir string) {
-	e.CmdRunDir = Dir
+func (e *DefaultExecute) SetCmdRunDir(dir string) {
+	e.CmdRunDir = dir
 }
