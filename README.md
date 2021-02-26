@@ -32,7 +32,7 @@ It supports `ansible-playbook` command with the most of its options.
 
 To install the lastest stable version run the command below:
 ```
-$ go get github.com/apenella/go-ansible@v0.7.1
+$ go get github.com/apenella/go-ansible@v0.8.0
 ```
 
 ## Packages
