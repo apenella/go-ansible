@@ -14,6 +14,14 @@ import (
 	errors "github.com/apenella/go-common-utils/error"
 )
 
+// DefaultExecuteOptions
+type DefaultExecuteOptions struct {
+	// Prefix is a text that is set at the beginning of each execution line
+	Prefix string
+	// CmdRunDir specifies the working directory of the command.
+	CmdRunDir string
+}
+
 // DefaultExecute is a simple definition of an executor
 type DefaultExecute struct {
 	// Writer is where is written the command stdout
@@ -24,8 +32,6 @@ type DefaultExecute struct {
 	ResultsFunc stdoutcallback.StdoutCallbackResultsFunc
 	// ShowDuration enables to show the execution duration time after the command finishes
 	ShowDuration bool
-	// CmdRunDir specifies the working directory of the command.
-	CmdRunDir string
 }
 
 const (
