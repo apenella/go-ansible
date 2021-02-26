@@ -1,6 +1,7 @@
 package ansibler
 
 import (
+	"context"
 	"fmt"
 	"io"
 	"os"
@@ -82,9 +83,9 @@ const (
 	AnsibleHostKeyCheckingEnv = "ANSIBLE_HOST_KEY_CHECKING"
 )
 
-// Executor is and interface that should be implemented for those item which could run ansible playbooks
+// Executor interface is satisfied by those types which has a Execute(context.Context,string,[]string)error method
 type Executor interface {
-	Execute(command string, args []string, prefix string) error
+	Execute(ctx context.Context, command string, args []string, prefix string) error
 }
 
 // AnsibleForceColor changes to a forced color mode
@@ -127,7 +128,7 @@ type AnsiblePlaybookCmd struct {
 }
 
 // Run method runs the ansible-playbook
-func (p *AnsiblePlaybookCmd) Run() error {
+func (p *AnsiblePlaybookCmd) Run(ctx context.Context) error {
 	var err error
 	var cmd []string
 
@@ -175,7 +176,7 @@ func (p *AnsiblePlaybookCmd) Run() error {
 	stdoutcallback.AnsibleStdoutCallbackSetEnv(p.StdoutCallback)
 
 	// Execute the command an return
-	return p.Exec.Execute(cmd[0], cmd[1:], p.ExecPrefix)
+	return p.Exec.Execute(ctx, cmd[0], cmd[1:], p.ExecPrefix)
 }
 
 // Command generate the ansible-playbook command which will be executed

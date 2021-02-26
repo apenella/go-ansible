@@ -1,23 +1,22 @@
 package main
 
 import (
-	"bytes"
+	"context"
 	"fmt"
-	"io"
+	"os"
+	"os/signal"
 
 	ansibler "github.com/apenella/go-ansible"
-	"github.com/apenella/go-ansible/stdoutcallback/results"
 )
 
 func main() {
 
-	var err error
-	res := &results.AnsiblePlaybookJSONResults{}
-	buff := new(bytes.Buffer)
+	signalChan := make(chan os.Signal, 1)
+	ctx, cancel := context.WithCancel(context.Background())
 
 	ansiblePlaybookConnectionOptions := &ansibler.AnsiblePlaybookConnectionOptions{
 		Connection: "local",
-		User:       "apenella",
+		User:       "aleix",
 	}
 
 	ansiblePlaybookOptions := &ansibler.AnsiblePlaybookOptions{
@@ -29,19 +28,25 @@ func main() {
 		ConnectionOptions: ansiblePlaybookConnectionOptions,
 		Options:           ansiblePlaybookOptions,
 		ExecPrefix:        "Go-ansible example",
-		StdoutCallback:    "json",
-		Writer:            io.Writer(buff),
 	}
 
-	err = playbook.Run()
+	signal.Notify(signalChan, os.Interrupt)
+	defer func() {
+		signal.Stop(signalChan)
+		cancel()
+	}()
+
+	go func() {
+		select {
+		case <-signalChan:
+			cancel()
+		case <-ctx.Done():
+		}
+	}()
+
+	err := playbook.Run(ctx)
 	if err != nil {
 		fmt.Println(err.Error())
+		os.Exit(1)
 	}
-
-	res, err = results.JSONParse(buff.Bytes())
-	if err != nil {
-		panic(err)
-	}
-
-	fmt.Println(res.String())
 }

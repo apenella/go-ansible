@@ -1,6 +1,7 @@
-package ansibler
+package execute
 
 import (
+	"context"
 	"errors"
 	"testing"
 
@@ -37,7 +38,7 @@ func TestMockExecute(t *testing.T) {
 	for _, test := range tests {
 		t.Log(test.desc)
 
-		err := test.execute.Execute(test.command[0], test.command[1:], test.prefix)
+		err := test.execute.Execute(context.TODO(), test.command[0], test.command[1:], test.prefix)
 		if err != nil && assert.Error(t, err) {
 			assert.Equal(t, test.err, err)
 		}

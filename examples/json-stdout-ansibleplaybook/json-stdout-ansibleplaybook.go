@@ -1,24 +1,24 @@
 package main
 
 import (
+	"bytes"
 	"context"
 	"fmt"
+	"io"
 
 	ansibler "github.com/apenella/go-ansible"
+	"github.com/apenella/go-ansible/stdoutcallback/results"
 )
-
-type MyExecutor struct{}
-
-func (e *MyExecutor) Execute(ctx context.Context, command string, args []string, prefix string) error {
-	fmt.Println("I am doing nothing")
-
-	return nil
-}
 
 func main() {
 
+	var err error
+	res := &results.AnsiblePlaybookJSONResults{}
+	buff := new(bytes.Buffer)
+
 	ansiblePlaybookConnectionOptions := &ansibler.AnsiblePlaybookConnectionOptions{
 		Connection: "local",
+		User:       "apenella",
 	}
 
 	ansiblePlaybookOptions := &ansibler.AnsiblePlaybookOptions{
@@ -29,11 +29,20 @@ func main() {
 		Playbook:          "site.yml",
 		ConnectionOptions: ansiblePlaybookConnectionOptions,
 		Options:           ansiblePlaybookOptions,
-		Exec:              &MyExecutor{},
+		ExecPrefix:        "Go-ansible example",
+		StdoutCallback:    "json",
+		Writer:            io.Writer(buff),
 	}
 
-	err := playbook.Run(context.TODO())
+	err = playbook.Run(context.TODO())
+	if err != nil {
+		fmt.Println(err.Error())
+	}
+
+	res, err = results.JSONParse(buff.Bytes())
 	if err != nil {
 		panic(err)
 	}
+
+	fmt.Println(res.String())
 }

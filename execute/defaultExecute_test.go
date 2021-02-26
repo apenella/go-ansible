@@ -2,6 +2,7 @@ package execute
 
 import (
 	"bytes"
+	"context"
 	"io"
 	"os/exec"
 	"testing"
@@ -30,6 +31,7 @@ func TestDefaultExecute(t *testing.T) {
 		stderr         io.Writer
 		expectedStderr string
 		expectedStdout string
+		ctx            context.Context
 	}{
 		{
 			desc: "Testing an ansible-playbook with local connection",
@@ -38,6 +40,7 @@ func TestDefaultExecute(t *testing.T) {
 				Write:       io.Writer(&stdout),
 				WriterError: io.Writer(&stderr),
 			},
+			ctx:            context.TODO(),
 			command:        []string{binary, "--inventory", "127.0.0.1,", "test/site.yml", "-c", "local"},
 			prefix:         "test",
 			expectedStdout: ``,
@@ -49,6 +52,7 @@ func TestDefaultExecute(t *testing.T) {
 				Write:       io.Writer(&stdout),
 				WriterError: io.Writer(&stderr),
 			},
+			ctx:     context.TODO(),
 			command: []string{binary, "--inventory", "test/all", "test/site.yml", "--user", "apenella"},
 			prefix:  "test",
 			expectedStderr: `test ── [WARNING]: Invalid characters were found in group names but not replaced, use
@@ -63,7 +67,7 @@ test ── -vvvv to see details
 		stdout.Reset()
 		stderr.Reset()
 
-		err := test.execute.Execute(test.command[0], test.command[1:], test.prefix)
+		err := test.execute.Execute(test.ctx, test.command[0], test.command[1:], test.prefix)
 
 		if err != nil && assert.Error(t, err) {
 			assert.Equal(t, test.err, err)
