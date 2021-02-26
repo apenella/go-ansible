@@ -166,8 +166,3 @@ func (e *DefaultExecute) Execute(command string, args []string, prefix string) e
 
 	return nil
 }
-
-// SetCmdRunDir will set the command dir to run at
-func (e *DefaultExecute) SetCmdRunDir(dir string) {
-	e.CmdRunDir = dir
-}

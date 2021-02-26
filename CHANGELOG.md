@@ -8,6 +8,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## BREAKING CHANGES
 - dir cmd
 
+## [v0.8.0]
+### Added
+- Include attribute CmdRunDir on AnsiblePlaybookCmd which defines the playbook run directory
+- Include attribute CmdRunDir on DefaultExecutor
+
 ## [v0.7.1]
 ### Fixed
 - fix to do not use a multireader for stdout and stderr on DefaultExecutor
