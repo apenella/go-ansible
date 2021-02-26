@@ -152,7 +152,7 @@ func (p *AnsiblePlaybookCmd) Run() error {
 			ResultsFunc: stdoutcallback.GetResultsFunc(p.StdoutCallback),
 		}
 
-		// set executor run dir if it is required to be updated
+		// set executor run dir when is required
 		if p.CmdRunDir != "" {
 			executor.CmdRunDir = p.CmdRunDir
 		}
