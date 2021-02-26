@@ -8,8 +8,6 @@ import (
 
 type MyExecutor struct{}
 
-func (e *MyExecutor) SetCmdRunDir(string) {}
-
 func (e *MyExecutor) Execute(command string, args []string, prefix string) error {
 	fmt.Println("I am doing nothing")
 

@@ -85,7 +85,6 @@ const (
 // Executor is and interface that should be implemented for those item which could run ansible playbooks
 type Executor interface {
 	Execute(command string, args []string, prefix string) error
-	SetCmdRunDir(Dir string)
 }
 
 // AnsibleForceColor changes to a forced color mode
@@ -148,20 +147,23 @@ func (p *AnsiblePlaybookCmd) Run() error {
 
 	// Define a default executor when it is not defined on AnsiblePlaybookCmd
 	if p.Exec == nil {
-		p.Exec = &execute.DefaultExecute{
+		executor := &execute.DefaultExecute{
 			Write:       p.Writer,
 			ResultsFunc: stdoutcallback.GetResultsFunc(p.StdoutCallback),
 		}
+
+		// set executor run dir if it is required to be updated
+		if p.CmdRunDir != "" {
+			executor.CmdRunDir = p.CmdRunDir
+		}
+
+		p.Exec = executor
 	}
 
 	// Generate the command to be run
 	cmd, err = p.Command()
 	if err != nil {
 		return errors.New("(ansible:Run)", fmt.Sprintf("Error running '%s'", p.String()), err)
-	}
-
-	if p.CmdRunDir != "" {
-		p.Exec.SetCmdRunDir(p.CmdRunDir)
 	}
 
 	// Set default prefix
