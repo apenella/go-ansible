@@ -83,11 +83,6 @@ const (
 	AnsibleHostKeyCheckingEnv = "ANSIBLE_HOST_KEY_CHECKING"
 )
 
-// Executor interface is satisfied by those types which has a Execute(context.Context,string,[]string)error method
-type Executor interface {
-	Execute(ctx context.Context, command string, args []string, prefix string) error
-}
-
 // AnsibleForceColor changes to a forced color mode
 func AnsibleForceColor() {
 	os.Setenv(AnsibleForceColorEnv, "true")
@@ -110,7 +105,7 @@ type AnsiblePlaybookCmd struct {
 	// The directory where the ansible-playboor command is run
 	CmdRunDir string
 	// Exec is the executor item
-	Exec Executor
+	Exec execute.Executor
 	// ExecPrefix is a text that is set at the beginning of each execution line
 	ExecPrefix string
 	// Playbook is the ansible's playbook name to be used
@@ -130,7 +125,8 @@ type AnsiblePlaybookCmd struct {
 // Run method runs the ansible-playbook
 func (p *AnsiblePlaybookCmd) Run(ctx context.Context) error {
 	var err error
-	var cmd []string
+	var command []string
+	options := []execute.ExecuteOptions{}
 
 	if p == nil {
 		return errors.New("(ansible:Run)", "AnsiblePlaybookCmd is nil")
@@ -148,35 +144,37 @@ func (p *AnsiblePlaybookCmd) Run(ctx context.Context) error {
 
 	// Define a default executor when it is not defined on AnsiblePlaybookCmd
 	if p.Exec == nil {
-		executor := &execute.DefaultExecute{
-			Write:       p.Writer,
+		p.Exec = &execute.DefaultExecute{
 			ResultsFunc: stdoutcallback.GetResultsFunc(p.StdoutCallback),
 		}
 
-		// set executor run dir when is required
-		if p.CmdRunDir != "" {
-			executor.CmdRunDir = p.CmdRunDir
+		if p.Writer != nil {
+			options = append(options, execute.WithWrite(p.Writer))
 		}
 
-		p.Exec = executor
-	}
+		// Set default prefix
+		if len(p.ExecPrefix) > 0 {
+			options = append(options, execute.WithPrefix(p.ExecPrefix))
+		}
 
-	// Generate the command to be run
-	cmd, err = p.Command()
-	if err != nil {
-		return errors.New("(ansible:Run)", fmt.Sprintf("Error running '%s'", p.String()), err)
-	}
+		// Set default run dir
+		if len(p.CmdRunDir) > 0 {
+			options = append(options, execute.WithPrefix(p.CmdRunDir))
+		}
 
-	// Set default prefix
-	if len(p.ExecPrefix) <= 0 {
-		p.ExecPrefix = ""
 	}
 
 	// Configure StdoutCallback method. By default is used ansible's 'default' callback method
 	stdoutcallback.AnsibleStdoutCallbackSetEnv(p.StdoutCallback)
 
+	// Generate the command to be run
+	command, err = p.Command()
+	if err != nil {
+		return errors.New("(ansible:Run)", fmt.Sprintf("Error running '%s'", p.String()), err)
+	}
+
 	// Execute the command an return
-	return p.Exec.Execute(ctx, cmd[0], cmd[1:], p.ExecPrefix)
+	return p.Exec.Execute(ctx, command, options...)
 }
 
 // Command generate the ansible-playbook command which will be executed

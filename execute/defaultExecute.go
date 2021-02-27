@@ -15,26 +15,6 @@ import (
 	errors "github.com/apenella/go-common-utils/error"
 )
 
-// DefaultExecuteOptions
-type DefaultExecuteOptions struct {
-	// Prefix is a text that is set at the beginning of each execution line
-	Prefix string
-	// CmdRunDir specifies the working directory of the command.
-	CmdRunDir string
-}
-
-// DefaultExecute is a simple definition of an executor
-type DefaultExecute struct {
-	// Writer is where is written the command stdout
-	Write io.Writer
-	// WriterError is where is written the command stderr
-	WriterError io.Writer
-	// ResultsFunc is the function that manages execution output
-	ResultsFunc stdoutcallback.StdoutCallbackResultsFunc
-	// ShowDuration enables to show the execution duration time after the command finishes
-	ShowDuration bool
-}
-
 const (
 	// AnsiblePlaybookErrorCodeGeneralError
 	AnsiblePlaybookErrorCodeGeneralError = 1
@@ -67,8 +47,70 @@ const (
 	AnsiblePlaybookErrorMessageUnexpectedError = "ansible-playbook error: unexpected error"
 )
 
+// DefaultExecute is a simple definition of an executor
+type DefaultExecute struct {
+	// Writer is where is written the command stdout
+	Write io.Writer
+	// WriterError is where is written the command stderr
+	WriterError io.Writer
+	// ResultsFunc is the function that manages execution output
+	ResultsFunc stdoutcallback.StdoutCallbackResultsFunc
+	// ShowDuration enables to show the execution duration time after the command finishes
+	ShowDuration bool
+	// Prefix is a text that is set at the beginning of each execution line
+	Prefix string
+	// CmdRunDir specifies the working directory of the command.
+	CmdRunDir string
+}
+
+// NewDefaultExecute return a new DefaultExecute instance with all options
+func NewDefaultExecute(options ...ExecuteOptions) *DefaultExecute {
+	execute := &DefaultExecute{}
+
+	for _, opt := range options {
+		opt(execute)
+	}
+
+	return execute
+}
+
+// WithWrite set the writer to be used by DefaultExecutor
+func WithWrite(w io.Writer) ExecuteOptions {
+	return func(e Executor) {
+		e.(*DefaultExecute).Write = w
+	}
+}
+
+// WithWriteError set the error writer to be used by DefaultExecutor
+func WithWriteError(w io.Writer) ExecuteOptions {
+	return func(e Executor) {
+		e.(*DefaultExecute).Write = w
+	}
+}
+
+// WithPrefix set the prefix to be used by DefaultExecutor
+func WithPrefix(prefix string) ExecuteOptions {
+	return func(e Executor) {
+		e.(*DefaultExecute).Prefix = prefix
+	}
+}
+
+// WithCmdRunDir set the command run directory to be used by DefaultExecutor
+func WithCmdRunDir(cmdRunDir string) ExecuteOptions {
+	return func(e Executor) {
+		e.(*DefaultExecute).CmdRunDir = cmdRunDir
+	}
+}
+
+// WithShowDuration enables to show command duration
+func WithShowDuration() ExecuteOptions {
+	return func(e Executor) {
+		e.(*DefaultExecute).ShowDuration = true
+	}
+}
+
 // Execute takes a command and args and runs it, streaming output to stdout
-func (e *DefaultExecute) Execute(ctx context.Context, command string, args []string, prefix string) error {
+func (e *DefaultExecute) Execute(ctx context.Context, command []string, options ...ExecuteOptions) error {
 
 	var err error
 	var cmdStderr, cmdStdout io.ReadCloser
@@ -80,12 +122,12 @@ func (e *DefaultExecute) Execute(ctx context.Context, command string, args []str
 		e.Write = os.Stdout
 	}
 
-	//cmd := exec.Command(command, args...)
-	cmd := exec.CommandContext(ctx, command, args...)
-
-	if e.CmdRunDir != "" {
-		cmd.Dir = e.CmdRunDir
+	// apply all options to the executor
+	for _, opt := range options {
+		opt(e)
 	}
+
+	cmd := exec.CommandContext(ctx, command[0], command[1:]...)
 
 	cmdStdout, err = cmd.StdoutPipe()
 	defer cmdStdout.Close()
@@ -116,7 +158,7 @@ func (e *DefaultExecute) Execute(ctx context.Context, command string, args []str
 			e.ResultsFunc = results.DefaultStdoutCallbackResults
 		}
 
-		err := e.ResultsFunc(ctx, prefix, cmdStdout, e.Write)
+		//err := e.ResultsFunc(ctx, options.Prefix, cmdStdout, e.Write)
 		wg.Done()
 		execErrChan <- err
 	}()
@@ -128,7 +170,7 @@ func (e *DefaultExecute) Execute(ctx context.Context, command string, args []str
 		}
 
 		// show stderr messages using default stdout callback results
-		results.DefaultStdoutCallbackResults(ctx, prefix, cmdStderr, e.WriterError)
+		results.DefaultStdoutCallbackResults(ctx, e.Prefix, cmdStderr, e.WriterError)
 		wg.Done()
 	}()
 

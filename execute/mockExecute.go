@@ -14,14 +14,14 @@ type MockExecute struct {
 }
 
 // Execute takes a command and args and runs it, streaming output to stdout
-func (e *MockExecute) Execute(ctx context.Context, command string, args []string, prefix string) error {
+func (e *MockExecute) Execute(ctx context.Context, command []string, options ...ExecuteOptions) error {
 	if e.Write == nil {
 		e.Write = os.Stdout
 	}
-	if command == "error" {
+	if command[0] == "error" {
 		return errors.New("(MockExecute::Execute) error")
 	}
 
-	fmt.Fprintf(e.Write, "%s %v", command, args)
+	fmt.Fprintf(e.Write, "%v", command)
 	return nil
 }

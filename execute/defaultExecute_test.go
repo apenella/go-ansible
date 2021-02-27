@@ -25,7 +25,7 @@ func TestDefaultExecute(t *testing.T) {
 		err            error
 		execute        *DefaultExecute
 		command        []string
-		prefix         string
+		options        []ExecuteOptions
 		res            string
 		stdout         io.Writer
 		stderr         io.Writer
@@ -40,9 +40,11 @@ func TestDefaultExecute(t *testing.T) {
 				Write:       io.Writer(&stdout),
 				WriterError: io.Writer(&stderr),
 			},
-			ctx:            context.TODO(),
-			command:        []string{binary, "--inventory", "127.0.0.1,", "test/site.yml", "-c", "local"},
-			prefix:         "test",
+			ctx:     context.TODO(),
+			command: []string{binary, "--inventory", "127.0.0.1,", "test/site.yml", "-c", "local"},
+			options: []ExecuteOptions{
+				WithPrefix("test"),
+			},
 			expectedStdout: ``,
 		},
 		{
@@ -54,7 +56,9 @@ func TestDefaultExecute(t *testing.T) {
 			},
 			ctx:     context.TODO(),
 			command: []string{binary, "--inventory", "test/all", "test/site.yml", "--user", "apenella"},
-			prefix:  "test",
+			options: []ExecuteOptions{
+				WithPrefix("test"),
+			},
 			expectedStderr: `test ── [WARNING]: Invalid characters were found in group names but not replaced, use
 test ── -vvvv to see details
 `,
@@ -67,7 +71,7 @@ test ── -vvvv to see details
 		stdout.Reset()
 		stderr.Reset()
 
-		err := test.execute.Execute(test.ctx, test.command[0], test.command[1:], test.prefix)
+		err := test.execute.Execute(test.ctx, test.command, test.options...)
 
 		if err != nil && assert.Error(t, err) {
 			assert.Equal(t, test.err, err)

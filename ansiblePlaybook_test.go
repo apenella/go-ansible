@@ -419,7 +419,7 @@ func TestRun(t *testing.T) {
 				},
 			},
 			ctx: context.TODO(),
-			res: "ansible-playbook [--inventory test/ansible/inventory/all --connection local test/ansible/site.yml]",
+			res: "[ansible-playbook --inventory test/ansible/inventory/all --connection local test/ansible/site.yml]",
 			err: nil,
 		},
 		{
@@ -478,7 +478,7 @@ func TestRun(t *testing.T) {
 					},
 				},
 			},
-			res: "ansible-playbook [--inventory test/all --extra-vars {\"array\":[\"one\",\"two\"],\"bool\":true,\"dict\":{\"one\":true,\"two\":false},\"int\":10,\"string\":\"testing an string\"} --connection local test/test_site.yml]",
+			res: "[ansible-playbook --inventory test/all --extra-vars {\"array\":[\"one\",\"two\"],\"bool\":true,\"dict\":{\"one\":true,\"two\":false},\"int\":10,\"string\":\"testing an string\"} --connection local test/test_site.yml]",
 			ctx: context.TODO(),
 			err: nil,
 		},
