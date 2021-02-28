@@ -45,6 +45,13 @@ const (
 	AnsiblePlaybookErrorMessageUserInterruptedExecution = "ansible-playbook error: user interrupted execution"
 	// AnsiblePlaybookErrorMessageUnexpectedError
 	AnsiblePlaybookErrorMessageUnexpectedError = "ansible-playbook error: unexpected error"
+
+	//OutputFormatDefault
+	OutputFormatDefault int8 = iota
+	//OutputFormatLogFormat
+	OutputFormatLogFormat
+	//OutputFormatJSON
+	OutputFormatJSON
 )
 
 // DefaultExecute is a simple definition of an executor
@@ -61,6 +68,8 @@ type DefaultExecute struct {
 	Prefix string
 	// CmdRunDir specifies the working directory of the command.
 	CmdRunDir string
+	// OutputFormat
+	OutputFormat int8
 }
 
 // NewDefaultExecute return a new DefaultExecute instance with all options
@@ -99,6 +108,20 @@ func WithPrefix(prefix string) ExecuteOptions {
 func WithCmdRunDir(cmdRunDir string) ExecuteOptions {
 	return func(e Executor) {
 		e.(*DefaultExecute).CmdRunDir = cmdRunDir
+	}
+}
+
+// WithOutputFormat set the results function to be used by DefaultExecutor
+func WithOutputFormat(f int8) ExecuteOptions {
+	return func(e Executor) {
+		e.(*DefaultExecute).OutputFormat = f
+	}
+}
+
+// WithResultsFunc set the command results function to be used by DefaultExecutor
+func WithResultsFunc(f stdoutcallback.StdoutCallbackResultsFunc) ExecuteOptions {
+	return func(e Executor) {
+		e.(*DefaultExecute).ResultsFunc = f
 	}
 }
 

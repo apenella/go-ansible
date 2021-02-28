@@ -102,12 +102,8 @@ func AnsibleSetEnv(key, value string) {
 type AnsiblePlaybookCmd struct {
 	// Ansible binary file
 	Binary string
-	// The directory where the ansible-playboor command is run
-	CmdRunDir string
 	// Exec is the executor item
 	Exec execute.Executor
-	// ExecPrefix is a text that is set at the beginning of each execution line
-	ExecPrefix string
 	// Playbook is the ansible's playbook name to be used
 	Playbook string
 	// Options are the ansible's playbook options
@@ -150,16 +146,6 @@ func (p *AnsiblePlaybookCmd) Run(ctx context.Context) error {
 
 		if p.Writer != nil {
 			options = append(options, execute.WithWrite(p.Writer))
-		}
-
-		// Set default prefix
-		if len(p.ExecPrefix) > 0 {
-			options = append(options, execute.WithPrefix(p.ExecPrefix))
-		}
-
-		// Set default run dir
-		if len(p.CmdRunDir) > 0 {
-			options = append(options, execute.WithPrefix(p.CmdRunDir))
 		}
 
 	}
