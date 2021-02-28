@@ -5,8 +5,17 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [v1.0.0]
-## BREAKING CHANGES
-- dir cmd
+
+## Added
+- New function type `ExecuteOptions` to provide options to executor instances.
+- New `DefaultExecute` constructor `NewDefaultExecute` that accepts a list of `ExecuteOptions`
+
+## Changed
+- **BREAKING CHANGE**: `Executor` interface has been moved from `ansibler` package to `execute` package.
+- **BREAKING CHANGE**: `Executor` interface is changed to `Execute(ctx context.Context, command []string, options ...ExecuteOptions) error`.
+- **BREAKING CHANGE**: `DefaultExecute` has been updated to use options pattern design, and includes a set of `WithXXX` methods for each attribute.
+- **BREAKING CHANGE**: Remove `ExecPrefix` from `AnsiblePlaybookCmd`
+- **BREAKING CHANGE**: Remove `CmdRunDir` from `AnsiblePlaybookCmd`
 
 ## [v0.8.0]
 ### Added
