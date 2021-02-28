@@ -7,6 +7,7 @@ import (
 	"os/signal"
 
 	ansibler "github.com/apenella/go-ansible"
+	"github.com/apenella/go-ansible/execute"
 )
 
 func main() {
@@ -27,7 +28,9 @@ func main() {
 		Playbook:          "site.yml",
 		ConnectionOptions: ansiblePlaybookConnectionOptions,
 		Options:           ansiblePlaybookOptions,
-		ExecPrefix:        "Go-ansible example",
+		Exec: execute.NewDefaultExecute(
+			execute.WithPrefix("Go-ansible example"),
+		),
 	}
 
 	signal.Notify(signalChan, os.Interrupt)

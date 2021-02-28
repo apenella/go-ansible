@@ -7,6 +7,7 @@ import (
 	"time"
 
 	ansibler "github.com/apenella/go-ansible"
+	"github.com/apenella/go-ansible/execute"
 )
 
 func main() {
@@ -33,8 +34,10 @@ func main() {
 		Playbook:          "site.yml",
 		ConnectionOptions: ansiblePlaybookConnectionOptions,
 		Options:           ansiblePlaybookOptions,
-		ExecPrefix:        "Go-ansible example",
-		StdoutCallback:    "json",
+		Exec: execute.NewDefaultExecute(
+			execute.WithPrefix("Go-ansible example"),
+		),
+		StdoutCallback: "json",
 	}
 
 	err := playbook.Run(ctx)

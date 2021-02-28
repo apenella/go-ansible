@@ -11,6 +11,7 @@ import (
 	"strings"
 
 	ansibler "github.com/apenella/go-ansible"
+	"github.com/apenella/go-ansible/execute"
 	errors "github.com/apenella/go-common-utils/error"
 	"github.com/spf13/cobra"
 )
@@ -74,7 +75,9 @@ func commandHandler(cmd *cobra.Command, args []string) error {
 		Playbook:          playbook,
 		ConnectionOptions: ansiblePlaybookConnectionOptions,
 		Options:           ansiblePlaybookOptions,
-		ExecPrefix:        "Example cobra-cmd-ansibleplaybook",
+		Exec: execute.NewDefaultExecute(
+			execute.WithPrefix("Example cobra-cmd-ansibleplaybook"),
+		),
 	}
 
 	ansibler.AnsibleForceColor()

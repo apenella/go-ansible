@@ -3,7 +3,6 @@ package ansibler
 import (
 	"context"
 	"fmt"
-	"io"
 	"os"
 	"os/exec"
 
@@ -114,8 +113,6 @@ type AnsiblePlaybookCmd struct {
 	PrivilegeEscalationOptions *AnsiblePlaybookPrivilegeEscalationOptions
 	// StdoutCallback defines which is the stdout callback method. By default is used 'default' method. Supported stdout method by go-ansible are: debug, default, dense, json, minimal, null, oneline, stderr, timer, yaml
 	StdoutCallback string
-	// Writer manages the output
-	Writer io.Writer
 }
 
 // Run method runs the ansible-playbook
@@ -140,14 +137,7 @@ func (p *AnsiblePlaybookCmd) Run(ctx context.Context) error {
 
 	// Define a default executor when it is not defined on AnsiblePlaybookCmd
 	if p.Exec == nil {
-		p.Exec = &execute.DefaultExecute{
-			ResultsFunc: stdoutcallback.GetResultsFunc(p.StdoutCallback),
-		}
-
-		if p.Writer != nil {
-			options = append(options, execute.WithWrite(p.Writer))
-		}
-
+		p.Exec = execute.NewDefaultExecute()
 	}
 
 	// Configure StdoutCallback method. By default is used ansible's 'default' callback method
@@ -160,7 +150,7 @@ func (p *AnsiblePlaybookCmd) Run(ctx context.Context) error {
 	}
 
 	// Execute the command an return
-	return p.Exec.Execute(ctx, command, options...)
+	return p.Exec.Execute(ctx, command, stdoutcallback.GetResultsFunc(p.StdoutCallback), options...)
 }
 
 // Command generate the ansible-playbook command which will be executed

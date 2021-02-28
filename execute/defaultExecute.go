@@ -60,8 +60,6 @@ type DefaultExecute struct {
 	Write io.Writer
 	// WriterError is where is written the command stderr
 	WriterError io.Writer
-	// ResultsFunc is the function that manages execution output
-	ResultsFunc stdoutcallback.StdoutCallbackResultsFunc
 	// ShowDuration enables to show the execution duration time after the command finishes
 	ShowDuration bool
 	// Prefix is a text that is set at the beginning of each execution line
@@ -93,7 +91,7 @@ func WithWrite(w io.Writer) ExecuteOptions {
 // WithWriteError set the error writer to be used by DefaultExecutor
 func WithWriteError(w io.Writer) ExecuteOptions {
 	return func(e Executor) {
-		e.(*DefaultExecute).Write = w
+		e.(*DefaultExecute).WriterError = w
 	}
 }
 
@@ -118,13 +116,6 @@ func WithOutputFormat(f int8) ExecuteOptions {
 	}
 }
 
-// WithResultsFunc set the command results function to be used by DefaultExecutor
-func WithResultsFunc(f stdoutcallback.StdoutCallbackResultsFunc) ExecuteOptions {
-	return func(e Executor) {
-		e.(*DefaultExecute).ResultsFunc = f
-	}
-}
-
 // WithShowDuration enables to show command duration
 func WithShowDuration() ExecuteOptions {
 	return func(e Executor) {
@@ -133,7 +124,7 @@ func WithShowDuration() ExecuteOptions {
 }
 
 // Execute takes a command and args and runs it, streaming output to stdout
-func (e *DefaultExecute) Execute(ctx context.Context, command []string, options ...ExecuteOptions) error {
+func (e *DefaultExecute) Execute(ctx context.Context, command []string, resultsFunc stdoutcallback.StdoutCallbackResultsFunc, options ...ExecuteOptions) error {
 
 	var err error
 	var cmdStderr, cmdStdout io.ReadCloser
@@ -141,13 +132,29 @@ func (e *DefaultExecute) Execute(ctx context.Context, command []string, options 
 
 	execErrChan := make(chan error)
 
+	// apply all options to the executor
+	for _, opt := range options {
+		opt(e)
+	}
+
+	if resultsFunc == nil {
+		resultsFunc = results.DefaultStdoutCallbackResults
+	}
+
 	if e.Write == nil {
 		e.Write = os.Stdout
 	}
 
-	// apply all options to the executor
-	for _, opt := range options {
-		opt(e)
+	if e.WriterError == nil {
+		e.WriterError = os.Stderr
+	}
+
+	if len(e.Prefix) <= 0 {
+		e.Prefix = ""
+	}
+
+	if len(e.CmdRunDir) <= 0 {
+		e.CmdRunDir = ""
 	}
 
 	cmd := exec.CommandContext(ctx, command[0], command[1:]...)
@@ -177,21 +184,13 @@ func (e *DefaultExecute) Execute(ctx context.Context, command []string, options 
 	go func() {
 		defer close(execErrChan)
 
-		if e.ResultsFunc == nil {
-			e.ResultsFunc = results.DefaultStdoutCallbackResults
-		}
-
-		//err := e.ResultsFunc(ctx, options.Prefix, cmdStdout, e.Write)
+		err := resultsFunc(ctx, e.Prefix, cmdStdout, e.Write)
 		wg.Done()
 		execErrChan <- err
 	}()
 
 	// stderr management
 	go func() {
-		if e.WriterError == nil {
-			e.WriterError = os.Stderr
-		}
-
 		// show stderr messages using default stdout callback results
 		results.DefaultStdoutCallbackResults(ctx, e.Prefix, cmdStderr, e.WriterError)
 		wg.Done()

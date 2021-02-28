@@ -35,7 +35,7 @@ func TestMockExecute(t *testing.T) {
 	for _, test := range tests {
 		t.Log(test.desc)
 
-		err := test.execute.Execute(context.TODO(), test.command, nil)
+		err := test.execute.Execute(context.TODO(), test.command, nil, nil)
 		if err != nil && assert.Error(t, err) {
 			assert.Equal(t, test.err, err)
 		}

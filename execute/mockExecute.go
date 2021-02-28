@@ -6,6 +6,8 @@ import (
 	"fmt"
 	"io"
 	"os"
+
+	"github.com/apenella/go-ansible/stdoutcallback"
 )
 
 // MockExecute defines a simple executor for testing purposal
@@ -14,7 +16,7 @@ type MockExecute struct {
 }
 
 // Execute takes a command and args and runs it, streaming output to stdout
-func (e *MockExecute) Execute(ctx context.Context, command []string, options ...ExecuteOptions) error {
+func (e *MockExecute) Execute(ctx context.Context, command []string, resultsFunc stdoutcallback.StdoutCallbackResultsFunc, options ...ExecuteOptions) error {
 	if e.Write == nil {
 		e.Write = os.Stdout
 	}
