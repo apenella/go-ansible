@@ -48,8 +48,8 @@ func main() {
 		Inventory: "127.0.0.1,",
 	}
 
-	e := &MyExecutor{}
-	e.Options(
+	exe := &MyExecutor{}
+	exe.Options(
 		WithPrefix("[Go ansible example]"),
 	)
 
@@ -57,7 +57,7 @@ func main() {
 		Playbook:          "site.yml",
 		ConnectionOptions: ansiblePlaybookConnectionOptions,
 		Options:           ansiblePlaybookOptions,
-		Exec:              e,
+		Exec:              exe,
 	}
 
 	err := playbook.Run(context.TODO())

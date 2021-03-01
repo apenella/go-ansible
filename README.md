@@ -52,31 +52,58 @@ Go-ansible package has its own and default executor implementation which runs th
 Whenever is required, you could write your own executor implementation and set it on `AnsiblePlaybookCmd` object, it will expect that the executor implements `Executor` interface.
 ```go
 type Executor interface {
-	Execute(ctx context.Context, command string, args []string, prefix string) error
+	Execute(ctx context.Context, command []string, resultsFunc stdoutcallback.StdoutCallbackResultsFunc, options ...ExecuteOptions) error
 }
 ```
 
 Its possible to define your own executor and set it on `AnsiblePlaybookCmd`.
 ```go
-type MyExecutor struct {}
-func (e *MyExecutor) Execute(ctx context.Context, command string, args []string, prefix string) error {
-    fmt.Println("I am doing nothing")
-
-    return nil
+type MyExecutor struct {
+	Prefix string
 }
 
-playbook := &ansibler.AnsiblePlaybookCmd{
-    Playbook:          "site.yml",
-    ConnectionOptions: ansiblePlaybookConnectionOptions,
-    Options:           ansiblePlaybookOptions,
-    Exec:              &MyExecutor{},
+func (e *MyExecutor) Options(options ...execute.ExecuteOptions) {
+	// apply all options to the executor
+	for _, opt := range options {
+		opt(e)
+	}
 }
+
+func WithPrefix(prefix string) execute.ExecuteOptions {
+	return func(e execute.Executor) {
+		e.(*MyExecutor).Prefix = prefix
+	}
+}
+
+func (e *MyExecutor) Execute(ctx context.Context, command []string, resultsFunc stdoutcallback.StdoutCallbackResultsFunc, options ...execute.ExecuteOptions) error {
+
+	// apply all options to the executor
+	for _, opt := range options {
+		opt(e)
+	}
+
+	fmt.Println(fmt.Sprintf("[%s] %s\n", e.Prefix, "I am MyExecutor and I am doing nothing"))
+
+	return nil
+}
+
+exe := &MyExecutor{}
+	exe.Options(
+		WithPrefix("Go ansible example"),
+	)
+
+	playbook := &ansibler.AnsiblePlaybookCmd{
+		Playbook:          "site.yml",
+		ConnectionOptions: ansiblePlaybookConnectionOptions,
+		Options:           ansiblePlaybookOptions,
+		Exec:              exe,
+	}
 ```
 
 When you run the playbook using your dummy executor, the output received is the next one.
 ```
 $ go run myexecutor-ansibleplaybook.go
-I am doing nothing
+[Go ansible example] I am MyExecutor and I am doing nothing
 ```
 
 ### Stdout Callback
@@ -141,11 +168,10 @@ playbook := &ansibler.AnsiblePlaybookCmd{
     ConnectionOptions: ansiblePlaybookConnectionOptions,
     Options:           ansiblePlaybookOptions,
     PrivilegeEscalationOptions: privilegeEscalationOptions,
-    ExecPrefix:        "Go-ansible example",
 }
 ```
 
-Once the `AnsiblePlaybookCmd` is already defined it could be run it using the `Run` method.
+Once the `AnsiblePlaybookCmd` is already defined it could be run it using the `Run` method. Though is not defined an Executor `DefaultExecute` is used having the default parameters
 ```go
 err := playbook.Run(context.TODO())
 if err != nil {
@@ -155,21 +181,21 @@ if err != nil {
 
 The result of the `ansible-playbook` execution is shown below.
 ```
-Go-ansible example =>
-Go-ansible example =>  PLAY [all] *********************************************************************
-Go-ansible example =>
-Go-ansible example =>  TASK [Gathering Facts] *********************************************************
-Go-ansible example =>  ok: [127.0.0.1]
-Go-ansible example =>
-Go-ansible example =>  TASK [simple-ansibleplaybook] **************************************************
-Go-ansible example =>  ok: [127.0.0.1] =>
-Go-ansible example =>    msg: Your are running 'simple-ansibleplaybook' example
-Go-ansible example =>
-Go-ansible example =>  PLAY RECAP *********************************************************************
-Go-ansible example =>  127.0.0.1                  : ok=2    changed=0    unreachable=0    failed=0    skipped=0    rescued=0    ignored=0
-Go-ansible example =>
-Go-ansible example =>  Playbook run took 0 days, 0 hours, 0 minutes, 1 seconds
-Duration: 1.816272213s
+ ──
+ ── PLAY [all] *********************************************************************
+ ──
+ ── TASK [Gathering Facts] *********************************************************
+ ── ok: [127.0.0.1]
+ ──
+ ── TASK [simple-ansibleplaybook] **************************************************
+ ── ok: [127.0.0.1] => {
+ ──     "msg": "Your are running 'simple-ansibleplaybook' example"
+ ── }
+ ──
+ ── PLAY RECAP *********************************************************************
+ ── 127.0.0.1                  : ok=2    changed=0    unreachable=0    failed=0    skipped=0    rescued=0    ignored=0
+ ──
+ ── Playbook run took 0 days, 0 hours, 0 minutes, 0 seconds
 ```
 
 ## License

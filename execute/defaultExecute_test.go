@@ -11,6 +11,30 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+func TestNewDefaultExecute(t *testing.T) {
+	wr := &bytes.Buffer{}
+	prefix := "prefix"
+	runDir := "rundir"
+
+	t.Log("Testing NewDefaultExecute and WithXXX methods")
+
+	exe := NewDefaultExecute(
+		WithPrefix(prefix),
+		WithCmdRunDir(runDir),
+		WithWrite(io.Writer(wr)),
+		WithWriteError(io.Writer(wr)),
+		WithShowDuration(),
+		WithOutputFormat(OutputFormatLogFormat),
+	)
+
+	assert.Equal(t, prefix, exe.Prefix, "Prefix does not match")
+	assert.Equal(t, runDir, exe.CmdRunDir, "CmdRunDir does not match")
+	assert.True(t, exe.ShowDuration, "ShowDuration does not matc")
+	assert.Equal(t, wr, exe.Write, "Write does not match")
+	assert.Equal(t, wr, exe.WriterError, "WriteError does not match")
+	assert.Equal(t, OutputFormatLogFormat, exe.OutputFormat, "OutputFormat does not match")
+}
+
 func TestDefaultExecute(t *testing.T) {
 
 	var stdout, stderr bytes.Buffer

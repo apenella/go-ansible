@@ -12,13 +12,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Changed
 - **BREAKING CHANGE**: `Executor` interface has been moved from `ansibler` package to `execute` package.
-- **BREAKING CHANGE**: `Executor` interface is changed to `Execute(ctx context.Context, command []string, options ...ExecuteOptions) error`.
-- **BREAKING CHANGE**: `DefaultExecute` has been updated to use options pattern design, and includes a set of `WithXXX` methods for each attribute.
+- **BREAKING CHANGE**: `Executor` interface is changed to `Execute(ctx context.Context, command []string, resultsFunc stdoutcallback.StdoutCallbackResultsFunc, options ...ExecuteOptions) error`.
+- **BREAKING CHANGE**: `DefaultExecute` has been updated to use options pattern design, and includes a bunch of `WithXXX` methods to set its attributes.
 
 ## Removed
 - **BREAKING CHANGE**: Remove `ExecPrefix` from `AnsiblePlaybookCmd`
 - **BREAKING CHANGE**: Remove `CmdRunDir` from `AnsiblePlaybookCmd`
 - **BREAKING CHANGE**: Remove `Writer` from `AnsiblePlaybookCmd`
+- **BREAKING CHANGE**: Remove `ResultsFunc` from `DefaultExecute`
 
 ## [v0.8.0]
 ### Added
