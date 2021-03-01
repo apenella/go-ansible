@@ -4,6 +4,28 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [v1.0.0]
+
+## Added
+- New function type `ExecuteOptions` to provide options to executor instances.
+- New `DefaultExecute` constructor `NewDefaultExecute` that accepts a list of `ExecuteOptions`
+
+## Changed
+- **BREAKING CHANGE**: `Executor` interface has been moved from `ansibler` package to `execute` package.
+- **BREAKING CHANGE**: `Executor` interface is changed to `Execute(ctx context.Context, command []string, resultsFunc stdoutcallback.StdoutCallbackResultsFunc, options ...ExecuteOptions) error`.
+- **BREAKING CHANGE**: `DefaultExecute` has been updated to use options pattern design, and includes a bunch of `WithXXX` methods to set its attributes.
+
+## Removed
+- **BREAKING CHANGE**: Remove `ExecPrefix` from `AnsiblePlaybookCmd`
+- **BREAKING CHANGE**: Remove `CmdRunDir` from `AnsiblePlaybookCmd`
+- **BREAKING CHANGE**: Remove `Writer` from `AnsiblePlaybookCmd`
+- **BREAKING CHANGE**: Remove `ResultsFunc` from `DefaultExecute`
+
+## [v0.8.0]
+### Added
+- Include attribute CmdRunDir on AnsiblePlaybookCmd which defines the playbook run directory
+- Include attribute CmdRunDir on DefaultExecutor
+
 ## [v0.7.1]
 ### Fixed
 - fix to do not use a multireader for stdout and stderr on DefaultExecutor

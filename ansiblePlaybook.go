@@ -1,8 +1,8 @@
 package ansibler
 
 import (
+	"context"
 	"fmt"
-	"io"
 	"os"
 	"os/exec"
 
@@ -82,12 +82,6 @@ const (
 	AnsibleHostKeyCheckingEnv = "ANSIBLE_HOST_KEY_CHECKING"
 )
 
-// Executor is and interface that should be implemented for those item which could run ansible playbooks
-type Executor interface {
-	Execute(command string, args []string, prefix string) error
-	SetCmdRunDir(Dir string)
-}
-
 // AnsibleForceColor changes to a forced color mode
 func AnsibleForceColor() {
 	os.Setenv(AnsibleForceColorEnv, "true")
@@ -107,12 +101,8 @@ func AnsibleSetEnv(key, value string) {
 type AnsiblePlaybookCmd struct {
 	// Ansible binary file
 	Binary string
-	// The directory where the ansible-playboor command is run
-	CmdRunDir string
 	// Exec is the executor item
-	Exec Executor
-	// ExecPrefix is a text that is set at the beginning of each execution line
-	ExecPrefix string
+	Exec execute.Executor
 	// Playbook is the ansible's playbook name to be used
 	Playbook string
 	// Options are the ansible's playbook options
@@ -123,14 +113,13 @@ type AnsiblePlaybookCmd struct {
 	PrivilegeEscalationOptions *AnsiblePlaybookPrivilegeEscalationOptions
 	// StdoutCallback defines which is the stdout callback method. By default is used 'default' method. Supported stdout method by go-ansible are: debug, default, dense, json, minimal, null, oneline, stderr, timer, yaml
 	StdoutCallback string
-	// Writer manages the output
-	Writer io.Writer
 }
 
 // Run method runs the ansible-playbook
-func (p *AnsiblePlaybookCmd) Run() error {
+func (p *AnsiblePlaybookCmd) Run(ctx context.Context) error {
 	var err error
-	var cmd []string
+	var command []string
+	options := []execute.ExecuteOptions{}
 
 	if p == nil {
 		return errors.New("(ansible:Run)", "AnsiblePlaybookCmd is nil")
@@ -148,32 +137,20 @@ func (p *AnsiblePlaybookCmd) Run() error {
 
 	// Define a default executor when it is not defined on AnsiblePlaybookCmd
 	if p.Exec == nil {
-		p.Exec = &execute.DefaultExecute{
-			Write:       p.Writer,
-			ResultsFunc: stdoutcallback.GetResultsFunc(p.StdoutCallback),
-		}
-	}
-
-	// Generate the command to be run
-	cmd, err = p.Command()
-	if err != nil {
-		return errors.New("(ansible:Run)", fmt.Sprintf("Error running '%s'", p.String()), err)
-	}
-
-	if p.CmdRunDir != "" {
-		p.Exec.SetCmdRunDir(p.CmdRunDir)
-	}
-
-	// Set default prefix
-	if len(p.ExecPrefix) <= 0 {
-		p.ExecPrefix = ""
+		p.Exec = execute.NewDefaultExecute()
 	}
 
 	// Configure StdoutCallback method. By default is used ansible's 'default' callback method
 	stdoutcallback.AnsibleStdoutCallbackSetEnv(p.StdoutCallback)
 
+	// Generate the command to be run
+	command, err = p.Command()
+	if err != nil {
+		return errors.New("(ansible:Run)", fmt.Sprintf("Error running '%s'", p.String()), err)
+	}
+
 	// Execute the command an return
-	return p.Exec.Execute(cmd[0], cmd[1:], p.ExecPrefix)
+	return p.Exec.Execute(ctx, command, stdoutcallback.GetResultsFunc(p.StdoutCallback), options...)
 }
 
 // Command generate the ansible-playbook command which will be executed

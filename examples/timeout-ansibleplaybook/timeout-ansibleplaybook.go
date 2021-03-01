@@ -1,19 +1,25 @@
 package main
 
 import (
-	"bytes"
+	"context"
+	"flag"
 	"fmt"
-	"io"
+	"time"
 
 	ansibler "github.com/apenella/go-ansible"
-	"github.com/apenella/go-ansible/stdoutcallback/results"
+	"github.com/apenella/go-ansible/execute"
 )
 
 func main() {
 
-	var err error
-	res := &results.AnsiblePlaybookJSONResults{}
-	buff := new(bytes.Buffer)
+	var timeout int
+	flag.IntVar(&timeout, "timeout", 15, "Timeout in seconds")
+	flag.Parse()
+
+	fmt.Printf("Timeout: %d seconds\n", timeout)
+
+	ctx, cancel := context.WithTimeout(context.Background(), time.Duration(timeout)*time.Second)
+	defer cancel()
 
 	ansiblePlaybookConnectionOptions := &ansibler.AnsiblePlaybookConnectionOptions{
 		Connection: "local",
@@ -28,20 +34,14 @@ func main() {
 		Playbook:          "site.yml",
 		ConnectionOptions: ansiblePlaybookConnectionOptions,
 		Options:           ansiblePlaybookOptions,
-		ExecPrefix:        "Go-ansible example",
-		StdoutCallback:    "json",
-		Writer:            io.Writer(buff),
+		Exec: execute.NewDefaultExecute(
+			execute.WithPrefix("Go-ansible example"),
+		),
+		StdoutCallback: "json",
 	}
 
-	err = playbook.Run()
-	if err != nil {
-		fmt.Println(err.Error())
-	}
-
-	res, err = results.JSONParse(buff.Bytes())
+	err := playbook.Run(ctx)
 	if err != nil {
 		panic(err)
 	}
-
-	fmt.Println(res.String())
 }

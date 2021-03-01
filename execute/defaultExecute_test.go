@@ -2,6 +2,7 @@ package execute
 
 import (
 	"bytes"
+	"context"
 	"io"
 	"os/exec"
 	"testing"
@@ -9,6 +10,30 @@ import (
 	errors "github.com/apenella/go-common-utils/error"
 	"github.com/stretchr/testify/assert"
 )
+
+func TestNewDefaultExecute(t *testing.T) {
+	wr := &bytes.Buffer{}
+	prefix := "prefix"
+	runDir := "rundir"
+
+	t.Log("Testing NewDefaultExecute and WithXXX methods")
+
+	exe := NewDefaultExecute(
+		WithPrefix(prefix),
+		WithCmdRunDir(runDir),
+		WithWrite(io.Writer(wr)),
+		WithWriteError(io.Writer(wr)),
+		WithShowDuration(),
+		WithOutputFormat(OutputFormatLogFormat),
+	)
+
+	assert.Equal(t, prefix, exe.Prefix, "Prefix does not match")
+	assert.Equal(t, runDir, exe.CmdRunDir, "CmdRunDir does not match")
+	assert.True(t, exe.ShowDuration, "ShowDuration does not matc")
+	assert.Equal(t, wr, exe.Write, "Write does not match")
+	assert.Equal(t, wr, exe.WriterError, "WriteError does not match")
+	assert.Equal(t, OutputFormatLogFormat, exe.OutputFormat, "OutputFormat does not match")
+}
 
 func TestDefaultExecute(t *testing.T) {
 
@@ -24,33 +49,36 @@ func TestDefaultExecute(t *testing.T) {
 		err            error
 		execute        *DefaultExecute
 		command        []string
-		prefix         string
+		options        []ExecuteOptions
 		res            string
 		stdout         io.Writer
 		stderr         io.Writer
 		expectedStderr string
 		expectedStdout string
+		ctx            context.Context
 	}{
 		{
 			desc: "Testing an ansible-playbook with local connection",
 			err:  nil,
-			execute: &DefaultExecute{
-				Write:       io.Writer(&stdout),
-				WriterError: io.Writer(&stderr),
-			},
+			execute: NewDefaultExecute(
+				WithWrite(io.Writer(&stdout)),
+				WithWriteError(io.Writer(&stderr)),
+				WithPrefix("test"),
+			),
+			ctx:            context.TODO(),
 			command:        []string{binary, "--inventory", "127.0.0.1,", "test/site.yml", "-c", "local"},
-			prefix:         "test",
 			expectedStdout: ``,
 		},
 		{
 			desc: "Testing an ansible-playbook forcing an invalid charaters warning message",
 			err:  errors.New("(DefaultExecute::Execute)", "Error during command execution: ansible-playbook error: parser error\n\nCommand executed: "+binary+" --inventory test/all test/site.yml --user apenella\n\nexit status 4"),
-			execute: &DefaultExecute{
-				Write:       io.Writer(&stdout),
-				WriterError: io.Writer(&stderr),
-			},
+			execute: NewDefaultExecute(
+				WithWrite(io.Writer(&stdout)),
+				WithWriteError(io.Writer(&stderr)),
+				WithPrefix("test"),
+			),
+			ctx:     context.TODO(),
 			command: []string{binary, "--inventory", "test/all", "test/site.yml", "--user", "apenella"},
-			prefix:  "test",
 			expectedStderr: `test ── [WARNING]: Invalid characters were found in group names but not replaced, use
 test ── -vvvv to see details
 `,
@@ -63,7 +91,7 @@ test ── -vvvv to see details
 		stdout.Reset()
 		stderr.Reset()
 
-		err := test.execute.Execute(test.command[0], test.command[1:], test.prefix)
+		err := test.execute.Execute(test.ctx, test.command, nil, test.options...)
 
 		if err != nil && assert.Error(t, err) {
 			assert.Equal(t, test.err, err)

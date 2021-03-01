@@ -2,11 +2,13 @@ package ansibler
 
 import (
 	"bytes"
+	"context"
 	goerrors "errors"
 	"os"
 	execerrors "os/exec"
 	"testing"
 
+	"github.com/apenella/go-ansible/execute"
 	"github.com/apenella/go-ansible/stdoutcallback"
 	errors "github.com/apenella/go-common-utils/error"
 	"github.com/stretchr/testify/assert"
@@ -384,6 +386,7 @@ func TestRun(t *testing.T) {
 		desc               string
 		ansiblePlaybookCmd *AnsiblePlaybookCmd
 		res                string
+		ctx                context.Context
 		err                error
 	}{
 		{
@@ -398,12 +401,13 @@ func TestRun(t *testing.T) {
 				Binary: "unexisting",
 			},
 			res: "",
+			ctx: context.TODO(),
 			err: errors.New("(ansible:Run)", "Binary file 'unexisting' does not exists", &execerrors.Error{Name: "unexisting", Err: goerrors.New("executable file not found in $PATH")}),
 		},
 		{
 			desc: "Testing run a ansiblePlaybookCmd",
 			ansiblePlaybookCmd: &AnsiblePlaybookCmd{
-				Exec: &MockExecute{
+				Exec: &execute.MockExecute{
 					Write: &w,
 				},
 				Playbook: "test/ansible/site.yml",
@@ -414,7 +418,8 @@ func TestRun(t *testing.T) {
 					Inventory: "test/ansible/inventory/all",
 				},
 			},
-			res: "ansible-playbook [--inventory test/ansible/inventory/all --connection local test/ansible/site.yml]",
+			ctx: context.TODO(),
+			res: "[ansible-playbook --inventory test/ansible/inventory/all --connection local test/ansible/site.yml]",
 			err: nil,
 		},
 		{
@@ -430,6 +435,7 @@ func TestRun(t *testing.T) {
 				},
 			},
 			res: "",
+			ctx: context.TODO(),
 			err: nil,
 		},
 		{
@@ -445,12 +451,13 @@ func TestRun(t *testing.T) {
 				},
 			},
 			res: "",
+			ctx: context.TODO(),
 			err: nil,
 		},
 		{
 			desc: "Testing run a ansiblePlaybookCmd with multiple extravars",
 			ansiblePlaybookCmd: &AnsiblePlaybookCmd{
-				Exec: &MockExecute{
+				Exec: &execute.MockExecute{
 					Write: &w,
 				},
 				Playbook: "test/test_site.yml",
@@ -471,7 +478,8 @@ func TestRun(t *testing.T) {
 					},
 				},
 			},
-			res: "ansible-playbook [--inventory test/all --extra-vars {\"array\":[\"one\",\"two\"],\"bool\":true,\"dict\":{\"one\":true,\"two\":false},\"int\":10,\"string\":\"testing an string\"} --connection local test/test_site.yml]",
+			res: "[ansible-playbook --inventory test/all --extra-vars {\"array\":[\"one\",\"two\"],\"bool\":true,\"dict\":{\"one\":true,\"two\":false},\"int\":10,\"string\":\"testing an string\"} --connection local test/test_site.yml]",
+			ctx: context.TODO(),
 			err: nil,
 		},
 	}
@@ -483,7 +491,7 @@ func TestRun(t *testing.T) {
 			t.Log(test.desc)
 			w.Reset()
 
-			err := test.ansiblePlaybookCmd.Run()
+			err := test.ansiblePlaybookCmd.Run(test.ctx)
 			if err != nil && assert.Error(t, err) {
 				assert.Equal(t, test.err, err)
 			} else {

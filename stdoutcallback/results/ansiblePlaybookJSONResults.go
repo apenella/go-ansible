@@ -2,6 +2,7 @@ package results
 
 import (
 	"bufio"
+	"context"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -136,7 +137,10 @@ func (s *AnsiblePlaybookJSONResultsStats) String() string {
 }
 
 // JSONStdoutCallbackResults method manges the ansible' JSON stdout callback and print the result stats
-func JSONStdoutCallbackResults(prefix string, r io.Reader, w io.Writer) error {
+func JSONStdoutCallbackResults(ctx context.Context, prefix string, r io.Reader, w io.Writer) error {
+
+	printChan := make(chan string)
+	done := make(chan struct{})
 
 	if r == nil {
 		return errors.New("(results::JSONStdoutCallbackResults)", "Reader is not defined")
@@ -146,15 +150,30 @@ func JSONStdoutCallbackResults(prefix string, r io.Reader, w io.Writer) error {
 		w = os.Stdout
 	}
 
-	scanner := bufio.NewScanner(r)
-	for scanner.Scan() {
-		line := scanner.Text()
-		if !skipLine(line) {
+	go func() {
+		defer close(done)
+		defer close(printChan)
+
+		scanner := bufio.NewScanner(r)
+		for scanner.Scan() {
+			line := scanner.Text()
+			if !skipLine(line) {
+				printChan <- fmt.Sprintf("%s", line)
+			}
+		}
+		done <- struct{}{}
+	}()
+
+	for {
+		select {
+		case line := <-printChan:
 			fmt.Fprintf(w, "%s", line)
+		case <-done:
+			return nil
+		case <-ctx.Done():
+			return nil
 		}
 	}
-
-	return nil
 }
 
 func skipLine(line string) bool {

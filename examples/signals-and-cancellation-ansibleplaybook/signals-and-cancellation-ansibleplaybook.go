@@ -2,11 +2,18 @@ package main
 
 import (
 	"context"
+	"fmt"
+	"os"
+	"os/signal"
 
 	ansibler "github.com/apenella/go-ansible"
+	"github.com/apenella/go-ansible/execute"
 )
 
 func main() {
+
+	signalChan := make(chan os.Signal, 1)
+	ctx, cancel := context.WithCancel(context.Background())
 
 	ansiblePlaybookConnectionOptions := &ansibler.AnsiblePlaybookConnectionOptions{
 		Connection: "local",
@@ -21,10 +28,28 @@ func main() {
 		Playbook:          "site.yml",
 		ConnectionOptions: ansiblePlaybookConnectionOptions,
 		Options:           ansiblePlaybookOptions,
+		Exec: execute.NewDefaultExecute(
+			execute.WithPrefix("Go-ansible example"),
+		),
 	}
 
-	err := playbook.Run(context.TODO())
+	signal.Notify(signalChan, os.Interrupt)
+	defer func() {
+		signal.Stop(signalChan)
+		cancel()
+	}()
+
+	go func() {
+		select {
+		case <-signalChan:
+			cancel()
+		case <-ctx.Done():
+		}
+	}()
+
+	err := playbook.Run(ctx)
 	if err != nil {
-		panic(err)
+		fmt.Println(err.Error())
+		os.Exit(1)
 	}
 }

@@ -1,7 +1,10 @@
 package main
 
 import (
+	"context"
+
 	ansibler "github.com/apenella/go-ansible"
+	"github.com/apenella/go-ansible/execute"
 )
 
 func main() {
@@ -24,10 +27,12 @@ func main() {
 		ConnectionOptions:          ansiblePlaybookConnectionOptions,
 		PrivilegeEscalationOptions: ansiblePlaybookPrivilegeEscalationOptions,
 		Options:                    ansiblePlaybookOptions,
-		ExecPrefix:                 "Go-ansible example with become",
+		Exec: execute.NewDefaultExecute(
+			execute.WithPrefix("Go-ansible example with become"),
+		),
 	}
 
-	err := playbook.Run()
+	err := playbook.Run(context.TODO())
 	if err != nil {
 		panic(err)
 	}

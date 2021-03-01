@@ -1,6 +1,7 @@
-package ansibler
+package execute
 
 import (
+	"context"
 	"errors"
 	"testing"
 
@@ -13,7 +14,6 @@ func TestMockExecute(t *testing.T) {
 		err     error
 		execute *MockExecute
 		command []string
-		prefix  string
 		res     string
 	}{
 		{
@@ -21,7 +21,6 @@ func TestMockExecute(t *testing.T) {
 			err:     errors.New("(MockExecute::Execute) error"),
 			execute: &MockExecute{},
 			command: []string{"error"},
-			prefix:  "",
 			res:     "",
 		},
 		{
@@ -29,7 +28,6 @@ func TestMockExecute(t *testing.T) {
 			err:     nil,
 			execute: &MockExecute{},
 			command: []string{"command", "arg1", "arg2"},
-			prefix:  "prefix",
 			res:     "prefix command arg1 arg2",
 		},
 	}
@@ -37,7 +35,7 @@ func TestMockExecute(t *testing.T) {
 	for _, test := range tests {
 		t.Log(test.desc)
 
-		err := test.execute.Execute(test.command[0], test.command[1:], test.prefix)
+		err := test.execute.Execute(context.TODO(), test.command, nil, nil)
 		if err != nil && assert.Error(t, err) {
 			assert.Equal(t, test.err, err)
 		}

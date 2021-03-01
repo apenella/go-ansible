@@ -3,6 +3,7 @@ package results
 import (
 	"bufio"
 	"bytes"
+	"context"
 	"io"
 	"strings"
 	"testing"
@@ -267,7 +268,7 @@ func TestStdoutCallbackJSONResults(t *testing.T) {
 			wbuff := bytes.Buffer{}
 			writer := io.Writer(&wbuff)
 			reader := bufio.NewReader(strings.NewReader(test.inputResult))
-			err := JSONStdoutCallbackResults("prefix", reader, writer)
+			err := JSONStdoutCallbackResults(context.TODO(), "prefix", reader, writer)
 			if err != nil && assert.Error(t, err) {
 				assert.Equal(t, test.err, err)
 			} else {
