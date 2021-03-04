@@ -9,7 +9,7 @@ import (
 )
 
 // StdoutCallbackResultsFunc defines a function which manages ansible's stdout callbacks. The function expects and string for prefixing output lines, a reader that receives the data to be wrote and a writer that defines where to write the data comming from reader
-type StdoutCallbackResultsFunc func(context.Context, string, io.Reader, io.Writer) error
+type StdoutCallbackResultsFunc func(context.Context, io.Reader, io.Writer, ...results.TransformerFunc) error
 
 const (
 	// AnsibleStdoutCallbackEnv

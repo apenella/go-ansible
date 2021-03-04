@@ -1,13 +1,10 @@
 package results
 
 import (
-	"bufio"
 	"context"
 	"encoding/json"
 	"fmt"
 	"io"
-	"os"
-	"regexp"
 	"strconv"
 
 	errors "github.com/apenella/go-common-utils/error"
@@ -137,59 +134,54 @@ func (s *AnsiblePlaybookJSONResultsStats) String() string {
 }
 
 // JSONStdoutCallbackResults method manges the ansible' JSON stdout callback and print the result stats
-func JSONStdoutCallbackResults(ctx context.Context, prefix string, r io.Reader, w io.Writer) error {
+func JSONStdoutCallbackResults(ctx context.Context, r io.Reader, w io.Writer, transformers ...TransformerFunc) error {
 
-	printChan := make(chan string)
-	done := make(chan struct{})
-
-	if r == nil {
-		return errors.New("(results::JSONStdoutCallbackResults)", "Reader is not defined")
+	tranformers := []TransformerFunc{
+		SkipMessage(),
 	}
 
-	if w == nil {
-		w = os.Stdout
+	err := output(ctx, r, w, tranformers...)
+	if err != nil {
+		return errors.New("(results::JSONStdoutCallbackResults)", "Error processing execution output", err)
 	}
 
-	go func() {
-		defer close(done)
-		defer close(printChan)
+	return nil
 
-		scanner := bufio.NewScanner(r)
-		for scanner.Scan() {
-			line := scanner.Text()
-			if !skipLine(line) {
-				printChan <- fmt.Sprintf("%s", line)
-			}
-		}
-		done <- struct{}{}
-	}()
+	// done := make(chan struct{})
+	// printChan := make(chan string)
 
-	for {
-		select {
-		case line := <-printChan:
-			fmt.Fprintf(w, "%s", line)
-		case <-done:
-			return nil
-		case <-ctx.Done():
-			return nil
-		}
-	}
-}
+	// if r == nil {
+	// 	return errors.New("(results::JSONStdoutCallbackResults)", "Reader is not defined")
+	// }
 
-func skipLine(line string) bool {
-	skipPatterns := []string{
-		// This pattern skips timer's callback whitelist output
-		"^[\\s\\t]*Playbook run took [0-9]+ days, [0-9]+ hours, [0-9]+ minutes, [0-9]+ seconds$",
-	}
+	// if w == nil {
+	// 	w = os.Stdout
+	// }
 
-	for _, pattern := range skipPatterns {
-		match, _ := regexp.MatchString(pattern, line)
-		if match {
-			return true
-		}
-	}
+	// go func() {
+	// 	defer close(done)
+	// 	defer close(printChan)
 
-	return false
+	// 	scanner := bufio.NewScanner(r)
+	// 	for scanner.Scan() {
+	// 		line := scanner.Text()
+	// 		if !skipLine(line) {
+	// 			printChan <- fmt.Sprintf("%s", line)
+	// 		}
+	// 	}
+	// 	done <- struct{}{}
+	// }()
+
+	// for {
+	// 	select {
+	// 	case line := <-printChan:
+	// 		fmt.Fprintf(w, "%s", line)
+	// 	case <-done:
+	// 		return nil
+	// 	case <-ctx.Done():
+	// 		return nil
+	// 	}
+	// }
 }
 
 // JSONParse return an AnsiblePlaybookJSONResults from

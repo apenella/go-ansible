@@ -79,8 +79,8 @@ func TestDefaultExecute(t *testing.T) {
 			),
 			ctx:     context.TODO(),
 			command: []string{binary, "--inventory", "test/all", "test/site.yml", "--user", "apenella"},
-			expectedStderr: `test ── [WARNING]: Invalid characters were found in group names but not replaced, use
-test ── -vvvv to see details
+			expectedStderr: `── [WARNING]: Invalid characters were found in group names but not replaced, use
+── -vvvv to see details
 `,
 		},
 	}

@@ -137,6 +137,7 @@ func (p *AnsiblePlaybookCmd) Run(ctx context.Context) error {
 
 	// Define a default executor when it is not defined on AnsiblePlaybookCmd
 	if p.Exec == nil {
+		fmt.Println("set default")
 		p.Exec = execute.NewDefaultExecute()
 	}
 

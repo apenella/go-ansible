@@ -50,8 +50,6 @@ const (
 	OutputFormatDefault int8 = iota
 	//OutputFormatLogFormat
 	OutputFormatLogFormat
-	//OutputFormatJSON
-	OutputFormatJSON
 )
 
 // DefaultExecute is a simple definition of an executor
@@ -68,6 +66,8 @@ type DefaultExecute struct {
 	CmdRunDir string
 	// OutputFormat
 	OutputFormat int8
+	// Transformers
+	Transformers []results.TransformerFunc
 }
 
 // NewDefaultExecute return a new DefaultExecute instance with all options
@@ -98,6 +98,7 @@ func WithWriteError(w io.Writer) ExecuteOptions {
 // WithPrefix set the prefix to be used by DefaultExecutor
 func WithPrefix(prefix string) ExecuteOptions {
 	return func(e Executor) {
+		fmt.Println("prefix")
 		e.(*DefaultExecute).Prefix = prefix
 	}
 }
@@ -112,6 +113,7 @@ func WithCmdRunDir(cmdRunDir string) ExecuteOptions {
 // WithOutputFormat set the results function to be used by DefaultExecutor
 func WithOutputFormat(f int8) ExecuteOptions {
 	return func(e Executor) {
+		fmt.Println("outputformat")
 		e.(*DefaultExecute).OutputFormat = f
 	}
 }
@@ -149,15 +151,11 @@ func (e *DefaultExecute) Execute(ctx context.Context, command []string, resultsF
 		e.WriterError = os.Stderr
 	}
 
-	if len(e.Prefix) <= 0 {
-		e.Prefix = ""
-	}
-
-	if len(e.CmdRunDir) <= 0 {
-		e.CmdRunDir = ""
-	}
-
 	cmd := exec.CommandContext(ctx, command[0], command[1:]...)
+
+	if len(e.CmdRunDir) > 0 {
+		cmd.Dir = e.CmdRunDir
+	}
 
 	cmdStdout, err = cmd.StdoutPipe()
 	defer cmdStdout.Close()
@@ -184,7 +182,22 @@ func (e *DefaultExecute) Execute(ctx context.Context, command []string, resultsF
 	go func() {
 		defer close(execErrChan)
 
-		err := resultsFunc(ctx, e.Prefix, cmdStdout, e.Write)
+		trans := []results.TransformerFunc{}
+		for _, t := range e.Transformers {
+			trans = append(trans, t)
+		}
+
+		if len(e.Prefix) > 0 {
+			fmt.Println("transformer prefix")
+			trans = append(trans, results.Prepend(e.Prefix))
+		}
+
+		if e.OutputFormat == OutputFormatLogFormat {
+			fmt.Println("transformer logformat")
+			trans = append(trans, results.LogFormat(results.DefaultLogFormatLayout, results.Now))
+		}
+
+		err := resultsFunc(ctx, cmdStdout, e.Write, trans...)
 		wg.Done()
 		execErrChan <- err
 	}()
@@ -192,7 +205,7 @@ func (e *DefaultExecute) Execute(ctx context.Context, command []string, resultsF
 	// stderr management
 	go func() {
 		// show stderr messages using default stdout callback results
-		results.DefaultStdoutCallbackResults(ctx, e.Prefix, cmdStderr, e.WriterError)
+		results.DefaultStdoutCallbackResults(ctx, cmdStderr, e.WriterError, []results.TransformerFunc{}...)
 		wg.Done()
 	}()
 
