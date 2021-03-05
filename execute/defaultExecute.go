@@ -98,7 +98,6 @@ func WithWriteError(w io.Writer) ExecuteOptions {
 // WithPrefix set the prefix to be used by DefaultExecutor
 func WithPrefix(prefix string) ExecuteOptions {
 	return func(e Executor) {
-		fmt.Println("prefix")
 		e.(*DefaultExecute).Prefix = prefix
 	}
 }
@@ -113,7 +112,6 @@ func WithCmdRunDir(cmdRunDir string) ExecuteOptions {
 // WithOutputFormat set the results function to be used by DefaultExecutor
 func WithOutputFormat(f int8) ExecuteOptions {
 	return func(e Executor) {
-		fmt.Println("outputformat")
 		e.(*DefaultExecute).OutputFormat = f
 	}
 }
@@ -122,6 +120,13 @@ func WithOutputFormat(f int8) ExecuteOptions {
 func WithShowDuration() ExecuteOptions {
 	return func(e Executor) {
 		e.(*DefaultExecute).ShowDuration = true
+	}
+}
+
+// WithTransformers add trasformes
+func WithTransformers(trans ...results.TransformerFunc) ExecuteOptions {
+	return func(e Executor) {
+		e.(*DefaultExecute).Transformers = trans
 	}
 }
 
@@ -188,12 +193,10 @@ func (e *DefaultExecute) Execute(ctx context.Context, command []string, resultsF
 		}
 
 		if len(e.Prefix) > 0 {
-			fmt.Println("transformer prefix")
 			trans = append(trans, results.Prepend(e.Prefix))
 		}
 
 		if e.OutputFormat == OutputFormatLogFormat {
-			fmt.Println("transformer logformat")
 			trans = append(trans, results.LogFormat(results.DefaultLogFormatLayout, results.Now))
 		}
 

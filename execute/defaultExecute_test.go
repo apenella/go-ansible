@@ -7,6 +7,7 @@ import (
 	"os/exec"
 	"testing"
 
+	"github.com/apenella/go-ansible/stdoutcallback/results"
 	errors "github.com/apenella/go-common-utils/error"
 	"github.com/stretchr/testify/assert"
 )
@@ -18,6 +19,12 @@ func TestNewDefaultExecute(t *testing.T) {
 
 	t.Log("Testing NewDefaultExecute and WithXXX methods")
 
+	trans := func() results.TransformerFunc {
+		return func(message string) string {
+			return message
+		}
+	}
+
 	exe := NewDefaultExecute(
 		WithPrefix(prefix),
 		WithCmdRunDir(runDir),
@@ -25,6 +32,7 @@ func TestNewDefaultExecute(t *testing.T) {
 		WithWriteError(io.Writer(wr)),
 		WithShowDuration(),
 		WithOutputFormat(OutputFormatLogFormat),
+		WithTransformers(trans()),
 	)
 
 	assert.Equal(t, prefix, exe.Prefix, "Prefix does not match")

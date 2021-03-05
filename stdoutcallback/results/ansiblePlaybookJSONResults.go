@@ -137,7 +137,7 @@ func (s *AnsiblePlaybookJSONResultsStats) String() string {
 func JSONStdoutCallbackResults(ctx context.Context, r io.Reader, w io.Writer, transformers ...TransformerFunc) error {
 
 	tranformers := []TransformerFunc{
-		SkipMessage(),
+		IgnoreMessage(),
 	}
 
 	err := output(ctx, r, w, tranformers...)
@@ -146,42 +146,6 @@ func JSONStdoutCallbackResults(ctx context.Context, r io.Reader, w io.Writer, tr
 	}
 
 	return nil
-
-	// done := make(chan struct{})
-	// printChan := make(chan string)
-
-	// if r == nil {
-	// 	return errors.New("(results::JSONStdoutCallbackResults)", "Reader is not defined")
-	// }
-
-	// if w == nil {
-	// 	w = os.Stdout
-	// }
-
-	// go func() {
-	// 	defer close(done)
-	// 	defer close(printChan)
-
-	// 	scanner := bufio.NewScanner(r)
-	// 	for scanner.Scan() {
-	// 		line := scanner.Text()
-	// 		if !skipLine(line) {
-	// 			printChan <- fmt.Sprintf("%s", line)
-	// 		}
-	// 	}
-	// 	done <- struct{}{}
-	// }()
-
-	// for {
-	// 	select {
-	// 	case line := <-printChan:
-	// 		fmt.Fprintf(w, "%s", line)
-	// 	case <-done:
-	// 		return nil
-	// 	case <-ctx.Done():
-	// 		return nil
-	// 	}
-	// }
 }
 
 // JSONParse return an AnsiblePlaybookJSONResults from

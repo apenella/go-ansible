@@ -50,7 +50,7 @@ func TestLogFormat(t *testing.T) {
 	})
 }
 
-func TestSkipMessage(t *testing.T) {
+func TestIgnoreMessage(t *testing.T) {
 
 	tests := []struct {
 		desc string
@@ -73,7 +73,7 @@ func TestSkipMessage(t *testing.T) {
 
 		t.Run(test.desc, func(t *testing.T) {
 			t.Log(test.desc)
-			trans := SkipMessage()
+			trans := IgnoreMessage()
 			line := trans(test.line)
 
 			assert.Equal(t, test.res, line)

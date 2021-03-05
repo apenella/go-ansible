@@ -40,8 +40,8 @@ func LogFormat(layout string, f func(string) string) TransformerFunc {
 	}
 }
 
-// SkipMessage is a transformer function that returns a blank string when the message match to any skipping pattern
-func SkipMessage() TransformerFunc {
+// IgnoreMessage is a transformer function that returns a blank string when the message match to any skipping pattern
+func IgnoreMessage() TransformerFunc {
 	return func(message string) string {
 
 		skipPatterns := []string{
