@@ -45,11 +45,6 @@ const (
 	AnsiblePlaybookErrorMessageUserInterruptedExecution = "ansible-playbook error: user interrupted execution"
 	// AnsiblePlaybookErrorMessageUnexpectedError
 	AnsiblePlaybookErrorMessageUnexpectedError = "ansible-playbook error: unexpected error"
-
-	//OutputFormatDefault
-	OutputFormatDefault int8 = iota
-	//OutputFormatLogFormat
-	OutputFormatLogFormat
 )
 
 // DefaultExecute is a simple definition of an executor
@@ -65,8 +60,6 @@ type DefaultExecute struct {
 	// CmdRunDir specifies the working directory of the command.
 	CmdRunDir string
 	// OutputFormat
-	OutputFormat int8
-	// Transformers
 	Transformers []results.TransformerFunc
 }
 
@@ -106,13 +99,6 @@ func WithPrefix(prefix string) ExecuteOptions {
 func WithCmdRunDir(cmdRunDir string) ExecuteOptions {
 	return func(e Executor) {
 		e.(*DefaultExecute).CmdRunDir = cmdRunDir
-	}
-}
-
-// WithOutputFormat set the results function to be used by DefaultExecutor
-func WithOutputFormat(f int8) ExecuteOptions {
-	return func(e Executor) {
-		e.(*DefaultExecute).OutputFormat = f
 	}
 }
 
@@ -188,16 +174,13 @@ func (e *DefaultExecute) Execute(ctx context.Context, command []string, resultsF
 		defer close(execErrChan)
 
 		trans := []results.TransformerFunc{}
-		for _, t := range e.Transformers {
-			trans = append(trans, t)
-		}
 
 		if len(e.Prefix) > 0 {
 			trans = append(trans, results.Prepend(e.Prefix))
 		}
 
-		if e.OutputFormat == OutputFormatLogFormat {
-			trans = append(trans, results.LogFormat(results.DefaultLogFormatLayout, results.Now))
+		for _, t := range e.Transformers {
+			trans = append(trans, t)
 		}
 
 		err := resultsFunc(ctx, cmdStdout, e.Write, trans...)

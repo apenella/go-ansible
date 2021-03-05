@@ -31,7 +31,6 @@ func TestNewDefaultExecute(t *testing.T) {
 		WithWrite(io.Writer(wr)),
 		WithWriteError(io.Writer(wr)),
 		WithShowDuration(),
-		WithOutputFormat(OutputFormatLogFormat),
 		WithTransformers(trans()),
 	)
 
@@ -40,7 +39,6 @@ func TestNewDefaultExecute(t *testing.T) {
 	assert.True(t, exe.ShowDuration, "ShowDuration does not matc")
 	assert.Equal(t, wr, exe.Write, "Write does not match")
 	assert.Equal(t, wr, exe.WriterError, "WriteError does not match")
-	assert.Equal(t, OutputFormatLogFormat, exe.OutputFormat, "OutputFormat does not match")
 }
 
 func TestDefaultExecute(t *testing.T) {

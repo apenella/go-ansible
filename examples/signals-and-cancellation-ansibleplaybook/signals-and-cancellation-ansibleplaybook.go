@@ -30,7 +30,6 @@ func main() {
 		Options:           ansiblePlaybookOptions,
 		Exec: execute.NewDefaultExecute(
 			execute.WithPrefix("Go-ansible examples"),
-			execute.WithOutputFormat(execute.OutputFormatLogFormat),
 		),
 	}
 

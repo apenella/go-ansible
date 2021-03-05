@@ -40,11 +40,9 @@ func main() {
 		Options:           ansiblePlaybookOptions,
 		Exec: execute.NewDefaultExecute(
 			execute.WithPrefix("Go-ansible examples"),
-			execute.WithOutputFormat(execute.OutputFormatLogFormat),
 			execute.WithTransformers(
-				results.Prepend("before"),
 				outputColored(),
-				results.Prepend("after"),
+				results.LogFormat(results.DefaultLogFormatLayout, results.Now),
 			),
 		),
 	}
