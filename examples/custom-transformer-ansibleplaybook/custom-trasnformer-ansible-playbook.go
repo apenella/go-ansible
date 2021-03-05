@@ -42,7 +42,9 @@ func main() {
 			execute.WithPrefix("Go-ansible examples"),
 			execute.WithOutputFormat(execute.OutputFormatLogFormat),
 			execute.WithTransformers(
+				results.Prepend("before"),
 				outputColored(),
+				results.Prepend("after"),
 			),
 		),
 	}

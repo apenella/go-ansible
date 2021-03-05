@@ -14,7 +14,7 @@ const (
 	DefaultLogFormatLayout = "2006-01-02 15:04:05"
 )
 
-// TransformerFunc is used update messages before to be printed out
+// TransformerFunc is used to enrich or update messages before to be printed out
 type TransformerFunc func(string) string
 
 // Prepend is a transformer function that includes a prefix to a message expression
