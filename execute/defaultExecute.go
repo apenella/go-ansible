@@ -55,8 +55,6 @@ type DefaultExecute struct {
 	WriterError io.Writer
 	// ShowDuration enables to show the execution duration time after the command finishes
 	ShowDuration bool
-	// Prefix is a text that is set at the beginning of each execution line
-	Prefix string
 	// CmdRunDir specifies the working directory of the command.
 	CmdRunDir string
 	// OutputFormat
@@ -85,13 +83,6 @@ func WithWrite(w io.Writer) ExecuteOptions {
 func WithWriteError(w io.Writer) ExecuteOptions {
 	return func(e Executor) {
 		e.(*DefaultExecute).WriterError = w
-	}
-}
-
-// WithPrefix set the prefix to be used by DefaultExecutor
-func WithPrefix(prefix string) ExecuteOptions {
-	return func(e Executor) {
-		e.(*DefaultExecute).Prefix = prefix
 	}
 }
 
@@ -174,10 +165,6 @@ func (e *DefaultExecute) Execute(ctx context.Context, command []string, resultsF
 		defer close(execErrChan)
 
 		trans := []results.TransformerFunc{}
-
-		if len(e.Prefix) > 0 {
-			trans = append(trans, results.Prepend(e.Prefix))
-		}
 
 		for _, t := range e.Transformers {
 			trans = append(trans, t)

@@ -50,7 +50,7 @@ To run an `ansible-playbook` command you could define four objects, depending on
 - **PrivilegeEscalationOptions** object has those parameters described on `Escalation Options` section within ansible-playbook's man page, and defines how to become a user.
 
 ### Execute
-An executor is the component in charge to run the command and return in somehow the result to the user.
+An executor is the component in charge to run the command and return in somehow the result received on stdout an stderr.
 Go-ansible has a default executor implementation under `execute` package. That executor is named `DefaultExecute`.
 
 Any executor must complain `Executor` interface.
@@ -64,18 +64,20 @@ type Executor interface {
 #### DefaultExecute
 `DefaultExecutor` is the executor defined on go-ansible library. 
 On its most basic setup it just writes the command stdout to system stdout and the same for stderr, but its easy to extend the way of managing the command stdout and stderr.
-To extend and update its behavior it comes with a bunch of `WithXXX` functions of `ExecuteOptions` type which can be passed to the executor.
+To extend and update its behavior it comes with a bunch of `ExecuteOptions` functions which can be passed to the executor.
 ```go
 // ExecuteOptions is a function to set executor options
 type ExecuteOptions func(Executor)
 ```
 
-Another way to extend how to return the results to the user is by using `transformers`, which can also be defined through `WithTransformers( ...results.TransformerFunc) ExecuteOptions`
+Another way to extend how to return the results to the user is by using `transformers`, which can also be added to `DefaultExecutor` through `WithTransformers( ...results.TransformerFunc) ExecuteOptions`
+
+Take a look to the [examples](https://github.com/apenella/go-ansible/tree/master/examples) to see how to do that.
 
 #### Custom executor
-Whenever is required, you could write your own executor implementation and set it on `AnsiblePlaybookCmd` object, it will expect that the executor implements `Executor` interface.
+You could write your own executor implementation and set it on `AnsiblePlaybookCmd` object, whenever `DefaultExecutor` does not fits to your needs. `AnsiblePlaybookCmd` expects an object that implements the `Executor` interface.
 
-Its possible to define your own executor and set it on `AnsiblePlaybookCmd`. In case you need to define to define your own executor, its recommended to use the options pattern to configure the executor.
+Below there is an example of a custom executor which could be configured by `ExecuteOptions` functions.
 ```go
 	type MyExecutor struct {
 		Prefix string
@@ -110,7 +112,7 @@ Its possible to define your own executor and set it on `AnsiblePlaybookCmd`. In 
 	}
 ```
 
-Thats a piece of main function
+Finally, on the next snipped is executed the `ansible-playbook` using the custom executor
 ```go
 	// define an instance for the new executor and set the options
 	exe := &MyExecutor{}
@@ -157,15 +159,23 @@ The output comming from executor is processed line by line and is on that step w
 - [**Prepend**](https://github.com/apenella/go-ansible/blob/output_transformers/stdoutcallback/results/transformer.go#L21): Sets a prefix string to the output line
 - [**Append**:](https://github.com/apenella/go-ansible/blob/output_transformers/stdoutcallback/results/transformer.go#L28) Sets a suffix string to the output line
 - [**LogFormat**:](https://github.com/apenella/go-ansible/blob/output_transformers/stdoutcallback/results/transformer.go#L35) Include date time prefix to the output line
-- [**IgnoreMessage**:](https://github.com/apenella/go-ansible/blob/output_transformers/stdoutcallback/results/transformer.go#L44) Ignores the output line. Is used by `JSONStdoutCallbackResults`
+- [**IgnoreMessage**:](https://github.com/apenella/go-ansible/blob/output_transformers/stdoutcallback/results/transformer.go#L44) Ignores the output line based on the patterns it recieves as input parameters
 
 #### Default
 By default, any stdout callback results is managed by **DefaultStdoutCallbackResults** results method. 
-That results method return prepends the separator string `──` and prepare all the transformers before to the worker method, which is in charge to write the output to io.Writer. 
+That results method prepends the separator string `──` tho each line on stdout and prepare all the transformers before to call the worker method, which is in charge to write the output to io.Writer. 
 
 #### JSON
 When the stdout callback method is defined to be in json format, the output is managed by **JSONStdoutCallbackResults** results method. 
 That results method prepares the worker output function to use the `IgnoreMessage` transformer, to ignore those non json lines. Any other transformer will be ignored but `JSONStdoutCallbackResults`
+
+On **JSONStdoutCallbackResults** function is defined the `skipPatterns` array where are placed the matching expressions for the lines to be ignored.
+```go
+skipPatterns := []string{
+		// This pattern skips timer's callback whitelist output
+		"^[\\s\\t]*Playbook run took [0-9]+ days, [0-9]+ hours, [0-9]+ minutes, [0-9]+ seconds$",
+	}
+```
 
 ##### Manage JSON output
 **JSONStdoutCallbackResults** method writes to io.Writer parameter the json output.
@@ -174,9 +184,9 @@ Results packages provides a **JSONParser** that returns an **AnsiblePlaybookJSON
 The json schema expected from `ansible-playbook` is the defined on https://github.com/ansible/ansible/blob/v2.9.11/lib/ansible/plugins/callback/json.py.
 
 ## Examples
-Below you could find a simple example of how to use `go-ansbile` but on [examples](https://github.com/apenella/go-ansible/tree/master/examples) folder there are more examples.
+Below you could find an step by step example of how to use `go-ansbile` but on [examples](https://github.com/apenella/go-ansible/tree/master/examples) folder there are more examples.
 
-When is needed to run an `ansible-playbook` from your Golang application using `go-ansible` package, you must define a `AnsiblePlaybookCmd`,`AnsiblePlaybookOptions`, `AnsiblePlaybookConnectionOptions` as its shown below.
+When is needed to run an `ansible-playbook` from your Golang application using `go-ansible` library, you must define a `AnsiblePlaybookCmd`,`AnsiblePlaybookOptions`, `AnsiblePlaybookConnectionOptions` as its shown below.
 
 `AnsiblePlaybookConnectionOptions` where is defined how to connect to hosts.
 ```go

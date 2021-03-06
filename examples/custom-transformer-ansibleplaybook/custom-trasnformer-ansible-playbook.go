@@ -39,9 +39,10 @@ func main() {
 		ConnectionOptions: ansiblePlaybookConnectionOptions,
 		Options:           ansiblePlaybookOptions,
 		Exec: execute.NewDefaultExecute(
-			execute.WithPrefix("Go-ansible examples"),
+
 			execute.WithTransformers(
 				outputColored(),
+				results.Prepend("Go-ansible example"),
 				results.LogFormat(results.DefaultLogFormatLayout, results.Now),
 			),
 		),

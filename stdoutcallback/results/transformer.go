@@ -41,14 +41,8 @@ func LogFormat(layout string, f func(string) string) TransformerFunc {
 }
 
 // IgnoreMessage is a transformer function that returns a blank string when the message match to any skipping pattern
-func IgnoreMessage() TransformerFunc {
+func IgnoreMessage(skipPatterns []string) TransformerFunc {
 	return func(message string) string {
-
-		skipPatterns := []string{
-			// This pattern skips timer's callback whitelist output
-			"^[\\s\\t]*Playbook run took [0-9]+ days, [0-9]+ hours, [0-9]+ minutes, [0-9]+ seconds$",
-		}
-
 		for _, pattern := range skipPatterns {
 			match, _ := regexp.MatchString(pattern, message)
 			if match {

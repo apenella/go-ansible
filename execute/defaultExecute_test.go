@@ -14,7 +14,6 @@ import (
 
 func TestNewDefaultExecute(t *testing.T) {
 	wr := &bytes.Buffer{}
-	prefix := "prefix"
 	runDir := "rundir"
 
 	t.Log("Testing NewDefaultExecute and WithXXX methods")
@@ -26,7 +25,6 @@ func TestNewDefaultExecute(t *testing.T) {
 	}
 
 	exe := NewDefaultExecute(
-		WithPrefix(prefix),
 		WithCmdRunDir(runDir),
 		WithWrite(io.Writer(wr)),
 		WithWriteError(io.Writer(wr)),
@@ -34,7 +32,6 @@ func TestNewDefaultExecute(t *testing.T) {
 		WithTransformers(trans()),
 	)
 
-	assert.Equal(t, prefix, exe.Prefix, "Prefix does not match")
 	assert.Equal(t, runDir, exe.CmdRunDir, "CmdRunDir does not match")
 	assert.True(t, exe.ShowDuration, "ShowDuration does not matc")
 	assert.Equal(t, wr, exe.Write, "Write does not match")
@@ -69,7 +66,6 @@ func TestDefaultExecute(t *testing.T) {
 			execute: NewDefaultExecute(
 				WithWrite(io.Writer(&stdout)),
 				WithWriteError(io.Writer(&stderr)),
-				WithPrefix("test"),
 			),
 			ctx:            context.TODO(),
 			command:        []string{binary, "--inventory", "127.0.0.1,", "test/site.yml", "-c", "local"},
@@ -81,7 +77,6 @@ func TestDefaultExecute(t *testing.T) {
 			execute: NewDefaultExecute(
 				WithWrite(io.Writer(&stdout)),
 				WithWriteError(io.Writer(&stderr)),
-				WithPrefix("test"),
 			),
 			ctx:     context.TODO(),
 			command: []string{binary, "--inventory", "test/all", "test/site.yml", "--user", "apenella"},

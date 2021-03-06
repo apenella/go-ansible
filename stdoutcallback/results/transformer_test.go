@@ -71,9 +71,14 @@ func TestIgnoreMessage(t *testing.T) {
 
 	for _, test := range tests {
 
+		patterns := []string{
+			// This pattern skips timer's callback whitelist output
+			"^[\\s\\t]*Playbook run took [0-9]+ days, [0-9]+ hours, [0-9]+ minutes, [0-9]+ seconds$",
+		}
+
 		t.Run(test.desc, func(t *testing.T) {
 			t.Log(test.desc)
-			trans := IgnoreMessage()
+			trans := IgnoreMessage(patterns)
 			line := trans(test.line)
 
 			assert.Equal(t, test.res, line)
