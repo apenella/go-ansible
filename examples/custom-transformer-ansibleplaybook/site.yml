@@ -3,7 +3,7 @@
 - hosts: all
 
   tasks:
-    - name: signals-and-cancellation-ansibleplaybook 
+    - name: custom-transformer-ansibleplaybook 
       debug:
-        msg: Your are running 'signals-and-cancellation-ansibleplaybook' example
+        msg: Your are running 'custom-transformer-ansibleplaybook' example
 
