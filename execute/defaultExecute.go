@@ -45,13 +45,6 @@ const (
 	AnsiblePlaybookErrorMessageUserInterruptedExecution = "ansible-playbook error: user interrupted execution"
 	// AnsiblePlaybookErrorMessageUnexpectedError
 	AnsiblePlaybookErrorMessageUnexpectedError = "ansible-playbook error: unexpected error"
-
-	//OutputFormatDefault
-	OutputFormatDefault int8 = iota
-	//OutputFormatLogFormat
-	OutputFormatLogFormat
-	//OutputFormatJSON
-	OutputFormatJSON
 )
 
 // DefaultExecute is a simple definition of an executor
@@ -62,12 +55,10 @@ type DefaultExecute struct {
 	WriterError io.Writer
 	// ShowDuration enables to show the execution duration time after the command finishes
 	ShowDuration bool
-	// Prefix is a text that is set at the beginning of each execution line
-	Prefix string
 	// CmdRunDir specifies the working directory of the command.
 	CmdRunDir string
 	// OutputFormat
-	OutputFormat int8
+	Transformers []results.TransformerFunc
 }
 
 // NewDefaultExecute return a new DefaultExecute instance with all options
@@ -95,13 +86,6 @@ func WithWriteError(w io.Writer) ExecuteOptions {
 	}
 }
 
-// WithPrefix set the prefix to be used by DefaultExecutor
-func WithPrefix(prefix string) ExecuteOptions {
-	return func(e Executor) {
-		e.(*DefaultExecute).Prefix = prefix
-	}
-}
-
 // WithCmdRunDir set the command run directory to be used by DefaultExecutor
 func WithCmdRunDir(cmdRunDir string) ExecuteOptions {
 	return func(e Executor) {
@@ -109,17 +93,17 @@ func WithCmdRunDir(cmdRunDir string) ExecuteOptions {
 	}
 }
 
-// WithOutputFormat set the results function to be used by DefaultExecutor
-func WithOutputFormat(f int8) ExecuteOptions {
-	return func(e Executor) {
-		e.(*DefaultExecute).OutputFormat = f
-	}
-}
-
 // WithShowDuration enables to show command duration
 func WithShowDuration() ExecuteOptions {
 	return func(e Executor) {
 		e.(*DefaultExecute).ShowDuration = true
+	}
+}
+
+// WithTransformers add trasformes
+func WithTransformers(trans ...results.TransformerFunc) ExecuteOptions {
+	return func(e Executor) {
+		e.(*DefaultExecute).Transformers = trans
 	}
 }
 
@@ -149,15 +133,11 @@ func (e *DefaultExecute) Execute(ctx context.Context, command []string, resultsF
 		e.WriterError = os.Stderr
 	}
 
-	if len(e.Prefix) <= 0 {
-		e.Prefix = ""
-	}
-
-	if len(e.CmdRunDir) <= 0 {
-		e.CmdRunDir = ""
-	}
-
 	cmd := exec.CommandContext(ctx, command[0], command[1:]...)
+
+	if len(e.CmdRunDir) > 0 {
+		cmd.Dir = e.CmdRunDir
+	}
 
 	cmdStdout, err = cmd.StdoutPipe()
 	defer cmdStdout.Close()
@@ -184,7 +164,13 @@ func (e *DefaultExecute) Execute(ctx context.Context, command []string, resultsF
 	go func() {
 		defer close(execErrChan)
 
-		err := resultsFunc(ctx, e.Prefix, cmdStdout, e.Write)
+		trans := []results.TransformerFunc{}
+
+		for _, t := range e.Transformers {
+			trans = append(trans, t)
+		}
+
+		err := resultsFunc(ctx, cmdStdout, e.Write, trans...)
 		wg.Done()
 		execErrChan <- err
 	}()
@@ -192,7 +178,7 @@ func (e *DefaultExecute) Execute(ctx context.Context, command []string, resultsF
 	// stderr management
 	go func() {
 		// show stderr messages using default stdout callback results
-		results.DefaultStdoutCallbackResults(ctx, e.Prefix, cmdStderr, e.WriterError)
+		results.DefaultStdoutCallbackResults(ctx, cmdStderr, e.WriterError, []results.TransformerFunc{}...)
 		wg.Done()
 	}()
 

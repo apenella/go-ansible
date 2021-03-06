@@ -12,6 +12,7 @@ import (
 
 	ansibler "github.com/apenella/go-ansible"
 	"github.com/apenella/go-ansible/execute"
+	"github.com/apenella/go-ansible/stdoutcallback/results"
 	errors "github.com/apenella/go-common-utils/error"
 	"github.com/spf13/cobra"
 )
@@ -76,7 +77,9 @@ func commandHandler(cmd *cobra.Command, args []string) error {
 		ConnectionOptions: ansiblePlaybookConnectionOptions,
 		Options:           ansiblePlaybookOptions,
 		Exec: execute.NewDefaultExecute(
-			execute.WithPrefix("Example cobra-cmd-ansibleplaybook"),
+			execute.WithTransformers(
+				results.Prepend("cobra-cmd-ansibleplaybook example"),
+			),
 		),
 	}
 

@@ -10,13 +10,27 @@ import (
 	errors "github.com/apenella/go-common-utils/error"
 )
 
-const (
-	// PrefixTokenSeparator is and string printed between prefix and ansible output
-	PrefixTokenSeparator = "\u2500\u2500"
-)
-
 // DefaultStdoutCallbackResults is the default method to print ansible-playbook results
-func DefaultStdoutCallbackResults(ctx context.Context, prefix string, r io.Reader, w io.Writer) error {
+func DefaultStdoutCallbackResults(ctx context.Context, r io.Reader, w io.Writer, trans ...TransformerFunc) error {
+
+	tranformers := []TransformerFunc{
+		Prepend(PrefixTokenSeparator),
+	}
+
+	for _, t := range trans {
+		tranformers = append(tranformers, t)
+	}
+
+	err := output(ctx, r, w, tranformers...)
+	if err != nil {
+		return errors.New("(results::DefaultStdoutCallbackResults)", "Error processing execution output", err)
+	}
+
+	return nil
+}
+
+// output process the output data with the transformers comming from the execution an writes it to the input writer
+func output(ctx context.Context, r io.Reader, w io.Writer, trans ...TransformerFunc) error {
 
 	printChan := make(chan string)
 	done := make(chan struct{})
@@ -29,13 +43,23 @@ func DefaultStdoutCallbackResults(ctx context.Context, prefix string, r io.Reade
 		w = os.Stdout
 	}
 
+	if trans == nil {
+		trans = []TransformerFunc{}
+	}
+
 	go func() {
 		defer close(done)
 		defer close(printChan)
 
 		scanner := bufio.NewScanner(r)
 		for scanner.Scan() {
-			printChan <- fmt.Sprintf("%s %s %s", prefix, PrefixTokenSeparator, scanner.Text())
+			line := scanner.Text()
+
+			for _, t := range trans {
+				line = t(line)
+			}
+
+			printChan <- line
 		}
 		done <- struct{}{}
 	}()

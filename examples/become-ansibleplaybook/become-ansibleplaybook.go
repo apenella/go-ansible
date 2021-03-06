@@ -5,6 +5,7 @@ import (
 
 	ansibler "github.com/apenella/go-ansible"
 	"github.com/apenella/go-ansible/execute"
+	"github.com/apenella/go-ansible/stdoutcallback/results"
 )
 
 func main() {
@@ -28,7 +29,9 @@ func main() {
 		PrivilegeEscalationOptions: ansiblePlaybookPrivilegeEscalationOptions,
 		Options:                    ansiblePlaybookOptions,
 		Exec: execute.NewDefaultExecute(
-			execute.WithPrefix("Go-ansible example with become"),
+			execute.WithTransformers(
+				results.Prepend("Go-ansible example with become"),
+			),
 		),
 	}
 

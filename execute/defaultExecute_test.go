@@ -7,32 +7,35 @@ import (
 	"os/exec"
 	"testing"
 
+	"github.com/apenella/go-ansible/stdoutcallback/results"
 	errors "github.com/apenella/go-common-utils/error"
 	"github.com/stretchr/testify/assert"
 )
 
 func TestNewDefaultExecute(t *testing.T) {
 	wr := &bytes.Buffer{}
-	prefix := "prefix"
 	runDir := "rundir"
 
 	t.Log("Testing NewDefaultExecute and WithXXX methods")
 
+	trans := func() results.TransformerFunc {
+		return func(message string) string {
+			return message
+		}
+	}
+
 	exe := NewDefaultExecute(
-		WithPrefix(prefix),
 		WithCmdRunDir(runDir),
 		WithWrite(io.Writer(wr)),
 		WithWriteError(io.Writer(wr)),
 		WithShowDuration(),
-		WithOutputFormat(OutputFormatLogFormat),
+		WithTransformers(trans()),
 	)
 
-	assert.Equal(t, prefix, exe.Prefix, "Prefix does not match")
 	assert.Equal(t, runDir, exe.CmdRunDir, "CmdRunDir does not match")
 	assert.True(t, exe.ShowDuration, "ShowDuration does not matc")
 	assert.Equal(t, wr, exe.Write, "Write does not match")
 	assert.Equal(t, wr, exe.WriterError, "WriteError does not match")
-	assert.Equal(t, OutputFormatLogFormat, exe.OutputFormat, "OutputFormat does not match")
 }
 
 func TestDefaultExecute(t *testing.T) {
@@ -63,7 +66,6 @@ func TestDefaultExecute(t *testing.T) {
 			execute: NewDefaultExecute(
 				WithWrite(io.Writer(&stdout)),
 				WithWriteError(io.Writer(&stderr)),
-				WithPrefix("test"),
 			),
 			ctx:            context.TODO(),
 			command:        []string{binary, "--inventory", "127.0.0.1,", "test/site.yml", "-c", "local"},
@@ -75,12 +77,11 @@ func TestDefaultExecute(t *testing.T) {
 			execute: NewDefaultExecute(
 				WithWrite(io.Writer(&stdout)),
 				WithWriteError(io.Writer(&stderr)),
-				WithPrefix("test"),
 			),
 			ctx:     context.TODO(),
 			command: []string{binary, "--inventory", "test/all", "test/site.yml", "--user", "apenella"},
-			expectedStderr: `test ── [WARNING]: Invalid characters were found in group names but not replaced, use
-test ── -vvvv to see details
+			expectedStderr: `── [WARNING]: Invalid characters were found in group names but not replaced, use
+── -vvvv to see details
 `,
 		},
 	}

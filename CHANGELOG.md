@@ -7,19 +7,30 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [v1.0.0]
 
 ## Added
-- New function type `ExecuteOptions` to provide options to executor instances.
+- New function type `ExecuteOptions` to provide options to executor instances
 - New `DefaultExecute` constructor `NewDefaultExecute` that accepts a list of `ExecuteOptions`
+- New component to customize ansible output lines. That component is named *transformer*
+- Include a bunch of transformers that can be already used:
+    - Prepend(string): Prepends and string to the output line
+    - Append(string): Appends and string to the output line
+    - LogFormat(string): Prepends date time to the output line
+    - IgnoreMessage(): Ignores the output line
+- New private method `output` on `results` package to manage how to write the output lines and that can be used by any `StdoutCallbackResultsFunc`
 
 ## Changed
-- **BREAKING CHANGE**: `Executor` interface has been moved from `ansibler` package to `execute` package.
-- **BREAKING CHANGE**: `Executor` interface is changed to `Execute(ctx context.Context, command []string, resultsFunc stdoutcallback.StdoutCallbackResultsFunc, options ...ExecuteOptions) error`.
-- **BREAKING CHANGE**: `DefaultExecute` has been updated to use options pattern design, and includes a bunch of `WithXXX` methods to set its attributes.
+- **BREAKING CHANGE**: `Executor` interface has been moved from `ansibler` package to `execute` package
+- **BREAKING CHANGE**: `Executor` interface is changed to `Execute(ctx context.Context, command []string, resultsFunc stdoutcallback.StdoutCallbackResultsFunc, options ...ExecuteOptions) error`
+- **BREAKING CHANGE**: `DefaultExecute` has been updated to use options pattern design, and includes a bunch of `WithXXX` methods to set its attributes
+- **BREAKING CHANGE**: `StdoutCallbackResultsFunc` signature has been updated to `func(context.Context, io.Reader, io.Writer, ...results.TransformerFunc) error`. Prefix argument has been removed and a list of transformers could be passed to the function
+- `DefaultStdoutCallbackResults` and `JSONStdoutCallbackResults` prepares default transformers for default output an calls `output`, instead of managing the output by its own
 
 ## Removed
 - **BREAKING CHANGE**: Remove `ExecPrefix` from `AnsiblePlaybookCmd`
 - **BREAKING CHANGE**: Remove `CmdRunDir` from `AnsiblePlaybookCmd`
 - **BREAKING CHANGE**: Remove `Writer` from `AnsiblePlaybookCmd`
 - **BREAKING CHANGE**: Remove `ResultsFunc` from `DefaultExecute`
+- **BREAKING CHANGE**: Remove `Prefix` from `DefaultExecute`
+- `skipLine` method has been removed. Replaced by `IgnoreMessage` transformer
 
 ## [v0.8.0]
 ### Added

@@ -8,6 +8,7 @@ import (
 
 	ansibler "github.com/apenella/go-ansible"
 	"github.com/apenella/go-ansible/execute"
+	"github.com/apenella/go-ansible/stdoutcallback/results"
 )
 
 func main() {
@@ -35,7 +36,9 @@ func main() {
 		ConnectionOptions: ansiblePlaybookConnectionOptions,
 		Options:           ansiblePlaybookOptions,
 		Exec: execute.NewDefaultExecute(
-			execute.WithPrefix("Go-ansible example"),
+			execute.WithTransformers(
+				results.Prepend("Go-ansible example"),
+			),
 		),
 		StdoutCallback: "json",
 	}

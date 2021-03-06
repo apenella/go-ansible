@@ -9,7 +9,16 @@ import (
 	ansibler "github.com/apenella/go-ansible"
 	"github.com/apenella/go-ansible/execute"
 	"github.com/apenella/go-ansible/stdoutcallback/results"
+	"github.com/fatih/color"
 )
+
+// customTrasnformer
+func outputColored() results.TransformerFunc {
+	return func(message string) string {
+		yellow := color.New(color.FgYellow).SprintFunc()
+		return fmt.Sprintf("%s", yellow(message))
+	}
+}
 
 func main() {
 
@@ -30,8 +39,11 @@ func main() {
 		ConnectionOptions: ansiblePlaybookConnectionOptions,
 		Options:           ansiblePlaybookOptions,
 		Exec: execute.NewDefaultExecute(
+
 			execute.WithTransformers(
+				outputColored(),
 				results.Prepend("Go-ansible example"),
+				results.LogFormat(results.DefaultLogFormatLayout, results.Now),
 			),
 		),
 	}
