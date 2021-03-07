@@ -1,0 +1,9 @@
+---
+
+- hosts: all
+
+  tasks:
+    - name: signals-and-cancellation-ansibleplaybook 
+      debug:
+        msg: Your are running 'signals-and-cancellation-ansibleplaybook' example
+

@@ -5,11 +5,14 @@ package main
 */
 
 import (
+	"context"
 	"fmt"
 	"os"
 	"strings"
 
 	ansibler "github.com/apenella/go-ansible"
+	"github.com/apenella/go-ansible/execute"
+	"github.com/apenella/go-ansible/stdoutcallback/results"
 	errors "github.com/apenella/go-common-utils/error"
 	"github.com/spf13/cobra"
 )
@@ -73,12 +76,16 @@ func commandHandler(cmd *cobra.Command, args []string) error {
 		Playbook:          playbook,
 		ConnectionOptions: ansiblePlaybookConnectionOptions,
 		Options:           ansiblePlaybookOptions,
-		ExecPrefix:        "Example cobra-cmd-ansibleplaybook",
+		Exec: execute.NewDefaultExecute(
+			execute.WithTransformers(
+				results.Prepend("cobra-cmd-ansibleplaybook example"),
+			),
+		),
 	}
 
 	ansibler.AnsibleForceColor()
 
-	err = playbook.Run()
+	err = playbook.Run(context.TODO())
 	if err != nil {
 		return err
 	}

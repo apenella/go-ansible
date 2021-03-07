@@ -1,8 +1,8 @@
 package ansibler
 
 import (
+	"context"
 	"fmt"
-	"io"
 	"os/exec"
 
 	"github.com/apenella/go-ansible/execute"
@@ -16,9 +16,7 @@ type AnsiblePlaybookCmd struct {
 	// Ansible binary file
 	Binary string
 	// Exec is the executor item
-	Exec Executor
-	// ExecPrefix is a text that is set at the beginning of each execution line
-	ExecPrefix string
+	Exec execute.Executor
 	// Playbook is the ansible's playbook name to be used
 	Playbook string
 	// Options are the ansible's playbook options
@@ -29,14 +27,13 @@ type AnsiblePlaybookCmd struct {
 	PrivilegeEscalationOptions *AnsiblePrivilegeEscalationOptions
 	// StdoutCallback defines which is the stdout callback method. By default is used 'default' method. Supported stdout method by go-ansible are: debug, default, dense, json, minimal, null, oneline, stderr, timer, yaml
 	StdoutCallback string
-	// Writer manages the output
-	Writer io.Writer
 }
 
 // Run method runs the ansible-playbook
-func (p *AnsiblePlaybookCmd) Run() error {
+func (p *AnsiblePlaybookCmd) Run(ctx context.Context) error {
 	var err error
-	var cmd []string
+	var command []string
+	options := []execute.ExecuteOptions{}
 
 	if p == nil {
 		return errors.New("(ansible:Run)", "AnsiblePlaybookCmd is nil")
@@ -54,28 +51,20 @@ func (p *AnsiblePlaybookCmd) Run() error {
 
 	// Define a default executor when it is not defined on AnsiblePlaybookCmd
 	if p.Exec == nil {
-		p.Exec = &execute.DefaultExecute{
-			Write:       p.Writer,
-			ResultsFunc: stdoutcallback.GetResultsFunc(p.StdoutCallback),
-		}
-	}
-
-	// Generate the command to be run
-	cmd, err = p.Command()
-	if err != nil {
-		return errors.New("(ansible:Run)", fmt.Sprintf("Error running '%s'", p.String()), err)
-	}
-
-	// Set default prefix
-	if len(p.ExecPrefix) <= 0 {
-		p.ExecPrefix = ""
+		p.Exec = execute.NewDefaultExecute()
 	}
 
 	// Configure StdoutCallback method. By default is used ansible's 'default' callback method
 	stdoutcallback.AnsibleStdoutCallbackSetEnv(p.StdoutCallback)
 
+	// Generate the command to be run
+	command, err = p.Command()
+	if err != nil {
+		return errors.New("(ansible:Run)", fmt.Sprintf("Error running '%s'", p.String()), err)
+	}
+
 	// Execute the command an return
-	return p.Exec.Execute(cmd[0], cmd[1:], p.ExecPrefix)
+	return p.Exec.Execute(ctx, command, stdoutcallback.GetResultsFunc(p.StdoutCallback), options...)
 }
 
 // Command generate the ansible-playbook command which will be executed

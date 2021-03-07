@@ -3,6 +3,7 @@ package results
 import (
 	"bufio"
 	"bytes"
+	"context"
 	"io"
 	"strings"
 	"testing"
@@ -16,6 +17,7 @@ func TestDefaultStdoutCallbackResults(t *testing.T) {
 		input string
 		res   string
 		err   error
+		trans []TransformerFunc
 	}{
 		{
 			desc: "Testing default stdout callback",
@@ -31,17 +33,17 @@ PLAY RECAP *********************************************************************
 
 Playbook run took 0 days, 0 hours, 0 minutes, 0 seconds
 `,
-			res: ` ── 
- ── PLAY [local] *********************************************************************************************************************************************************************************
- ── 
- ── TASK [Print test message] ********************************************************************************************************************************************************************
- ── ok: [127.0.0.1] => 
- ── 	msg: That's a message to test			
- ── 
- ── PLAY RECAP ***********************************************************************************************************************************************************************************
- ── 127.0.0.1                  : ok=1    changed=0    unreachable=0    failed=0    skipped=0    rescued=0    ignored=0   			
- ── 
- ── Playbook run took 0 days, 0 hours, 0 minutes, 0 seconds
+			res: `── 
+── PLAY [local] *********************************************************************************************************************************************************************************
+── 
+── TASK [Print test message] ********************************************************************************************************************************************************************
+── ok: [127.0.0.1] => 
+── 	msg: That's a message to test			
+── 
+── PLAY RECAP ***********************************************************************************************************************************************************************************
+── 127.0.0.1                  : ok=1    changed=0    unreachable=0    failed=0    skipped=0    rescued=0    ignored=0   			
+── 
+── Playbook run took 0 days, 0 hours, 0 minutes, 0 seconds
 `,
 			err: nil,
 		},
@@ -52,7 +54,7 @@ Playbook run took 0 days, 0 hours, 0 minutes, 0 seconds
 			wbuff := bytes.Buffer{}
 			writer := io.Writer(&wbuff)
 			reader := bufio.NewReader(strings.NewReader(test.input))
-			err := DefaultStdoutCallbackResults("", reader, writer)
+			err := DefaultStdoutCallbackResults(context.TODO(), reader, writer, test.trans...)
 			if err != nil && assert.Error(t, err) {
 				assert.Equal(t, test.err, err)
 			} else {

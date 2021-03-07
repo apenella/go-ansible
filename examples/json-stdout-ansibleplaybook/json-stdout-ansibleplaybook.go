@@ -2,10 +2,12 @@ package main
 
 import (
 	"bytes"
+	"context"
 	"fmt"
 	"io"
 
 	ansibler "github.com/apenella/go-ansible"
+	"github.com/apenella/go-ansible/execute"
 	"github.com/apenella/go-ansible/stdoutcallback/results"
 )
 
@@ -24,16 +26,19 @@ func main() {
 		Inventory: "127.0.0.1,",
 	}
 
+	execute := execute.NewDefaultExecute(
+		execute.WithWrite(io.Writer(buff)),
+	)
+
 	playbook := &ansibler.AnsiblePlaybookCmd{
 		Playbook:          "site.yml",
+		Exec:              execute,
 		ConnectionOptions: ansiblePlaybookConnectionOptions,
 		Options:           ansiblePlaybookOptions,
-		ExecPrefix:        "Go-ansible example",
 		StdoutCallback:    "json",
-		Writer:            io.Writer(buff),
 	}
 
-	err = playbook.Run()
+	err = playbook.Run(context.TODO())
 	if err != nil {
 		fmt.Println(err.Error())
 	}
