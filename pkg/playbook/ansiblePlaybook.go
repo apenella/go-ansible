@@ -8,6 +8,7 @@ import (
 	"github.com/apenella/go-ansible/execute"
 	"github.com/apenella/go-ansible/pkg/options"
 	"github.com/apenella/go-ansible/stdoutcallback"
+	common "github.com/apenella/go-common-utils/data"
 	errors "github.com/apenella/go-common-utils/error"
 )
 
@@ -16,17 +17,44 @@ const (
 	// DefaultAnsiblePlaybookBinary is the ansible-playbook binary file default value
 	DefaultAnsiblePlaybookBinary = "ansible-playbook"
 
+	// AskVaultPasswordFlag ask for vault password
+	AskVaultPasswordFlag = "--ask-vault-password"
+
+	// CheckFlag don't make any changes; instead, try to predict some of the changes that may occur
+	CheckFlag = "--check"
+
+	// DiffFlag when changing (small) files and templates, show the differences in those files; works great with --check
+	DiffFlag = "--diff"
+
+	// ExtraVarsFlag is the extra variables flag for ansible-playbook
+	ExtraVarsFlag = "--extra-vars"
+
 	// FlushCacheFlag is the flush cache flag for ansible-playbook
 	FlushCacheFlag = "--flush-cache"
 
 	// ForceHandlersFlag run handlers even if a task fails
 	ForceHandlersFlag = "--force-handlers"
 
+	// ForksFlag specify number of parallel processes to use (default=50)
+	ForksFlag = "--forks"
+
+	// InventoryFlag is the inventory flag for ansible-playbook
+	InventoryFlag = "--inventory"
+
+	// LimitFlag is the limit flag for ansible-playbook
+	LimitFlag = "--limit"
+
+	// ListHostsFlag is the list hosts flag for ansible-playbook
+	ListHostsFlag = "--list-hosts"
+
 	// ListTagsFlag is the list tags flag for ansible-playbook
 	ListTagsFlag = "--list-tags"
 
 	// ListTasksFlag is the list tasks flag for ansible-playbook
 	ListTasksFlag = "--list-tasks"
+
+	// ModulePathFlag repend colon-separated path(s) to module library (default=~/.ansible/plugins/modules:/usr/share/ansible/plugins/modules)
+	ModulePathFlag = "--module-path"
 
 	// SkipTagsFlag only run plays and tasks whose tags do not match these values
 	SkipTagsFlag = "--skip-tags"
@@ -37,8 +65,23 @@ const (
 	// StepFlag one-step-at-a-time: confirm each task before running
 	StepFlag = "--step"
 
+	// SyntaxCheckFlag is the syntax check flag for ansible-playbook
+	SyntaxCheckFlag = "--syntax-check"
+
 	// TagsFlag is the tags flag for ansible-playbook
 	TagsFlag = "--tags"
+
+	// VaultIDFlag the vault identity to use
+	VaultIDFlag = "--vault-id"
+
+	// VaultPasswordFileFlag is the vault password file flag for ansible-playbook
+	VaultPasswordFileFlag = "--vault-password-file"
+
+	// VersionFlag show program's version number, config file location, configured module search path, module location, executable location and exit
+	VersionFlag = "--version"
+
+	// VerboseFlag verbose mode enabled to connection debugging
+	VerboseFlag = "-vvvv"
 )
 
 // AnsiblePlaybookOptionsFunc is a function to set executor options
@@ -53,7 +96,7 @@ type AnsiblePlaybookCmd struct {
 	// Playbook is the ansible's playbook name to be used
 	Playbook string
 	// Options are the ansible's playbook options
-	AnsiblePlaybookOptions *AnsiblePlaybookOptions
+	Options *AnsiblePlaybookOptions
 	// ConnectionOptions are the ansible's playbook specific options for connection
 	ConnectionOptions *options.AnsibleConnectionOptions
 	// PrivilegeEscalationOptions are the ansible's playbook privilage escalation options
@@ -113,8 +156,8 @@ func (p *AnsiblePlaybookCmd) Command() ([]string, error) {
 	cmd = append(cmd, p.Binary)
 
 	// Determine the options to be set
-	if p.AnsiblePlaybookOptions != nil {
-		options, err := p.AnsiblePlaybookOptions.GenerateCommandOptions()
+	if p.Options != nil {
+		options, err := p.Options.GenerateCommandOptions()
 		if err != nil {
 			return nil, errors.New("(ansible::Command)", "Error creating options", err)
 		}
@@ -161,8 +204,8 @@ func (p *AnsiblePlaybookCmd) String() string {
 
 	str := p.Binary
 
-	if p.AnsiblePlaybookOptions != nil {
-		str = fmt.Sprintf("%s %s", str, p.AnsiblePlaybookOptions.String())
+	if p.Options != nil {
+		str = fmt.Sprintf("%s %s", str, p.Options.String())
 	}
 	if p.ConnectionOptions != nil {
 		str = fmt.Sprintf("%s %s", str, p.ConnectionOptions.String())
@@ -178,7 +221,18 @@ func (p *AnsiblePlaybookCmd) String() string {
 
 // AnsiblePlaybookOptions object has those parameters described on `Options` section within ansible-playbook's man page, and which defines which should be the ansible-playbook execution behavior.
 type AnsiblePlaybookOptions struct {
-	*options.AnsibleCommonOptions
+
+	// AskVaultPassword ask for vault password
+	AskVaultPassword bool
+
+	// Check don't make any changes; instead, try to predict some of the changes that may occur
+	Check bool
+
+	// Diff when changing (small) files and templates, show the differences in those files; works great with --check
+	Diff bool
+
+	// ExtraVars is a map of extra variables used on ansible-playbook execution
+	ExtraVars map[string]interface{}
 
 	// FlushCache is the flush cache flag for ansible-playbook
 	FlushCache bool
@@ -186,11 +240,26 @@ type AnsiblePlaybookOptions struct {
 	// ForceHandlers run handlers even if a task fails
 	ForceHandlers bool
 
+	// Forks specify number of parallel processes to use (default=50)
+	Forks string
+
+	// Inventory specify inventory host path
+	Inventory string
+
+	// Limit is selected hosts additional pattern
+	Limit string
+
+	// ListHosts outputs a list of matching hosts
+	ListHosts bool
+
 	// ListTags is the list tags flag for ansible-playbook
 	ListTags bool
 
 	// ListTasks is the list tasks flag for ansible-playbook
 	ListTasks bool
+
+	// ModulePath repend colon-separated path(s) to module library (default=~/.ansible/plugins/modules:/usr/share/ansible/plugins/modules)
+	ModulePath string
 
 	// SkipTags only run plays and tasks whose tags do not match these values
 	SkipTags string
@@ -201,26 +270,53 @@ type AnsiblePlaybookOptions struct {
 	// Step one-step-at-a-time: confirm each task before running
 	Step bool
 
+	// SyntaxCheck is the syntax check flag for ansible-playbook
+	SyntaxCheck bool
+
 	// Tags is the tags flag for ansible-playbook
 	Tags string
+
+	// VaultID the vault identity to use
+	VaultID string
+
+	// VaultPasswordFile path to the file holding vault decryption key
+	VaultPasswordFile string
+
+	// Verbose verbose mode enabled to connection debugging
+	Verbose bool
+
+	// Version show program's version number, config file location, configured module search path, module location, executable location and exit
+	Version bool
 }
 
 // GenerateCommandOptions return a list of options flags to be used on ansible-playbook execution
 func (o *AnsiblePlaybookOptions) GenerateCommandOptions() ([]string, error) {
 
-	var err error
 	cmd := []string{}
 
 	if o == nil {
 		return nil, errors.New("(ansible::GenerateCommandOptions)", "AnsiblePlaybookOptions is nil")
 	}
 
-	if o.AnsibleCommonOptions != nil {
-		cmd, err = o.AnsibleCommonOptions.GenerateCommandCommonOptions()
+	if o.AskVaultPassword {
+		cmd = append(cmd, AskVaultPasswordFlag)
+	}
+
+	if o.Check {
+		cmd = append(cmd, CheckFlag)
+	}
+
+	if o.Diff {
+		cmd = append(cmd, DiffFlag)
+	}
+
+	if len(o.ExtraVars) > 0 {
+		cmd = append(cmd, ExtraVarsFlag)
+		extraVars, err := o.generateExtraVarsCommand()
 		if err != nil {
-			fmt.Println("!!!!!!", err.Error())
-			return nil, errors.New("(ansible::GenerateCommandOptions)", "Error generating command commond options", err)
+			return nil, errors.New("(ansible::GenerateCommandOptions)", "Error generating extra-vars", err)
 		}
+		cmd = append(cmd, extraVars)
 	}
 
 	if o.FlushCache {
@@ -231,12 +327,36 @@ func (o *AnsiblePlaybookOptions) GenerateCommandOptions() ([]string, error) {
 		cmd = append(cmd, ForceHandlersFlag)
 	}
 
+	if o.Forks != "" {
+		cmd = append(cmd, ForksFlag)
+		cmd = append(cmd, o.Forks)
+	}
+
+	if o.Inventory != "" {
+		cmd = append(cmd, InventoryFlag)
+		cmd = append(cmd, o.Inventory)
+	}
+
+	if o.Limit != "" {
+		cmd = append(cmd, LimitFlag)
+		cmd = append(cmd, o.Limit)
+	}
+
+	if o.ListHosts {
+		cmd = append(cmd, ListHostsFlag)
+	}
+
 	if o.ListTags {
 		cmd = append(cmd, ListTagsFlag)
 	}
 
 	if o.ListTasks {
 		cmd = append(cmd, ListTasksFlag)
+	}
+
+	if o.ModulePath != "" {
+		cmd = append(cmd, ModulePathFlag)
+		cmd = append(cmd, o.ModulePath)
 	}
 
 	if o.SkipTags != "" {
@@ -253,49 +373,82 @@ func (o *AnsiblePlaybookOptions) GenerateCommandOptions() ([]string, error) {
 		cmd = append(cmd, StepFlag)
 	}
 
+	if o.SyntaxCheck {
+		cmd = append(cmd, SyntaxCheckFlag)
+	}
+
 	if o.Tags != "" {
 		cmd = append(cmd, TagsFlag)
 		cmd = append(cmd, o.Tags)
 	}
 
+	if o.VaultID != "" {
+		cmd = append(cmd, VaultIDFlag)
+		cmd = append(cmd, o.VaultID)
+	}
+
+	if o.VaultPasswordFile != "" {
+		cmd = append(cmd, VaultPasswordFileFlag)
+		cmd = append(cmd, o.VaultPasswordFile)
+	}
+
+	if o.Verbose {
+		cmd = append(cmd, VerboseFlag)
+	}
+
+	if o.Version {
+		cmd = append(cmd, VersionFlag)
+	}
+
 	return cmd, nil
 }
 
-// TODO: remove or options facade
 // generateExtraVarsCommand return an string which is a json structure having all the extra variable
-// func (o *AnsiblePlaybookOptions) generateExtraVarsCommand() (string, error) {
+func (o *AnsiblePlaybookOptions) generateExtraVarsCommand() (string, error) {
 
-// 	extraVars, err := common.ObjectToJSONString(o.ExtraVars)
-// 	if err != nil {
-// 		return "", errors.New("(ansible::generateExtraVarsCommand)", "Error creationg extra-vars JSON object to string", err)
-// 	}
-// 	return extraVars, nil
-// }
+	extraVars, err := common.ObjectToJSONString(o.ExtraVars)
+	if err != nil {
+		return "", errors.New("(ansible::generateExtraVarsCommand)", "Error creationg extra-vars JSON object to string", err)
+	}
+	return extraVars, nil
+}
 
-// TODO: remove or options facade
 // AddExtraVar registers a new extra variable on ansible-playbook options item
-// func (o *AnsiblePlaybookOptions) AddExtraVar(name string, value interface{}) error {
+func (o *AnsiblePlaybookOptions) AddExtraVar(name string, value interface{}) error {
 
-// 	if o.ExtraVars == nil {
-// 		o.ExtraVars = map[string]interface{}{}
-// 	}
-// 	_, exists := o.ExtraVars[name]
-// 	if exists {
-// 		return errors.New("(ansible::AddExtraVar)", fmt.Sprintf("ExtraVar '%s' already exist", name))
-// 	}
+	if o.ExtraVars == nil {
+		o.ExtraVars = map[string]interface{}{}
+	}
+	_, exists := o.ExtraVars[name]
+	if exists {
+		return errors.New("(ansible::AddExtraVar)", fmt.Sprintf("ExtraVar '%s' already exist", name))
+	}
 
-// 	o.ExtraVars[name] = value
+	o.ExtraVars[name] = value
 
-// 	return nil
-// }
+	return nil
+}
 
 // String returns AnsiblePlaybookOptions as string
 func (o *AnsiblePlaybookOptions) String() string {
 
 	str := ""
 
-	if o.AnsibleCommonOptions != nil {
-		str = o.AnsibleCommonOptions.String()
+	if o.AskVaultPassword {
+		str = fmt.Sprintf("%s %s", str, AskVaultPasswordFlag)
+	}
+
+	if o.Check {
+		str = fmt.Sprintf("%s %s", str, CheckFlag)
+	}
+
+	if o.Diff {
+		str = fmt.Sprintf("%s %s", str, DiffFlag)
+	}
+
+	if len(o.ExtraVars) > 0 {
+		extraVars, _ := o.generateExtraVarsCommand()
+		str = fmt.Sprintf("%s %s %s", str, ExtraVarsFlag, fmt.Sprintf("'%s'", extraVars))
 	}
 
 	if o.FlushCache {
@@ -306,12 +459,32 @@ func (o *AnsiblePlaybookOptions) String() string {
 		str = fmt.Sprintf("%s %s", str, ForceHandlersFlag)
 	}
 
+	if o.Forks != "" {
+		str = fmt.Sprintf("%s %s %s", str, ForksFlag, o.Forks)
+	}
+
+	if o.Inventory != "" {
+		str = fmt.Sprintf("%s %s %s", str, InventoryFlag, o.Inventory)
+	}
+
+	if o.Limit != "" {
+		str = fmt.Sprintf("%s %s %s", str, LimitFlag, o.Limit)
+	}
+
+	if o.ListHosts {
+		str = fmt.Sprintf("%s %s", str, ListHostsFlag)
+	}
+
 	if o.ListTags {
 		str = fmt.Sprintf("%s %s", str, ListTagsFlag)
 	}
 
 	if o.ListTasks {
 		str = fmt.Sprintf("%s %s", str, ListTasksFlag)
+	}
+
+	if o.ModulePath != "" {
+		str = fmt.Sprintf("%s %s %s", str, ModulePathFlag, o.ModulePath)
 	}
 
 	if o.SkipTags != "" {
@@ -326,297 +499,29 @@ func (o *AnsiblePlaybookOptions) String() string {
 		str = fmt.Sprintf("%s %s", str, StepFlag)
 	}
 
+	if o.SyntaxCheck {
+		str = fmt.Sprintf("%s %s", str, SyntaxCheckFlag)
+	}
+
 	if o.Tags != "" {
 		str = fmt.Sprintf("%s %s %s", str, TagsFlag, o.Tags)
 	}
 
+	if o.VaultID != "" {
+		str = fmt.Sprintf("%s %s %s", str, VaultIDFlag, o.VaultID)
+	}
+
+	if o.VaultPasswordFile != "" {
+		str = fmt.Sprintf("%s %s %s", str, VaultPasswordFileFlag, o.VaultPasswordFile)
+	}
+
+	if o.Verbose {
+		str = fmt.Sprintf("%s %s", str, VerboseFlag)
+	}
+
+	if o.Version {
+		str = fmt.Sprintf("%s %s", str, VersionFlag)
+	}
+
 	return str
-}
-
-// Options set the command options to ansible-playbook
-func (p *AnsiblePlaybookCmd) Options(options ...AnsiblePlaybookOptionsFunc) {
-
-	if p.AnsiblePlaybookOptions == nil {
-		p.AnsiblePlaybookOptions = &AnsiblePlaybookOptions{}
-	}
-
-	for _, opt := range options {
-		opt(p)
-	}
-}
-
-// WithFlushCache set FlushCache ansible-playbook options value
-func WithFlushCache(value bool) AnsiblePlaybookOptionsFunc {
-	return func(p *AnsiblePlaybookCmd) {
-		if p.AnsiblePlaybookOptions == nil {
-			p.AnsiblePlaybookOptions = &AnsiblePlaybookOptions{}
-		}
-		p.AnsiblePlaybookOptions.FlushCache = value
-	}
-}
-
-// WithForceHandlers set ForceHandlers ansible-playbook options value
-func WithForceHandlers(value bool) AnsiblePlaybookOptionsFunc {
-	return func(p *AnsiblePlaybookCmd) {
-		if p.AnsiblePlaybookOptions == nil {
-			p.AnsiblePlaybookOptions = &AnsiblePlaybookOptions{}
-		}
-		p.AnsiblePlaybookOptions.ForceHandlers = value
-	}
-}
-
-// WithListTags set ListTags ansible-playbook options value
-func WithListTags(value bool) AnsiblePlaybookOptionsFunc {
-	return func(p *AnsiblePlaybookCmd) {
-		if p.AnsiblePlaybookOptions == nil {
-			p.AnsiblePlaybookOptions = &AnsiblePlaybookOptions{}
-		}
-		p.AnsiblePlaybookOptions.ListTags = value
-	}
-}
-
-// WithListTasks set ListTasks ansible-playbook options value
-func WithListTasks(value bool) AnsiblePlaybookOptionsFunc {
-	return func(p *AnsiblePlaybookCmd) {
-		if p.AnsiblePlaybookOptions == nil {
-			p.AnsiblePlaybookOptions = &AnsiblePlaybookOptions{}
-		}
-		p.AnsiblePlaybookOptions.ListTasks = value
-	}
-}
-
-// WithSkipTags set SkipTags ansible-playbook options value
-func WithSkipTags(value string) AnsiblePlaybookOptionsFunc {
-	return func(p *AnsiblePlaybookCmd) {
-		if p.AnsiblePlaybookOptions == nil {
-			p.AnsiblePlaybookOptions = &AnsiblePlaybookOptions{}
-		}
-		p.AnsiblePlaybookOptions.SkipTags = value
-	}
-}
-
-// WithStartAtTask set StartAtTask ansible-playbook options value
-func WithStartAtTask(value string) AnsiblePlaybookOptionsFunc {
-	return func(p *AnsiblePlaybookCmd) {
-		if p.AnsiblePlaybookOptions == nil {
-			p.AnsiblePlaybookOptions = &AnsiblePlaybookOptions{}
-		}
-		p.AnsiblePlaybookOptions.StartAtTask = value
-	}
-}
-
-// WithStep set Step ansible-playbook options value
-func WithStep(value bool) AnsiblePlaybookOptionsFunc {
-	return func(p *AnsiblePlaybookCmd) {
-		if p.AnsiblePlaybookOptions == nil {
-			p.AnsiblePlaybookOptions = &AnsiblePlaybookOptions{}
-		}
-		p.AnsiblePlaybookOptions.Step = value
-	}
-}
-
-// WithTags set Tags ansible-playbook options value
-func WithTags(value string) AnsiblePlaybookOptionsFunc {
-	return func(p *AnsiblePlaybookCmd) {
-		if p.AnsiblePlaybookOptions == nil {
-			p.AnsiblePlaybookOptions = &AnsiblePlaybookOptions{}
-		}
-		p.AnsiblePlaybookOptions.Tags = value
-	}
-}
-
-// WithAskVaultPassword set AskVaultPassword ansible-playbook common options value
-func WithAskVaultPassword(value bool) AnsiblePlaybookOptionsFunc {
-	return func(p *AnsiblePlaybookCmd) {
-		if p.AnsiblePlaybookOptions == nil {
-			p.AnsiblePlaybookOptions = &AnsiblePlaybookOptions{}
-		}
-		if p.AnsiblePlaybookOptions.AnsibleCommonOptions == nil {
-			p.AnsiblePlaybookOptions.AnsibleCommonOptions = &options.AnsibleCommonOptions{}
-		}
-
-		p.AnsiblePlaybookOptions.AnsibleCommonOptions.AskVaultPassword = value
-	}
-}
-
-// WithCheck set Check ansible-playbook common options value
-func WithCheck(value bool) AnsiblePlaybookOptionsFunc {
-	return func(p *AnsiblePlaybookCmd) {
-		if p.AnsiblePlaybookOptions == nil {
-			p.AnsiblePlaybookOptions = &AnsiblePlaybookOptions{}
-		}
-		if p.AnsiblePlaybookOptions.AnsibleCommonOptions == nil {
-			p.AnsiblePlaybookOptions.AnsibleCommonOptions = &options.AnsibleCommonOptions{}
-		}
-
-		p.AnsiblePlaybookOptions.AnsibleCommonOptions.Check = value
-	}
-}
-
-// WithDiff set Diff ansible-playbook common options value
-func WithDiff(value bool) AnsiblePlaybookOptionsFunc {
-	return func(p *AnsiblePlaybookCmd) {
-		if p.AnsiblePlaybookOptions == nil {
-			p.AnsiblePlaybookOptions = &AnsiblePlaybookOptions{}
-		}
-		if p.AnsiblePlaybookOptions.AnsibleCommonOptions == nil {
-			p.AnsiblePlaybookOptions.AnsibleCommonOptions = &options.AnsibleCommonOptions{}
-		}
-
-		p.AnsiblePlaybookOptions.AnsibleCommonOptions.Diff = value
-	}
-}
-
-// WithExtraVars set ExtraVars ansible-playbook common options value
-func WithExtraVars(value map[string]interface{}) AnsiblePlaybookOptionsFunc {
-	return func(p *AnsiblePlaybookCmd) {
-		if p.AnsiblePlaybookOptions == nil {
-			p.AnsiblePlaybookOptions = &AnsiblePlaybookOptions{}
-		}
-		if p.AnsiblePlaybookOptions.AnsibleCommonOptions == nil {
-			p.AnsiblePlaybookOptions.AnsibleCommonOptions = &options.AnsibleCommonOptions{}
-		}
-
-		p.AnsiblePlaybookOptions.AnsibleCommonOptions.ExtraVars = value
-	}
-}
-
-// WithForks set Forks ansible-playbook common options value
-func WithForks(value string) AnsiblePlaybookOptionsFunc {
-	return func(p *AnsiblePlaybookCmd) {
-		if p.AnsiblePlaybookOptions == nil {
-			p.AnsiblePlaybookOptions = &AnsiblePlaybookOptions{}
-		}
-		if p.AnsiblePlaybookOptions.AnsibleCommonOptions == nil {
-			p.AnsiblePlaybookOptions.AnsibleCommonOptions = &options.AnsibleCommonOptions{}
-		}
-
-		p.AnsiblePlaybookOptions.AnsibleCommonOptions.Forks = value
-	}
-}
-
-// WithInventory set Inventory ansible-playbook common options value
-func WithInventory(value string) AnsiblePlaybookOptionsFunc {
-	return func(p *AnsiblePlaybookCmd) {
-		if p.AnsiblePlaybookOptions == nil {
-			p.AnsiblePlaybookOptions = &AnsiblePlaybookOptions{}
-		}
-		if p.AnsiblePlaybookOptions.AnsibleCommonOptions == nil {
-			p.AnsiblePlaybookOptions.AnsibleCommonOptions = &options.AnsibleCommonOptions{}
-		}
-
-		p.AnsiblePlaybookOptions.AnsibleCommonOptions.Inventory = value
-	}
-}
-
-// WithLimit set Limit ansible-playbook common options value
-func WithLimit(value string) AnsiblePlaybookOptionsFunc {
-	return func(p *AnsiblePlaybookCmd) {
-		if p.AnsiblePlaybookOptions == nil {
-			p.AnsiblePlaybookOptions = &AnsiblePlaybookOptions{}
-		}
-		if p.AnsiblePlaybookOptions.AnsibleCommonOptions == nil {
-			p.AnsiblePlaybookOptions.AnsibleCommonOptions = &options.AnsibleCommonOptions{}
-		}
-
-		p.AnsiblePlaybookOptions.AnsibleCommonOptions.Limit = value
-	}
-}
-
-// WithListHosts set ListHosts ansible-playbook common options value
-func WithListHosts(value bool) AnsiblePlaybookOptionsFunc {
-	return func(p *AnsiblePlaybookCmd) {
-		if p.AnsiblePlaybookOptions == nil {
-			p.AnsiblePlaybookOptions = &AnsiblePlaybookOptions{}
-		}
-		if p.AnsiblePlaybookOptions.AnsibleCommonOptions == nil {
-			p.AnsiblePlaybookOptions.AnsibleCommonOptions = &options.AnsibleCommonOptions{}
-		}
-
-		p.AnsiblePlaybookOptions.AnsibleCommonOptions.ListHosts = value
-	}
-}
-
-// WithModulePath set ModulePath ansible-playbook common options value
-func WithModulePath(value string) AnsiblePlaybookOptionsFunc {
-	return func(p *AnsiblePlaybookCmd) {
-		if p.AnsiblePlaybookOptions == nil {
-			p.AnsiblePlaybookOptions = &AnsiblePlaybookOptions{}
-		}
-		if p.AnsiblePlaybookOptions.AnsibleCommonOptions == nil {
-			p.AnsiblePlaybookOptions.AnsibleCommonOptions = &options.AnsibleCommonOptions{}
-		}
-
-		p.AnsiblePlaybookOptions.AnsibleCommonOptions.ModulePath = value
-	}
-}
-
-// WithSyntaxCheck set SyntaxCheck ansible-playbook common options value
-func WithSyntaxCheck(value bool) AnsiblePlaybookOptionsFunc {
-	return func(p *AnsiblePlaybookCmd) {
-		if p.AnsiblePlaybookOptions == nil {
-			p.AnsiblePlaybookOptions = &AnsiblePlaybookOptions{}
-		}
-		if p.AnsiblePlaybookOptions.AnsibleCommonOptions == nil {
-			p.AnsiblePlaybookOptions.AnsibleCommonOptions = &options.AnsibleCommonOptions{}
-		}
-
-		p.AnsiblePlaybookOptions.AnsibleCommonOptions.SyntaxCheck = value
-	}
-}
-
-// WithVaultID set VaultID ansible-playbook common options value
-func WithVaultID(value string) AnsiblePlaybookOptionsFunc {
-	return func(p *AnsiblePlaybookCmd) {
-		if p.AnsiblePlaybookOptions == nil {
-			p.AnsiblePlaybookOptions = &AnsiblePlaybookOptions{}
-		}
-		if p.AnsiblePlaybookOptions.AnsibleCommonOptions == nil {
-			p.AnsiblePlaybookOptions.AnsibleCommonOptions = &options.AnsibleCommonOptions{}
-		}
-
-		p.AnsiblePlaybookOptions.AnsibleCommonOptions.VaultID = value
-	}
-}
-
-// WithVaultPasswordFile set VaultPasswordFile ansible-playbook common options value
-func WithVaultPasswordFile(value string) AnsiblePlaybookOptionsFunc {
-	return func(p *AnsiblePlaybookCmd) {
-		if p.AnsiblePlaybookOptions == nil {
-			p.AnsiblePlaybookOptions = &AnsiblePlaybookOptions{}
-		}
-		if p.AnsiblePlaybookOptions.AnsibleCommonOptions == nil {
-			p.AnsiblePlaybookOptions.AnsibleCommonOptions = &options.AnsibleCommonOptions{}
-		}
-
-		p.AnsiblePlaybookOptions.AnsibleCommonOptions.VaultPasswordFile = value
-	}
-}
-
-// WithVerbose set Verbose ansible-playbook common options value
-func WithVerbose(value bool) AnsiblePlaybookOptionsFunc {
-	return func(p *AnsiblePlaybookCmd) {
-		if p.AnsiblePlaybookOptions == nil {
-			p.AnsiblePlaybookOptions = &AnsiblePlaybookOptions{}
-		}
-		if p.AnsiblePlaybookOptions.AnsibleCommonOptions == nil {
-			p.AnsiblePlaybookOptions.AnsibleCommonOptions = &options.AnsibleCommonOptions{}
-		}
-
-		p.AnsiblePlaybookOptions.AnsibleCommonOptions.Verbose = value
-	}
-}
-
-// WithVersion set Version ansible-playbook common options value
-func WithVersion(value bool) AnsiblePlaybookOptionsFunc {
-	return func(p *AnsiblePlaybookCmd) {
-		if p.AnsiblePlaybookOptions == nil {
-			p.AnsiblePlaybookOptions = &AnsiblePlaybookOptions{}
-		}
-		if p.AnsiblePlaybookOptions.AnsibleCommonOptions == nil {
-			p.AnsiblePlaybookOptions.AnsibleCommonOptions = &options.AnsibleCommonOptions{}
-		}
-
-		p.AnsiblePlaybookOptions.AnsibleCommonOptions.Version = value
-	}
 }

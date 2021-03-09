@@ -90,7 +90,7 @@ func TestGenerateCommandOptions(t *testing.T) {
 		// TODO
 		// {
 		// 	desc: "Testing AnsiblePlaybookOptions with extra vars",
-		// 	ansiblePlaybookOptions: &AnsiblePlaybookOptions{
+		// 	Options: &AnsiblePlaybookOptions{
 		// 		ExtraVars: map[string]interface{}{
 		// 			"extra": "var",
 		// 		},
@@ -143,13 +143,23 @@ func TestCommand(t *testing.T) {
 					Timeout:    "10",
 					User:       "apenella",
 				},
-				AnsiblePlaybookOptions: &AnsiblePlaybookOptions{
-					AnsibleCommonOptions: &options.AnsibleCommonOptions{
-						Inventory: "test/ansible/inventory/all",
-						Limit:     "myhost",
-						ExtraVars: map[string]interface{}{
-							"var1": "value1",
-						},
+				Options: &AnsiblePlaybookOptions{
+					AskVaultPassword:  true,
+					Check:             true,
+					Diff:              true,
+					Forks:             "10",
+					ListHosts:         true,
+					ModulePath:        "/dev/null",
+					SyntaxCheck:       true,
+					VaultID:           "asdf",
+					VaultPasswordFile: "/dev/null",
+					Verbose:           true,
+					Version:           true,
+
+					Inventory: "test/ansible/inventory/all",
+					Limit:     "myhost",
+					ExtraVars: map[string]interface{}{
+						"var1": "value1",
 					},
 					FlushCache: true,
 					Tags:       "tag1",
@@ -200,13 +210,22 @@ func TestString(t *testing.T) {
 					Timeout:    "10",
 					User:       "apenella",
 				},
-				AnsiblePlaybookOptions: &AnsiblePlaybookOptions{
-					AnsibleCommonOptions: &options.AnsibleCommonOptions{
-						Inventory: "test/ansible/inventory/all",
-						Limit:     "myhost",
-						ExtraVars: map[string]interface{}{
-							"var1": "value1",
-						},
+				Options: &AnsiblePlaybookOptions{
+					AskVaultPassword:  true,
+					Check:             true,
+					Diff:              true,
+					Forks:             "10",
+					ListHosts:         true,
+					ModulePath:        "/dev/null",
+					SyntaxCheck:       true,
+					VaultID:           "asdf",
+					VaultPasswordFile: "/dev/null",
+					Verbose:           true,
+					Version:           true,
+					Inventory:         "test/ansible/inventory/all",
+					Limit:             "myhost",
+					ExtraVars: map[string]interface{}{
+						"var1": "value1",
 					},
 					FlushCache:    true,
 					ForceHandlers: true,
@@ -276,10 +295,8 @@ func TestRun(t *testing.T) {
 				ConnectionOptions: &options.AnsibleConnectionOptions{
 					Connection: "local",
 				},
-				AnsiblePlaybookOptions: &AnsiblePlaybookOptions{
-					AnsibleCommonOptions: &options.AnsibleCommonOptions{
-						Inventory: "test/ansible/inventory/all",
-					},
+				Options: &AnsiblePlaybookOptions{
+					Inventory: "test/ansible/inventory/all",
 				},
 			},
 			ctx: context.TODO(),
@@ -294,10 +311,8 @@ func TestRun(t *testing.T) {
 				ConnectionOptions: &options.AnsibleConnectionOptions{
 					Connection: "local",
 				},
-				AnsiblePlaybookOptions: &AnsiblePlaybookOptions{
-					AnsibleCommonOptions: &options.AnsibleCommonOptions{
-						Inventory: "test/ansible/inventory/all",
-					},
+				Options: &AnsiblePlaybookOptions{
+					Inventory: "test/ansible/inventory/all",
 				},
 			},
 			res: "",
@@ -312,10 +327,8 @@ func TestRun(t *testing.T) {
 				ConnectionOptions: &options.AnsibleConnectionOptions{
 					Connection: "local",
 				},
-				AnsiblePlaybookOptions: &AnsiblePlaybookOptions{
-					AnsibleCommonOptions: &options.AnsibleCommonOptions{
-						Inventory: "test/all",
-					},
+				Options: &AnsiblePlaybookOptions{
+					Inventory: "test/all",
 				},
 			},
 			res: "",
@@ -332,18 +345,16 @@ func TestRun(t *testing.T) {
 				ConnectionOptions: &options.AnsibleConnectionOptions{
 					Connection: "local",
 				},
-				AnsiblePlaybookOptions: &AnsiblePlaybookOptions{
-					AnsibleCommonOptions: &options.AnsibleCommonOptions{
-						Inventory: "test/all",
-						ExtraVars: map[string]interface{}{
-							"string": "testing an string",
-							"bool":   true,
-							"int":    10,
-							"array":  []string{"one", "two"},
-							"dict": map[string]bool{
-								"one": true,
-								"two": false,
-							},
+				Options: &AnsiblePlaybookOptions{
+					Inventory: "test/all",
+					ExtraVars: map[string]interface{}{
+						"string": "testing an string",
+						"bool":   true,
+						"int":    10,
+						"array":  []string{"one", "two"},
+						"dict": map[string]bool{
+							"one": true,
+							"two": false,
 						},
 					},
 				},
