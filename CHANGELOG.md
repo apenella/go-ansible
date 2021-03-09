@@ -29,7 +29,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **BREAKING CHANGE**: Remove `CmdRunDir` from `AnsiblePlaybookCmd`
 - **BREAKING CHANGE**: Remove `Writer` from `AnsiblePlaybookCmd`
 - **BREAKING CHANGE**: Remove `ResultsFunc` from `DefaultExecute`
-- **BREAKING CHANGE**: Remove `Prefix` from `DefaultExecute`
+- **BREAKING CHANGE**: Remove `Prefix` from `DefaultExecute`. Prefix is not manatory any more and could be added using the `Prepend` transformer.
 - `skipLine` method has been removed. Replaced by `IgnoreMessage` transformer
 
 ## [v0.8.0]

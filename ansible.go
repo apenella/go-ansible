@@ -2,15 +2,18 @@ package ansibler
 
 import (
 	"fmt"
-	"github.com/apenella/go-ansible/execute"
-	"github.com/apenella/go-ansible/stdoutcallback"
-	common "github.com/apenella/go-common-utils/data"
-	errors "github.com/apenella/go-common-utils/error"
 	"io"
 	"os/exec"
+
+	"github.com/apenella/go-ansible/execute"
+	"github.com/apenella/go-ansible/stdoutcallback"
+	errors "github.com/apenella/go-common-utils/error"
 )
 
 const (
+	// DefaultAnsibleBinary is the ansible binary file default value
+	DefaultAnsibleBinary = "ansible"
+
 	// ModuleNameFlag is the module-name flag for ansible adhoc
 	ModuleNameFlag = "--module-name"
 
@@ -23,7 +26,7 @@ type AnsibleAdhocCmd struct {
 	// Ansible binary file
 	Binary string
 	// Exec is the executor item
-	Exec Executor
+	Exec execute.Executor
 	// ExecPrefix is a text that is set at the beginning of each execution line
 	ExecPrefix string
 	// Pattern is the ansible's host patterns
@@ -220,16 +223,6 @@ func (o *AnsibleAdhocOptions) GenerateCommandOptions() ([]string, error) {
 	}
 
 	return cmd, nil
-}
-
-// generateExtraVarsCommand return an string which is a json structure having all the extra variable
-func (o *AnsibleAdhocOptions) generateExtraVarsCommand() (string, error) {
-
-	extraVars, err := common.ObjectToJSONString(o.ExtraVars)
-	if err != nil {
-		return "", errors.New("(ansible::generateExtraVarsCommand)", "Error creationg extra-vars JSON object to string", err)
-	}
-	return extraVars, nil
 }
 
 // AddExtraVar registers a new extra variable on ansible options item
