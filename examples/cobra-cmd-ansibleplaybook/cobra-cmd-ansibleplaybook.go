@@ -10,15 +10,16 @@ import (
 	"os"
 	"strings"
 
-	ansibler "github.com/apenella/go-ansible"
 	"github.com/apenella/go-ansible/execute"
+	"github.com/apenella/go-ansible/pkg/options"
+	"github.com/apenella/go-ansible/pkg/playbook"
 	"github.com/apenella/go-ansible/stdoutcallback/results"
 	errors "github.com/apenella/go-common-utils/error"
 	"github.com/spf13/cobra"
 )
 
 var inventory string
-var playbook string
+var playbookFile string
 var connectionLocal bool
 var extravars []string
 
@@ -28,7 +29,7 @@ const (
 
 func init() {
 	rootCmd.Flags().StringVarP(&inventory, "inventory", "i", "", "Specify ansible playbook inventory")
-	rootCmd.Flags().StringVarP(&playbook, "playbook", "p", "", "Main playbook to run")
+	rootCmd.Flags().StringVarP(&playbookFile, "playbook", "p", "", "Main playbook to run")
 	rootCmd.Flags().BoolVarP(&connectionLocal, "connection-local", "L", false, "Run playbook using local connection")
 	rootCmd.Flags().StringSliceVarP(&extravars, "extra-var", "e", []string{}, "Set extra variables to use during the playbook execution. The format of each variable must be <key>=<value>")
 }
@@ -46,7 +47,7 @@ go run cobra-cmd-ansibleplaybook.go -L -i 127.0.0.1, -p site.yml -e example="hel
 
 func commandHandler(cmd *cobra.Command, args []string) error {
 
-	if len(playbook) < 1 {
+	if len(playbookFile) < 1 {
 		return errors.New("(commandHandler)", "To run ansible-playbook playbook file path must be specified")
 	}
 
@@ -59,12 +60,12 @@ func commandHandler(cmd *cobra.Command, args []string) error {
 		return errors.New("(commandHandler)", "Error parsing extra variables", err)
 	}
 
-	ansiblePlaybookConnectionOptions := &ansibler.AnsibleConnectionOptions{}
+	ansiblePlaybookConnectionOptions := &options.AnsibleConnectionOptions{}
 	if connectionLocal {
 		ansiblePlaybookConnectionOptions.Connection = "local"
 	}
 
-	ansiblePlaybookOptions := &ansibler.AnsiblePlaybookOptions{
+	ansiblePlaybookOptions := &playbook.AnsiblePlaybookOptions{
 		Inventory: inventory,
 	}
 
@@ -72,8 +73,8 @@ func commandHandler(cmd *cobra.Command, args []string) error {
 		ansiblePlaybookOptions.AddExtraVar(keyVar, valueVar)
 	}
 
-	playbook := &ansibler.AnsiblePlaybookCmd{
-		Playbook:          playbook,
+	playbook := &playbook.AnsiblePlaybookCmd{
+		Playbook:          playbookFile,
 		ConnectionOptions: ansiblePlaybookConnectionOptions,
 		Options:           ansiblePlaybookOptions,
 		Exec: execute.NewDefaultExecute(
@@ -83,7 +84,7 @@ func commandHandler(cmd *cobra.Command, args []string) error {
 		),
 	}
 
-	ansibler.AnsibleForceColor()
+	options.AnsibleForceColor()
 
 	err = playbook.Run(context.TODO())
 	if err != nil {

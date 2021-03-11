@@ -6,8 +6,9 @@ import (
 	"fmt"
 	"time"
 
-	ansibler "github.com/apenella/go-ansible"
 	"github.com/apenella/go-ansible/execute"
+	"github.com/apenella/go-ansible/pkg/options"
+	"github.com/apenella/go-ansible/pkg/playbook"
 	"github.com/apenella/go-ansible/stdoutcallback/results"
 )
 
@@ -22,16 +23,16 @@ func main() {
 	ctx, cancel := context.WithTimeout(context.Background(), time.Duration(timeout)*time.Second)
 	defer cancel()
 
-	ansiblePlaybookConnectionOptions := &ansibler.AnsiblePlaybookConnectionOptions{
+	ansiblePlaybookConnectionOptions := &options.AnsibleConnectionOptions{
 		Connection: "local",
 		User:       "apenella",
 	}
 
-	ansiblePlaybookOptions := &ansibler.AnsiblePlaybookOptions{
+	ansiblePlaybookOptions := &playbook.AnsiblePlaybookOptions{
 		Inventory: "127.0.0.1,",
 	}
 
-	playbook := &ansibler.AnsiblePlaybookCmd{
+	playbook := &playbook.AnsiblePlaybookCmd{
 		Playbook:          "site.yml",
 		ConnectionOptions: ansiblePlaybookConnectionOptions,
 		Options:           ansiblePlaybookOptions,

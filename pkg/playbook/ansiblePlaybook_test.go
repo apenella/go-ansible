@@ -87,24 +87,23 @@ func TestGenerateCommandOptions(t *testing.T) {
 			err:     nil,
 			options: []string{"--flush-cache", "--force-handlers", "--list-tags", "--list-tasks", "--skip-tags", "tagN", "--start-at-task", "second", "--step", "--tags", "tags"},
 		},
-		// TODO
-		// {
-		// 	desc: "Testing AnsiblePlaybookOptions with extra vars",
-		// 	Options: &AnsiblePlaybookOptions{
-		// 		ExtraVars: map[string]interface{}{
-		// 			"extra": "var",
-		// 		},
-		// 		FlushCache: true,
-		// 		Inventory:  "inventory",
-		// 		Limit:      "limit",
-		// 		ListHosts:  true,
-		// 		ListTags:   true,
-		// 		ListTasks:  true,
-		// 		Tags:       "tags",
-		// 	},
-		// 	err:     nil,
-		// 	options: []string{"--flush-cache", "--inventory", "inventory", "--limit", "limit", "--list-hosts", "--list-tags", "--list-tasks", "--tags", "tags", "--extra-vars", "{\"extra\":\"var\"}"},
-		// },
+		{
+			desc: "Testing AnsiblePlaybookOptions with extra vars",
+			ansiblePlaybookOptions: &AnsiblePlaybookOptions{
+				ExtraVars: map[string]interface{}{
+					"extra": "var",
+				},
+				FlushCache: true,
+				Inventory:  "inventory",
+				Limit:      "limit",
+				ListHosts:  true,
+				ListTags:   true,
+				ListTasks:  true,
+				Tags:       "tags",
+			},
+			err:     nil,
+			options: []string{"--extra-vars", "{\"extra\":\"var\"}", "--flush-cache", "--inventory", "inventory", "--limit", "limit", "--list-hosts", "--list-tags", "--list-tasks", "--tags", "tags"},
+		},
 	}
 
 	for _, test := range tests {
@@ -117,7 +116,7 @@ func TestGenerateCommandOptions(t *testing.T) {
 			if err != nil && assert.Error(t, err) {
 				assert.Equal(t, test.err, err)
 			} else {
-				assert.Equal(t, options, test.options, "Unexpected options value")
+				assert.Equal(t, test.options, options, "Unexpected options value")
 			}
 		})
 	}
@@ -140,7 +139,7 @@ func TestCommand(t *testing.T) {
 					AskPass:    true,
 					Connection: "local",
 					PrivateKey: "pk",
-					Timeout:    "10",
+					Timeout:    10,
 					User:       "apenella",
 				},
 				Options: &AnsiblePlaybookOptions{
@@ -171,7 +170,7 @@ func TestCommand(t *testing.T) {
 					AskBecomePass: true,
 				},
 			},
-			command: []string{"ansible-playbook", "--extra-vars", "{\"var1\":\"value1\"}", "--inventory", "test/ansible/inventory/all", "--limit", "myhost", "--flush-cache", "--tags", "tag1", "--ask-pass", "--connection", "local", "--private-key", "pk", "--user", "apenella", "--timeout", "10", "--ask-become-pass", "--become", "--become-method", "sudo", "--become-user", "apenella", "test/ansible/site.yml"},
+			command: []string{"ansible-playbook", "--ask-vault-password", "--check", "--diff", "--extra-vars", "{\"var1\":\"value1\"}", "--flush-cache", "--forks", "10", "--inventory", "test/ansible/inventory/all", "--limit", "myhost", "--list-hosts", "--module-path", "/dev/null", "--syntax-check", "--tags", "tag1", "--vault-id", "asdf", "--vault-password-file", "/dev/null", "-vvvv", "--version", "--ask-pass", "--connection", "local", "--private-key", "pk", "--user", "apenella", "--timeout", "10", "--ask-become-pass", "--become", "--become-method", "sudo", "--become-user", "apenella", "test/ansible/site.yml"},
 		},
 	}
 
@@ -207,7 +206,7 @@ func TestString(t *testing.T) {
 					AskPass:    true,
 					Connection: "local",
 					PrivateKey: "pk",
-					Timeout:    "10",
+					Timeout:    10,
 					User:       "apenella",
 				},
 				Options: &AnsiblePlaybookOptions{
@@ -243,7 +242,7 @@ func TestString(t *testing.T) {
 					AskBecomePass: true,
 				},
 			},
-			res: "ansible-playbook  --extra-vars '{\"var1\":\"value1\"}' --inventory test/ansible/inventory/all --limit myhost --flush-cache --force-handlers --list-tags --list-tasks --skip-tags tagN --start-at-task task1 --step --tags tag1  --ask-pass --connection local --private-key pk --user apenella --timeout 10  --ask-become-pass --become --become-method sudo --become-user apenella test/ansible/site.yml",
+			res: "ansible-playbook  --ask-vault-password --check --diff --extra-vars '{\"var1\":\"value1\"}' --flush-cache --force-handlers --forks 10 --inventory test/ansible/inventory/all --limit myhost --list-hosts --list-tags --list-tasks --module-path /dev/null --skip-tags tagN --start-at-task task1 --step --syntax-check --tags tag1 --vault-id asdf --vault-password-file /dev/null -vvvv --version  --ask-pass --connection local --private-key pk --user apenella --timeout 10  --ask-become-pass --become --become-method sudo --become-user apenella test/ansible/site.yml",
 		},
 	}
 
@@ -380,4 +379,148 @@ func TestRun(t *testing.T) {
 			}
 		})
 	}
+}
+
+func TestGenerateExtraVarsCommand(t *testing.T) {
+
+	tests := []struct {
+		desc      string
+		options   *AnsiblePlaybookOptions
+		err       error
+		extravars string
+	}{
+		{
+			desc: "Testing extra vars map[string]string",
+			options: &AnsiblePlaybookOptions{
+				ExtraVars: map[string]interface{}{
+					"extra": "var",
+				},
+			},
+			err:       nil,
+			extravars: "{\"extra\":\"var\"}",
+		},
+		{
+			desc: "Testing extra vars map[string]bool",
+			options: &AnsiblePlaybookOptions{
+				ExtraVars: map[string]interface{}{
+					"extra": true,
+				},
+			},
+			err:       nil,
+			extravars: "{\"extra\":true}",
+		},
+		{
+			desc: "Testing extra vars map[string]int",
+			options: &AnsiblePlaybookOptions{
+				ExtraVars: map[string]interface{}{
+					"extra": 10,
+				},
+			},
+			err:       nil,
+			extravars: "{\"extra\":10}",
+		},
+		{
+			desc: "Testing extra vars map[string][]string",
+			options: &AnsiblePlaybookOptions{
+				ExtraVars: map[string]interface{}{
+					"extra": []string{"var"},
+				},
+			},
+			err:       nil,
+			extravars: "{\"extra\":[\"var\"]}",
+		},
+		{
+			desc: "Testing extra vars map[string]map[string]string",
+			options: &AnsiblePlaybookOptions{
+				ExtraVars: map[string]interface{}{
+					"extra": map[string]string{
+						"var": "value",
+					},
+				},
+			},
+			err:       nil,
+			extravars: "{\"extra\":{\"var\":\"value\"}}",
+		},
+	}
+
+	for _, test := range tests {
+		t.Run(test.desc, func(t *testing.T) {
+			t.Log(test.desc)
+
+			extravars, err := test.options.generateExtraVarsCommand()
+
+			if err != nil && assert.Error(t, err) {
+				assert.Equal(t, test.err, err)
+			} else {
+				assert.Equal(t, extravars, test.extravars, "Unexpected options value")
+			}
+		})
+	}
+}
+
+func TestAddExtraVar(t *testing.T) {
+	tests := []struct {
+		desc          string
+		options       *AnsiblePlaybookOptions
+		err           error
+		extraVarName  string
+		extraVarValue interface{}
+		res           map[string]interface{}
+	}{
+		{
+			desc: "Testing add an extraVar to a nil data structure",
+			options: &AnsiblePlaybookOptions{
+				ExtraVars: nil,
+			},
+			err:           nil,
+			extraVarName:  "extra",
+			extraVarValue: "var",
+			res: map[string]interface{}{
+				"extra": "var",
+			},
+		},
+		{
+			desc: "Testing add an extraVar",
+			options: &AnsiblePlaybookOptions{
+				ExtraVars: map[string]interface{}{
+					"extra1": "var1",
+				},
+			},
+			err:           nil,
+			extraVarName:  "extra",
+			extraVarValue: "var",
+			res: map[string]interface{}{
+				"extra1": "var1",
+				"extra":  "var",
+			},
+		},
+		{
+			desc: "Testing add an existing extraVar",
+			options: &AnsiblePlaybookOptions{
+				ExtraVars: map[string]interface{}{
+					"extra": "var",
+				},
+			},
+			err:           errors.New("(ansible::AddExtraVar)", "ExtraVar 'extra' already exist"),
+			extraVarName:  "extra",
+			extraVarValue: "var",
+			res:           nil,
+		},
+	}
+
+	for _, test := range tests {
+
+		t.Run(test.desc, func(t *testing.T) {
+			t.Log(test.desc)
+
+			err := test.options.AddExtraVar(test.extraVarName, test.extraVarValue)
+
+			if err != nil && assert.Error(t, err) {
+				assert.Equal(t, test.err, err)
+			} else {
+				assert.Equal(t, test.res, test.options.ExtraVars, "Unexpected options value")
+			}
+		})
+	}
+
 }

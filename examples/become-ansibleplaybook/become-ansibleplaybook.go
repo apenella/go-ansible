@@ -3,27 +3,28 @@ package main
 import (
 	"context"
 
-	ansibler "github.com/apenella/go-ansible"
 	"github.com/apenella/go-ansible/execute"
+	"github.com/apenella/go-ansible/pkg/options"
+	"github.com/apenella/go-ansible/pkg/playbook"
 	"github.com/apenella/go-ansible/stdoutcallback/results"
 )
 
 func main() {
 
-	ansiblePlaybookConnectionOptions := &ansibler.AnsibleConnectionOptions{
+	ansiblePlaybookConnectionOptions := &options.AnsibleConnectionOptions{
 		User: "apenella",
 	}
 
-	ansiblePlaybookOptions := &ansibler.AnsiblePlaybookOptions{
+	ansiblePlaybookOptions := &playbook.AnsiblePlaybookOptions{
 		Inventory: "127.0.0.1,",
 	}
 
-	ansiblePlaybookPrivilegeEscalationOptions := &ansibler.AnsiblePrivilegeEscalationOptions{
+	ansiblePlaybookPrivilegeEscalationOptions := &options.AnsiblePrivilegeEscalationOptions{
 		Become:        true,
 		AskBecomePass: true,
 	}
 
-	playbook := &ansibler.AnsiblePlaybookCmd{
+	playbook := &playbook.AnsiblePlaybookCmd{
 		Playbook:                   "site.yml",
 		ConnectionOptions:          ansiblePlaybookConnectionOptions,
 		PrivilegeEscalationOptions: ansiblePlaybookPrivilegeEscalationOptions,

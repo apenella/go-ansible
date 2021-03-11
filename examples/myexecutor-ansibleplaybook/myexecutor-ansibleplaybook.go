@@ -4,8 +4,9 @@ import (
 	"context"
 	"fmt"
 
-	ansibler "github.com/apenella/go-ansible"
 	"github.com/apenella/go-ansible/execute"
+	"github.com/apenella/go-ansible/pkg/options"
+	"github.com/apenella/go-ansible/pkg/playbook"
 	"github.com/apenella/go-ansible/stdoutcallback"
 )
 
@@ -40,11 +41,11 @@ func (e *MyExecutor) Execute(ctx context.Context, command []string, resultsFunc 
 
 func main() {
 
-	ansiblePlaybookConnectionOptions := &ansibler.AnsibleConnectionOptions{
+	ansiblePlaybookConnectionOptions := &options.AnsibleConnectionOptions{
 		Connection: "local",
 	}
 
-	ansiblePlaybookOptions := &ansibler.AnsiblePlaybookOptions{
+	ansiblePlaybookOptions := &playbook.AnsiblePlaybookOptions{
 		Inventory: "127.0.0.1,",
 	}
 
@@ -53,7 +54,7 @@ func main() {
 		WithPrefix("[Go ansible example]"),
 	)
 
-	playbook := &ansibler.AnsiblePlaybookCmd{
+	playbook := &playbook.AnsiblePlaybookCmd{
 		Playbook:          "site.yml",
 		ConnectionOptions: ansiblePlaybookConnectionOptions,
 		Options:           ansiblePlaybookOptions,

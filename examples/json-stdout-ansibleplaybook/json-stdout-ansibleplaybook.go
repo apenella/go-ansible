@@ -6,8 +6,9 @@ import (
 	"fmt"
 	"io"
 
-	ansibler "github.com/apenella/go-ansible"
 	"github.com/apenella/go-ansible/execute"
+	"github.com/apenella/go-ansible/pkg/options"
+	"github.com/apenella/go-ansible/pkg/playbook"
 	"github.com/apenella/go-ansible/stdoutcallback/results"
 )
 
@@ -17,12 +18,12 @@ func main() {
 	res := &results.AnsiblePlaybookJSONResults{}
 	buff := new(bytes.Buffer)
 
-	ansiblePlaybookConnectionOptions := &ansibler.AnsibleConnectionOptions{
+	ansiblePlaybookConnectionOptions := &options.AnsibleConnectionOptions{
 		Connection: "local",
 		User:       "apenella",
 	}
 
-	ansiblePlaybookOptions := &ansibler.AnsiblePlaybookOptions{
+	ansiblePlaybookOptions := &playbook.AnsiblePlaybookOptions{
 		Inventory: "127.0.0.1,",
 	}
 
@@ -30,7 +31,7 @@ func main() {
 		execute.WithWrite(io.Writer(buff)),
 	)
 
-	playbook := &ansibler.AnsiblePlaybookCmd{
+	playbook := &playbook.AnsiblePlaybookCmd{
 		Playbook:          "site.yml",
 		Exec:              execute,
 		ConnectionOptions: ansiblePlaybookConnectionOptions,
