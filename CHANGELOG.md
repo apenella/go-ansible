@@ -7,6 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [v1.0.0]
 
 ## Added
+- Included `ansible-playbook` version `2.10.6` options on `AnsiblePlaybookOptions`
 - New function type `ExecuteOptions` to provide options to executor instances
 - New `DefaultExecute` constructor `NewDefaultExecute` that accepts a list of `ExecuteOptions`
 - New component to customize ansible output lines. That component is named *transformer*
@@ -14,10 +15,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     - Prepend(string): Prepends and string to the output line
     - Append(string): Appends and string to the output line
     - LogFormat(string): Prepends date time to the output line
-    - IgnoreMessage(): Ignores the output line
+    - IgnoreMessage([]string): Ignores the output lines based on input strings
 - New private method `output` on `results` package to manage how to write the output lines and that can be used by any `StdoutCallbackResultsFunc`
 
 ## Changed
+- **BREAKING CHANGE**: `ansibler` has been restructured and splitted to multiple packages:
+  - Type `AnsiblePlaybookConnectionOptions` is renamed to `AnsibleConnectionOptions` and placed to `github.com/apenella/go-ansible/options`
+  - Type `AnsiblePlaybookPrivilegeEscalationOptions` is renamed to `AnsiblePrivilegeEscalationOptions` and placed to `github.com/apenella/go-ansible/options`
+  - All constants regarding connection options and privileged escalations options has been placed to `github.com/apenella/go-ansible/options`
+  - `AnsiblePlaybookCmd` and `AnsiblePlaybookOptions` has been placed to `github.com/apenella/go-ansible/playbook`
+  - All constants regarding ansible-playbook command interaction has been placed to `github.com/apenella/go-ansible/playbook`
 - **BREAKING CHANGE**: `Executor` interface has been moved from `ansibler` package to `execute` package
 - **BREAKING CHANGE**: `Executor` interface is changed to `Execute(ctx context.Context, command []string, resultsFunc stdoutcallback.StdoutCallbackResultsFunc, options ...ExecuteOptions) error`
 - **BREAKING CHANGE**: `DefaultExecute` has been updated to use options pattern design, and includes a bunch of `WithXXX` methods to set its attributes
