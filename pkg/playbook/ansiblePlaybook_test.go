@@ -7,9 +7,9 @@ import (
 	execerrors "os/exec"
 	"testing"
 
-	"github.com/apenella/go-ansible/execute"
+	"github.com/apenella/go-ansible/pkg/execute"
 	"github.com/apenella/go-ansible/pkg/options"
-	"github.com/apenella/go-ansible/stdoutcallback"
+	"github.com/apenella/go-ansible/pkg/stdoutcallback"
 	errors "github.com/apenella/go-common-utils/error"
 	"github.com/stretchr/testify/assert"
 )
@@ -63,7 +63,7 @@ func TestGenerateCommandOptions(t *testing.T) {
 		{
 			desc:                   "Testing nil AnsiblePlaybookOptions definition",
 			ansiblePlaybookOptions: nil,
-			err:                    errors.New("(ansible::GenerateCommandOptions)", "AnsiblePlaybookOptions is nil"),
+			err:                    errors.New("(playbook::GenerateCommandOptions)", "AnsiblePlaybookOptions is nil"),
 			options:                nil,
 		},
 		{
@@ -273,7 +273,7 @@ func TestRun(t *testing.T) {
 			desc:               "Run nil ansiblePlaybookCmd",
 			ansiblePlaybookCmd: nil,
 			res:                "",
-			err:                errors.New("(ansible:Run)", "AnsiblePlaybookCmd is nil"),
+			err:                errors.New("(playbook::Run)", "AnsiblePlaybookCmd is nil"),
 		},
 		{
 			desc: "Testing run a ansiblePlaybookCmd with unexisting binary file",
@@ -282,7 +282,7 @@ func TestRun(t *testing.T) {
 			},
 			res: "",
 			ctx: context.TODO(),
-			err: errors.New("(ansible:Run)", "Binary file 'unexisting' does not exists", &execerrors.Error{Name: "unexisting", Err: goerrors.New("executable file not found in $PATH")}),
+			err: errors.New("(playbook::Run)", "Binary file 'unexisting' does not exists", &execerrors.Error{Name: "unexisting", Err: goerrors.New("executable file not found in $PATH")}),
 		},
 		{
 			desc: "Testing run a ansiblePlaybookCmd",
@@ -501,7 +501,7 @@ func TestAddExtraVar(t *testing.T) {
 					"extra": "var",
 				},
 			},
-			err:           errors.New("(ansible::AddExtraVar)", "ExtraVar 'extra' already exist"),
+			err:           errors.New("(playbook::AddExtraVar)", "ExtraVar 'extra' already exist"),
 			extraVarName:  "extra",
 			extraVarValue: "var",
 			res:           nil,

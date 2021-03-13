@@ -4,10 +4,10 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/apenella/go-ansible/execute"
+	"github.com/apenella/go-ansible/pkg/execute"
 	"github.com/apenella/go-ansible/pkg/options"
 	"github.com/apenella/go-ansible/pkg/playbook"
-	"github.com/apenella/go-ansible/stdoutcallback"
+	"github.com/apenella/go-ansible/pkg/stdoutcallback"
 )
 
 type MyExecutor struct {

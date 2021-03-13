@@ -1,25 +1,34 @@
 package main
 
-import ansibler "github.com/apenella/go-ansible"
+import (
+	"context"
+	"fmt"
+
+	"github.com/apenella/go-ansible/pkg/adhoc"
+	"github.com/apenella/go-ansible/pkg/options"
+)
 
 func main() {
 
-	ansibleConnectionOptions := &ansibler.AnsibleConnectionOptions{
+	ansibleConnectionOptions := &options.AnsibleConnectionOptions{
 		Connection: "local",
 	}
 
-	ansibleAdhocOptions := &ansibler.AnsibleAdhocOptions{
+	ansibleAdhocOptions := &adhoc.AnsibleAdhocOptions{
 		Inventory:  "127.0.0.1,",
 		ModuleName: "ping",
 	}
 
-	adhoc := &ansibler.AnsibleAdhocCmd{
+	adhoc := &adhoc.AnsibleAdhocCmd{
 		Pattern:           "all",
 		Options:           ansibleAdhocOptions,
 		ConnectionOptions: ansibleConnectionOptions,
+		//StdoutCallback:    "oneline",
 	}
 
-	err := adhoc.Run()
+	fmt.Println(adhoc.String())
+
+	err := adhoc.Run(context.TODO())
 	if err != nil {
 		panic(err)
 	}
