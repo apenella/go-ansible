@@ -19,7 +19,7 @@ func main() {
 	}
 
 	playbook := &playbook.AnsiblePlaybookCmd{
-		Playbook:          "site.yml",
+		Playbooks:         []string{"site.yml", "site2.yml"},
 		ConnectionOptions: ansiblePlaybookConnectionOptions,
 		Options:           ansiblePlaybookOptions,
 	}

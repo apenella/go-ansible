@@ -25,7 +25,7 @@ func main() {
 	}
 
 	playbook := &playbook.AnsiblePlaybookCmd{
-		Playbook:                   "site.yml",
+		Playbooks:                  []string{"site.yml"},
 		ConnectionOptions:          ansiblePlaybookConnectionOptions,
 		PrivilegeEscalationOptions: ansiblePlaybookPrivilegeEscalationOptions,
 		Options:                    ansiblePlaybookOptions,

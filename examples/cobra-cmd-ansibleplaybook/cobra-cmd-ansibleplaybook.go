@@ -74,7 +74,7 @@ func commandHandler(cmd *cobra.Command, args []string) error {
 	}
 
 	playbook := &playbook.AnsiblePlaybookCmd{
-		Playbook:          playbookFile,
+		Playbooks:         []string{playbookFile},
 		ConnectionOptions: ansiblePlaybookConnectionOptions,
 		Options:           ansiblePlaybookOptions,
 		Exec: execute.NewDefaultExecute(

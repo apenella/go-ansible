@@ -93,8 +93,8 @@ type AnsiblePlaybookCmd struct {
 	Binary string
 	// Exec is the executor item
 	Exec execute.Executor
-	// Playbook is the ansible's playbook name to be used
-	Playbook string
+	// Playbooks is the ansible's playbooks list to be used
+	Playbooks []string
 	// Options are the ansible's playbook options
 	Options *AnsiblePlaybookOptions
 	// ConnectionOptions are the ansible's playbook specific options for connection
@@ -189,7 +189,9 @@ func (p *AnsiblePlaybookCmd) Command() ([]string, error) {
 	}
 
 	// Include the ansible playbook
-	cmd = append(cmd, p.Playbook)
+	for _, playbook := range p.Playbooks {
+		cmd = append(cmd, playbook)
+	}
 
 	return cmd, nil
 }
@@ -214,7 +216,10 @@ func (p *AnsiblePlaybookCmd) String() string {
 		str = fmt.Sprintf("%s %s", str, p.PrivilegeEscalationOptions.String())
 	}
 
-	str = fmt.Sprintf("%s %s", str, p.Playbook)
+	// Include the ansible playbook
+	for _, playbook := range p.Playbooks {
+		str = fmt.Sprintf("%s %s", str, playbook)
+	}
 
 	return str
 }

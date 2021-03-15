@@ -134,7 +134,7 @@ func TestCommand(t *testing.T) {
 			desc: "Testing generate AnsiblePlaybookCmd command",
 			err:  nil,
 			ansiblePlaybookCmd: &AnsiblePlaybookCmd{
-				Playbook: "test/ansible/site.yml",
+				Playbooks: []string{"test/ansible/site.yml"},
 				ConnectionOptions: &options.AnsibleConnectionOptions{
 					AskPass:    true,
 					Connection: "local",
@@ -201,7 +201,7 @@ func TestString(t *testing.T) {
 			desc: "Testing AnsiblePlaybookCmd to string",
 			err:  nil,
 			ansiblePlaybookCmd: &AnsiblePlaybookCmd{
-				Playbook: "test/ansible/site.yml",
+				Playbooks: []string{"test/ansible/site.yml", "test/ansible/site2.yml"},
 				ConnectionOptions: &options.AnsibleConnectionOptions{
 					AskPass:    true,
 					Connection: "local",
@@ -242,7 +242,7 @@ func TestString(t *testing.T) {
 					AskBecomePass: true,
 				},
 			},
-			res: "ansible-playbook  --ask-vault-password --check --diff --extra-vars '{\"var1\":\"value1\"}' --flush-cache --force-handlers --forks 10 --inventory test/ansible/inventory/all --limit myhost --list-hosts --list-tags --list-tasks --module-path /dev/null --skip-tags tagN --start-at-task task1 --step --syntax-check --tags tag1 --vault-id asdf --vault-password-file /dev/null -vvvv --version  --ask-pass --connection local --private-key pk --user apenella --timeout 10  --ask-become-pass --become --become-method sudo --become-user apenella test/ansible/site.yml",
+			res: "ansible-playbook  --ask-vault-password --check --diff --extra-vars '{\"var1\":\"value1\"}' --flush-cache --force-handlers --forks 10 --inventory test/ansible/inventory/all --limit myhost --list-hosts --list-tags --list-tasks --module-path /dev/null --skip-tags tagN --start-at-task task1 --step --syntax-check --tags tag1 --vault-id asdf --vault-password-file /dev/null -vvvv --version  --ask-pass --connection local --private-key pk --user apenella --timeout 10  --ask-become-pass --become --become-method sudo --become-user apenella test/ansible/site.yml test/ansible/site2.yml",
 		},
 	}
 
@@ -290,7 +290,7 @@ func TestRun(t *testing.T) {
 				Exec: &execute.MockExecute{
 					Write: &w,
 				},
-				Playbook: "test/ansible/site.yml",
+				Playbooks: []string{"test/ansible/site.yml", "test/ansible/site2.yml"},
 				ConnectionOptions: &options.AnsibleConnectionOptions{
 					Connection: "local",
 				},
@@ -299,14 +299,14 @@ func TestRun(t *testing.T) {
 				},
 			},
 			ctx: context.TODO(),
-			res: "[ansible-playbook --inventory test/ansible/inventory/all --connection local test/ansible/site.yml]",
+			res: "[ansible-playbook --inventory test/ansible/inventory/all --connection local test/ansible/site.yml test/ansible/site2.yml]",
 			err: nil,
 		},
 		{
 			desc: "Testing run a ansiblePlaybookCmd without executor",
 			ansiblePlaybookCmd: &AnsiblePlaybookCmd{
-				Exec:     nil,
-				Playbook: "test/test_site.yml",
+				Exec:      nil,
+				Playbooks: []string{"test/test_site.yml"},
 				ConnectionOptions: &options.AnsibleConnectionOptions{
 					Connection: "local",
 				},
@@ -322,7 +322,7 @@ func TestRun(t *testing.T) {
 			desc: "Testing run a ansiblePlaybookCmd with JSON stdout callback",
 			ansiblePlaybookCmd: &AnsiblePlaybookCmd{
 				StdoutCallback: stdoutcallback.JSONStdoutCallback,
-				Playbook:       "test/test_site.yml",
+				Playbooks:      []string{"test/test_site.yml"},
 				ConnectionOptions: &options.AnsibleConnectionOptions{
 					Connection: "local",
 				},
@@ -340,7 +340,7 @@ func TestRun(t *testing.T) {
 				Exec: &execute.MockExecute{
 					Write: &w,
 				},
-				Playbook: "test/test_site.yml",
+				Playbooks: []string{"test/test_site.yml"},
 				ConnectionOptions: &options.AnsibleConnectionOptions{
 					Connection: "local",
 				},
