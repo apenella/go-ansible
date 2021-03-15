@@ -5,7 +5,7 @@ import (
 	"runtime"
 	"testing"
 
-	"github.com/apenella/go-ansible/stdoutcallback/results"
+	"github.com/apenella/go-ansible/pkg/stdoutcallback/results"
 	"github.com/stretchr/testify/assert"
 )
 

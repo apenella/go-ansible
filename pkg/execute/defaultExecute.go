@@ -10,8 +10,8 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/apenella/go-ansible/stdoutcallback"
-	"github.com/apenella/go-ansible/stdoutcallback/results"
+	"github.com/apenella/go-ansible/pkg/stdoutcallback"
+	"github.com/apenella/go-ansible/pkg/stdoutcallback/results"
 	errors "github.com/apenella/go-common-utils/error"
 )
 

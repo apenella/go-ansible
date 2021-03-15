@@ -7,7 +7,7 @@ import (
 	"os/exec"
 	"testing"
 
-	"github.com/apenella/go-ansible/stdoutcallback/results"
+	"github.com/apenella/go-ansible/pkg/stdoutcallback/results"
 	errors "github.com/apenella/go-common-utils/error"
 	"github.com/stretchr/testify/assert"
 )
@@ -80,8 +80,8 @@ func TestDefaultExecute(t *testing.T) {
 			),
 			ctx:     context.TODO(),
 			command: []string{binary, "--inventory", "test/all", "test/site.yml", "--user", "apenella"},
-			expectedStderr: `── [WARNING]: Invalid characters were found in group names but not replaced, use
-── -vvvv to see details
+			expectedStderr: `[WARNING]: Invalid characters were found in group names but not replaced, use
+-vvvv to see details
 `,
 		},
 	}

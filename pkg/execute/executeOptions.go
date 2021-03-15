@@ -3,7 +3,7 @@ package execute
 import (
 	"context"
 
-	"github.com/apenella/go-ansible/stdoutcallback"
+	"github.com/apenella/go-ansible/pkg/stdoutcallback"
 )
 
 // Executor interface is satisfied by those types which has a Execute(context.Context,[]string,stdoutcallback.StdoutCallbackResultsFunc,...ExecuteOptions)error method

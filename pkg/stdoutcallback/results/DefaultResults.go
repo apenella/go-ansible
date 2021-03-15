@@ -13,13 +13,13 @@ import (
 // DefaultStdoutCallbackResults is the default method to print ansible-playbook results
 func DefaultStdoutCallbackResults(ctx context.Context, r io.Reader, w io.Writer, trans ...TransformerFunc) error {
 
-	tranformers := []TransformerFunc{
-		Prepend(PrefixTokenSeparator),
+	tranformers := []TransformerFunc{}
+
+	if len(trans) > 0 {
+		tranformers = append(tranformers, Prepend(PrefixTokenSeparator))
 	}
 
-	for _, t := range trans {
-		tranformers = append(tranformers, t)
-	}
+	tranformers = append(tranformers, trans...)
 
 	err := output(ctx, r, w, tranformers...)
 	if err != nil {

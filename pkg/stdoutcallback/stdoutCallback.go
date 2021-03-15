@@ -5,7 +5,7 @@ import (
 	"io"
 	"os"
 
-	"github.com/apenella/go-ansible/stdoutcallback/results"
+	"github.com/apenella/go-ansible/pkg/stdoutcallback/results"
 )
 
 // StdoutCallbackResultsFunc defines a function which manages ansible's stdout callbacks. The function expects a context, a reader that receives the data to be wrote and a writer that defines where to write the data comming from reader, Finally a list of transformers could be passed to update the output comming from the executor.

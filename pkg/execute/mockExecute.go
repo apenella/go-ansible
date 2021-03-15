@@ -7,7 +7,7 @@ import (
 	"io"
 	"os"
 
-	"github.com/apenella/go-ansible/stdoutcallback"
+	"github.com/apenella/go-ansible/pkg/stdoutcallback"
 )
 
 // MockExecute defines a simple executor for testing purposal
