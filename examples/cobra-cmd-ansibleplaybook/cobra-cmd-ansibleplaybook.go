@@ -19,7 +19,7 @@ import (
 )
 
 var inventory string
-var playbookFile string
+var playbookFiles []string
 var connectionLocal bool
 var extravars []string
 
@@ -29,7 +29,7 @@ const (
 
 func init() {
 	rootCmd.Flags().StringVarP(&inventory, "inventory", "i", "", "Specify ansible playbook inventory")
-	rootCmd.Flags().StringVarP(&playbookFile, "playbook", "p", "", "Main playbook to run")
+	rootCmd.Flags().StringSliceVarP(&playbookFiles, "playbook", "p", []string{}, "Playbook(s) to run")
 	rootCmd.Flags().BoolVarP(&connectionLocal, "connection-local", "L", false, "Run playbook using local connection")
 	rootCmd.Flags().StringSliceVarP(&extravars, "extra-var", "e", []string{}, "Set extra variables to use during the playbook execution. The format of each variable must be <key>=<value>")
 }
@@ -47,7 +47,7 @@ go run cobra-cmd-ansibleplaybook.go -L -i 127.0.0.1, -p site.yml -e example="hel
 
 func commandHandler(cmd *cobra.Command, args []string) error {
 
-	if len(playbookFile) < 1 {
+	if len(playbookFiles) < 1 {
 		return errors.New("(commandHandler)", "To run ansible-playbook playbook file path must be specified")
 	}
 
@@ -74,7 +74,7 @@ func commandHandler(cmd *cobra.Command, args []string) error {
 	}
 
 	playbook := &playbook.AnsiblePlaybookCmd{
-		Playbooks:         []string{playbookFile},
+		Playbooks:         playbookFiles,
 		ConnectionOptions: ansiblePlaybookConnectionOptions,
 		Options:           ansiblePlaybookOptions,
 		Exec: execute.NewDefaultExecute(
