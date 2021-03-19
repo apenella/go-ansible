@@ -1,12 +1,10 @@
 package results
 
 import (
-	"bufio"
+	"context"
 	"encoding/json"
 	"fmt"
 	"io"
-	"os"
-	"regexp"
 	"strconv"
 
 	errors "github.com/apenella/go-common-utils/error"
@@ -136,41 +134,23 @@ func (s *AnsiblePlaybookJSONResultsStats) String() string {
 }
 
 // JSONStdoutCallbackResults method manges the ansible' JSON stdout callback and print the result stats
-func JSONStdoutCallbackResults(prefix string, r io.Reader, w io.Writer) error {
+func JSONStdoutCallbackResults(ctx context.Context, r io.Reader, w io.Writer, transformers ...TransformerFunc) error {
 
-	if r == nil {
-		return errors.New("(results::JSONStdoutCallbackResults)", "Reader is not defined")
-	}
-
-	if w == nil {
-		w = os.Stdout
-	}
-
-	scanner := bufio.NewScanner(r)
-	for scanner.Scan() {
-		line := scanner.Text()
-		if !skipLine(line) {
-			fmt.Fprintf(w, "%s", line)
-		}
-	}
-
-	return nil
-}
-
-func skipLine(line string) bool {
 	skipPatterns := []string{
 		// This pattern skips timer's callback whitelist output
 		"^[\\s\\t]*Playbook run took [0-9]+ days, [0-9]+ hours, [0-9]+ minutes, [0-9]+ seconds$",
 	}
 
-	for _, pattern := range skipPatterns {
-		match, _ := regexp.MatchString(pattern, line)
-		if match {
-			return true
-		}
+	tranformers := []TransformerFunc{
+		IgnoreMessage(skipPatterns),
 	}
 
-	return false
+	err := output(ctx, r, w, tranformers...)
+	if err != nil {
+		return errors.New("(results::JSONStdoutCallbackResults)", "Error processing execution output", err)
+	}
+
+	return nil
 }
 
 // JSONParse return an AnsiblePlaybookJSONResults from
