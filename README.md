@@ -14,6 +14,7 @@ It supports `ansible-playbook` command with the most of its options.
 
 - [go-ansible](#go-ansible)
   - [Install](#install)
+    - [Upgrade to 1.0.0](#upgrade-to-100)
   - [Packages](#packages)
     - [Ansibler](#ansibler)
     - [Execute](#execute)
@@ -34,8 +35,11 @@ It supports `ansible-playbook` command with the most of its options.
 
 To install the lastest stable version run the command below:
 ```
-$ go get github.com/apenella/go-ansible@v0.8.0
+$ go get github.com/apenella/go-ansible@v1.0.0
 ```
+
+### Upgrade to 1.0.0
+Since `go-ansible` v1.0.0 has introduced many breaking changes read the [upgrade guide](https://github.com/apenella/go-ansible/blob/master/docs/upgrade_guide_to_1.0.0.md) carefully before to proceed to the upgrade.
 
 ## Packages
 
@@ -156,14 +160,14 @@ type TransformerFunc func(string) string
 The output comming from executor is processed line by line and is on that step where are applied all the transformers.
 `results` package provides a set of transformers ready to be used, but can also defined by your own and passed through executor. 
 
-- [**Prepend**](https://github.com/apenella/go-ansible/blob/output_transformers/stdoutcallback/results/transformer.go#L21): Sets a prefix string to the output line
-- [**Append**:](https://github.com/apenella/go-ansible/blob/output_transformers/stdoutcallback/results/transformer.go#L28) Sets a suffix string to the output line
-- [**LogFormat**:](https://github.com/apenella/go-ansible/blob/output_transformers/stdoutcallback/results/transformer.go#L35) Include date time prefix to the output line
-- [**IgnoreMessage**:](https://github.com/apenella/go-ansible/blob/output_transformers/stdoutcallback/results/transformer.go#L44) Ignores the output line based on the patterns it recieves as input parameters
+- [**Prepend**](https://github.com/apenella/go-ansible/blob/master/pkg/stdoutcallback/results/transformer.go#L21): Sets a prefix string to the output line
+- [**Append**:](https://github.com/apenella/go-ansible/blob/master/pkg/stdoutcallback/results/transformer.go#L28) Sets a suffix string to the output line
+- [**LogFormat**:](https://github.com/apenella/go-ansible/blob/master/pkg/stdoutcallback/results/transformer.go#L35) Include date time prefix to the output line
+- [**IgnoreMessage**:](https://github.com/apenella/go-ansible/blob/master/pkg/stdoutcallback/results/transformer.go#L44) Ignores the output line based on the patterns it recieves as input parameters
 
 #### Default
 By default, any stdout callback results is managed by **DefaultStdoutCallbackResults** results method. 
-That results method prepends the separator string `──` tho each line on stdout and prepare all the transformers before to call the worker method, which is in charge to write the output to io.Writer. 
+That results method prepends the separator string `──` tho each line on stdout, when any transformer is defined, and prepare all the transformers before to call the worker function, which is in charge to write the output to io.Writer. 
 
 #### JSON
 When the stdout callback method is defined to be in json format, the output is managed by **JSONStdoutCallbackResults** results method. 

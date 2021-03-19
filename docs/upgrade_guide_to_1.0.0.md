@@ -40,7 +40,7 @@ Transformers gives the chance to anyone to customize the executor output. `go-an
 - [**LogFormat**:](https://github.com/apenella/go-ansible/blob/master/stdoutcallback/results/transformer.go#L35) Include date time prefix to the output line
 - [**IgnoreMessage**:](https://github.com/apenella/go-ansible/blob/master/stdoutcallback/results/transformer.go#L44) Ignores the output line based on the patterns it recieves as input parameters
 
-The example **custom-transformer-ansibleplaybook** show how to write your own transformer.
+The example [**custom-transformer-ansibleplaybook**](https://github.com/apenella/go-ansible/blob/master/examples/custom-transformer-ansibleplaybook/custom-trasnformer-ansible-playbook.go) show how to write your own transformer.
 
 ## Package execute
 To make the **execute** package more flexible and customizable it has suffered many changes. 
