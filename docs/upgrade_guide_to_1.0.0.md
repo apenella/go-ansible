@@ -14,8 +14,14 @@ Go-ansible upgrade guide
       - [ResultsFunc](#resultsfunc)
     - [Update custom executors](#update-custom-executors)
   - [Options](#options)
-    - [From AnsiblePlaybookPrivilegeEscalationOptions to AnsiblePrivilegeEscalationOptions](#from-ansibleplaybookprivilegeescalationoptions-to-ansibleprivilegeescalationoptions)
-    - [From AnsiblePlaybookConnectionOptions to AnsibleConnectionOptions](#from-ansibleplaybookconnectionoptions-to-ansibleconnectionoptions)
+    - [AnsiblePlaybookPrivilegeEscalationOptions type](#ansibleplaybookprivilegeescalationoptions-type)
+    - [AnsiblePlaybookConnectionOptions type](#ansibleplaybookconnectionoptions-type)
+    - [AnsiblePlaybookOptions type](#ansibleplaybookoptions-type)
+  - [Package ansibler](#package-ansibler)
+    - [Playbook attribute](#playbook-attribute)
+    - [ExecPrefix attribute](#execprefix-attribute)
+    - [CmdRunDir attribute](#cmdrundir-attribute)
+    - [Writer attribute](#writer-attribute)
 
 <!-- /code_chunk_output -->
 
@@ -114,7 +120,7 @@ func WithWrite(w io.Writer) ExecuteOptions {
 ```
 
 ## Options
-### From AnsiblePlaybookPrivilegeEscalationOptions to AnsiblePrivilegeEscalationOptions
+### AnsiblePlaybookPrivilegeEscalationOptions type
 `AnsiblePlaybookPrivilegeEscalationOptions` type has been moved to `github.com/apenella/go-ansible/pkg/options` and renamed to `AnsiblePrivilegeEscalationOptions`.
 
 In case you are using `AnsiblePlaybookPrivilegeEscalationOptions`, is needed to import `github.com/apenella/go-ansible/pkg/options` and rename the instance type to `options.AnsiblePrivilegeEscalationOptions`.
@@ -134,7 +140,7 @@ import (
 
 ```
 
-### From AnsiblePlaybookConnectionOptions to AnsibleConnectionOptions
+### AnsiblePlaybookConnectionOptions type
 `AnsiblePlaybookConnectionOptions` type has been moved to `github.com/apenella/go-ansible/pkg/options` and renamed to `AnsibleConnectionOptions`.
 
 In case you are using `AnsiblePlaybookConnectionOptions`, is needed to import `github.com/apenella/go-ansible/pkg/options` and rename the instance type to `options.AnsibleConnectionOptions`.
@@ -151,4 +157,105 @@ import (
 	}
 ...
 
+```
+
+### AnsiblePlaybookOptions type
+`AnsiblePlaybookOptions` type has been moved to `github.com/apenella/go-ansible/pkg/playbook`
+
+## Package ansibler
+Package ansibler will not longer exist anymore and its components has been moved from `github.com/apenella/go-ansible` to `github.com/apenella/go-ansible/pkg/playbook`.
+
+In case you are using a prior version and you want to upgrade to 1.0.0, `AnsiblePlaybookCmd` requires some updates. Below there is a list with the updates:
+
+### Playbook attribute
+`ansible-playbook` accepts a list of playbook files to be run. To make `go-ansible` fully compatible to `ansible-playbook`, `Playbook` (*string type*) attribute has been supersed by `Playbooks` (*[]string type*).
+
+```go
+playbook := &playbook.AnsiblePlaybookCmd{
+	Playbooks:         []string{"site.yml"},
+	Exec:              execute,
+	ConnectionOptions: ansiblePlaybookConnectionOptions,
+	Options:           ansiblePlaybookOptions,
+}
+```
+
+
+### ExecPrefix attribute
+Attribute has been removed an it is configured on the executor.
+`execute.NewDefaultExecute` can be used to create a new `DefaultExecute`executor with a list of configurations.
+
+```go
+ansiblePlaybookConnectionOptions := &options.AnsibleConnectionOptions{
+	Connection: "local",
+}
+
+ansiblePlaybookOptions := &playbook.AnsiblePlaybookOptions{
+	Inventory: "127.0.0.1,",
+}
+
+execute := execute.NewDefaultExecute(
+  execute.WithTransformers(
+    results.Prepend("Go-ansible example"),
+  ),
+)
+
+playbook := &playbook.AnsiblePlaybookCmd{
+	Playbooks:         []string{"site.yml"},
+	Exec:              execute,
+	ConnectionOptions: ansiblePlaybookConnectionOptions,
+	Options:           ansiblePlaybookOptions,
+}
+```
+
+### CmdRunDir attribute
+Attribute has been removed an it is configured on the executor.
+`execute.NewDefaultExecute` can be used to create a new `DefaultExecute`executor with a list of configurations.
+
+```go
+ansiblePlaybookConnectionOptions := &options.AnsibleConnectionOptions{
+	Connection: "local",
+}
+
+ansiblePlaybookOptions := &playbook.AnsiblePlaybookOptions{
+	Inventory: "127.0.0.1,",
+}
+
+execute := execute.NewDefaultExecute(
+  execute.WithCmdRunDir(dir)
+)
+
+playbook := &playbook.AnsiblePlaybookCmd{
+	Playbooks:         []string{"site.yml"},
+	Exec:              execute,
+	ConnectionOptions: ansiblePlaybookConnectionOptions,
+	Options:           ansiblePlaybookOptions,
+}
+```
+
+### Writer attribute
+Attribute has been removed an it is configured on the executor.
+`execute.NewDefaultExecute` can be used to create a new `DefaultExecute`executor with a list of configurations.
+
+```go
+buff := new(bytes.Buffer)
+
+ansiblePlaybookConnectionOptions := &options.AnsibleConnectionOptions{
+	Connection: "local",
+}
+
+ansiblePlaybookOptions := &playbook.AnsiblePlaybookOptions{
+	Inventory: "127.0.0.1,",
+}
+
+execute := execute.NewDefaultExecute(
+	execute.WithWrite(io.Writer(buff)),
+)
+
+playbook := &playbook.AnsiblePlaybookCmd{
+	Playbooks:         []string{"site.yml"},
+	Exec:              execute,
+	ConnectionOptions: ansiblePlaybookConnectionOptions,
+	Options:           ansiblePlaybookOptions,
+	StdoutCallback:    "json",
+}
 ```
