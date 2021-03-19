@@ -35,10 +35,10 @@ Package **stdoutcallback** has been moved from `github.com/apenella/go-ansible/s
 `StdoutCallbackResultsFunc` signature has been updated to `func(context.Context, io.Reader, io.Writer, ...results.TransformerFunc) error`. As first argument it requires a context and a list of transformers has been included instead of the string used as output prefix. 
 
 Transformers gives the chance to anyone to customize the executor output. `go-ansible` is provided by four transformers but you could write your own transformers.
-- [**Prepend**](https://github.com/apenella/go-ansible/blob/master/stdoutcallback/results/transformer.go#L21): Sets a prefix string to the output line
-- [**Append**:](https://github.com/apenella/go-ansible/blob/master/stdoutcallback/results/transformer.go#L28) Sets a suffix string to the output line
-- [**LogFormat**:](https://github.com/apenella/go-ansible/blob/master/stdoutcallback/results/transformer.go#L35) Include date time prefix to the output line
-- [**IgnoreMessage**:](https://github.com/apenella/go-ansible/blob/master/stdoutcallback/results/transformer.go#L44) Ignores the output line based on the patterns it recieves as input parameters
+- [**Prepend**](https://github.com/apenella/go-ansible/blob/master/pkg/stdoutcallback/results/transformer.go#L21): Sets a prefix string to the output line
+- [**Append**:](https://github.com/apenella/go-ansible/blob/master/pkg/stdoutcallback/results/transformer.go#L28) Sets a suffix string to the output line
+- [**LogFormat**:](https://github.com/apenella/go-ansible/blob/master/pkg/stdoutcallback/results/transformer.go#L35) Include date time prefix to the output line
+- [**IgnoreMessage**:](https://github.com/apenella/go-ansible/blob/master/pkg/stdoutcallback/results/transformer.go#L44) Ignores the output line based on the patterns it recieves as input parameters
 
 The example [**custom-transformer-ansibleplaybook**](https://github.com/apenella/go-ansible/blob/master/examples/custom-transformer-ansibleplaybook/custom-trasnformer-ansible-playbook.go) show how to write your own transformer.
 
