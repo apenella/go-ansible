@@ -16,10 +16,13 @@ It supports `ansible-playbook` command with the most of its options.
   - [Install](#install)
     - [Upgrade to 1.0.0](#upgrade-to-100)
   - [Packages](#packages)
-    - [Ansibler](#ansibler)
+    - [Adhoc](#adhoc)
+    - [Playbook](#playbook)
     - [Execute](#execute)
       - [DefaultExecute](#defaultexecute)
       - [Custom executor](#custom-executor)
+    - [Options](#options)
+      - [ansible adhoc and ansible-playbook common options](#ansible-adhoc-and-ansible-playbook-common-options)
     - [Stdout Callback](#stdout-callback)
     - [Results](#results)
       - [Transformers](#transformers)
@@ -43,15 +46,25 @@ Since `go-ansible` v1.0.0 has introduced many breaking changes read the [changel
 
 ## Packages
 
-### Ansibler
+### Adhoc
 
-To run an `ansible-playbook` command you could define four objects, depending on your needs:
-- **AnsiblePlaybookCmd** object is the main object which defines the `ansible-playbook` command and how to execute it. `AnsiblePlaybookCmd` definition is mandatory to run any `ansible-playbook` command.
-`AnsiblePlaybookCmd` has a parameter that defines the `Executor` to use, the worker who launches the execution. If no `Executor` is specified, is used `DefaultExecutor`.
-`AnsiblePlaybookCmd` also has an attribute to define the stdout callback method to use. Depending on that method, `go-ansible` manages the results in a specific way. Actually all stdout callback method's results are treated such the default method instead of `json` stdout callback, which parses the json an summerizes the stats per host. If no stdout callback method is specified, is used `default` stdout callback one.
-- **AnsiblePlaybookOptions** object has those parameters described on `Options` section within ansible-playbook's man page, and defines how should be the `ansible-playbook` execution behavior and where to find execution configuration.
-- **AnsiblePlaybookConnectionOptions** object has those parameters described on `Connections Options` section within ansible-playbook's man page, and defines how to connect to hosts.
-- **PrivilegeEscalationOptions** object has those parameters described on `Escalation Options` section within ansible-playbook's man page, and defines how to become a user.
+`github.com/apenella/go-ansible/pkg/adhoc` package let you to run `ansible` adhoc commands. Here you have described the `adhoc` types which help to run ansible commands.
+
+- **AnsibleAdhocCmd** is the main object type which defines the `ansible` adhoc command and how to execute it. `AnsibleAdhocCmd` definition is mandatory to run any `ansible` adhoc command.
+`AnsibleAdhocCmd` has a parameter that defines the `Executor` to use, the worker that launches the execution. If no `Executor` is specified, is used a bare `DefaultExecutor`.
+- **AnsibleAdhocOptions** type has those parameters described on `Options` section within ansible's man page, and defines how should be the `ansible` execution behavior and where to find execution configuration.
+
+You could also provide to `AnsiblePlaybookCmd` escalation priviledged options or connection options, defined on  `github.com/apenella/go-ansible/pkg/options`
+
+### Playbook
+
+`github.com/apenella/go-ansible/pkg/playbook` package let you to run `ansible-playbook` commands. Here you have described the `playbook` types which help to run ansible playbooks.
+
+- **AnsiblePlaybookCmd** is the main object type which defines the `ansible-playbook` command and how to execute it. `AnsiblePlaybookCmd` definition is mandatory to run any `ansible-playbook` command.
+`AnsiblePlaybookCmd` has a parameter that defines the `Executor` to use, the worker that launches the execution. If no `Executor` is specified, is used a bare `DefaultExecutor`.
+- **AnsiblePlaybookOptions** type has those parameters described on `Options` section within ansible-playbook's man page, and defines how should be the `ansible-playbook` execution behavior and where to find execution configuration.
+
+You could also provide to `AnsiblePlaybookCmd` escalation priviledged options or connection options, defined on  `github.com/apenella/go-ansible/pkg/options`
 
 ### Execute
 An executor is the component in charge to run the command and return in somehow the result received on stdout an stderr.
@@ -83,55 +96,53 @@ You could write your own executor implementation and set it on `AnsiblePlaybookC
 
 Below there is an example of a custom executor which could be configured by `ExecuteOptions` functions.
 ```go
-	type MyExecutor struct {
-		Prefix string
+type MyExecutor struct {
+	Prefix string
+}
+
+// Options method is used as a helper to apply a bunch of options to executor
+func (e *MyExecutor) Options(options ...execute.ExecuteOptions) {
+	// apply all options to the executor
+	for _, opt := range options {
+		opt(e)
 	}
+}
 
-	// Options method is used as a helper to apply a bunch of options to executor
-	func (e *MyExecutor) Options(options ...execute.ExecuteOptions) {
-		// apply all options to the executor
-		for _, opt := range options {
-			opt(e)
-		}
+// WithPrefix method is used to set the executor prefix attribute
+func WithPrefix(prefix string) execute.ExecuteOptions {
+	return func(e execute.Executor) {
+		e.(*MyExecutor).Prefix = prefix
 	}
+}
 
-	// WithPrefix method is used to set the executor prefix attribute
-	func WithPrefix(prefix string) execute.ExecuteOptions {
-		return func(e execute.Executor) {
-			e.(*MyExecutor).Prefix = prefix
-		}
+func (e *MyExecutor) Execute(ctx context.Context, command []string, resultsFunc stdoutcallback.StdoutCallbackResultsFunc, options ...execute.ExecuteOptions) error {
+	// It is possible to apply extra options when Execute is called
+	for _, opt := range options {
+		opt(e)
 	}
-
-	func (e *MyExecutor) Execute(ctx context.Context, command []string, resultsFunc stdoutcallback.StdoutCallbackResultsFunc, options ...execute.ExecuteOptions) error {
-
-		// It is possible to apply extra options when Execute is called
-		for _, opt := range options {
-			opt(e)
-		}
-
-		// that's a dummy work
-		fmt.Println(fmt.Sprintf("[%s] %s\n", e.Prefix, "I am MyExecutor and I am doing nothing"))
-
-		return nil
-	}
+	// that's a dummy work
+	fmt.Println(fmt.Sprintf("[%s] %s\n", e.Prefix, "I am MyExecutor and I am doing nothing"))
+	return nil
+}
 ```
 
 Finally, on the next snipped is executed the `ansible-playbook` using the custom executor
 ```go
-	// define an instance for the new executor and set the options
-	exe := &MyExecutor{}
-	exe.Options(
-		WithPrefix("Go ansible example"),
-	)
+// define an instance for the new executor and set the options
+exe := &MyExecutor{}
 
-	playbook := &ansibler.AnsiblePlaybookCmd{
-		Playbook:          "site.yml",
-		ConnectionOptions: ansiblePlaybookConnectionOptions,
-		Options:           ansiblePlaybookOptions,
-		Exec:              exe,
-	}
+exe.Options(
+	WithPrefix("Go ansible example"),
+)
 
-	playbook.Run(context.TODO())
+playbook := &ansibler.AnsiblePlaybookCmd{
+	Playbook:          "site.yml",
+	ConnectionOptions: ansiblePlaybookConnectionOptions,
+	Options:           ansiblePlaybookOptions,
+	Exec:              exe,
+}
+
+playbook.Run(context.TODO())
 ```
 
 When you run the playbook using your dummy executor, the output received is the next one.
@@ -140,8 +151,16 @@ $ go run myexecutor-ansibleplaybook.go
 [Go ansible example] I am MyExecutor and I am doing nothing
 ```
 
+### Options
+
+On `github.com/apenella/go-ansible/pkg/options` are defined those type which define command executions options
+
+#### ansible adhoc and ansible-playbook common options
+- **AnsibleConnectionOptions** object has those parameters described on `Connections Options` section within ansible-playbook's man page, and defines how to connect to hosts.
+- **AnsiblePrivilegeEscalationOptions** object has those parameters described on `Escalation Options` section within ansible-playbook's man page, and defines how to become a user.
+
 ### Stdout Callback
-It is possible to define and specific stdout callback method on `go-ansible`. To do that is needed to set `StdoutCallback` attribute on `AnsiblePlaybookCmd` object. Depending on the used method, the results are managed by one function or another. The functions to manage `ansible-playbook`'s output are defined on the package `github.com/apenella/go-ansible/stdoutcallback/results` and must be defined following the next signature:
+It is possible to define and specific stdout callback method on `go-ansible`. To do that is needed to set `StdoutCallback` attribute on `AnsiblePlaybookCmd` object. Depending on the used method, the results are managed by one function or another. The functions to manage `ansible-playbook`'s output are defined on the package `github.com/apenella/go-ansible/pkg/stdoutcallback/results` and must be defined following the next signature:
 ```go
 // StdoutCallbackResultsFunc defines a function which manages ansible's stdout callbacks. The function expects a context, a reader that receives the data to be wrote and a writer that defines where to write the data comming from reader, Finally a list of transformers could be passed to update the output comming from the executor.
 type StdoutCallbackResultsFunc func(context.Context, io.Reader, io.Writer, ...results.TransformerFunc) error
@@ -194,21 +213,21 @@ When is needed to run an `ansible-playbook` from your Golang application using `
 
 `AnsiblePlaybookConnectionOptions` where is defined how to connect to hosts.
 ```go
-ansiblePlaybookConnectionOptions := &ansibler.AnsiblePlaybookConnectionOptions{
+ansiblePlaybookConnectionOptions := &options.AnsiblePlaybookConnectionOptions{
 	Connection: "local",
 }
 ```
 
 `AnsiblePlaybookOptions` where is defined which should be the `ansible-playbook` execution behavior and where to find execution configuration.
 ```go
-ansiblePlaybookOptions := &ansibler.AnsiblePlaybookOptions{
+ansiblePlaybookOptions := &playbook.AnsiblePlaybookOptions{
     Inventory: "127.0.0.1,",
 }
 ```
 
 `AnsiblePlaybookPrivilegeEscalationOptions` where is defined wether to become another and how to do it.
 ```go
-privilegeEscalationOptions := &ansibler.AnsiblePlaybookPrivilegeEscalationOptions{
+privilegeEscalationOptions := &options.AnsiblePlaybookPrivilegeEscalationOptions{
     Become:        true,
     BecomeMethod:  "sudo",
 }
@@ -216,7 +235,7 @@ privilegeEscalationOptions := &ansibler.AnsiblePlaybookPrivilegeEscalationOption
 
 `AnsiblePlaybookCmd` where is defined the command execution.
 ```go
-playbook := &ansibler.AnsiblePlaybookCmd{
+cmd := &playbook.AnsiblePlaybookCmd{
     Playbook:          "site.yml",
     ConnectionOptions: ansiblePlaybookConnectionOptions,
     Options:           ansiblePlaybookOptions,
@@ -226,7 +245,7 @@ playbook := &ansibler.AnsiblePlaybookCmd{
 
 Once the `AnsiblePlaybookCmd` is already defined it could be run it using the `Run` method. Though is not defined an Executor `DefaultExecute` is used having the default parameters
 ```go
-err := playbook.Run(context.TODO())
+err := cmd.Run(context.TODO())
 if err != nil {
     panic(err)
 }
