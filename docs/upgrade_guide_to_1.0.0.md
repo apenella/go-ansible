@@ -6,7 +6,7 @@ Go-ansible upgrade guide
 
 <!-- code_chunk_output -->
 
-- [Upgrade from 0.x to 1.0.0](#upgrade-from-0x-to-100)
+- [Upgrade from 0.x to 1.x](#upgrade-from-0x-to-1x)
   - [Package stdoutcallback and results](#package-stdoutcallback-and-results)
   - [Package execute](#package-execute)
     - [Update DefaultExecute](#update-defaultexecute)
@@ -26,7 +26,7 @@ Go-ansible upgrade guide
 <!-- /code_chunk_output -->
 
 
-# Upgrade from 0.x to 1.0.0
+# Upgrade from 0.x to 1.x
 
 ## Package stdoutcallback and results
 

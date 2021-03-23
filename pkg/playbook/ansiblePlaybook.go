@@ -161,9 +161,7 @@ func (p *AnsiblePlaybookCmd) Command() ([]string, error) {
 		if err != nil {
 			return nil, errors.New("(playbook::Command)", "Error creating options", err)
 		}
-		for _, option := range options {
-			cmd = append(cmd, option)
-		}
+		cmd = append(cmd, options...)
 	}
 
 	// Determine the connection options to be set
@@ -172,9 +170,7 @@ func (p *AnsiblePlaybookCmd) Command() ([]string, error) {
 		if err != nil {
 			return nil, errors.New("(playbook::Command)", "Error creating connection options", err)
 		}
-		for _, option := range options {
-			cmd = append(cmd, option)
-		}
+		cmd = append(cmd, options...)
 	}
 
 	// Determine the privilege escalation options to be set
@@ -183,15 +179,11 @@ func (p *AnsiblePlaybookCmd) Command() ([]string, error) {
 		if err != nil {
 			return nil, errors.New("(playbook::Command)", "Error creating privilege escalation options", err)
 		}
-		for _, option := range options {
-			cmd = append(cmd, option)
-		}
+		cmd = append(cmd, options...)
 	}
 
 	// Include the ansible playbook
-	for _, playbook := range p.Playbooks {
-		cmd = append(cmd, playbook)
-	}
+	cmd = append(cmd, p.Playbooks...)
 
 	return cmd, nil
 }
