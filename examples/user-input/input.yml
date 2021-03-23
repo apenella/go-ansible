@@ -1,0 +1,21 @@
+---
+- name: Test playbook for user input
+  hosts: localhost
+  tasks:
+    - name: simple prompt 1
+      pause:
+        prompt: |
+          Type in anything to be echo'ed
+      register: result
+    - name: echo user input
+      debug:
+        msg: you typed {{ result.user_input }}
+    - name: simple prompt 2
+      pause:
+        prompt: |
+          Type in anything to be echo'ed again with more information
+      register: result_2
+    - name: echo user input with more details
+      debug:
+         var: result_2
+        
