@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"os/exec"
 
-	"github.com/apenella/go-ansible/pkg/execute"
-	"github.com/apenella/go-ansible/pkg/options"
+	"github.com/rfc2119/go-ansible/pkg/execute"
+	"github.com/rfc2119/go-ansible/pkg/options"
 	"github.com/apenella/go-ansible/pkg/stdoutcallback"
 	common "github.com/apenella/go-common-utils/data"
 	errors "github.com/apenella/go-common-utils/error"

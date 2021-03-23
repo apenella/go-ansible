@@ -110,9 +110,11 @@ func WithTransformers(trans ...results.TransformerFunc) ExecuteOptions {
 // Execute takes a command and args and runs it, streaming output to stdout
 func (e *DefaultExecute) Execute(ctx context.Context, command []string, resultsFunc stdoutcallback.StdoutCallbackResultsFunc, options ...ExecuteOptions) error {
 
-	var err error
-	var cmdStderr, cmdStdout io.ReadCloser
-	var wg sync.WaitGroup
+	var (
+		err error
+		cmdStderr, cmdStdout io.ReadCloser
+		wg sync.WaitGroup
+	)
 
 	execErrChan := make(chan error)
 
@@ -125,6 +127,7 @@ func (e *DefaultExecute) Execute(ctx context.Context, command []string, resultsF
 		resultsFunc = results.DefaultStdoutCallbackResults
 	}
 
+	// default stdout and stderr for the main process
 	if e.Write == nil {
 		e.Write = os.Stdout
 	}
@@ -138,6 +141,8 @@ func (e *DefaultExecute) Execute(ctx context.Context, command []string, resultsF
 	if len(e.CmdRunDir) > 0 {
 		cmd.Dir = e.CmdRunDir
 	}
+
+	cmd.Stdin = os.Stdin	// connects the main process' stdin to ansible's stdin
 
 	cmdStdout, err = cmd.StdoutPipe()
 	defer cmdStdout.Close()
@@ -170,6 +175,8 @@ func (e *DefaultExecute) Execute(ctx context.Context, command []string, resultsF
 			trans = append(trans, t)
 		}
 
+		// when using the default results func DefaultStdoutCallbackResults,
+		// reads from ansible's stdout and writes to main process' stdout
 		err := resultsFunc(ctx, cmdStdout, e.Write, trans...)
 		wg.Done()
 		execErrChan <- err
