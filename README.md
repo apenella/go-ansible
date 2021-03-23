@@ -14,7 +14,7 @@ It supports `ansible-playbook` command with the most of its options.
 
 - [go-ansible](#go-ansible)
   - [Install](#install)
-    - [Upgrade to 1.0.0](#upgrade-to-100)
+    - [Upgrade to 1.x](#upgrade-to-1x)
   - [Packages](#packages)
     - [Adhoc](#adhoc)
     - [Playbook](#playbook)
@@ -38,10 +38,10 @@ It supports `ansible-playbook` command with the most of its options.
 
 To install the lastest stable version run the command below:
 ```
-$ go get github.com/apenella/go-ansible@v1.0.0
+$ go get github.com/apenella/go-ansible@v1.1.0
 ```
 
-### Upgrade to 1.0.0
+### Upgrade to 1.x
 Since `go-ansible` v1.0.0 has introduced many breaking changes read the [changelog](https://github.com/apenella/go-ansible/blob/master/CHANGELOG.md) and the [upgrade guide](https://github.com/apenella/go-ansible/blob/master/docs/upgrade_guide_to_1.0.0.md) carefully before to proceed to the upgrade.
 
 ## Packages
