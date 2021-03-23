@@ -6,12 +6,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [v1.1.0]
 
-## Added
+### Added
 - support for stdin on `DefaultExecute` Execute method
 
 ## [v1.0.0]
 
-## Added
+### Added
 - Included `ansible-playbook` version `2.10.6` options on `AnsiblePlaybookOptions`
 - Included `github.com/apenella/go-ansible/pkg/adhoc` package to interact to `ansible` adhoc command
 - New function type `ExecuteOptions` to provide options to executor instances
@@ -24,7 +24,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     - IgnoreMessage([]string): Ignores the output lines based on input strings
 - New private method `output` on `results` package to manage how to write the output lines and that can be used by any `StdoutCallbackResultsFunc`
 
-## Changed
+### Changed
 - **BREAKING CHANGE**: `ansibler` has been restructured and splitted to multiple packages:
   - Type `AnsiblePlaybookConnectionOptions` is renamed to `AnsibleConnectionOptions` and placed to `github.com/apenella/go-ansible/pkg/options`
   - Type `AnsiblePlaybookPrivilegeEscalationOptions` is renamed to `AnsiblePrivilegeEscalationOptions` and placed to `github.com/apenella/go-ansible/pkg/options`
@@ -38,7 +38,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **BREAKING CHANGE**: `StdoutCallbackResultsFunc` signature has been updated to `func(context.Context, io.Reader, io.Writer, ...results.TransformerFunc) error`. Prefix argument has been removed and a list of transformers could be passed to the function
 - `DefaultStdoutCallbackResults` and `JSONStdoutCallbackResults` prepares default transformers for default output an calls `output`, instead of managing the output by its own
 
-## Removed
+### Removed
 - **BREAKING CHANGE**: Remove `ExecPrefix` from `AnsiblePlaybookCmd`
 - **BREAKING CHANGE**: Remove `CmdRunDir` from `AnsiblePlaybookCmd`
 - **BREAKING CHANGE**: Remove `Writer` from `AnsiblePlaybookCmd`

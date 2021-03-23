@@ -1,4 +1,4 @@
 ## [v1.1.0]
 
-## Added
+### Added
 - support for stdin on `DefaultExecute` Execute method
