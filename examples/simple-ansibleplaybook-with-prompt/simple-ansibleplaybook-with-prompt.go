@@ -3,15 +3,14 @@ package main
 import (
 	"context"
 
-	"github.com/rfc2119/go-ansible/pkg/options"
-	"github.com/rfc2119/go-ansible/pkg/playbook"
+	"github.com/apenella/go-ansible/pkg/options"
+	"github.com/apenella/go-ansible/pkg/playbook"
 )
 
 func main() {
 
 	ansiblePlaybookConnectionOptions := &options.AnsibleConnectionOptions{
 		Connection: "local",
-		// User:       "aleix",
 	}
 
 	ansiblePlaybookOptions := &playbook.AnsiblePlaybookOptions{
