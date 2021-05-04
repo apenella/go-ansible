@@ -33,7 +33,7 @@ func TestNewDefaultExecute(t *testing.T) {
 	)
 
 	assert.Equal(t, runDir, exe.CmdRunDir, "CmdRunDir does not match")
-	assert.True(t, exe.ShowDuration, "ShowDuration does not matc")
+	assert.True(t, exe.ShowDuration, "ShowDuration does not match")
 	assert.Equal(t, wr, exe.Write, "Write does not match")
 	assert.Equal(t, wr, exe.WriterError, "WriteError does not match")
 }
