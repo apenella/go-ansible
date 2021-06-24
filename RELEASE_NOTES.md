@@ -1,4 +1,4 @@
-## [v1.1.0]
+## [Undefined]
 
-### Added
-- support for stdin on `DefaultExecute` Execute method
+### Fixed
+- Fixed typos and language mistakes on Readme file

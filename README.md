@@ -4,9 +4,8 @@
 
 # go-ansible
 
-Go-ansible is a package for running Ansible playbooks from Golang applications.
-It supports `ansible-playbook` command with the most of its options.
-
+Go-ansible is a package for running `ansible-playbook` or `ansible` commands from Golang applications.
+It supports the most of its options for each command.
 
 <!-- @import "[TOC]" {cmd="toc" depthFrom=1 depthTo=6 orderedList=false} -->
 

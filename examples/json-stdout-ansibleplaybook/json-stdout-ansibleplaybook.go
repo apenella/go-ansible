@@ -15,7 +15,8 @@ import (
 func main() {
 
 	var err error
-	res := &results.AnsiblePlaybookJSONResults{}
+	var res *results.AnsiblePlaybookJSONResults
+
 	buff := new(bytes.Buffer)
 
 	ansiblePlaybookConnectionOptions := &options.AnsibleConnectionOptions{
