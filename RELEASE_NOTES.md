@@ -6,4 +6,4 @@
 
 ### Fixed
 - Fixed(#57) typos and language mistakes on Readme file
-- Fixed(#64) update `Msg` type on `AnsiblePlaybookJSONResultsPlayTaskHostsItem` from `string` to `[]string`
+- Fixed(#64) update `Msg` type on `AnsiblePlaybookJSONResultsPlayTaskHostsItem` from `string` to `interface{}`

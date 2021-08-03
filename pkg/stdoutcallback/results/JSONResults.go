@@ -89,7 +89,7 @@ type AnsiblePlaybookJSONResultsPlayTask struct {
 type AnsiblePlaybookJSONResultsPlayTaskHostsItem struct {
 	Action       string                 `json:"action"`
 	Changed      bool                   `json:"changed"`
-	Msg          []string               `json:"msg"`
+	Msg          interface{}            `json:"msg"`
 	AnsibleFacts map[string]interface{} `json:"ansible_facts"`
 }
 
