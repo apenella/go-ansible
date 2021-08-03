@@ -7,6 +7,7 @@ import (
 	"os/exec"
 	"testing"
 
+	"github.com/apenella/go-ansible/pkg/options"
 	"github.com/apenella/go-ansible/pkg/stdoutcallback/results"
 	errors "github.com/apenella/go-common-utils/error"
 	"github.com/stretchr/testify/assert"
@@ -91,6 +92,12 @@ func TestDefaultExecute(t *testing.T) {
 
 		stdout.Reset()
 		stderr.Reset()
+
+		// workaround to avoid ansible warnings
+		options.AnsibleSetEnv("ANSIBLE_ACTION_WARNINGS", "False")
+		options.AnsibleSetEnv("ANSIBLE_COMMAND_WARNINGS", "False")
+		options.AnsibleSetEnv("ANSIBLE_DEPRECATION_WARNINGS", "False")
+		options.AnsibleSetEnv("ANSIBLE_SYSTEM_WARNINGS", "False")
 
 		err := test.execute.Execute(test.ctx, test.command, nil, test.options...)
 
