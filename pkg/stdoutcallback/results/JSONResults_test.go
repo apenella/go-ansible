@@ -368,7 +368,7 @@ func TestJSONParser(t *testing.T) {
 										//"_ansible_no_log": false, "_ansible_verbose_always": true,
 										Action:  "debug",
 										Changed: false,
-										Msg:     []string{"That's a message to debug"},
+										Msg:     []interface{}{"That's a message to debug"},
 									},
 								},
 							},
