@@ -2,8 +2,28 @@
 
 - hosts: all
   gather_facts: true
+  vars:
+    array:
+      - Your are running
+      - 'json-stdout-ansibleplaybook'
+      - example
+    map:
+      intro: Your are running
+      what: json-stdout-ansibleplaybook
+      outro: example
 
   tasks:
     - name: json-stdout-ansibleplaybook
       debug:
-        msg: Your are running 'json-stdout-ansibleplaybook' example
+        msg: |
+          Your are running
+          'json-stdout-ansibleplaybook'
+          example
+
+    - name: json-stdout-ansibleplaybook from array
+      debug:
+        msg: "{{ array }}"
+
+    - name: json-stdout-ansibleplaybook from map
+      debug:
+        msg: "{{ map }}"

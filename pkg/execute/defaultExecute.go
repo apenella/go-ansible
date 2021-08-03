@@ -111,9 +111,9 @@ func WithTransformers(trans ...results.TransformerFunc) ExecuteOptions {
 func (e *DefaultExecute) Execute(ctx context.Context, command []string, resultsFunc stdoutcallback.StdoutCallbackResultsFunc, options ...ExecuteOptions) error {
 
 	var (
-		err error
+		err                  error
 		cmdStderr, cmdStdout io.ReadCloser
-		wg sync.WaitGroup
+		wg                   sync.WaitGroup
 	)
 
 	execErrChan := make(chan error)
@@ -142,7 +142,7 @@ func (e *DefaultExecute) Execute(ctx context.Context, command []string, resultsF
 		cmd.Dir = e.CmdRunDir
 	}
 
-	cmd.Stdin = os.Stdin	// connects the main process' stdin to ansible's stdin
+	cmd.Stdin = os.Stdin // connects the main process' stdin to ansible's stdin
 
 	cmdStdout, err = cmd.StdoutPipe()
 	defer cmdStdout.Close()
