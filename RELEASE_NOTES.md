@@ -1,4 +1,4 @@
-## [Undefined]
+## [v1.1.1]
 
 ### Changed
 - update dependency package github.com/apenella/go-common-utils/error
