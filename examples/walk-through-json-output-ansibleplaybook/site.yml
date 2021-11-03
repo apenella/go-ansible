@@ -1,0 +1,26 @@
+---
+
+- hosts: all
+  gather_facts: False
+
+  tasks:
+    - name: walk-through-json-output-ansibleplaybook
+      ansible.builtin.shell: |
+        printf '{"host": "%s", "message": "%s"}' "{{ inventory_hostname }}" "that is just an example"
+      args:
+        executable: /bin/bash
+      register: output
+
+    - name: walk-through-json-output-ansibleplaybook output
+      debug:
+        msg: "{{ output.stdout }}"
+
+# - hosts: all
+#   gather_facts: False
+
+#   tasks:
+#     - name: json-stdout-ansibleplaybook
+#       ansible.builtin.shell: |
+#         echo "that is just another example"
+#       args:
+#         executable: /bin/bash
