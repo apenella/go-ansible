@@ -91,6 +91,10 @@ type AnsiblePlaybookJSONResultsPlayTaskHostsItem struct {
 	Changed      bool                   `json:"changed"`
 	Msg          interface{}            `json:"msg"`
 	AnsibleFacts map[string]interface{} `json:"ansible_facts"`
+	Stdout       string                 `json:"stdout"`
+	StdoutLines  []string               `json:"stdout_lines"`
+	Stderr       string                 `json:"stderr"`
+	StderrLines  []string               `json:"stderr_lines"`
 }
 
 type AnsiblePlaybookJSONResultsPlayTaskItem struct {
