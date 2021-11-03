@@ -4,7 +4,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [v1.1.1]
+## v1.1.2
+
+### Fixed
+- Include `stdout` and `stdout_lines` to `AnsiblePlaybookJSONResultsPlayTaskHostsItem`
+- Include `stderr` and `stderr_lines` to `AnsiblePlaybookJSONResultsPlayTaskHostsItem`
+
+## v1.1.1
 
 ### Changed
 - update dependency package github.com/apenella/go-common-utils/error
@@ -14,12 +20,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fixed(#57) typos and language mistakes on Readme file
 - Fixed(#64) update `Msg` type on `AnsiblePlaybookJSONResultsPlayTaskHostsItem` from `string` to `interface{}`
 
-## [v1.1.0]
+## v1.1.0
 
 ### Added
 - support for stdin on `DefaultExecute` Execute method
 
-## [v1.0.0]
+## v1.0.0
 
 ### Added
 - Included `ansible-playbook` version `2.10.6` options on `AnsiblePlaybookOptions`
@@ -56,28 +62,28 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **BREAKING CHANGE**: Remove `Prefix` from `DefaultExecute`. Prefix is not manatory any more and could be added using the `Prepend` transformer.
 - `skipLine` method has been removed. Replaced by `IgnoreMessage` transformer
 
-## [v0.8.0]
+## v0.8.0
 ### Added
 - Include attribute CmdRunDir on AnsiblePlaybookCmd which defines the playbook run directory
 - Include attribute CmdRunDir on DefaultExecutor
 
-## [v0.7.1]
+## v0.7.1
 ### Fixed
 - fix to do not use a multireader for stdout and stderr on DefaultExecutor
 
-## [v0.7.0]
+## v0.7.0
 ### Added
 - Add Binary attribute to AnsiblePlaybookCmd
 - Add VaultPasswordFile to AnsiblePlaybookOptions
 
-## [v0.6.1]
+## v0.6.1
 ### Changed
 - On error, write to output writer either stdout and stderr
 
 ### Fixed
 - Quote extravars when return command as string
 
-## [v0.6.0]
+## v0.6.0
 ### Added
 - New method CheckStats on results package that validates AnsiblePlaybookJSONResults stats
 
@@ -87,11 +93,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - __simple-ansibleplaybook-json__ example has been modified to use a custom executor to manipulate the JSON output.
 - Use github.com/apenella/go-common-utils/error to manage errors
 
-## [v0.5.1]
+## v0.5.1
 ### Fixed
 - [#12](https://github.com/apenella/go-ansible/pull/12): Fix the concurrency issue in the defaultExecute.go
 
-## [v0.5.0]
+## v0.5.0
 ### Added
 - Changelog based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 - New package to manage `ansible-playbook` output
@@ -99,22 +105,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - DefaultExecutor includes an error managemnt depending on `ansible-playbook` exit code
 - Use go mod to manage dependencies
 
-## [v0.4.1]
+## v0.4.1
 ### Added
 - start using go mod as dependencies manager
 
 ### Fixed
 - fix bug ansible always showing error " error: unrecognized arguments" when use private key 
 
-## [v0.4.0]
+## v0.4.0
 ### Added
 - Include privilege escalation options
 
-## [v0.3.0]
+## v0.3.0
 ### Added
 - AnsiblePlaybookCmd has a Write attribute, which must be defined by user.
 
-## [v0.2.0]
+## v0.2.0
 ### Added
 - Use package github.com/apenella/go-common-utils
 
