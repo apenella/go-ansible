@@ -52,7 +52,6 @@ func TestRun(t *testing.T) {
 				StdoutCallback: "oneline",
 			},
 			res: `127.0.0.1 | SUCCESS => {"changed": false,"ping": "pong"}
-Playbook run took 0 days, 0 hours, 0 minutes, 0 seconds
 `,
 		},
 	}
