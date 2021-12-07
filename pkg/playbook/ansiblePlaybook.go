@@ -29,6 +29,9 @@ const (
 	// ExtraVarsFlag is the extra variables flag for ansible-playbook
 	ExtraVarsFlag = "--extra-vars"
 
+	// ExtraVarsStrFlag is the extra variables flag for ansible-playbook(while you need string)
+	ExtraVarsStrFlag = "--extra-vars"
+
 	// FlushCacheFlag is the flush cache flag for ansible-playbook
 	FlushCacheFlag = "--flush-cache"
 
@@ -231,6 +234,9 @@ type AnsiblePlaybookOptions struct {
 	// ExtraVars is a map of extra variables used on ansible-playbook execution
 	ExtraVars map[string]interface{}
 
+	// ExtraVarsStr support to input string as extra-vars
+	ExtraVarsStr string
+
 	// FlushCache is the flush cache flag for ansible-playbook
 	FlushCache bool
 
@@ -324,6 +330,10 @@ func (o *AnsiblePlaybookOptions) GenerateCommandOptions() ([]string, error) {
 		cmd = append(cmd, ForceHandlersFlag)
 	}
 
+	if o.ExtraVarsStr != ""{
+		cmd = append(cmd, ExtraVarsStrFlag)
+		cmd = append(cmd, o.ExtraVarsStr)
+	}
 	if o.Forks != "" {
 		cmd = append(cmd, ForksFlag)
 		cmd = append(cmd, o.Forks)
