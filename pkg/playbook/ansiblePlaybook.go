@@ -441,8 +441,7 @@ func (o *AnsiblePlaybookOptions) AddExtraVarsFile(file string) error {
 		o.ExtraVarsFile = []string{}
 	}
 
-	firstChar := file[0]
-	if firstChar != '@' {
+	if file[0] != '@' {
 		file = fmt.Sprintf("@%s", file)
 	}
 
