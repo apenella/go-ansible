@@ -29,9 +29,6 @@ const (
 	// ExtraVarsFlag is the extra variables flag for ansible-playbook
 	ExtraVarsFlag = "--extra-vars"
 
-	// ExtraVarsStrFlag is the extra variables flag for ansible-playbook(while you need string)
-	ExtraVarsStrFlag = "--extra-vars"
-
 	// FlushCacheFlag is the flush cache flag for ansible-playbook
 	FlushCacheFlag = "--flush-cache"
 
@@ -234,8 +231,8 @@ type AnsiblePlaybookOptions struct {
 	// ExtraVars is a map of extra variables used on ansible-playbook execution
 	ExtraVars map[string]interface{}
 
-	// ExtraVarsStr support to input string as extra-vars
-	ExtraVarsStr string
+	// ExtraVarsFile is a list of files used to load extra-vars
+	ExtraVarsFile []string
 
 	// FlushCache is the flush cache flag for ansible-playbook
 	FlushCache bool
@@ -322,6 +319,11 @@ func (o *AnsiblePlaybookOptions) GenerateCommandOptions() ([]string, error) {
 		cmd = append(cmd, extraVars)
 	}
 
+	for _, file := range o.ExtraVarsFile {
+		cmd = append(cmd, ExtraVarsFlag)
+		cmd = append(cmd, file)
+	}
+
 	if o.FlushCache {
 		cmd = append(cmd, FlushCacheFlag)
 	}
@@ -330,10 +332,6 @@ func (o *AnsiblePlaybookOptions) GenerateCommandOptions() ([]string, error) {
 		cmd = append(cmd, ForceHandlersFlag)
 	}
 
-	if o.ExtraVarsStr != ""{
-		cmd = append(cmd, ExtraVarsStrFlag)
-		cmd = append(cmd, o.ExtraVarsStr)
-	}
 	if o.Forks != "" {
 		cmd = append(cmd, ForksFlag)
 		cmd = append(cmd, o.Forks)
@@ -436,6 +434,23 @@ func (o *AnsiblePlaybookOptions) AddExtraVar(name string, value interface{}) err
 	return nil
 }
 
+// AddExtraVarsFile adds an extra-vars file on ansible-playbook options item
+func (o *AnsiblePlaybookOptions) AddExtraVarsFile(file string) error {
+
+	if o.ExtraVarsFile == nil {
+		o.ExtraVarsFile = []string{}
+	}
+
+	firstChar := file[0]
+	if firstChar != '@' {
+		file = fmt.Sprintf("@%s", file)
+	}
+
+	o.ExtraVarsFile = append(o.ExtraVarsFile, file)
+
+	return nil
+}
+
 // String returns AnsiblePlaybookOptions as string
 func (o *AnsiblePlaybookOptions) String() string {
 
@@ -456,6 +471,10 @@ func (o *AnsiblePlaybookOptions) String() string {
 	if len(o.ExtraVars) > 0 {
 		extraVars, _ := o.generateExtraVarsCommand()
 		str = fmt.Sprintf("%s %s %s", str, ExtraVarsFlag, fmt.Sprintf("'%s'", extraVars))
+	}
+
+	for _, extraVarsFile := range o.ExtraVarsFile {
+		str = fmt.Sprintf("%s %s %s", str, ExtraVarsFlag, extraVarsFile)
 	}
 
 	if o.FlushCache {

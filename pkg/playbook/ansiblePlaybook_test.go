@@ -93,16 +93,17 @@ func TestGenerateCommandOptions(t *testing.T) {
 				ExtraVars: map[string]interface{}{
 					"extra": "var",
 				},
-				FlushCache: true,
-				Inventory:  "inventory",
-				Limit:      "limit",
-				ListHosts:  true,
-				ListTags:   true,
-				ListTasks:  true,
-				Tags:       "tags",
+				ExtraVarsFile: []string{"@test.yml"},
+				FlushCache:    true,
+				Inventory:     "inventory",
+				Limit:         "limit",
+				ListHosts:     true,
+				ListTags:      true,
+				ListTasks:     true,
+				Tags:          "tags",
 			},
 			err:     nil,
-			options: []string{"--extra-vars", "{\"extra\":\"var\"}", "--flush-cache", "--inventory", "inventory", "--limit", "limit", "--list-hosts", "--list-tags", "--list-tasks", "--tags", "tags"},
+			options: []string{"--extra-vars", "{\"extra\":\"var\"}", "--extra-vars", "@test.yml", "--flush-cache", "--inventory", "inventory", "--limit", "limit", "--list-hosts", "--list-tags", "--list-tasks", "--tags", "tags"},
 		},
 	}
 
@@ -226,6 +227,7 @@ func TestString(t *testing.T) {
 					ExtraVars: map[string]interface{}{
 						"var1": "value1",
 					},
+					ExtraVarsFile: []string{"@test/ansible/extra_vars.yml"},
 					FlushCache:    true,
 					ForceHandlers: true,
 					ListTags:      true,
@@ -242,7 +244,7 @@ func TestString(t *testing.T) {
 					AskBecomePass: true,
 				},
 			},
-			res: "ansible-playbook  --ask-vault-password --check --diff --extra-vars '{\"var1\":\"value1\"}' --flush-cache --force-handlers --forks 10 --inventory test/ansible/inventory/all --limit myhost --list-hosts --list-tags --list-tasks --module-path /dev/null --skip-tags tagN --start-at-task task1 --step --syntax-check --tags tag1 --vault-id asdf --vault-password-file /dev/null -vvvv --version  --ask-pass --connection local --private-key pk --user apenella --timeout 10  --ask-become-pass --become --become-method sudo --become-user apenella test/ansible/site.yml test/ansible/site2.yml",
+			res: "ansible-playbook  --ask-vault-password --check --diff --extra-vars '{\"var1\":\"value1\"}' --extra-vars @test/ansible/extra_vars.yml --flush-cache --force-handlers --forks 10 --inventory test/ansible/inventory/all --limit myhost --list-hosts --list-tags --list-tasks --module-path /dev/null --skip-tags tagN --start-at-task task1 --step --syntax-check --tags tag1 --vault-id asdf --vault-password-file /dev/null -vvvv --version  --ask-pass --connection local --private-key pk --user apenella --timeout 10  --ask-become-pass --become --become-method sudo --become-user apenella test/ansible/site.yml test/ansible/site2.yml",
 		},
 	}
 
@@ -523,4 +525,56 @@ func TestAddExtraVar(t *testing.T) {
 		})
 	}
 
+}
+
+func TestAddExtraVarsFile(t *testing.T) {
+
+	tests := []struct {
+		desc    string
+		file    string
+		options *AnsiblePlaybookOptions
+		res     []string
+		err     error
+	}{
+		{
+			desc:    "Testing add an extra-vars file when ExtraVarsFile is nil",
+			file:    "@test.yml",
+			options: &AnsiblePlaybookOptions{},
+			res:     []string{"@test.yml"},
+			err:     &errors.Error{},
+		},
+		{
+			desc: "Testing add an extra-vars file",
+			file: "@test2.yml",
+			options: &AnsiblePlaybookOptions{
+				ExtraVarsFile: []string{"@test1.yml"},
+			},
+			res: []string{"@test1.yml", "@test2.yml"},
+			err: &errors.Error{},
+		},
+		{
+			desc: "Testing add an extra-vars file without file mark prefix @",
+			file: "test.yml",
+			options: &AnsiblePlaybookOptions{
+				ExtraVarsFile: []string{},
+			},
+			res: []string{"@test.yml"},
+			err: &errors.Error{},
+		},
+	}
+
+	for _, test := range tests {
+
+		t.Run(test.desc, func(t *testing.T) {
+			t.Log(test.desc)
+
+			err := test.options.AddExtraVarsFile(test.file)
+
+			if err != nil && assert.Error(t, err) {
+				assert.Equal(t, test.err, err)
+			} else {
+				assert.Equal(t, test.res, test.options.ExtraVarsFile, "Unexpected options value")
+			}
+		})
+	}
 }
