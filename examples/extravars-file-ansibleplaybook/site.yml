@@ -1,0 +1,18 @@
+---
+
+- hosts: all
+  connection: local
+  vars:
+    f1_var1: na
+    f1_var2: na
+    f2_var1: na
+    f2_var2: na
+
+  tasks:
+    - name: show values
+      debug:
+        msg: |
+          {{ f1_var1 }}
+          {{ f1_var2 }}
+          {{ f2_var1 }}
+          {{ f2_var2 }}
