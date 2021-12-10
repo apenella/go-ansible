@@ -172,6 +172,7 @@ func TestGenerateAnsibleAdhocOptions(t *testing.T) {
 			"var1": "value1",
 			"var2": false,
 		},
+		ExtraVarsFile:     []string{"@extra-vars-file.yml"},
 		Forks:             "10",
 		Inventory:         "127.0.0.1,",
 		Limit:             "myhost",
@@ -195,6 +196,8 @@ func TestGenerateAnsibleAdhocOptions(t *testing.T) {
 		"--diff",
 		"--extra-vars",
 		"{\"var1\":\"value1\",\"var2\":false}",
+		"--extra-vars",
+		"@extra-vars-file.yml",
 		"--forks",
 		"10",
 		"--inventory",
@@ -324,6 +327,7 @@ func TestAnsibleAdhocString(t *testing.T) {
 			"var1": "value1",
 			"var2": false,
 		},
+		ExtraVarsFile:     []string{"@test/ansible/extra_vars.yml"},
 		Forks:             "10",
 		Inventory:         "127.0.0.1,",
 		Limit:             "myhost",
@@ -338,7 +342,7 @@ func TestAnsibleAdhocString(t *testing.T) {
 
 	cmd := options.String()
 
-	expected := " --args args --ask-vault-password --background 11 --check --diff --extra-vars '{\"var1\":\"value1\",\"var2\":false}' --forks 10 --inventory 127.0.0.1, --limit myhost --list-hosts --module-name module-name --module-path /dev/null --one-line --playbook-dir playbook-dir --poll 12 --syntax-check --tree tree --vault-id asdf --vault-password-file /dev/null -vvvv --version"
+	expected := " --args args --ask-vault-password --background 11 --check --diff --extra-vars '{\"var1\":\"value1\",\"var2\":false}' --extra-vars @test/ansible/extra_vars.yml --forks 10 --inventory 127.0.0.1, --limit myhost --list-hosts --module-name module-name --module-path /dev/null --one-line --playbook-dir playbook-dir --poll 12 --syntax-check --tree tree --vault-id asdf --vault-password-file /dev/null -vvvv --version"
 
 	assert.Equal(t, expected, cmd)
 }
@@ -408,4 +412,56 @@ func TestAddExtraVar(t *testing.T) {
 		})
 	}
 
+}
+
+func TestAddExtraVarsFile(t *testing.T) {
+
+	tests := []struct {
+		desc    string
+		file    string
+		options *AnsibleAdhocOptions
+		res     []string
+		err     error
+	}{
+		{
+			desc:    "Testing add an extra-vars file when ExtraVarsFile is nil",
+			file:    "@test.yml",
+			options: &AnsibleAdhocOptions{},
+			res:     []string{"@test.yml"},
+			err:     &errors.Error{},
+		},
+		{
+			desc: "Testing add an extra-vars file",
+			file: "@test2.yml",
+			options: &AnsibleAdhocOptions{
+				ExtraVarsFile: []string{"@test1.yml"},
+			},
+			res: []string{"@test1.yml", "@test2.yml"},
+			err: &errors.Error{},
+		},
+		{
+			desc: "Testing add an extra-vars file without file mark prefix @",
+			file: "test.yml",
+			options: &AnsibleAdhocOptions{
+				ExtraVarsFile: []string{},
+			},
+			res: []string{"@test.yml"},
+			err: &errors.Error{},
+		},
+	}
+
+	for _, test := range tests {
+
+		t.Run(test.desc, func(t *testing.T) {
+			t.Log(test.desc)
+
+			err := test.options.AddExtraVarsFile(test.file)
+
+			if err != nil && assert.Error(t, err) {
+				assert.Equal(t, test.err, err)
+			} else {
+				assert.Equal(t, test.res, test.options.ExtraVarsFile, "Unexpected options value")
+			}
+		})
+	}
 }

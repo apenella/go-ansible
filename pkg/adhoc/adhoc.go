@@ -227,6 +227,8 @@ type AnsibleAdhocOptions struct {
 	Diff bool
 	// ExtraVars is a map of extra variables used on ansible-playbook execution
 	ExtraVars map[string]interface{}
+	// ExtraVarsFile is a list of files used to load extra-vars
+	ExtraVarsFile []string
 	// Forks specify number of parallel processes to use (default=50)
 	Forks string
 	// Inventory specify inventory host path
@@ -295,6 +297,11 @@ func (o *AnsibleAdhocOptions) GenerateAnsibleAdhocOptions() ([]string, error) {
 			return nil, errors.New("(adhoc::GenerateAnsibleAdhocOptions)", "Error generating extra-vars", err)
 		}
 		cmd = append(cmd, extraVars)
+	}
+
+	for _, extraVarsFile := range o.ExtraVarsFile {
+		cmd = append(cmd, ExtraVarsFlag)
+		cmd = append(cmd, extraVarsFile)
 	}
 
 	if o.Forks != "" {
@@ -409,6 +416,10 @@ func (o *AnsibleAdhocOptions) String() string {
 		str = fmt.Sprintf("%s %s %s", str, ExtraVarsFlag, fmt.Sprintf("'%s'", extraVars))
 	}
 
+	for _, file := range o.ExtraVarsFile {
+		str = fmt.Sprintf("%s %s %s", str, ExtraVarsFlag, file)
+	}
+
 	if o.Forks != "" {
 		str = fmt.Sprintf("%s %s %s", str, ForksFlag, o.Forks)
 	}
@@ -484,6 +495,23 @@ func (o *AnsibleAdhocOptions) AddExtraVar(name string, value interface{}) error 
 	}
 
 	o.ExtraVars[name] = value
+
+	return nil
+}
+
+// AddExtraVarsFile adds an extra-vars file on ansible-playbook options item
+func (o *AnsibleAdhocOptions) AddExtraVarsFile(file string) error {
+
+	if o.ExtraVarsFile == nil {
+		o.ExtraVarsFile = []string{}
+	}
+
+	firstChar := file[0]
+	if firstChar != '@' {
+		file = fmt.Sprintf("@%s", file)
+	}
+
+	o.ExtraVarsFile = append(o.ExtraVarsFile, file)
 
 	return nil
 }
