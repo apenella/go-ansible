@@ -1,5 +1,5 @@
-## v1.1.2
+## v1.1.3
 
 ### Fixed
-- Include `stdout` and `stdout_lines` to `AnsiblePlaybookJSONResultsPlayTaskHostsItem`
-- Include `stderr` and `stderr_lines` to `AnsiblePlaybookJSONResultsPlayTaskHostsItem`
+- New attribute `ExtraVarsFile` on `AnsiblePlaybookOptions` that allows to use YAML/JSON files to define extra-vars
+- New attribute `ExtraVarsFile` on `AnsibleAdhocOptions` that allows to use YAML/JSON files to define extra-vars
