@@ -287,7 +287,7 @@ func TestJSONParser(t *testing.T) {
 	tests := []struct {
 		desc        string
 		inputResult string
-		res         *AnsiblePlaybookJSONResults
+		res         []AnsiblePlaybookJSONResults
 	}{
 		{
 			desc: "Testing json parse",
@@ -339,51 +339,54 @@ func TestJSONParser(t *testing.T) {
 					}
 				}
 			}`,
-			res: &AnsiblePlaybookJSONResults{
-				CustomStats:       map[string]interface{}{},
-				GlobalCustomStats: map[string]interface{}{},
-				Plays: []AnsiblePlaybookJSONResultsPlay{
-					{
-						Play: &AnsiblePlaybookJSONResultsPlaysPlay{
-							Name: "local",
-							Id:   "a0a4c5d1-62fd-b6f1-98ea-000000000006",
-							Duration: &AnsiblePlaybookJSONResultsPlayDuration{
-								End:   "2020-08-07T20:51:30.942955Z",
-								Start: "2020-08-07T20:51:30.607525Z",
-							},
-						},
-						Tasks: []AnsiblePlaybookJSONResultsPlayTask{
-							{
-								Task: &AnsiblePlaybookJSONResultsPlayTaskItem{
-									Id:   "a0a4c5d1-62fd-b6f1-98ea-000000000008",
-									Name: "Print line",
-									Duration: &AnsiblePlaybookJSONResultsPlayTaskItemDuration{
-										End:   "2020-08-07T20:51:30.942955Z",
-										Start: "2020-08-07T20:51:30.908539Z",
-									},
+			res: []AnsiblePlaybookJSONResults{
+				{
+					Playbook:          "test.yml",
+					CustomStats:       map[string]interface{}{},
+					GlobalCustomStats: map[string]interface{}{},
+					Plays: []AnsiblePlaybookJSONResultsPlay{
+						{
+							Play: &AnsiblePlaybookJSONResultsPlaysPlay{
+								Name: "local",
+								Id:   "a0a4c5d1-62fd-b6f1-98ea-000000000006",
+								Duration: &AnsiblePlaybookJSONResultsPlayDuration{
+									End:   "2020-08-07T20:51:30.942955Z",
+									Start: "2020-08-07T20:51:30.607525Z",
 								},
-								// TODOx
-								Hosts: map[string]*AnsiblePlaybookJSONResultsPlayTaskHostsItem{
-									"127.0.0.1": {
-										//"_ansible_no_log": false, "_ansible_verbose_always": true,
-										Action:  "debug",
-										Changed: false,
-										Msg:     []interface{}{"That's a message to debug"},
+							},
+							Tasks: []AnsiblePlaybookJSONResultsPlayTask{
+								{
+									Task: &AnsiblePlaybookJSONResultsPlayTaskItem{
+										Id:   "a0a4c5d1-62fd-b6f1-98ea-000000000008",
+										Name: "Print line",
+										Duration: &AnsiblePlaybookJSONResultsPlayTaskItemDuration{
+											End:   "2020-08-07T20:51:30.942955Z",
+											Start: "2020-08-07T20:51:30.908539Z",
+										},
+									},
+									// TODOx
+									Hosts: map[string]*AnsiblePlaybookJSONResultsPlayTaskHostsItem{
+										"127.0.0.1": {
+											//"_ansible_no_log": false, "_ansible_verbose_always": true,
+											Action:  "debug",
+											Changed: false,
+											Msg:     []interface{}{"That's a message to debug"},
+										},
 									},
 								},
 							},
 						},
 					},
-				},
-				Stats: map[string]*AnsiblePlaybookJSONResultsStats{
-					"127.0.0.1": {
-						Changed:     0,
-						Failures:    0,
-						Ignored:     0,
-						Ok:          1,
-						Rescued:     0,
-						Skipped:     0,
-						Unreachable: 0,
+					Stats: map[string]*AnsiblePlaybookJSONResultsStats{
+						"127.0.0.1": {
+							Changed:     0,
+							Failures:    0,
+							Ignored:     0,
+							Ok:          1,
+							Rescued:     0,
+							Skipped:     0,
+							Unreachable: 0,
+						},
 					},
 				},
 			},
@@ -392,7 +395,7 @@ func TestJSONParser(t *testing.T) {
 
 	for _, test := range tests {
 		t.Run(test.desc, func(t *testing.T) {
-			res, _ := JSONParse([]byte(test.inputResult))
+			res, _ := JSONParse([]string{"test.yml"}, strings.NewReader(test.inputResult))
 			assert.Equal(t, test.res, res, "Unexpected result")
 		})
 	}
