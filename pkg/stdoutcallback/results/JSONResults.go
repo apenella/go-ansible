@@ -12,6 +12,7 @@ import (
 
 // AnsiblePlaybookJSONResults
 type AnsiblePlaybookJSONResults struct {
+	Playbook          string                                      `json:"-"`
 	CustomStats       interface{}                                 `json:"custom_stats"`
 	GlobalCustomStats interface{}                                 `json:"global_custom_stats"`
 	Plays             []AnsiblePlaybookJSONResultsPlay            `json:"plays"`
@@ -157,15 +158,20 @@ func JSONStdoutCallbackResults(ctx context.Context, r io.Reader, w io.Writer, tr
 	return nil
 }
 
-// JSONParse return an AnsiblePlaybookJSONResults from
-func JSONParse(data []byte) (*AnsiblePlaybookJSONResults, error) {
-
-	result := &AnsiblePlaybookJSONResults{}
-
-	err := json.Unmarshal(data, result)
-	if err != nil {
-		return nil, errors.New("(results::JSONParser)", "Unmarshall error", err)
+// JSONParse return an []AnsiblePlaybookJSONResults from
+func JSONParse(playbooks []string, output io.Reader) ([]AnsiblePlaybookJSONResults, error) {
+	results := make([]AnsiblePlaybookJSONResults, len(playbooks))
+	decoder := json.NewDecoder(output)
+	for index := 0; index < len(playbooks); index++ {
+		err := decoder.Decode(&results[index])
+		if err == io.EOF {
+			break
+		}
+		if err != nil {
+			return nil, errors.New("(results::JSONParser)", "Unmarshall error", err)
+		}
+		results[index].Playbook = playbooks[index]
 	}
 
-	return result, nil
+	return results, nil
 }
