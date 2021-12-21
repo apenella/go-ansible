@@ -1,16 +1,16 @@
 ---
 
 - hosts: all
-  gather_facts: true
+  gather_facts: false
   vars:
     array:
       - Your are running
       - 'json-stdout-ansibleplaybook'
-      - example
+      - second example
     map:
       intro: Your are running
       what: json-stdout-ansibleplaybook
-      outro: example
+      outro: second example
 
   tasks:
     - name: json-stdout-ansibleplaybook
@@ -18,7 +18,7 @@
         msg: |
           Your are running
           'json-stdout-ansibleplaybook'
-          example
+          second example
 
     - name: json-stdout-ansibleplaybook from array
       debug:

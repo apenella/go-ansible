@@ -13,6 +13,12 @@ import (
 )
 
 func main() {
+
+	var err error
+	var res *results.AnsiblePlaybookJSONResults
+
+	buff := new(bytes.Buffer)
+
 	ansiblePlaybookConnectionOptions := &options.AnsibleConnectionOptions{
 		Connection: "local",
 		User:       "apenella",
@@ -22,32 +28,29 @@ func main() {
 		Inventory: "127.0.0.1,",
 	}
 
-	output := io.ReadWriter(new(bytes.Buffer))
 	execute := execute.NewDefaultExecute(
-		execute.WithWrite(output),
+		execute.WithWrite(io.Writer(buff)),
 	)
 
-	playbookNames := []string{"site.yml"}
+	playbooksList := []string{"site1.yml", "site2.yml", "site3.yml"}
 	playbook := &playbook.AnsiblePlaybookCmd{
-		Playbooks:         playbookNames,
+		Playbooks:         playbooksList,
 		Exec:              execute,
 		ConnectionOptions: ansiblePlaybookConnectionOptions,
 		Options:           ansiblePlaybookOptions,
 		StdoutCallback:    "json",
 	}
 
-	err := playbook.Run(context.TODO())
+	err = playbook.Run(context.TODO())
 	if err != nil {
 		fmt.Println(err.Error())
 	}
 
-	res, err := results.JSONParse(playbookNames, output)
+	res, err = results.ParseJSONResultsStream(io.Reader(buff))
 	if err != nil {
 		panic(err)
 	}
 
-	for _, current := range res {
-		fmt.Println(current.Playbook)
-		fmt.Println(current.String())
-	}
+	fmt.Println(res.String())
+
 }
