@@ -158,19 +158,30 @@ func JSONStdoutCallbackResults(ctx context.Context, r io.Reader, w io.Writer, tr
 	return nil
 }
 
-// JSONParse return an []AnsiblePlaybookJSONResults from
-func JSONParse(playbooks []string, output io.Reader) ([]AnsiblePlaybookJSONResults, error) {
-	results := make([]AnsiblePlaybookJSONResults, len(playbooks))
-	decoder := json.NewDecoder(output)
-	for index := 0; index < len(playbooks); index++ {
-		err := decoder.Decode(&results[index])
+// JSONParse return an AnsiblePlaybookJSONResults from
+func JSONParse(data []byte) (*AnsiblePlaybookJSONResults, error) {
+
+	result := &AnsiblePlaybookJSONResults{}
+
+	err := json.Unmarshal(data, result)
+	if err != nil {
+		return nil, errors.New("(results::JSONParser)", "Unmarshall error", err)
+	}
+
+	return result, nil
+}
+
+func ParseJSONResultsStream(reader io.Reader) (*AnsiblePlaybookJSONResults, error) {
+	decoder := json.NewDecoder(reader)
+	results := &AnsiblePlaybookJSONResults{}
+	for {
+		err := decoder.Decode(results)
 		if err == io.EOF {
 			break
 		}
 		if err != nil {
-			return nil, errors.New("(results::JSONParser)", "Unmarshall error", err)
+			return nil, errors.New("(results::JSONParser)", "Error decoding resutls", err)
 		}
-		results[index].Playbook = playbooks[index]
 	}
 
 	return results, nil
