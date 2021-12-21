@@ -201,7 +201,7 @@ skipPatterns := []string{
 
 ##### Manage JSON output
 **JSONStdoutCallbackResults** method writes to io.Writer parameter the json output.
-Results packages provides a **JSONParser** that returns an **AnsiblePlaybookJSONResults**, holding the unmarshalled json on it. You could manipulate AnsiblePlaybookJSONResults object to achieve and format the json output depending on your needs.
+`"github.com/apenella/go-ansible/pkg/stdoutcallback/results"` package provides **ParseJSONResultsStream** function that returns an **AnsiblePlaybookJSONResults** data structure, holding the json output decoded on it. You could manipulate AnsiblePlaybookJSONResults data structure to achieve and format the json output depending on your needs.
 
 The json schema expected from `ansible-playbook` is the defined in https://github.com/ansible/ansible/blob/v2.9.11/lib/ansible/plugins/callback/json.py.
 

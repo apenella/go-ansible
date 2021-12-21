@@ -4,6 +4,11 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## v1.1.4
+
+### Added
+- New function `ParseJSONResultsStream` on `"github.com/apenella/go-ansible/pkg/stdoutcallback/results"` that allow to parse ansible stdout json output as a stream. That method supports to parse json output when multiple playbooks are executed.
+
 ## v1.1.3
 
 ### Fixed
