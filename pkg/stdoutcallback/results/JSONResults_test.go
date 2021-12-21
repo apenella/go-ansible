@@ -287,7 +287,7 @@ func TestJSONParser(t *testing.T) {
 	tests := []struct {
 		desc        string
 		inputResult string
-		res         []AnsiblePlaybookJSONResults
+		res         *AnsiblePlaybookJSONResults
 	}{
 		{
 			desc: "Testing json parse",
@@ -339,54 +339,51 @@ func TestJSONParser(t *testing.T) {
 					}
 				}
 			}`,
-			res: []AnsiblePlaybookJSONResults{
-				{
-					Playbook:          "test.yml",
-					CustomStats:       map[string]interface{}{},
-					GlobalCustomStats: map[string]interface{}{},
-					Plays: []AnsiblePlaybookJSONResultsPlay{
-						{
-							Play: &AnsiblePlaybookJSONResultsPlaysPlay{
-								Name: "local",
-								Id:   "a0a4c5d1-62fd-b6f1-98ea-000000000006",
-								Duration: &AnsiblePlaybookJSONResultsPlayDuration{
-									End:   "2020-08-07T20:51:30.942955Z",
-									Start: "2020-08-07T20:51:30.607525Z",
-								},
+			res: &AnsiblePlaybookJSONResults{
+				CustomStats:       map[string]interface{}{},
+				GlobalCustomStats: map[string]interface{}{},
+				Plays: []AnsiblePlaybookJSONResultsPlay{
+					{
+						Play: &AnsiblePlaybookJSONResultsPlaysPlay{
+							Name: "local",
+							Id:   "a0a4c5d1-62fd-b6f1-98ea-000000000006",
+							Duration: &AnsiblePlaybookJSONResultsPlayDuration{
+								End:   "2020-08-07T20:51:30.942955Z",
+								Start: "2020-08-07T20:51:30.607525Z",
 							},
-							Tasks: []AnsiblePlaybookJSONResultsPlayTask{
-								{
-									Task: &AnsiblePlaybookJSONResultsPlayTaskItem{
-										Id:   "a0a4c5d1-62fd-b6f1-98ea-000000000008",
-										Name: "Print line",
-										Duration: &AnsiblePlaybookJSONResultsPlayTaskItemDuration{
-											End:   "2020-08-07T20:51:30.942955Z",
-											Start: "2020-08-07T20:51:30.908539Z",
-										},
+						},
+						Tasks: []AnsiblePlaybookJSONResultsPlayTask{
+							{
+								Task: &AnsiblePlaybookJSONResultsPlayTaskItem{
+									Id:   "a0a4c5d1-62fd-b6f1-98ea-000000000008",
+									Name: "Print line",
+									Duration: &AnsiblePlaybookJSONResultsPlayTaskItemDuration{
+										End:   "2020-08-07T20:51:30.942955Z",
+										Start: "2020-08-07T20:51:30.908539Z",
 									},
-									// TODOx
-									Hosts: map[string]*AnsiblePlaybookJSONResultsPlayTaskHostsItem{
-										"127.0.0.1": {
-											//"_ansible_no_log": false, "_ansible_verbose_always": true,
-											Action:  "debug",
-											Changed: false,
-											Msg:     []interface{}{"That's a message to debug"},
-										},
+								},
+								// TODOx
+								Hosts: map[string]*AnsiblePlaybookJSONResultsPlayTaskHostsItem{
+									"127.0.0.1": {
+										//"_ansible_no_log": false, "_ansible_verbose_always": true,
+										Action:  "debug",
+										Changed: false,
+										Msg:     []interface{}{"That's a message to debug"},
 									},
 								},
 							},
 						},
 					},
-					Stats: map[string]*AnsiblePlaybookJSONResultsStats{
-						"127.0.0.1": {
-							Changed:     0,
-							Failures:    0,
-							Ignored:     0,
-							Ok:          1,
-							Rescued:     0,
-							Skipped:     0,
-							Unreachable: 0,
-						},
+				},
+				Stats: map[string]*AnsiblePlaybookJSONResultsStats{
+					"127.0.0.1": {
+						Changed:     0,
+						Failures:    0,
+						Ignored:     0,
+						Ok:          1,
+						Rescued:     0,
+						Skipped:     0,
+						Unreachable: 0,
 					},
 				},
 			},
@@ -395,7 +392,375 @@ func TestJSONParser(t *testing.T) {
 
 	for _, test := range tests {
 		t.Run(test.desc, func(t *testing.T) {
-			res, _ := JSONParse([]string{"test.yml"}, strings.NewReader(test.inputResult))
+			res, _ := JSONParse([]byte(test.inputResult))
+			assert.Equal(t, test.res, res, "Unexpected result")
+		})
+	}
+}
+
+func TestParseJSONResultsStream(t *testing.T) {
+
+	tests := []struct {
+		desc        string
+		inputResult string
+		res         *AnsiblePlaybookJSONResults
+	}{
+		{
+			desc: "Testing json parse",
+			inputResult: `{
+				"custom_stats": {},
+				"global_custom_stats": {},
+				"plays": [
+					{
+						"play": {
+							"duration": {
+								"end": "2021-12-21T06:55:29.890926Z",
+								"start": "2021-12-21T06:55:29.881536Z"
+							},
+							"id": "3982ba1a-4acb-67e8-84e1-000000000006",
+							"name": "all"
+						},
+						"tasks": [
+							{
+								"hosts": {
+									"127.0.0.1": {
+										"_ansible_no_log": false,
+										"_ansible_verbose_always": true,
+										"action": "debug",
+										"changed": false,
+										"msg": "Your are running\n'json-stdout-ansibleplaybook'\nfirst example\n"
+									}
+								},
+								"task": {
+									"duration": {
+										"end": "2021-12-21T06:55:29.890926Z",
+										"start": "2021-12-21T06:55:29.886253Z"
+									},
+									"id": "3982ba1a-4acb-67e8-84e1-000000000008",
+									"name": "json-stdout-ansibleplaybook"
+								}
+							}
+						]
+					}
+				],
+				"stats": {
+					"127.0.0.1": {
+						"changed": 0,
+						"failures": 0,
+						"ignored": 0,
+						"ok": 1,
+						"rescued": 0,
+						"skipped": 0,
+						"unreachable": 0
+					}
+				}
+			}
+			{
+				"custom_stats": {},
+				"global_custom_stats": {},
+				"plays": [
+					{
+						"play": {
+							"duration": {
+								"end": "2021-12-21T06:55:29.890926Z",
+								"start": "2021-12-21T06:55:29.881536Z"
+							},
+							"id": "3982ba1a-4acb-67e8-84e1-000000000006",
+							"name": "all"
+						},
+						"tasks": [
+							{
+								"hosts": {
+									"127.0.0.1": {
+										"_ansible_no_log": false,
+										"_ansible_verbose_always": true,
+										"action": "debug",
+										"changed": false,
+										"msg": "Your are running\n'json-stdout-ansibleplaybook'\nfirst example\n"
+									}
+								},
+								"task": {
+									"duration": {
+										"end": "2021-12-21T06:55:29.890926Z",
+										"start": "2021-12-21T06:55:29.886253Z"
+									},
+									"id": "3982ba1a-4acb-67e8-84e1-000000000008",
+									"name": "json-stdout-ansibleplaybook"
+								}
+							}
+						]
+					},
+					{
+						"play": {
+							"duration": {
+								"end": "2021-12-21T06:55:29.901245Z",
+								"start": "2021-12-21T06:55:29.894953Z"
+							},
+							"id": "3982ba1a-4acb-67e8-84e1-00000000001a",
+							"name": "all"
+						},
+						"tasks": [
+							{
+								"hosts": {
+									"127.0.0.1": {
+										"_ansible_no_log": false,
+										"_ansible_verbose_always": true,
+										"action": "debug",
+										"changed": false,
+										"msg": "Your are running\n'json-stdout-ansibleplaybook'\nsecond example\n"
+									}
+								},
+								"task": {
+									"duration": {
+										"end": "2021-12-21T06:55:29.901245Z",
+										"start": "2021-12-21T06:55:29.896772Z"
+									},
+									"id": "3982ba1a-4acb-67e8-84e1-00000000001c",
+									"name": "json-stdout-ansibleplaybook"
+								}
+							}
+						]
+					}
+				],
+				"stats": {
+					"127.0.0.1": {
+						"changed": 0,
+						"failures": 0,
+						"ignored": 0,
+						"ok": 2,
+						"rescued": 0,
+						"skipped": 0,
+						"unreachable": 0
+					}
+				}
+			}
+			{
+				"custom_stats": {},
+				"global_custom_stats": {},
+				"plays": [
+					{
+						"play": {
+							"duration": {
+								"end": "2021-12-21T06:55:29.890926Z",
+								"start": "2021-12-21T06:55:29.881536Z"
+							},
+							"id": "3982ba1a-4acb-67e8-84e1-000000000006",
+							"name": "all"
+						},
+						"tasks": [
+							{
+								"hosts": {
+									"127.0.0.1": {
+										"_ansible_no_log": false,
+										"_ansible_verbose_always": true,
+										"action": "debug",
+										"changed": false,
+										"msg": "Your are running\n'json-stdout-ansibleplaybook'\nfirst example\n"
+									}
+								},
+								"task": {
+									"duration": {
+										"end": "2021-12-21T06:55:29.890926Z",
+										"start": "2021-12-21T06:55:29.886253Z"
+									},
+									"id": "3982ba1a-4acb-67e8-84e1-000000000008",
+									"name": "json-stdout-ansibleplaybook"
+								}
+							}
+						]
+					},
+					{
+						"play": {
+							"duration": {
+								"end": "2021-12-21T06:55:29.901245Z",
+								"start": "2021-12-21T06:55:29.894953Z"
+							},
+							"id": "3982ba1a-4acb-67e8-84e1-00000000001a",
+							"name": "all"
+						},
+						"tasks": [
+							{
+								"hosts": {
+									"127.0.0.1": {
+										"_ansible_no_log": false,
+										"_ansible_verbose_always": true,
+										"action": "debug",
+										"changed": false,
+										"msg": "Your are running\n'json-stdout-ansibleplaybook'\nsecond example\n"
+									}
+								},
+								"task": {
+									"duration": {
+										"end": "2021-12-21T06:55:29.901245Z",
+										"start": "2021-12-21T06:55:29.896772Z"
+									},
+									"id": "3982ba1a-4acb-67e8-84e1-00000000001c",
+									"name": "json-stdout-ansibleplaybook"
+								}
+							}
+						]
+					},
+					{
+						"play": {
+							"duration": {
+								"end": "2021-12-21T06:55:29.910879Z",
+								"start": "2021-12-21T06:55:29.904593Z"
+							},
+							"id": "3982ba1a-4acb-67e8-84e1-00000000002e",
+							"name": "all"
+						},
+						"tasks": [
+							{
+								"hosts": {
+									"127.0.0.1": {
+										"_ansible_no_log": false,
+										"_ansible_verbose_always": true,
+										"action": "debug",
+										"changed": false,
+										"msg": "Your are running\n'json-stdout-ansibleplaybook'\nthird example\n"
+									}
+								},
+								"task": {
+									"duration": {
+										"end": "2021-12-21T06:55:29.910879Z",
+										"start": "2021-12-21T06:55:29.906537Z"
+									},
+									"id": "3982ba1a-4acb-67e8-84e1-000000000030",
+									"name": "json-stdout-ansibleplaybook"
+								}
+							}
+						]
+					}
+				],
+				"stats": {
+					"127.0.0.1": {
+						"changed": 0,
+						"failures": 0,
+						"ignored": 0,
+						"ok": 3,
+						"rescued": 0,
+						"skipped": 0,
+						"unreachable": 0
+					}
+				}
+			}`,
+			res: &AnsiblePlaybookJSONResults{
+
+				CustomStats:       map[string]interface{}{},
+				GlobalCustomStats: map[string]interface{}{},
+				Plays: []AnsiblePlaybookJSONResultsPlay{
+					{
+						Play: &AnsiblePlaybookJSONResultsPlaysPlay{
+							Name: "all",
+							Id:   "3982ba1a-4acb-67e8-84e1-000000000006",
+							Duration: &AnsiblePlaybookJSONResultsPlayDuration{
+								End:   "2021-12-21T06:55:29.890926Z",
+								Start: "2021-12-21T06:55:29.881536Z",
+							},
+						},
+						Tasks: []AnsiblePlaybookJSONResultsPlayTask{
+							{
+								Task: &AnsiblePlaybookJSONResultsPlayTaskItem{
+									Id:   "3982ba1a-4acb-67e8-84e1-000000000008",
+									Name: "json-stdout-ansibleplaybook",
+									Duration: &AnsiblePlaybookJSONResultsPlayTaskItemDuration{
+										End:   "2021-12-21T06:55:29.890926Z",
+										Start: "2021-12-21T06:55:29.886253Z",
+									},
+								},
+								Hosts: map[string]*AnsiblePlaybookJSONResultsPlayTaskHostsItem{
+									"127.0.0.1": {
+										// "_ansible_no_log": false, "_ansible_verbose_always": true,
+										Action:  "debug",
+										Changed: false,
+										Msg:     "Your are running\n'json-stdout-ansibleplaybook'\nfirst example\n",
+									},
+								},
+							},
+						},
+					},
+					{
+						Play: &AnsiblePlaybookJSONResultsPlaysPlay{
+							Name: "all",
+							Id:   "3982ba1a-4acb-67e8-84e1-00000000001a",
+							Duration: &AnsiblePlaybookJSONResultsPlayDuration{
+								End:   "2021-12-21T06:55:29.901245Z",
+								Start: "2021-12-21T06:55:29.894953Z",
+							},
+						},
+						Tasks: []AnsiblePlaybookJSONResultsPlayTask{
+							{
+								Task: &AnsiblePlaybookJSONResultsPlayTaskItem{
+									Id:   "3982ba1a-4acb-67e8-84e1-00000000001c",
+									Name: "json-stdout-ansibleplaybook",
+									Duration: &AnsiblePlaybookJSONResultsPlayTaskItemDuration{
+										End:   "2021-12-21T06:55:29.901245Z",
+										Start: "2021-12-21T06:55:29.896772Z",
+									},
+								},
+								Hosts: map[string]*AnsiblePlaybookJSONResultsPlayTaskHostsItem{
+									"127.0.0.1": {
+										// "_ansible_no_log": false, "_ansible_verbose_always": true,
+										Action:  "debug",
+										Changed: false,
+										Msg:     "Your are running\n'json-stdout-ansibleplaybook'\nsecond example\n",
+									},
+								},
+							},
+						},
+					},
+					{
+						Play: &AnsiblePlaybookJSONResultsPlaysPlay{
+							Name: "all",
+							Id:   "3982ba1a-4acb-67e8-84e1-00000000002e",
+							Duration: &AnsiblePlaybookJSONResultsPlayDuration{
+								End:   "2021-12-21T06:55:29.910879Z",
+								Start: "2021-12-21T06:55:29.904593Z",
+							},
+						},
+						Tasks: []AnsiblePlaybookJSONResultsPlayTask{
+							{
+								Task: &AnsiblePlaybookJSONResultsPlayTaskItem{
+									Id:   "3982ba1a-4acb-67e8-84e1-000000000030",
+									Name: "json-stdout-ansibleplaybook",
+									Duration: &AnsiblePlaybookJSONResultsPlayTaskItemDuration{
+										End:   "2021-12-21T06:55:29.910879Z",
+										Start: "2021-12-21T06:55:29.906537Z",
+									},
+								},
+								Hosts: map[string]*AnsiblePlaybookJSONResultsPlayTaskHostsItem{
+									"127.0.0.1": {
+										// "_ansible_no_log": false, "_ansible_verbose_always": true,
+										Action:  "debug",
+										Changed: false,
+										Msg:     "Your are running\n'json-stdout-ansibleplaybook'\nthird example\n",
+									},
+								},
+							},
+						},
+					},
+				},
+				Stats: map[string]*AnsiblePlaybookJSONResultsStats{
+					"127.0.0.1": {
+						Changed:     0,
+						Failures:    0,
+						Ignored:     0,
+						Ok:          3,
+						Rescued:     0,
+						Skipped:     0,
+						Unreachable: 0,
+					},
+				},
+			},
+		},
+	}
+
+	for _, test := range tests {
+		t.Run(test.desc, func(t *testing.T) {
+			res, err := ParseJSONResultsStream(strings.NewReader(test.inputResult))
+			if err != nil {
+				t.Fatalf("unexpected error: %s", err)
+			}
 			assert.Equal(t, test.res, res, "Unexpected result")
 		})
 	}
