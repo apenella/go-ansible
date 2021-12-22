@@ -171,8 +171,9 @@ func JSONParse(data []byte) (*AnsiblePlaybookJSONResults, error) {
 	return result, nil
 }
 
-func ParseJSONResultsStream(reader io.Reader) (*AnsiblePlaybookJSONResults, error) {
-	decoder := json.NewDecoder(reader)
+// ParseJSONResultsStream parse the ansible' JSON stdout callback and return an AnsiblePlaybookJSONResults
+func ParseJSONResultsStream(stream io.Reader) (*AnsiblePlaybookJSONResults, error) {
+	decoder := json.NewDecoder(stream)
 	results := &AnsiblePlaybookJSONResults{}
 	for {
 		err := decoder.Decode(results)
