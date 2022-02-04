@@ -74,10 +74,24 @@ func TestDefaultExecute(t *testing.T) {
 		},
 		{
 			desc: "Testing an ansible-playbook forcing an invalid charaters warning message",
-			err:  errors.New("(DefaultExecute::Execute)", "Error during command execution: ansible-playbook error: parser error\n\nCommand executed: "+binary+" --inventory test/all test/site.yml --user apenella\n\nexit status 4"),
+			err:  errors.New("(DefaultExecute::Execute)", "Error during command execution: ansible-playbook error: parser error\n\nCommand executed:  "+binary+" --inventory test/all test/site.yml --user apenella\n\nexit status 4"),
 			execute: NewDefaultExecute(
 				WithWrite(io.Writer(&stdout)),
 				WithWriteError(io.Writer(&stderr)),
+			),
+			ctx:     context.TODO(),
+			command: []string{binary, "--inventory", "test/all", "test/site.yml", "--user", "apenella"},
+			expectedStderr: `[WARNING]: Invalid characters were found in group names but not replaced, use
+-vvvv to see details
+`,
+		},
+		{
+			desc: "Testing an ansible-playbook forcing an invalid charaters warning message with env vars",
+			err:  errors.New("(DefaultExecute::Execute)", "Error during command execution: ansible-playbook error: parser error\n\nCommand executed: ANSIBLE_RETRY_FILES_ENABLED=True "+binary+" --inventory test/all test/site.yml --user apenella\n\nexit status 4"),
+			execute: NewDefaultExecute(
+				WithWrite(io.Writer(&stdout)),
+				WithWriteError(io.Writer(&stderr)),
+				WithEnvVars("ANSIBLE_RETRY_FILES_ENABLED", "True"),
 			),
 			ctx:     context.TODO(),
 			command: []string{binary, "--inventory", "test/all", "test/site.yml", "--user", "apenella"},
