@@ -753,6 +753,324 @@ func TestParseJSONResultsStream(t *testing.T) {
 				},
 			},
 		},
+		{
+			desc: "Testing json parse skipping and failing tasks",
+			inputResult: `{
+					"custom_stats": {},
+					"global_custom_stats": {},
+					"plays": [
+						{
+							"play": {
+								"duration": {
+									"end": "2022-02-08T16:51:13.677774Z",
+									"start": "2022-02-08T16:51:12.808956Z"
+								},
+								"id": "201e881a-804c-dd08-2927-000000000006",
+								"name": "all"
+							},
+							"tasks": [
+								{
+									"hosts": {
+										"127.0.0.1": {
+											"_ansible_no_log": false,
+											"action": "command",
+											"changed": true,
+											"cmd": "/usr/bin/true",
+											"delta": "0:00:00.002663",
+											"deprecations": [
+												{
+													"msg": "Distribution fedora 35 on host 127.0.0.1 should use /usr/bin/python3, but is using /usr/bin/python for backward compatibility with prior Ansible releases. A future Ansible release will default to using the discovered platform python for this host. See https://docs.ansible.com/ansible/2.9/reference_appendices/interpreter_discovery.html for more information",
+													"version": "2.12"
+												}
+											],
+											"end": "2022-02-08 17:51:13.094418",
+											"invocation": {
+												"module_args": {
+													"_raw_params": "/usr/bin/true",
+													"_uses_shell": true,
+													"argv": null,
+													"chdir": null,
+													"creates": null,
+													"executable": null,
+													"removes": null,
+													"stdin": null,
+													"stdin_add_newline": true,
+													"strip_empty_ends": true,
+													"warn": true
+												}
+											},
+											"rc": 0,
+											"start": "2022-02-08 17:51:13.091755",
+											"stderr": "",
+											"stderr_lines": [],
+											"stdout": "",
+											"stdout_lines": []
+										}
+									},
+									"task": {
+										"duration": {
+											"end": "2022-02-08T16:51:13.112192Z",
+											"start": "2022-02-08T16:51:12.818849Z"
+										},
+										"id": "201e881a-804c-dd08-2927-000000000008",
+										"name": "ok-task"
+									}
+								},
+								{
+									"hosts": {
+										"127.0.0.1": {
+											"_ansible_no_log": false,
+											"action": "ansible.builtin.shell",
+											"changed": false,
+											"skip_reason": "Conditional result was False",
+											"skipped": true
+										}
+									},
+									"task": {
+										"duration": {
+											"end": "2022-02-08T16:51:13.144340Z",
+											"start": "2022-02-08T16:51:13.113955Z"
+										},
+										"id": "201e881a-804c-dd08-2927-000000000009",
+										"name": "skipping-task"
+									}
+								},
+								{
+									"hosts": {
+										"127.0.0.1": {
+											"_ansible_no_log": false,
+											"action": "command",
+											"changed": true,
+											"cmd": "exit -1",
+											"delta": "0:00:00.003074",
+											"end": "2022-02-08 17:51:13.300085",
+											"failed": true,
+											"invocation": {
+												"module_args": {
+													"_raw_params": "exit -1",
+													"_uses_shell": true,
+													"argv": null,
+													"chdir": null,
+													"creates": null,
+													"executable": null,
+													"removes": null,
+													"stdin": null,
+													"stdin_add_newline": true,
+													"strip_empty_ends": true,
+													"warn": true
+												}
+											},
+											"msg": "non-zero return code",
+											"rc": 255,
+											"start": "2022-02-08 17:51:13.297011",
+											"stderr": "",
+											"stderr_lines": [],
+											"stdout": "",
+											"stdout_lines": []
+										}
+									},
+									"task": {
+										"duration": {
+											"end": "2022-02-08T16:51:13.320178Z",
+											"start": "2022-02-08T16:51:13.146031Z"
+										},
+										"id": "201e881a-804c-dd08-2927-00000000000a",
+										"name": "failing-task"
+									}
+								},
+								{
+									"hosts": {
+										"127.0.0.1": {
+											"_ansible_no_log": false,
+											"action": "ansible.builtin.command",
+											"changed": true,
+											"cmd": [
+												"/usr/bin/ls",
+												"/tmp/foobar.baz"
+											],
+											"delta": "0:00:00.002326",
+											"end": "2022-02-08 17:51:13.621549",
+											"failed": true,
+											"failed_when_result": true,
+											"invocation": {
+												"module_args": {
+													"_raw_params": "/usr/bin/ls /tmp/foobar.baz",
+													"_uses_shell": false,
+													"argv": null,
+													"chdir": null,
+													"creates": null,
+													"executable": null,
+													"removes": null,
+													"stdin": null,
+													"stdin_add_newline": true,
+													"strip_empty_ends": true,
+													"warn": true
+												}
+											},
+											"msg": "non-zero return code",
+											"rc": 2,
+											"start": "2022-02-08 17:51:13.619223",
+											"stderr": "/usr/bin/ls: cannot access '/tmp/foobar.baz': No such file or directory",
+											"stderr_lines": [
+												"/usr/bin/ls: cannot access '/tmp/foobar.baz': No such file or directory"
+											],
+											"stdout": "",
+											"stdout_lines": []
+										}
+									},
+									"task": {
+										"duration": {
+											"end": "2022-02-08T16:51:13.677774Z",
+											"start": "2022-02-08T16:51:13.322404Z"
+										},
+										"id": "201e881a-804c-dd08-2927-00000000000b",
+										"name": "failing-task-when"
+									}
+								}
+							]
+						}
+					],
+					"stats": {
+						"127.0.0.1": {
+							"changed": 2,
+							"failures": 1,
+							"ignored": 1,
+							"ok": 2,
+							"rescued": 0,
+							"skipped": 1,
+							"unreachable": 0
+						}
+					}
+				}`,
+			res: &AnsiblePlaybookJSONResults{
+
+				CustomStats:       map[string]interface{}{},
+				GlobalCustomStats: map[string]interface{}{},
+				Plays: []AnsiblePlaybookJSONResultsPlay{
+					{
+						Play: &AnsiblePlaybookJSONResultsPlaysPlay{
+							Name: "all",
+							Id:   "201e881a-804c-dd08-2927-000000000006",
+							Duration: &AnsiblePlaybookJSONResultsPlayDuration{
+								End:   "2022-02-08T16:51:13.677774Z",
+								Start: "2022-02-08T16:51:12.808956Z",
+							},
+						},
+						Tasks: []AnsiblePlaybookJSONResultsPlayTask{
+							{
+								Task: &AnsiblePlaybookJSONResultsPlayTaskItem{
+									Id:   "201e881a-804c-dd08-2927-000000000008",
+									Name: "ok-task",
+									Duration: &AnsiblePlaybookJSONResultsPlayTaskItemDuration{
+										End:   "2022-02-08T16:51:13.112192Z",
+										Start: "2022-02-08T16:51:12.818849Z",
+									},
+								},
+								Hosts: map[string]*AnsiblePlaybookJSONResultsPlayTaskHostsItem{
+									"127.0.0.1": {
+										// "_ansible_no_log": false, "_ansible_verbose_always": true,
+										Action:           "command",
+										Changed:          true,
+										Stdout:           "",
+										StdoutLines:      []string{},
+										StderrLines:      []string{},
+										Cmd:              "/usr/bin/true",
+										Failed:           false,
+										FailedWhenResult: false,
+										Skipped:          false,
+										SkipReason:       "",
+									},
+								},
+							},
+							{
+								Task: &AnsiblePlaybookJSONResultsPlayTaskItem{
+									Id:   "201e881a-804c-dd08-2927-000000000009",
+									Name: "skipping-task",
+									Duration: &AnsiblePlaybookJSONResultsPlayTaskItemDuration{
+										End:   "2022-02-08T16:51:13.144340Z",
+										Start: "2022-02-08T16:51:13.113955Z",
+									},
+								},
+								Hosts: map[string]*AnsiblePlaybookJSONResultsPlayTaskHostsItem{
+									"127.0.0.1": {
+										// "_ansible_no_log": false, "_ansible_verbose_always": true,
+										Action:           "ansible.builtin.shell",
+										Changed:          false,
+										Failed:           false,
+										FailedWhenResult: false,
+										Skipped:          true,
+										SkipReason:       "Conditional result was False",
+									},
+								},
+							},
+							{
+								Task: &AnsiblePlaybookJSONResultsPlayTaskItem{
+									Id:   "201e881a-804c-dd08-2927-00000000000a",
+									Name: "failing-task",
+									Duration: &AnsiblePlaybookJSONResultsPlayTaskItemDuration{
+										End:   "2022-02-08T16:51:13.320178Z",
+										Start: "2022-02-08T16:51:13.146031Z",
+									},
+								},
+								Hosts: map[string]*AnsiblePlaybookJSONResultsPlayTaskHostsItem{
+									"127.0.0.1": {
+										// "_ansible_no_log": false, "_ansible_verbose_always": true,
+										Action:           "command",
+										Changed:          true,
+										Msg:              "non-zero return code",
+										StdoutLines:      []string{},
+										Stderr:           "",
+										StderrLines:      []string{},
+										Cmd:              "exit -1",
+										Failed:           true,
+										FailedWhenResult: false,
+										Skipped:          false,
+										SkipReason:       "",
+									},
+								},
+							},
+							{
+								Task: &AnsiblePlaybookJSONResultsPlayTaskItem{
+									Id:   "201e881a-804c-dd08-2927-00000000000b",
+									Name: "failing-task-when",
+									Duration: &AnsiblePlaybookJSONResultsPlayTaskItemDuration{
+										End:   "2022-02-08T16:51:13.677774Z",
+										Start: "2022-02-08T16:51:13.322404Z",
+									},
+								},
+								Hosts: map[string]*AnsiblePlaybookJSONResultsPlayTaskHostsItem{
+									"127.0.0.1": {
+										// "_ansible_no_log": false, "_ansible_verbose_always": true,
+										Action:           "ansible.builtin.command",
+										Changed:          true,
+										Msg:              "non-zero return code",
+										StdoutLines:      []string{},
+										Stderr:           "/usr/bin/ls: cannot access '/tmp/foobar.baz': No such file or directory",
+										StderrLines:      []string{"/usr/bin/ls: cannot access '/tmp/foobar.baz': No such file or directory"},
+										Cmd:              []interface{}{"/usr/bin/ls", "/tmp/foobar.baz"},
+										Failed:           true,
+										FailedWhenResult: true,
+										Skipped:          false,
+										SkipReason:       "",
+									},
+								},
+							},
+						},
+					},
+				},
+				Stats: map[string]*AnsiblePlaybookJSONResultsStats{
+					"127.0.0.1": {
+						Changed:     2,
+						Failures:    1,
+						Ignored:     1,
+						Ok:          2,
+						Rescued:     0,
+						Skipped:     1,
+						Unreachable: 0,
+					},
+				},
+			},
+		},
 	}
 
 	for _, test := range tests {

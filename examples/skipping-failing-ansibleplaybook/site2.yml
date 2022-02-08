@@ -1,0 +1,21 @@
+---
+
+- hosts: all
+  gather_facts: false
+  tasks:
+  - name: ok-task
+    ansible.builtin.shell: /usr/bin/true
+
+  - name: skipping-task
+    ansible.builtin.shell: echo "'{{ foo }}'"
+    when: foo is defined
+
+  - name: failing-task
+    ansible.builtin.shell: exit -1
+    ignore_errors: true
+
+  - name: failing-task-when
+    ansible.builtin.command: /usr/bin/ls /tmp/foobar.baz
+    register: command_result
+    failed_when: "'No such file or directory' in command_result.stderr"
+
