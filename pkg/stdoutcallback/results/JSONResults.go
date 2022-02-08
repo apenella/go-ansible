@@ -88,14 +88,19 @@ type AnsiblePlaybookJSONResultsPlayTask struct {
 }
 
 type AnsiblePlaybookJSONResultsPlayTaskHostsItem struct {
-	Action       string                 `json:"action"`
-	Changed      bool                   `json:"changed"`
-	Msg          interface{}            `json:"msg"`
-	AnsibleFacts map[string]interface{} `json:"ansible_facts"`
-	Stdout       string                 `json:"stdout"`
-	StdoutLines  []string               `json:"stdout_lines"`
-	Stderr       string                 `json:"stderr"`
-	StderrLines  []string               `json:"stderr_lines"`
+	Action           string                 `json:"action"`
+	Changed          bool                   `json:"changed"`
+	Msg              interface{}            `json:"msg"`
+	AnsibleFacts     map[string]interface{} `json:"ansible_facts"`
+	Stdout           string                 `json:"stdout"`
+	StdoutLines      []string               `json:"stdout_lines"`
+	Stderr           string                 `json:"stderr"`
+	StderrLines      []string               `json:"stderr_lines"`
+	Cmd              interface{}            `json:"cmd"`
+	Failed           bool                   `json:"failed"`
+	FailedWhenResult bool                   `json:"failed_when_result"`
+	Skipped          bool                   `json:"skipped"`
+	SkipReason       string                 `json:"skip_reason"`
 }
 
 type AnsiblePlaybookJSONResultsPlayTaskItem struct {
