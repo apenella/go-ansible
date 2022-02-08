@@ -181,7 +181,7 @@ func ParseJSONResultsStream(stream io.Reader) (*AnsiblePlaybookJSONResults, erro
 			break
 		}
 		if err != nil {
-			return nil, errors.New("(results::JSONParser)", "Error decoding resutls", err)
+			return nil, errors.New("(results::JSONParser)", "Error decoding results", err)
 		}
 	}
 

@@ -6,22 +6,23 @@ Go-ansible upgrade guide
 
 <!-- code_chunk_output -->
 
+- [Go-ansible upgrade guide](#go-ansible-upgrade-guide)
 - [Upgrade from 0.x to 1.x](#upgrade-from-0x-to-1x)
-  - [Package stdoutcallback and results](#package-stdoutcallback-and-results)
-  - [Package execute](#package-execute)
-    - [Update DefaultExecute](#update-defaultexecute)
-      - [Prefixing output lines](#prefixing-output-lines)
-      - [ResultsFunc](#resultsfunc)
-    - [Update custom executors](#update-custom-executors)
-  - [Options](#options)
-    - [AnsiblePlaybookPrivilegeEscalationOptions type](#ansibleplaybookprivilegeescalationoptions-type)
-    - [AnsiblePlaybookConnectionOptions type](#ansibleplaybookconnectionoptions-type)
-    - [AnsiblePlaybookOptions type](#ansibleplaybookoptions-type)
-  - [Package ansibler](#package-ansibler)
-    - [Playbook attribute](#playbook-attribute)
-    - [ExecPrefix attribute](#execprefix-attribute)
-    - [CmdRunDir attribute](#cmdrundir-attribute)
-    - [Writer attribute](#writer-attribute)
+	- [Package stdoutcallback and results](#package-stdoutcallback-and-results)
+	- [Package execute](#package-execute)
+		- [Update DefaultExecute](#update-defaultexecute)
+			- [Prefixing output lines](#prefixing-output-lines)
+			- [ResultsFunc](#resultsfunc)
+		- [Update custom executors](#update-custom-executors)
+	- [Options](#options)
+		- [AnsiblePlaybookPrivilegeEscalationOptions type](#ansibleplaybookprivilegeescalationoptions-type)
+		- [AnsiblePlaybookConnectionOptions type](#ansibleplaybookconnectionoptions-type)
+		- [AnsiblePlaybookOptions type](#ansibleplaybookoptions-type)
+	- [Package ansibler](#package-ansibler)
+		- [Playbook attribute](#playbook-attribute)
+		- [ExecPrefix attribute](#execprefix-attribute)
+		- [CmdRunDir attribute](#cmdrundir-attribute)
+		- [Writer attribute](#writer-attribute)
 
 <!-- /code_chunk_output -->
 
@@ -107,7 +108,7 @@ Execute(ctx context.Context, command []string, resultsFunc stdoutcallback.Stdout
 ```
 - **ctx**: It is a new parameters to specify a `context.Context` to manage the execution flow.
 - **command**:  It is an `[]string` that contains either the binary to be executed and its parameters.
-- **resutlsFunc**: It is a `stdoutcallback.StdoutCallbackResultsFunc` function used to write the execution output. 
+- **resultsFunc**: It is a `stdoutcallback.StdoutCallbackResultsFunc` function used to write the execution output. 
 - **options**:  List of `ExecuteOptions` functions which can be used to configure the executor. 
 An example of `ExecuteOptions` could be any `WithAttribute` function defined on `DefaultExecute`. Here there is a function to set the writer to `DefaultExecutor`:
 ```go
