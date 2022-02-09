@@ -78,13 +78,15 @@ type Executor interface {
 ```
 
 #### DefaultExecute
-`DefaultExecutor` is the executor defined in the go-ansible library.
+`DefaultExecute` is the executor defined in the go-ansible library.
 On its most basic setup it just writes the command stdout to system stdout and the same for stderr, but its easy to extend the way of managing the command stdout and stderr.
-To extend and update its behavior it comes with a bunch of `ExecuteOptions` functions which can be passed to the executor.
+To extend and update `DefaultExecute` behavior, it comes with a bunch of `ExecuteOptions` functions which can be passed to the executor.
 ```go
 // ExecuteOptions is a function to set executor options
 type ExecuteOptions func(Executor)
 ```
+
+`DefaultExecute` also allow to set up ansible configuration through environemnt variables, and it should be done by `WithEnvVar` function, which injects environment variables to command, before its execution. It should be passed to `NewDefaultExecute` as an `ExecuteOption` for each ansible parameter.
 
 Another way to extend how to return the results to the user is by using `transformers`, which can also be added to `DefaultExecutor` through `WithTransformers( ...results.TransformerFunc) ExecuteOptions`
 
