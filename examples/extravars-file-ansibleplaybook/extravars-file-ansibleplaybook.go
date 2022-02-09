@@ -18,7 +18,7 @@ func main() {
 		Inventory: "127.0.0.1,",
 		ExtraVarsFile: []string{
 			"@vars-file1.yml",
-			//"@vars-file2.yml",
+			"@vars-file2.yml",
 		},
 	}
 
