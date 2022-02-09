@@ -40,7 +40,7 @@ func main() {
 		ConnectionOptions: ansiblePlaybookConnectionOptions,
 		Options:           ansiblePlaybookOptions,
 		Exec: execute.NewDefaultExecute(
-
+			execute.WithEnvVar("ANSIBLE_FORCE_COLOR", "true"),
 			execute.WithTransformers(
 				outputColored(),
 				results.Prepend("Go-ansible example"),

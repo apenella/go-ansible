@@ -30,6 +30,7 @@ func main() {
 		PrivilegeEscalationOptions: ansiblePlaybookPrivilegeEscalationOptions,
 		Options:                    ansiblePlaybookOptions,
 		Exec: execute.NewDefaultExecute(
+			execute.WithEnvVar("ANSIBLE_FORCE_COLOR", "true"),
 			execute.WithTransformers(
 				results.Prepend("Go-ansible example with become"),
 			),
