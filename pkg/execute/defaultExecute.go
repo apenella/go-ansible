@@ -6,6 +6,7 @@ import (
 	"io"
 	"os"
 	"os/exec"
+	"strings"
 	"sync"
 	"syscall"
 	"time"
@@ -57,13 +58,17 @@ type DefaultExecute struct {
 	ShowDuration bool
 	// CmdRunDir specifies the working directory of the command.
 	CmdRunDir string
+	// EnvVars specifies env vars of the command.
+	EnvVars map[string]string
 	// OutputFormat
 	Transformers []results.TransformerFunc
 }
 
 // NewDefaultExecute return a new DefaultExecute instance with all options
 func NewDefaultExecute(options ...ExecuteOptions) *DefaultExecute {
-	execute := &DefaultExecute{}
+	execute := &DefaultExecute{
+		EnvVars: make(map[string]string),
+	}
 
 	for _, opt := range options {
 		opt(execute)
@@ -107,6 +112,13 @@ func WithTransformers(trans ...results.TransformerFunc) ExecuteOptions {
 	}
 }
 
+// WithEnvVar adds the provided env var to the command
+func WithEnvVar(key, value string) ExecuteOptions {
+	return func(e Executor) {
+		e.(*DefaultExecute).EnvVars[key] = value
+	}
+}
+
 // Execute takes a command and args and runs it, streaming output to stdout
 func (e *DefaultExecute) Execute(ctx context.Context, command []string, resultsFunc stdoutcallback.StdoutCallbackResultsFunc, options ...ExecuteOptions) error {
 
@@ -140,6 +152,12 @@ func (e *DefaultExecute) Execute(ctx context.Context, command []string, resultsF
 
 	if len(e.CmdRunDir) > 0 {
 		cmd.Dir = e.CmdRunDir
+	}
+
+	if len(e.EnvVars) > 0 {
+		for k, v := range e.EnvVars {
+			cmd.Env = append(cmd.Env, fmt.Sprintf("%s=%s", k, v))
+		}
 	}
 
 	cmd.Stdin = os.Stdin // connects the main process' stdin to ansible's stdin
@@ -202,7 +220,7 @@ func (e *DefaultExecute) Execute(ctx context.Context, command []string, resultsF
 			fmt.Fprintf(e.Write, "%s\n", fmt.Sprintf("\nWhoops! %s\n", ctx.Err()))
 		} else {
 			errorMessage := string(err.(*exec.ExitError).Stderr)
-			errorMessage = fmt.Sprintf("Command executed: %s\n%s\n%s", cmd.String(), errorMessage, err.Error())
+			errorMessage = fmt.Sprintf("Command executed: %s %s\n%s\n%s", strings.Join(cmd.Env, " "), cmd.String(), errorMessage, err.Error())
 
 			exitError, exists := err.(*exec.ExitError)
 			if exists {

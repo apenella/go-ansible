@@ -1,9 +1,0 @@
----
-
-- hosts: all
-  gather_facts: true
-
-  tasks:
-    - name: testing executor
-      debug:
-        msg: Your are running 'testing executor' example
