@@ -91,7 +91,7 @@ func TestDefaultExecute(t *testing.T) {
 			execute: NewDefaultExecute(
 				WithWrite(io.Writer(&stdout)),
 				WithWriteError(io.Writer(&stderr)),
-				WithEnvVars("ANSIBLE_RETRY_FILES_ENABLED", "True"),
+				WithEnvVar("ANSIBLE_RETRY_FILES_ENABLED", "True"),
 			),
 			ctx:     context.TODO(),
 			command: []string{binary, "--inventory", "test/all", "test/site.yml", "--user", "apenella"},
