@@ -112,7 +112,6 @@ func WithTransformers(trans ...results.TransformerFunc) ExecuteOptions {
 	}
 }
 
-// WithEnvVars adds the provided env vars to the command
 // WithEnvVar adds the provided env var to the command
 func WithEnvVar(key, value string) ExecuteOptions {
 	return func(e Executor) {
