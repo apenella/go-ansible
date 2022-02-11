@@ -7,7 +7,6 @@ import (
 	"os/exec"
 	"testing"
 
-	"github.com/apenella/go-ansible/pkg/options"
 	"github.com/apenella/go-ansible/pkg/stdoutcallback/results"
 	errors "github.com/apenella/go-common-utils/error"
 	"github.com/stretchr/testify/assert"
@@ -63,41 +62,14 @@ func TestDefaultExecute(t *testing.T) {
 	}{
 		{
 			desc: "Testing an ansible-playbook with local connection",
-			err:  nil,
+			err:  &errors.Error{},
 			execute: NewDefaultExecute(
 				WithWrite(io.Writer(&stdout)),
 				WithWriteError(io.Writer(&stderr)),
 			),
 			ctx:            context.TODO(),
-			command:        []string{binary, "--inventory", "127.0.0.1,", "test/site.yml", "-c", "local"},
+			command:        []string{binary, "-i", "127.0.0.1,", "../../test/test_site.yml", "-c", "local"},
 			expectedStdout: ``,
-		},
-		{
-			desc: "Testing an ansible-playbook forcing an invalid charaters warning message",
-			err:  errors.New("(DefaultExecute::Execute)", "Error during command execution: ansible-playbook error: parser error\n\nCommand executed:  "+binary+" --inventory test/all test/site.yml --user apenella\n\nexit status 4"),
-			execute: NewDefaultExecute(
-				WithWrite(io.Writer(&stdout)),
-				WithWriteError(io.Writer(&stderr)),
-			),
-			ctx:     context.TODO(),
-			command: []string{binary, "--inventory", "test/all", "test/site.yml", "--user", "apenella"},
-			expectedStderr: `[WARNING]: Invalid characters were found in group names but not replaced, use
--vvvv to see details
-`,
-		},
-		{
-			desc: "Testing an ansible-playbook forcing an invalid charaters warning message with env vars",
-			err:  errors.New("(DefaultExecute::Execute)", "Error during command execution: ansible-playbook error: parser error\n\nCommand executed: ANSIBLE_RETRY_FILES_ENABLED=True "+binary+" --inventory test/all test/site.yml --user apenella\n\nexit status 4"),
-			execute: NewDefaultExecute(
-				WithWrite(io.Writer(&stdout)),
-				WithWriteError(io.Writer(&stderr)),
-				WithEnvVar("ANSIBLE_RETRY_FILES_ENABLED", "True"),
-			),
-			ctx:     context.TODO(),
-			command: []string{binary, "--inventory", "test/all", "test/site.yml", "--user", "apenella"},
-			expectedStderr: `[WARNING]: Invalid characters were found in group names but not replaced, use
--vvvv to see details
-`,
 		},
 	}
 
@@ -107,17 +79,11 @@ func TestDefaultExecute(t *testing.T) {
 		stdout.Reset()
 		stderr.Reset()
 
-		// workaround to avoid ansible warnings
-		options.AnsibleSetEnv("ANSIBLE_ACTION_WARNINGS", "False")
-		options.AnsibleSetEnv("ANSIBLE_COMMAND_WARNINGS", "False")
-		options.AnsibleSetEnv("ANSIBLE_DEPRECATION_WARNINGS", "False")
-		options.AnsibleSetEnv("ANSIBLE_SYSTEM_WARNINGS", "False")
-
 		err := test.execute.Execute(test.ctx, test.command, nil, test.options...)
-
 		if err != nil && assert.Error(t, err) {
 			assert.Equal(t, test.err, err)
 		}
+
 		assert.Equal(t, test.expectedStderr, stderr.String())
 	}
 
