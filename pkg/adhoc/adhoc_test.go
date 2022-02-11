@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"context"
 	goerrors "errors"
+	"fmt"
 	"io"
 	execerrors "os/exec"
 	"testing"
@@ -51,7 +52,7 @@ func TestRun(t *testing.T) {
 				},
 				StdoutCallback: "oneline",
 			},
-			res: `127.0.0.1 | SUCCESS => {"changed": false,"ping": "pong"}
+			res: `127.0.0.1 | SUCCESS => {"ansible_facts": {"discovered_interpreter_python": "/usr/bin/python3"},"changed": false,"ping": "pong"}
 `,
 		},
 	}
@@ -66,6 +67,7 @@ func TestRun(t *testing.T) {
 			if err != nil && assert.Error(t, err) {
 				assert.Equal(t, test.err, err)
 			} else {
+				fmt.Println(test.ansibleAdhocCmd.String())
 				assert.Equal(t, test.res, w.String(), "Unexpected value")
 			}
 		})
