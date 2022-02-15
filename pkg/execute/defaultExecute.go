@@ -9,7 +9,6 @@ import (
 	"strings"
 	"sync"
 	"syscall"
-	"time"
 
 	"github.com/apenella/go-ansible/pkg/stdoutcallback"
 	"github.com/apenella/go-ansible/pkg/stdoutcallback/results"
@@ -18,34 +17,34 @@ import (
 )
 
 const (
-	// AnsiblePlaybookErrorCodeGeneralError
+	// AnsiblePlaybookErrorCodeGeneralError is the error code for a general error
 	AnsiblePlaybookErrorCodeGeneralError = 1
-	// AnsiblePlaybookErrorCodeOneOrMoreHostFailed
+	// AnsiblePlaybookErrorCodeOneOrMoreHostFailed is the error code for a one or more host failed
 	AnsiblePlaybookErrorCodeOneOrMoreHostFailed = 2
-	// AnsiblePlaybookErrorCodeOneOrMoreHostUnreachable
+	// AnsiblePlaybookErrorCodeOneOrMoreHostUnreachable is the error code for a one or more host unreachable
 	AnsiblePlaybookErrorCodeOneOrMoreHostUnreachable = 3
-	// AnsiblePlaybookErrorCodeParserError
+	// AnsiblePlaybookErrorCodeParserError is the error code for a parser error
 	AnsiblePlaybookErrorCodeParserError = 4
-	// AnsiblePlaybookErrorCodeBadOrIncompleteOptions
+	// AnsiblePlaybookErrorCodeBadOrIncompleteOptions is the error code for a bad or incomplete options
 	AnsiblePlaybookErrorCodeBadOrIncompleteOptions = 5
-	// AnsiblePlaybookErrorCodeUserInterruptedExecution
+	// AnsiblePlaybookErrorCodeUserInterruptedExecution is the error code for a user interrupted execution
 	AnsiblePlaybookErrorCodeUserInterruptedExecution = 99
-	// AnsiblePlaybookErrorCodeUnexpectedError
+	// AnsiblePlaybookErrorCodeUnexpectedError is the error code for a unexpected error
 	AnsiblePlaybookErrorCodeUnexpectedError = 250
 
-	// AnsiblePlaybookErrorMessageGeneralError
+	// AnsiblePlaybookErrorMessageGeneralError is the error message for a general error
 	AnsiblePlaybookErrorMessageGeneralError = "ansible-playbook error: general error"
-	// AnsiblePlaybookErrorMessageOneOrMoreHostFailed
+	// AnsiblePlaybookErrorMessageOneOrMoreHostFailed is the error message for a one or more host failed
 	AnsiblePlaybookErrorMessageOneOrMoreHostFailed = "ansible-playbook error: one or more host failed"
-	// AnsiblePlaybookErrorMessageOneOrMoreHostUnreachable
+	// AnsiblePlaybookErrorMessageOneOrMoreHostUnreachable is the error message for a one or more host unreachable
 	AnsiblePlaybookErrorMessageOneOrMoreHostUnreachable = "ansible-playbook error: one or more host unreachable"
-	// AnsiblePlaybookErrorMessageParserError
+	// AnsiblePlaybookErrorMessageParserError is the error message for a parser error
 	AnsiblePlaybookErrorMessageParserError = "ansible-playbook error: parser error"
-	// AnsiblePlaybookErrorMessageBadOrIncompleteOptions
+	// AnsiblePlaybookErrorMessageBadOrIncompleteOptions is the error message for a bad or incomplete options
 	AnsiblePlaybookErrorMessageBadOrIncompleteOptions = "ansible-playbook error: bad or incomplete options"
-	// AnsiblePlaybookErrorMessageUserInterruptedExecution
+	// AnsiblePlaybookErrorMessageUserInterruptedExecution is the error message for a user interrupted execution
 	AnsiblePlaybookErrorMessageUserInterruptedExecution = "ansible-playbook error: user interrupted execution"
-	// AnsiblePlaybookErrorMessageUnexpectedError
+	// AnsiblePlaybookErrorMessageUnexpectedError is the error message for a unexpected error
 	AnsiblePlaybookErrorMessageUnexpectedError = "ansible-playbook error: unexpected error"
 )
 
@@ -63,9 +62,6 @@ type DefaultExecute struct {
 	EnvVars map[string]string
 	// OutputFormat
 	Transformers []results.TransformerFunc
-
-	// duration of the last execution
-	duration time.Duration
 }
 
 // NewDefaultExecute return a new DefaultExecute instance with all options
@@ -180,7 +176,6 @@ func (e *DefaultExecute) Execute(ctx context.Context, command []string, resultsF
 		return errors.New("(DefaultExecute::Execute)", "Error creating stderr pipe", err)
 	}
 
-	timeInit := time.Now()
 	err = cmd.Start()
 	if err != nil {
 		return errors.New("(DefaultExecute::Execute)", "Error starting command", err)
@@ -252,18 +247,11 @@ func (e *DefaultExecute) Execute(ctx context.Context, command []string, resultsF
 		}
 	}
 
-	e.duration = time.Since(timeInit)
-
 	return nil
 }
 
 func (e *DefaultExecute) checkCompatibility() {
 	if e.ShowDuration {
-		color.Cyan("[WARNING] ShowDuration argument, on DefaultExecute, is deprecated and will be removed in future versions. Use the Duration method instead.")
+		color.Cyan("[WARNING] ShowDuration argument, on DefaultExecute, is deprecated and will be removed in future versions. Use the ExecutorTimeMeasurement middleware instead.")
 	}
-}
-
-// Duration returns the duration of the last execution
-func (e *DefaultExecute) Duration() time.Duration {
-	return e.duration
 }
