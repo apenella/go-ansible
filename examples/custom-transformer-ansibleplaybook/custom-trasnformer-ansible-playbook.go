@@ -46,6 +46,7 @@ func main() {
 				results.Prepend("Go-ansible example"),
 				results.LogFormat(results.DefaultLogFormatLayout, results.Now),
 			),
+			execute.WithShowDuration(),
 		),
 	}
 

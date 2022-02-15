@@ -14,6 +14,7 @@ import (
 	"github.com/apenella/go-ansible/pkg/stdoutcallback"
 	"github.com/apenella/go-ansible/pkg/stdoutcallback/results"
 	errors "github.com/apenella/go-common-utils/error"
+	"github.com/fatih/color"
 )
 
 const (
@@ -62,6 +63,9 @@ type DefaultExecute struct {
 	EnvVars map[string]string
 	// OutputFormat
 	Transformers []results.TransformerFunc
+
+	// duration of the last execution
+	duration time.Duration
 }
 
 // NewDefaultExecute return a new DefaultExecute instance with all options
@@ -127,6 +131,8 @@ func (e *DefaultExecute) Execute(ctx context.Context, command []string, resultsF
 		cmdStderr, cmdStdout io.ReadCloser
 		wg                   sync.WaitGroup
 	)
+
+	e.checkCompatibility()
 
 	execErrChan := make(chan error)
 
@@ -246,11 +252,18 @@ func (e *DefaultExecute) Execute(ctx context.Context, command []string, resultsF
 		}
 	}
 
-	elapsedTime := time.Since(timeInit)
-
-	if e.ShowDuration {
-		fmt.Fprintf(e.Write, "Duration: %s\n", elapsedTime.String())
-	}
+	e.duration = time.Since(timeInit)
 
 	return nil
+}
+
+func (e *DefaultExecute) checkCompatibility() {
+	if e.ShowDuration {
+		color.Cyan("[WARNING] ShowDuration argument, on DefaultExecute, is deprecated and will be removed in future versions. Use the Duration method instead.")
+	}
+}
+
+// Duration returns the duration of the last execution
+func (e *DefaultExecute) Duration() time.Duration {
+	return e.duration
 }
