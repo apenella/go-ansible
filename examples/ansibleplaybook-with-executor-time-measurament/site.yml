@@ -1,0 +1,9 @@
+---
+
+- hosts: all
+
+  tasks:
+    - name: ansibleplaybook-wit-executor-time-measurement 
+      debug:
+        msg: Your are running 'ansibleplaybook-wit-executor-time-measurement' example
+
