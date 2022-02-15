@@ -9,7 +9,6 @@
         hostname && whoami
       register: output
 
-
     - name: output commands 
       debug:
         var: output.stdout_lines

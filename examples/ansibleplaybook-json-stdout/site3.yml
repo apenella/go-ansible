@@ -5,25 +5,25 @@
   vars:
     array:
       - Your are running
-      - 'json-stdout-ansibleplaybook'
+      - 'ansibleplaybook-json-stdout'
       - third example
     map:
       intro: Your are running
-      what: json-stdout-ansibleplaybook
+      what: ansibleplaybook-json-stdout
       outro: third example
 
   tasks:
-    - name: json-stdout-ansibleplaybook
+    - name: ansibleplaybook-json-stdout
       debug:
         msg: |
           Your are running
-          'json-stdout-ansibleplaybook'
+          'ansibleplaybook-json-stdout'
           third example
 
-    - name: json-stdout-ansibleplaybook from array
+    - name: ansibleplaybook-json-stdout from array
       debug:
         msg: "{{ array }}"
 
-    - name: json-stdout-ansibleplaybook from map
+    - name: ansibleplaybook-json-stdout from map
       debug:
         msg: "{{ map }}"

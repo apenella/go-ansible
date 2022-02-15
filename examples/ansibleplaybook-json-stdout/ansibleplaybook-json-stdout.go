@@ -18,6 +18,7 @@ func main() {
 	var res *results.AnsiblePlaybookJSONResults
 
 	buff := new(bytes.Buffer)
+	durationBuff := new(bytes.Buffer)
 
 	ansiblePlaybookConnectionOptions := &options.AnsibleConnectionOptions{
 		Connection: "local",
@@ -28,14 +29,14 @@ func main() {
 		Inventory: "127.0.0.1,",
 	}
 
-	execute := execute.NewDefaultExecute(
+	exec := execute.NewDefaultExecute(
 		execute.WithWrite(io.Writer(buff)),
 	)
 
 	playbooksList := []string{"site1.yml", "site2.yml", "site3.yml"}
 	playbook := &playbook.AnsiblePlaybookCmd{
 		Playbooks:         playbooksList,
-		Exec:              execute,
+		Exec:              execute.NewExecutorTimeMeasurement(io.Writer(durationBuff), exec),
 		ConnectionOptions: ansiblePlaybookConnectionOptions,
 		Options:           ansiblePlaybookOptions,
 		StdoutCallback:    "json",
@@ -52,5 +53,6 @@ func main() {
 	}
 
 	fmt.Println(res.String())
+	fmt.Println(durationBuff.String())
 
 }

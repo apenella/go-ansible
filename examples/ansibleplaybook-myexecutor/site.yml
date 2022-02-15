@@ -1,0 +1,9 @@
+---
+
+- hosts: all
+
+  tasks:
+    - name: ansibleplaybook-myexecutor
+      debug:
+        msg: Your are running 'ansibleplaybook-myexecutor' example
+
