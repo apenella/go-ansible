@@ -33,20 +33,15 @@ func NewExecutorTimeMeasurement(w io.Writer, executor Executor) *ExecutorTimeMea
 func (e *ExecutorTimeMeasurement) Execute(ctx context.Context, command []string, resultsFunc stdoutcallback.StdoutCallbackResultsFunc, options ...ExecuteOptions) error {
 
 	timeInit := time.Now()
+	defer fmt.Fprintln(e.writer, fmt.Sprintf("Duration: %s", time.Since(timeInit)))
+
 	err := e.executor.Execute(ctx, command, resultsFunc, options...)
 	if err != nil {
 		return errors.New("(ExecutorTimeMeasurement::Execute)",
-			fmt.Sprintf("%s\n%s",
+			fmt.Sprintf("%s",
 				err.Error(),
-				durationMessage(time.Since(timeInit)),
 			))
 	}
 
-	fmt.Fprintln(e.writer, durationMessage(time.Since(timeInit)))
-
 	return nil
-}
-
-func durationMessage(d time.Duration) string {
-	return fmt.Sprintf("Duration: %s", d)
 }
