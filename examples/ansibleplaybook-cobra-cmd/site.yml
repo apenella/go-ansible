@@ -3,9 +3,9 @@
 - hosts: all
 
   tasks:
-    - name: cobra-cmd-ansibleplaybook
+    - name: ansibleplaybook-cobra-cmd
       debug:
-        msg: Your are running 'cobra-cmd-ansibleplaybook' example
+        msg: Your are running 'ansibleplaybook-cobra-cmd' example
 
     - name: Print extra variable 'example'
       debug:
