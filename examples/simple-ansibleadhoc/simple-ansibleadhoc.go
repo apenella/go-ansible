@@ -26,7 +26,7 @@ func main() {
 		//StdoutCallback:    "oneline",
 	}
 
-	fmt.Println(adhoc.String())
+	fmt.Println("Command: ", adhoc.String())
 
 	err := adhoc.Run(context.TODO())
 	if err != nil {

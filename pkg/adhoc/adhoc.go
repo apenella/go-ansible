@@ -273,6 +273,7 @@ func (o *AnsibleAdhocOptions) GenerateAnsibleAdhocOptions() ([]string, error) {
 		cmd = append(cmd, ArgsFlag)
 		cmd = append(cmd, o.Args)
 	}
+
 	if o.AskVaultPassword {
 		cmd = append(cmd, AskVaultPasswordFlag)
 	}
@@ -392,7 +393,7 @@ func (o *AnsibleAdhocOptions) String() string {
 	str := ""
 
 	if o.Args != "" {
-		str = fmt.Sprintf("%s %s %s", str, ArgsFlag, o.Args)
+		str = fmt.Sprintf("%s %s '%s'", str, ArgsFlag, o.Args)
 	}
 
 	if o.AskVaultPassword {
