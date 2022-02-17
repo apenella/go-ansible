@@ -181,14 +181,14 @@ func (o *AnsibleConnectionOptions) GenerateCommandConnectionOptions() ([]string,
 		cmd = append(cmd, o.SSHExtraArgs)
 	}
 
-	if o.User != "" {
-		cmd = append(cmd, UserFlag)
-		cmd = append(cmd, o.User)
-	}
-
 	if o.Timeout > 0 {
 		cmd = append(cmd, TimeoutFlag)
 		cmd = append(cmd, fmt.Sprint(o.Timeout))
+	}
+
+	if o.User != "" {
+		cmd = append(cmd, UserFlag)
+		cmd = append(cmd, o.User)
 	}
 
 	return cmd, nil
@@ -226,12 +226,12 @@ func (o *AnsibleConnectionOptions) String() string {
 		str = fmt.Sprintf("%s %s %s", str, SSHExtraArgsFlag, o.SSHExtraArgs)
 	}
 
-	if o.User != "" {
-		str = fmt.Sprintf("%s %s %s", str, UserFlag, o.User)
-	}
-
 	if o.Timeout > 0 {
 		str = fmt.Sprintf("%s %s %d", str, TimeoutFlag, o.Timeout)
+	}
+
+	if o.User != "" {
+		str = fmt.Sprintf("%s %s %s", str, UserFlag, o.User)
 	}
 
 	return str
