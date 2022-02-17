@@ -28,14 +28,12 @@ func main() {
 		Inventory: "127.0.0.1,",
 	}
 
-	exec := execute.NewDefaultExecute(
-		execute.WithWrite(io.Writer(buff)),
-	)
-
 	playbooksList := []string{"site1.yml"}
 	playbook := &playbook.AnsiblePlaybookCmd{
-		Playbooks:         playbooksList,
-		Exec:              execute.NewExecutorTimeMeasurement(io.Writer(timeBuff), exec),
+		Playbooks: playbooksList,
+		Exec: execute.NewDefaultExecute(
+			execute.WithWrite(io.Writer(buff)),
+		),
 		ConnectionOptions: ansiblePlaybookConnectionOptions,
 		Options:           ansiblePlaybookOptions,
 		StdoutCallback:    "json",

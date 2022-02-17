@@ -7,6 +7,7 @@ import (
 	"io"
 
 	"github.com/apenella/go-ansible/pkg/execute"
+	"github.com/apenella/go-ansible/pkg/execute/measure"
 	"github.com/apenella/go-ansible/pkg/options"
 	"github.com/apenella/go-ansible/pkg/playbook"
 	"github.com/apenella/go-ansible/pkg/stdoutcallback/results"
@@ -18,25 +19,25 @@ func main() {
 	var res *results.AnsiblePlaybookJSONResults
 
 	buff := new(bytes.Buffer)
-	durationBuff := new(bytes.Buffer)
 
 	ansiblePlaybookConnectionOptions := &options.AnsibleConnectionOptions{
 		Connection: "local",
-		User:       "apenella",
 	}
 
 	ansiblePlaybookOptions := &playbook.AnsiblePlaybookOptions{
 		Inventory: "127.0.0.1,",
 	}
 
-	exec := execute.NewDefaultExecute(
-		execute.WithWrite(io.Writer(buff)),
+	executorTimeMeasurement := measure.NewExecutorTimeMeasurement(
+		execute.NewDefaultExecute(
+			execute.WithWrite(io.Writer(buff)),
+		),
 	)
 
 	playbooksList := []string{"site1.yml", "site2.yml", "site3.yml"}
 	playbook := &playbook.AnsiblePlaybookCmd{
 		Playbooks:         playbooksList,
-		Exec:              execute.NewExecutorTimeMeasurement(io.Writer(durationBuff), exec),
+		Exec:              executorTimeMeasurement,
 		ConnectionOptions: ansiblePlaybookConnectionOptions,
 		Options:           ansiblePlaybookOptions,
 		StdoutCallback:    "json",
@@ -53,6 +54,6 @@ func main() {
 	}
 
 	fmt.Println(res.String())
-	fmt.Println(durationBuff.String())
+	fmt.Println("Duration: ", executorTimeMeasurement.Duration())
 
 }

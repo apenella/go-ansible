@@ -12,6 +12,7 @@ import (
 	"github.com/apenella/go-ansible/pkg/stdoutcallback"
 	errors "github.com/apenella/go-common-utils/error"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/mock"
 )
 
 // TestGenerateCommandConnectionOptions
@@ -171,7 +172,7 @@ func TestCommand(t *testing.T) {
 					AskBecomePass: true,
 				},
 			},
-			command: []string{"ansible-playbook", "--ask-vault-password", "--check", "--diff", "--extra-vars", "{\"var1\":\"value1\"}", "--flush-cache", "--forks", "10", "--inventory", "test/ansible/inventory/all", "--limit", "myhost", "--list-hosts", "--module-path", "/dev/null", "--syntax-check", "--tags", "tag1", "--vault-id", "asdf", "--vault-password-file", "/dev/null", "-vvvv", "--version", "--ask-pass", "--connection", "local", "--private-key", "pk", "--user", "apenella", "--timeout", "10", "--ask-become-pass", "--become", "--become-method", "sudo", "--become-user", "apenella", "test/ansible/site.yml"},
+			command: []string{"ansible-playbook", "--ask-vault-password", "--check", "--diff", "--extra-vars", "{\"var1\":\"value1\"}", "--flush-cache", "--forks", "10", "--inventory", "test/ansible/inventory/all", "--limit", "myhost", "--list-hosts", "--module-path", "/dev/null", "--syntax-check", "--tags", "tag1", "--vault-id", "asdf", "--vault-password-file", "/dev/null", "-vvvv", "--version", "--ask-pass", "--connection", "local", "--private-key", "pk", "--timeout", "10", "--user", "apenella", "--ask-become-pass", "--become", "--become-method", "sudo", "--become-user", "apenella", "test/ansible/site.yml"},
 		},
 	}
 
@@ -244,7 +245,7 @@ func TestString(t *testing.T) {
 					AskBecomePass: true,
 				},
 			},
-			res: "ansible-playbook  --ask-vault-password --check --diff --extra-vars '{\"var1\":\"value1\"}' --extra-vars @test/ansible/extra_vars.yml --flush-cache --force-handlers --forks 10 --inventory test/ansible/inventory/all --limit myhost --list-hosts --list-tags --list-tasks --module-path /dev/null --skip-tags tagN --start-at-task task1 --step --syntax-check --tags tag1 --vault-id asdf --vault-password-file /dev/null -vvvv --version  --ask-pass --connection local --private-key pk --user apenella --timeout 10  --ask-become-pass --become --become-method sudo --become-user apenella test/ansible/site.yml test/ansible/site2.yml",
+			res: "ansible-playbook  --ask-vault-password --check --diff --extra-vars '{\"var1\":\"value1\"}' --extra-vars @test/ansible/extra_vars.yml --flush-cache --force-handlers --forks 10 --inventory test/ansible/inventory/all --limit myhost --list-hosts --list-tags --list-tasks --module-path /dev/null --skip-tags tagN --start-at-task task1 --step --syntax-check --tags tag1 --vault-id asdf --vault-password-file /dev/null -vvvv --version  --ask-pass --connection local --private-key pk --timeout 10 --user apenella  --ask-become-pass --become --become-method sudo --become-user apenella test/ansible/site.yml test/ansible/site2.yml",
 		},
 	}
 
@@ -267,14 +268,12 @@ func TestRun(t *testing.T) {
 	tests := []struct {
 		desc               string
 		ansiblePlaybookCmd *AnsiblePlaybookCmd
-		res                string
-		ctx                context.Context
 		err                error
+		prepareAssertFunc  func(*AnsiblePlaybookCmd)
 	}{
 		{
 			desc:               "Run nil ansiblePlaybookCmd",
 			ansiblePlaybookCmd: nil,
-			res:                "",
 			err:                errors.New("(playbook::Run)", "AnsiblePlaybookCmd is nil"),
 		},
 		{
@@ -282,72 +281,28 @@ func TestRun(t *testing.T) {
 			ansiblePlaybookCmd: &AnsiblePlaybookCmd{
 				Binary: "unexisting",
 			},
-			res: "",
-			ctx: context.TODO(),
 			err: errors.New("(playbook::Run)", "Binary file 'unexisting' does not exists", &execerrors.Error{Name: "unexisting", Err: goerrors.New("executable file not found in $PATH")}),
 		},
 		{
 			desc: "Testing run a ansiblePlaybookCmd",
 			ansiblePlaybookCmd: &AnsiblePlaybookCmd{
-				Exec: &execute.MockExecute{
-					Write: &w,
-				},
+				Binary:    "ansible-playbook",
+				Exec:      execute.NewMockExecute(),
 				Playbooks: []string{"test/ansible/site.yml", "test/ansible/site2.yml"},
 				ConnectionOptions: &options.AnsibleConnectionOptions{
-					Connection: "local",
+					AskPass:       true,
+					Connection:    "local",
+					PrivateKey:    "pk",
+					SCPExtraArgs:  "-o StrictHostKeyChecking=no",
+					SFTPExtraArgs: "-o StrictHostKeyChecking=no",
+					SSHCommonArgs: "-o StrictHostKeyChecking=no",
+					Timeout:       10,
+					User:          "apenella",
 				},
 				Options: &AnsiblePlaybookOptions{
-					Inventory: "test/ansible/inventory/all",
-				},
-			},
-			ctx: context.TODO(),
-			res: "[ansible-playbook --inventory test/ansible/inventory/all --connection local test/ansible/site.yml test/ansible/site2.yml]",
-			err: nil,
-		},
-		{
-			desc: "Testing run a ansiblePlaybookCmd without executor",
-			ansiblePlaybookCmd: &AnsiblePlaybookCmd{
-				Exec:      nil,
-				Playbooks: []string{"test/test_site.yml"},
-				ConnectionOptions: &options.AnsibleConnectionOptions{
-					Connection: "local",
-				},
-				Options: &AnsiblePlaybookOptions{
-					Inventory: "test/ansible/inventory/all",
-				},
-			},
-			res: "",
-			ctx: context.TODO(),
-			err: nil,
-		},
-		{
-			desc: "Testing run a ansiblePlaybookCmd with JSON stdout callback",
-			ansiblePlaybookCmd: &AnsiblePlaybookCmd{
-				StdoutCallback: stdoutcallback.JSONStdoutCallback,
-				Playbooks:      []string{"test/test_site.yml"},
-				ConnectionOptions: &options.AnsibleConnectionOptions{
-					Connection: "local",
-				},
-				Options: &AnsiblePlaybookOptions{
-					Inventory: "test/all",
-				},
-			},
-			res: "",
-			ctx: context.TODO(),
-			err: nil,
-		},
-		{
-			desc: "Testing run a ansiblePlaybookCmd with multiple extravars",
-			ansiblePlaybookCmd: &AnsiblePlaybookCmd{
-				Exec: &execute.MockExecute{
-					Write: &w,
-				},
-				Playbooks: []string{"test/test_site.yml"},
-				ConnectionOptions: &options.AnsibleConnectionOptions{
-					Connection: "local",
-				},
-				Options: &AnsiblePlaybookOptions{
-					Inventory: "test/all",
+					AskVaultPassword: true,
+					Check:            true,
+					Diff:             true,
 					ExtraVars: map[string]interface{}{
 						"string": "testing an string",
 						"bool":   true,
@@ -358,12 +313,120 @@ func TestRun(t *testing.T) {
 							"two": false,
 						},
 					},
+					ExtraVarsFile:     []string{"@test/ansible/extra_vars.yml"},
+					FlushCache:        true,
+					ForceHandlers:     true,
+					Forks:             "10",
+					Inventory:         "test/ansible/inventory/all",
+					Limit:             "myhost",
+					ListHosts:         true,
+					ListTags:          true,
+					ListTasks:         true,
+					ModulePath:        "/module/path",
+					SkipTags:          "tag",
+					StartAtTask:       "task",
+					Step:              true,
+					SyntaxCheck:       true,
+					Tags:              "tag",
+					VaultID:           "asdf",
+					VaultPasswordFile: "/vault/password/file",
+					Verbose:           true,
+					Version:           true,
 				},
+				PrivilegeEscalationOptions: &options.AnsiblePrivilegeEscalationOptions{},
+				StdoutCallback:             stdoutcallback.JSONStdoutCallback,
 			},
-			res: "[ansible-playbook --extra-vars {\"array\":[\"one\",\"two\"],\"bool\":true,\"dict\":{\"one\":true,\"two\":false},\"int\":10,\"string\":\"testing an string\"} --inventory test/all --connection local test/test_site.yml]",
-			ctx: context.TODO(),
+			prepareAssertFunc: func(playbook *AnsiblePlaybookCmd) {
+				playbook.Exec.(*execute.MockExecute).On(
+					"Execute",
+					context.TODO(),
+					[]string{"ansible-playbook",
+						"--ask-vault-password",
+						"--check",
+						"--diff",
+						"--extra-vars",
+						"{\"array\":[\"one\",\"two\"],\"bool\":true,\"dict\":{\"one\":true,\"two\":false},\"int\":10,\"string\":\"testing an string\"}",
+						"--extra-vars",
+						"@test/ansible/extra_vars.yml",
+						"--flush-cache",
+						"--force-handlers",
+						"--forks",
+						"10",
+						"--inventory",
+						"test/ansible/inventory/all",
+						"--limit",
+						"myhost",
+						"--list-hosts",
+						"--list-tags",
+						"--list-tasks",
+						"--module-path",
+						"/module/path",
+						"--skip-tags",
+						"tag",
+						"--start-at-task",
+						"task",
+						"--step",
+						"--syntax-check",
+						"--tags",
+						"tag",
+						"--vault-id",
+						"asdf",
+						"--vault-password-file",
+						"/vault/password/file",
+						"-vvvv",
+						"--version",
+						"--ask-pass",
+						"--connection",
+						"local",
+						"--private-key",
+						"pk",
+						"--scp-extra-args",
+						"-o StrictHostKeyChecking=no",
+						"--sftp-extra-args",
+						"-o StrictHostKeyChecking=no",
+						"--ssh-common-args",
+						"-o StrictHostKeyChecking=no",
+						"--timeout",
+						"10",
+						"--user",
+						"apenella",
+						"test/ansible/site.yml",
+						"test/ansible/site2.yml",
+					},
+					mock.AnythingOfType("StdoutCallbackResultsFunc"),
+					[]execute.ExecuteOptions{},
+				).Return(nil)
+			},
 			err: nil,
 		},
+		// {
+		// 	desc: "Testing run a ansiblePlaybookCmd with multiple extravars",
+		// 	ansiblePlaybookCmd: &AnsiblePlaybookCmd{
+		// 		Exec: &execute.MockExecute{
+		// 			Write: &w,
+		// 		},
+		// 		Playbooks: []string{"test/test_site.yml"},
+		// 		ConnectionOptions: &options.AnsibleConnectionOptions{
+		// 			Connection: "local",
+		// 		},
+		// 		Options: &AnsiblePlaybookOptions{
+		// 			Inventory: "test/all",
+		// 			ExtraVars: map[string]interface{}{
+		// 				"string": "testing an string",
+		// 				"bool":   true,
+		// 				"int":    10,
+		// 				"array":  []string{"one", "two"},
+		// 				"dict": map[string]bool{
+		// 					"one": true,
+		// 					"two": false,
+		// 				},
+		// 			},
+		// 		},
+		// 	},
+		// 	res: "[ansible-playbook --extra-vars {\"array\":[\"one\",\"two\"],\"bool\":true,\"dict\":{\"one\":true,\"two\":false},\"int\":10,\"string\":\"testing an string\"} --inventory test/all --connection local test/test_site.yml]",
+		// 	ctx: context.TODO(),
+		// 	err: nil,
+		// },
 	}
 
 	for _, test := range tests {
@@ -373,11 +436,15 @@ func TestRun(t *testing.T) {
 			t.Log(test.desc)
 			w.Reset()
 
-			err := test.ansiblePlaybookCmd.Run(test.ctx)
+			if test.prepareAssertFunc != nil {
+				test.prepareAssertFunc(test.ansiblePlaybookCmd)
+			}
+
+			err := test.ansiblePlaybookCmd.Run(context.TODO())
 			if err != nil && assert.Error(t, err) {
 				assert.Equal(t, test.err, err)
 			} else {
-				assert.Equal(t, test.res, w.String(), "Unexpected value")
+				test.ansiblePlaybookCmd.Exec.(*execute.MockExecute).AssertExpectations(t)
 			}
 		})
 	}
