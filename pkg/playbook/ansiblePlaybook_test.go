@@ -1,7 +1,6 @@
 package playbook
 
 import (
-	"bytes"
 	"context"
 	goerrors "errors"
 	execerrors "os/exec"
@@ -263,8 +262,6 @@ func TestString(t *testing.T) {
 
 func TestRun(t *testing.T) {
 
-	var w bytes.Buffer
-
 	tests := []struct {
 		desc               string
 		ansiblePlaybookCmd *AnsiblePlaybookCmd
@@ -333,8 +330,13 @@ func TestRun(t *testing.T) {
 					Verbose:           true,
 					Version:           true,
 				},
-				PrivilegeEscalationOptions: &options.AnsiblePrivilegeEscalationOptions{},
-				StdoutCallback:             stdoutcallback.JSONStdoutCallback,
+				PrivilegeEscalationOptions: &options.AnsiblePrivilegeEscalationOptions{
+					Become:        true,
+					BecomeMethod:  "sudo",
+					BecomeUser:    "apenella",
+					AskBecomePass: true,
+				},
+				StdoutCallback: stdoutcallback.JSONStdoutCallback,
 			},
 			prepareAssertFunc: func(playbook *AnsiblePlaybookCmd) {
 				playbook.Exec.(*execute.MockExecute).On(
@@ -390,6 +392,12 @@ func TestRun(t *testing.T) {
 						"10",
 						"--user",
 						"apenella",
+						"--ask-become-pass",
+						"--become",
+						"--become-method",
+						"sudo",
+						"--become-user",
+						"apenella",
 						"test/ansible/site.yml",
 						"test/ansible/site2.yml",
 					},
@@ -399,42 +407,12 @@ func TestRun(t *testing.T) {
 			},
 			err: nil,
 		},
-		// {
-		// 	desc: "Testing run a ansiblePlaybookCmd with multiple extravars",
-		// 	ansiblePlaybookCmd: &AnsiblePlaybookCmd{
-		// 		Exec: &execute.MockExecute{
-		// 			Write: &w,
-		// 		},
-		// 		Playbooks: []string{"test/test_site.yml"},
-		// 		ConnectionOptions: &options.AnsibleConnectionOptions{
-		// 			Connection: "local",
-		// 		},
-		// 		Options: &AnsiblePlaybookOptions{
-		// 			Inventory: "test/all",
-		// 			ExtraVars: map[string]interface{}{
-		// 				"string": "testing an string",
-		// 				"bool":   true,
-		// 				"int":    10,
-		// 				"array":  []string{"one", "two"},
-		// 				"dict": map[string]bool{
-		// 					"one": true,
-		// 					"two": false,
-		// 				},
-		// 			},
-		// 		},
-		// 	},
-		// 	res: "[ansible-playbook --extra-vars {\"array\":[\"one\",\"two\"],\"bool\":true,\"dict\":{\"one\":true,\"two\":false},\"int\":10,\"string\":\"testing an string\"} --inventory test/all --connection local test/test_site.yml]",
-		// 	ctx: context.TODO(),
-		// 	err: nil,
-		// },
 	}
 
 	for _, test := range tests {
-		w = bytes.Buffer{}
 
 		t.Run(test.desc, func(t *testing.T) {
 			t.Log(test.desc)
-			w.Reset()
 
 			if test.prepareAssertFunc != nil {
 				test.prepareAssertFunc(test.ansiblePlaybookCmd)

@@ -254,14 +254,14 @@ dzdo       Centrify's Direct Authorize
 
 // AnsiblePrivilegeEscalationOptions object has those parameters described on `Privilege Escalation Options` section within ansible-playbook's man page, and which controls how and which user you become as on target hosts.
 type AnsiblePrivilegeEscalationOptions struct {
+	// AskBecomePass
+	AskBecomePass bool
 	// Become
 	Become bool
 	// BecomeMethod
 	BecomeMethod string
 	// BecomeUser
 	BecomeUser string
-	// AskBecomePass
-	AskBecomePass bool
 }
 
 // GenerateCommandPrivilegeEscalationOptions return a list of privilege escalation options flags to be used on ansible-playbook execution
