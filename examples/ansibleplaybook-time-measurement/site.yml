@@ -1,0 +1,9 @@
+---
+
+- hosts: all
+
+  tasks:
+    - name: ansibleplaybook-time-measurement
+      debug:
+        msg: Your are running 'ansibleplaybook-time-measurement' example
+
