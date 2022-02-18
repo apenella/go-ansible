@@ -1,8 +1,7 @@
-## v1.1.5
+## undefined
 
 ### Added
-- New function `WithEnvVar` on `github.com/apenella/go-ansible/pkg/execute` package that adds environment variables to `DefaultExecutor` command.
+- `ExecutorTimeMeasurement` is a decorator or middleware defined on `github.com/apenella/go-ansible/pkg/execute`, that measures the duration of an execution. It receives an `Executor` and in the same time implements the `Executor` interface
 
-### Fixed
-- Include missing attributes on `AnsiblePlaybookJSONResultsPlayTaskHostsItem`. Those attributes are `cmd`, `skipped`, `skip_reason`, `failed`, and `failed_when_result`
- 
+### Removed
+- `DefaultExecutor` does not measures the execution duration anymore. Instead of it, `ExecutorTimeMeasurement` must be used. 
