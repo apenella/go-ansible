@@ -158,7 +158,7 @@ $ go run myexecutor-ansibleplaybook.go
 #### Measurements
 With the goal of taking some measurements, go-ansible includes the package `github.com/apenella/go-ansible/pkg/execute/measure`. At this moment, there is available `ExecutorTimeMeasurement` that acts as an `Executor` decorator, which could measure ansible or ansible-playbook commands' execution time.
 
-To use the time measurement, an `ExecutorTimeMeasurement` must be created, and passing to it an `Executor`.
+To use the time measurement, an `ExecutorTimeMeasurement` must be created.
 ```go
 executorTimeMeasurement := measure.NewExecutorTimeMeasurement(
 		execute.NewDefaultExecute(
@@ -167,7 +167,7 @@ executorTimeMeasurement := measure.NewExecutorTimeMeasurement(
 	)
 ```
 
-Then, pass to `AnsiblePlaybookCmd` or `AnsibleAdhocCmd` the created `ExecutorTimeMeasurement`, through the `Exec` attribute.
+Then, pass the created `ExecutorTimeMeasurement`, through the `Exec` attribute, to `AnsiblePlaybookCmd` or `AnsibleAdhocCmd`.
 ```go
 playbook := &playbook.AnsiblePlaybookCmd{
 		Playbooks:         playbooksList,
@@ -178,7 +178,7 @@ playbook := &playbook.AnsiblePlaybookCmd{
 	}
 ```
 
-An example `ansibleplaybook-time-measurement` 
+A measurement example is found in [ansibleplaybook-time-measurement](https://github.com/apenella/go-ansible/blob/master/examples/ansibleplaybook-time-measurement/ansibleplaybook-time-measurement.go).
 
 ### Options
 
