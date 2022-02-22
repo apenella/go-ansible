@@ -15,15 +15,16 @@ func main() {
 	}
 
 	ansibleAdhocOptions := &adhoc.AnsibleAdhocOptions{
-		Inventory:  "127.0.0.1,",
-		ModuleName: "ping",
+		Inventory:  " 127.0.0.1,",
+		ModuleName: "command",
+		Args:       "ping 127.0.0.1 -c 2",
 	}
 
 	adhoc := &adhoc.AnsibleAdhocCmd{
 		Pattern:           "all",
 		Options:           ansibleAdhocOptions,
 		ConnectionOptions: ansibleConnectionOptions,
-		//StdoutCallback:    "oneline",
+		StdoutCallback:    "oneline",
 	}
 
 	fmt.Println("Command: ", adhoc.String())
