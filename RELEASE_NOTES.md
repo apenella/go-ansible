@@ -8,6 +8,7 @@
 
 ### Chanded
 - `MockExecute` uses `github.com/stretchr/testify/mock`
+- Examples' name is prefixed by `ansibleplaybook` or `ansibleadhoc`
 
 ### Removed
 - `DefaultExecutor` does not measures the execution duration anymore. Instead of it, `ExecutorTimeMeasurement` must be used.
