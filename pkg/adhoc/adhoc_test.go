@@ -1,11 +1,8 @@
 package adhoc
 
 import (
-	"bytes"
 	"context"
 	goerrors "errors"
-	"fmt"
-	"io"
 	execerrors "os/exec"
 	"testing"
 
@@ -13,16 +10,17 @@ import (
 	"github.com/apenella/go-ansible/pkg/options"
 	errors "github.com/apenella/go-common-utils/error"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/mock"
 )
 
 func TestRun(t *testing.T) {
-	var w bytes.Buffer
 
 	tests := []struct {
-		desc            string
-		ansibleAdhocCmd *AnsibleAdhocCmd
-		res             string
-		err             error
+		desc              string
+		ansibleAdhocCmd   *AnsibleAdhocCmd
+		prepareAssertFunc func(*AnsibleAdhocCmd)
+		res               string
+		err               error
 	}{
 		{
 			desc:            "Testing run an adhoc command with a nil AnsibleAdhocCmd",
@@ -39,36 +37,138 @@ func TestRun(t *testing.T) {
 		{
 			desc: "Testing run an adhoc command",
 			ansibleAdhocCmd: &AnsibleAdhocCmd{
+				Binary:  "ansible",
+				Exec:    execute.NewMockExecute(),
 				Pattern: "all",
-				Exec: execute.NewDefaultExecute(
-					execute.WithWrite(io.Writer(&w)),
-				),
 				Options: &AnsibleAdhocOptions{
-					Inventory:  "127.0.0.1,",
-					ModuleName: "ping",
+					Args:             "args1 args2",
+					AskVaultPassword: true,
+					Background:       11,
+					Check:            true,
+					Diff:             true,
+					ExtraVars: map[string]interface{}{
+						"extra": "var",
+					},
+					ExtraVarsFile:     []string{"@test/ansible/extra_vars.yml"},
+					Forks:             "12",
+					Inventory:         "127.0.0.1,",
+					Limit:             "host",
+					ListHosts:         true,
+					ModuleName:        "ping",
+					ModulePath:        "/module/path",
+					OneLine:           true,
+					PlaybookDir:       "/playbook/dir",
+					Poll:              13,
+					SyntaxCheck:       true,
+					Tree:              "/tree/log/output",
+					VaultID:           "vault-id",
+					VaultPasswordFile: "vault-password-file",
+					Verbose:           true,
+					Version:           true,
 				},
 				ConnectionOptions: &options.AnsibleConnectionOptions{
-					Connection: "local",
+					AskPass:       true,
+					Connection:    "local",
+					PrivateKey:    "pk",
+					SCPExtraArgs:  "-o StrictHostKeyChecking=no",
+					SFTPExtraArgs: "-o StrictHostKeyChecking=no",
+					SSHCommonArgs: "-o StrictHostKeyChecking=no",
+					Timeout:       10,
+					User:          "apenella",
+				},
+				PrivilegeEscalationOptions: &options.AnsiblePrivilegeEscalationOptions{
+					Become:        true,
+					BecomeMethod:  "sudo",
+					BecomeUser:    "apenella",
+					AskBecomePass: true,
 				},
 				StdoutCallback: "oneline",
 			},
-			res: `127.0.0.1 | SUCCESS => {"ansible_facts": {"discovered_interpreter_python": "/usr/bin/python3"},"changed": false,"ping": "pong"}
-`,
+			prepareAssertFunc: func(adhoc *AnsibleAdhocCmd) {
+				adhoc.Exec.(*execute.MockExecute).On(
+					"Execute",
+					context.TODO(),
+					[]string{
+						"ansible",
+						"all",
+						"--args",
+						"args1 args2",
+						"--ask-vault-password",
+						"--background",
+						"11",
+						"--check",
+						"--diff",
+						"--extra-vars",
+						"{\"extra\":\"var\"}",
+						"--extra-vars",
+						"@test/ansible/extra_vars.yml",
+						"--forks",
+						"12",
+						"--inventory",
+						"127.0.0.1,",
+						"--limit",
+						"host",
+						"--list-hosts",
+						"--module-name",
+						"ping",
+						"--module-path",
+						"/module/path",
+						"--one-line",
+						"--playbook-dir",
+						"/playbook/dir",
+						"--poll",
+						"13",
+						"--syntax-check",
+						"--tree",
+						"/tree/log/output",
+						"--vault-id",
+						"vault-id",
+						"--vault-password-file",
+						"vault-password-file",
+						"-vvvv",
+						"--version",
+						"--ask-pass",
+						"--connection",
+						"local",
+						"--private-key",
+						"pk",
+						"--scp-extra-args",
+						"-o StrictHostKeyChecking=no",
+						"--sftp-extra-args",
+						"-o StrictHostKeyChecking=no",
+						"--ssh-common-args",
+						"-o StrictHostKeyChecking=no",
+						"--timeout",
+						"10",
+						"--user",
+						"apenella",
+						"--ask-become-pass",
+						"--become",
+						"--become-method",
+						"sudo",
+						"--become-user",
+						"apenella",
+					},
+					mock.AnythingOfType("StdoutCallbackResultsFunc"),
+					[]execute.ExecuteOptions{},
+				).Return(nil)
+			},
 		},
 	}
 
 	for _, test := range tests {
-		w = bytes.Buffer{}
 		t.Run(test.desc, func(t *testing.T) {
 			t.Log(test.desc)
-			w.Reset()
+
+			if test.prepareAssertFunc != nil {
+				test.prepareAssertFunc(test.ansibleAdhocCmd)
+			}
 
 			err := test.ansibleAdhocCmd.Run(context.TODO())
 			if err != nil && assert.Error(t, err) {
 				assert.Equal(t, test.err, err)
 			} else {
-				fmt.Println(test.ansibleAdhocCmd.String())
-				assert.Equal(t, test.res, w.String(), "Unexpected value")
+				test.ansibleAdhocCmd.Exec.(*execute.MockExecute).AssertExpectations(t)
 			}
 		})
 

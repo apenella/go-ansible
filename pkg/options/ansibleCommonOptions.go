@@ -181,14 +181,14 @@ func (o *AnsibleConnectionOptions) GenerateCommandConnectionOptions() ([]string,
 		cmd = append(cmd, o.SSHExtraArgs)
 	}
 
-	if o.User != "" {
-		cmd = append(cmd, UserFlag)
-		cmd = append(cmd, o.User)
-	}
-
 	if o.Timeout > 0 {
 		cmd = append(cmd, TimeoutFlag)
 		cmd = append(cmd, fmt.Sprint(o.Timeout))
+	}
+
+	if o.User != "" {
+		cmd = append(cmd, UserFlag)
+		cmd = append(cmd, o.User)
 	}
 
 	return cmd, nil
@@ -226,12 +226,12 @@ func (o *AnsibleConnectionOptions) String() string {
 		str = fmt.Sprintf("%s %s %s", str, SSHExtraArgsFlag, o.SSHExtraArgs)
 	}
 
-	if o.User != "" {
-		str = fmt.Sprintf("%s %s %s", str, UserFlag, o.User)
-	}
-
 	if o.Timeout > 0 {
 		str = fmt.Sprintf("%s %s %d", str, TimeoutFlag, o.Timeout)
+	}
+
+	if o.User != "" {
+		str = fmt.Sprintf("%s %s %s", str, UserFlag, o.User)
 	}
 
 	return str
@@ -254,14 +254,14 @@ dzdo       Centrify's Direct Authorize
 
 // AnsiblePrivilegeEscalationOptions object has those parameters described on `Privilege Escalation Options` section within ansible-playbook's man page, and which controls how and which user you become as on target hosts.
 type AnsiblePrivilegeEscalationOptions struct {
+	// AskBecomePass
+	AskBecomePass bool
 	// Become
 	Become bool
 	// BecomeMethod
 	BecomeMethod string
 	// BecomeUser
 	BecomeUser string
-	// AskBecomePass
-	AskBecomePass bool
 }
 
 // GenerateCommandPrivilegeEscalationOptions return a list of privilege escalation options flags to be used on ansible-playbook execution

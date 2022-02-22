@@ -237,10 +237,10 @@ type AnsibleAdhocOptions struct {
 	Limit string
 	// ListHosts outputs a list of matching hosts
 	ListHosts bool
-	// ModulePath repend colon-separated path(s) to module library (default=~/.ansible/plugins/modules:/usr/share/ansible/plugins/modules)
-	ModulePath string
 	// ModuleName module name to execute (default=command)
 	ModuleName string
+	// ModulePath repend colon-separated path(s) to module library (default=~/.ansible/plugins/modules:/usr/share/ansible/plugins/modules)
+	ModulePath string
 	// OneLine condense output
 	OneLine bool
 	// PlaybookDir since this tool does not use playbooks, use this as a substitute playbook directory.This sets the relative path for many features including roles/ group_vars/ etc.

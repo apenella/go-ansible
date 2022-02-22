@@ -7,6 +7,8 @@
 Go-ansible is a package for running `ansible-playbook` or `ansible` commands from Golang applications.
 It supports the most of its options for each command.
 
+> **Disclaimer**: master branch could contain unreleased features.
+
 <!-- @import "[TOC]" {cmd="toc" depthFrom=1 depthTo=6 orderedList=false} -->
 
 <!-- code_chunk_output -->
@@ -20,6 +22,7 @@ It supports the most of its options for each command.
     - [Execute](#execute)
       - [DefaultExecute](#defaultexecute)
       - [Custom executor](#custom-executor)
+      - [Measurements](#measurements)
     - [Options](#options)
       - [ansible adhoc and ansible-playbook common options](#ansible-adhoc-and-ansible-playbook-common-options)
     - [Stdout Callback](#stdout-callback)
@@ -151,6 +154,31 @@ When you run the playbook using your dummy executor, the output will be as follo
 $ go run myexecutor-ansibleplaybook.go
 [Go ansible example] I am MyExecutor and I am doing nothing
 ```
+
+#### Measurements
+With the goal of taking some measurements, go-ansible includes the package `github.com/apenella/go-ansible/pkg/execute/measure`. At this moment, there is available `ExecutorTimeMeasurement` that acts as an `Executor` decorator, which could measure ansible or ansible-playbook commands' execution time.
+
+To use the time measurement, an `ExecutorTimeMeasurement` must be created.
+```go
+executorTimeMeasurement := measure.NewExecutorTimeMeasurement(
+		execute.NewDefaultExecute(
+			execute.WithWrite(io.Writer(buff)),
+		),
+	)
+```
+
+Then, pass the created `ExecutorTimeMeasurement`, through the `Exec` attribute, to `AnsiblePlaybookCmd` or `AnsibleAdhocCmd`.
+```go
+playbook := &playbook.AnsiblePlaybookCmd{
+		Playbooks:         playbooksList,
+		Exec:              executorTimeMeasurement,
+		ConnectionOptions: ansiblePlaybookConnectionOptions,
+		Options:           ansiblePlaybookOptions,
+		StdoutCallback:    "json",
+	}
+```
+
+A measurement example is found in [ansibleplaybook-time-measurement](https://github.com/apenella/go-ansible/blob/master/examples/ansibleplaybook-time-measurement/ansibleplaybook-time-measurement.go).
 
 ### Options
 

@@ -1,0 +1,12 @@
+---
+
+- hosts: all
+
+  tasks:
+    - name: ansibleplaybook-cobra-cmd
+      debug:
+        msg: Your are running 'ansibleplaybook-cobra-cmd' example
+
+    - name: Print extra variable 'example'
+      debug:
+        msg: "Example value is {{ example }}"
