@@ -14,7 +14,6 @@ import (
 )
 
 func TestRun(t *testing.T) {
-	//var w bytes.Buffer
 
 	tests := []struct {
 		desc              string
@@ -154,16 +153,12 @@ func TestRun(t *testing.T) {
 					[]execute.ExecuteOptions{},
 				).Return(nil)
 			},
-			// 			res: `127.0.0.1 | SUCCESS => {"ansible_facts": {"discovered_interpreter_python": "/usr/bin/python3"},"changed": false,"ping": "pong"}
-			// `,
 		},
 	}
 
 	for _, test := range tests {
-		// w = bytes.Buffer{}
 		t.Run(test.desc, func(t *testing.T) {
 			t.Log(test.desc)
-			// w.Reset()
 
 			if test.prepareAssertFunc != nil {
 				test.prepareAssertFunc(test.ansibleAdhocCmd)
