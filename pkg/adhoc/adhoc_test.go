@@ -444,7 +444,7 @@ func TestAnsibleAdhocString(t *testing.T) {
 
 	cmd := options.String()
 
-	expected := " --args args --ask-vault-password --background 11 --check --diff --extra-vars '{\"var1\":\"value1\",\"var2\":false}' --extra-vars @test/ansible/extra_vars.yml --forks 10 --inventory 127.0.0.1, --limit myhost --list-hosts --module-name module-name --module-path /dev/null --one-line --playbook-dir playbook-dir --poll 12 --syntax-check --tree tree --vault-id asdf --vault-password-file /dev/null -vvvv --version"
+	expected := " --args 'args' --ask-vault-password --background 11 --check --diff --extra-vars '{\"var1\":\"value1\",\"var2\":false}' --extra-vars @test/ansible/extra_vars.yml --forks 10 --inventory 127.0.0.1, --limit myhost --list-hosts --module-name module-name --module-path /dev/null --one-line --playbook-dir playbook-dir --poll 12 --syntax-check --tree tree --vault-id asdf --vault-password-file /dev/null -vvvv --version"
 
 	assert.Equal(t, expected, cmd)
 }
