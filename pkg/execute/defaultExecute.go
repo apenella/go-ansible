@@ -48,6 +48,18 @@ const (
 	AnsiblePlaybookErrorMessageUnexpectedError = "ansible-playbook error: unexpected error"
 )
 
+// EnvVars represents a custom environment for an ansible playbook execution.
+type EnvVars map[string]string
+
+// Environ returns a copy of strings representing the custom environment, in the form "key=value".
+func (e EnvVars) Environ() []string {
+	result := make([]string, 0, len(e))
+	for k, v := range e {
+		result = append(result, fmt.Sprintf("%s=%s", k, v))
+	}
+	return result
+}
+
 // DefaultExecute is a simple definition of an executor
 type DefaultExecute struct {
 	// Writer is where is written the command stdout
@@ -59,7 +71,7 @@ type DefaultExecute struct {
 	// CmdRunDir specifies the working directory of the command.
 	CmdRunDir string
 	// EnvVars specifies env vars of the command.
-	EnvVars map[string]string
+	EnvVars EnvVars
 	// OutputFormat
 	Transformers []results.TransformerFunc
 }
@@ -157,9 +169,8 @@ func (e *DefaultExecute) Execute(ctx context.Context, command []string, resultsF
 	}
 
 	if len(e.EnvVars) > 0 {
-		for k, v := range e.EnvVars {
-			cmd.Env = append(cmd.Env, fmt.Sprintf("%s=%s", k, v))
-		}
+		cmd.Env = os.Environ()
+		cmd.Env = append(cmd.Env, e.EnvVars.Environ()...)
 	}
 
 	cmd.Stdin = os.Stdin // connects the main process' stdin to ansible's stdin
@@ -221,7 +232,7 @@ func (e *DefaultExecute) Execute(ctx context.Context, command []string, resultsF
 			fmt.Fprintf(e.Write, "%s\n", fmt.Sprintf("\nWhoops! %s\n", ctx.Err()))
 		} else {
 			errorMessage := string(err.(*exec.ExitError).Stderr)
-			errorMessage = fmt.Sprintf("Command executed: %s %s\n%s\n%s", strings.Join(cmd.Env, " "), cmd.String(), errorMessage, err.Error())
+			errorMessage = fmt.Sprintf("Command executed: %s %s\n%s\n%s", strings.Join(e.EnvVars.Environ(), " "), cmd.String(), errorMessage, err.Error())
 
 			exitError, exists := err.(*exec.ExitError)
 			if exists {
