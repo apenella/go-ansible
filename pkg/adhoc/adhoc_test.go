@@ -229,7 +229,7 @@ func TestString(t *testing.T) {
 
 	adhoc := &AnsibleAdhocCmd{
 		Binary:  "custom-binary",
-		Pattern: "pattenr",
+		Pattern: "pattern",
 		Options: &AnsibleAdhocOptions{
 			Args:        "args",
 			Background:  11,
@@ -246,7 +246,7 @@ func TestString(t *testing.T) {
 		StdoutCallback:             "oneline",
 	}
 
-	expected := "custom-binary pattenr  --args args --background 11 --module-name module-name --one-line --playbook-dir playbook-dir --poll 12 --tree tree  --connection local "
+	expected := "custom-binary pattern  --args 'args' --background 11 --module-name module-name --one-line --playbook-dir playbook-dir --poll 12 --tree tree  --connection local "
 
 	res := adhoc.String()
 
