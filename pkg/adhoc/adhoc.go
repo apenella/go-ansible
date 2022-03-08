@@ -261,7 +261,7 @@ type AnsibleAdhocOptions struct {
 	Version bool
 }
 
-// GenerateCommandAdhocOptions return a list of command options flags to be used on ansible execution
+// GenerateAnsibleAdhocOptions return a list of command options flags to be used on ansible execution
 func (o *AnsibleAdhocOptions) GenerateAnsibleAdhocOptions() ([]string, error) {
 	cmd := []string{}
 
