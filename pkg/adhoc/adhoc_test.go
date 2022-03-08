@@ -229,7 +229,7 @@ func TestString(t *testing.T) {
 
 	adhoc := &AnsibleAdhocCmd{
 		Binary:  "custom-binary",
-		Pattern: "pattenr",
+		Pattern: "pattern",
 		Options: &AnsibleAdhocOptions{
 			Args:        "args",
 			Background:  11,
@@ -246,7 +246,7 @@ func TestString(t *testing.T) {
 		StdoutCallback:             "oneline",
 	}
 
-	expected := "custom-binary pattenr  --args args --background 11 --module-name module-name --one-line --playbook-dir playbook-dir --poll 12 --tree tree  --connection local "
+	expected := "custom-binary pattern  --args 'args' --background 11 --module-name module-name --one-line --playbook-dir playbook-dir --poll 12 --tree tree  --connection local "
 
 	res := adhoc.String()
 
@@ -444,7 +444,7 @@ func TestAnsibleAdhocString(t *testing.T) {
 
 	cmd := options.String()
 
-	expected := " --args args --ask-vault-password --background 11 --check --diff --extra-vars '{\"var1\":\"value1\",\"var2\":false}' --extra-vars @test/ansible/extra_vars.yml --forks 10 --inventory 127.0.0.1, --limit myhost --list-hosts --module-name module-name --module-path /dev/null --one-line --playbook-dir playbook-dir --poll 12 --syntax-check --tree tree --vault-id asdf --vault-password-file /dev/null -vvvv --version"
+	expected := " --args 'args' --ask-vault-password --background 11 --check --diff --extra-vars '{\"var1\":\"value1\",\"var2\":false}' --extra-vars @test/ansible/extra_vars.yml --forks 10 --inventory 127.0.0.1, --limit myhost --list-hosts --module-name module-name --module-path /dev/null --one-line --playbook-dir playbook-dir --poll 12 --syntax-check --tree tree --vault-id asdf --vault-password-file /dev/null -vvvv --version"
 
 	assert.Equal(t, expected, cmd)
 }

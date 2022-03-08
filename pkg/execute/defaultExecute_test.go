@@ -88,3 +88,30 @@ func TestDefaultExecute(t *testing.T) {
 	}
 
 }
+
+func TestEnviron(t *testing.T) {
+	tests := []struct {
+		desc           string
+		envvars        EnvVars
+		expectedResult []string
+	}{
+		{
+			desc: "Testing basic test case",
+			envvars: EnvVars{
+				"KEY": "VALUE",
+			},
+			expectedResult: []string{"KEY=VALUE"},
+		},
+		{
+			desc:           "Testing an empty env",
+			envvars:        EnvVars{},
+			expectedResult: []string{},
+		},
+	}
+
+	for _, test := range tests {
+		t.Run(test.desc, func(tt *testing.T) {
+			assert.Equal(tt, test.expectedResult, test.envvars.Environ())
+		})
+	}
+}
