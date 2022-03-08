@@ -231,8 +231,15 @@ func (e *DefaultExecute) Execute(ctx context.Context, command []string, resultsF
 		if ctx.Err() != nil {
 			fmt.Fprintf(e.Write, "%s\n", fmt.Sprintf("\nWhoops! %s\n", ctx.Err()))
 		} else {
-			errorMessage := string(err.(*exec.ExitError).Stderr)
-			errorMessage = fmt.Sprintf("Command executed: %s %s\n%s\n%s", strings.Join(e.EnvVars.Environ(), " "), cmd.String(), errorMessage, err.Error())
+			errorMessage := fmt.Sprintf("Command executed:\n%s\n", cmd.String())
+			if len(e.EnvVars) > 0 {
+				errorMessage = fmt.Sprintf("%s\nEnvironment variables:\n%s\n", errorMessage, strings.Join(e.EnvVars.Environ(), "\n"))
+			}
+			errorMessage = fmt.Sprintf("%s\nError:\n%s\n", errorMessage, err.Error())
+			stderrErrorMessage := string(err.(*exec.ExitError).Stderr)
+			if len(stderrErrorMessage) > 0 {
+				errorMessage = fmt.Sprintf("%s\n'%s'\n", errorMessage, stderrErrorMessage)
+			}
 
 			exitError, exists := err.(*exec.ExitError)
 			if exists {

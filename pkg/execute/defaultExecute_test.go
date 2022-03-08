@@ -89,21 +89,21 @@ func TestDefaultExecute(t *testing.T) {
 
 }
 
-func TestEnvVars(t *testing.T) {
+func TestEnviron(t *testing.T) {
 	tests := []struct {
 		desc           string
 		envvars        EnvVars
 		expectedResult []string
 	}{
 		{
-			desc: "basic test case",
+			desc: "Testing basic test case",
 			envvars: EnvVars{
 				"KEY": "VALUE",
 			},
 			expectedResult: []string{"KEY=VALUE"},
 		},
 		{
-			desc:           "empty env",
+			desc:           "Testing an empty env",
 			envvars:        EnvVars{},
 			expectedResult: []string{},
 		},
