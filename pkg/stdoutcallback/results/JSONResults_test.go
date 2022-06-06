@@ -4,6 +4,8 @@ import (
 	"bufio"
 	"bytes"
 	"context"
+	"encoding/json"
+	"fmt"
 	"io"
 	"strings"
 	"testing"
@@ -13,9 +15,7 @@ import (
 )
 
 func TestStdoutCallbackJSONResults(t *testing.T) {
-
-	t.Skip()
-
+	longMessageLine := randStringBytes(512_000)
 	tests := []struct {
 		desc           string
 		inputResult    string
@@ -103,6 +103,39 @@ func TestStdoutCallbackJSONResults(t *testing.T) {
 			}`,
 			expectedResult: `{				"custom_stats": {},				"global_custom_stats": {},				"plays": [					{						"play": {							"duration": {								"end": "2020-08-07T20:51:30.942955Z",								"start": "2020-08-07T20:51:30.607525Z"							},							"id": "a0a4c5d1-62fd-b6f1-98ea-000000000006",							"name": "local"						},						"tasks": [							{								"hosts": {									"127.0.0.1": {										"_ansible_no_log": false,										"_ansible_verbose_always": true,										"action": "debug",										"changed": false,										"msg": "That's a message to debug"									}								},								"task": {									"duration": {										"end": "2020-08-07T20:51:30.942955Z",										"start": "2020-08-07T20:51:30.908539Z"									},									"id": "a0a4c5d1-62fd-b6f1-98ea-000000000008",									"name": "Print line"								}							},							{								"hosts": {									"192.198.1.1": {										"_ansible_no_log": false,										"_ansible_verbose_always": true,										"action": "debug",										"changed": false,										"msg": "That's a message to debug"									}								},								"task": {									"duration": {										"end": "2020-08-07T20:51:30.942955Z",										"start": "2020-08-07T20:51:30.908539Z"									},									"id": "a0a4c5d1-62fd-b6f1-98ea-000000000008",									"name": "Print line"								}							}						]					}				],				"stats": {					"127.0.0.1": {						"changed": 0,						"failures": 0,						"ignored": 0,						"ok": 1,						"rescued": 0,						"skipped": 0,						"unreachable": 0					},					"192.168.1.1": {						"changed": 0,						"failures": 0,						"ignored": 0,						"ok": 1,						"rescued": 0,						"skipped": 0,						"unreachable": 0					}				}			}`,
 			err: nil,
+		},
+		{
+			desc: "Testing very long file in json output",
+			inputResult: fmt.Sprintf(`{
+				"custom_stats": {},
+				"global_custom_stats": {},
+				"plays": [
+					{
+						"play": {
+							"duration": {
+								"end": "2020-08-07T20:51:30.942955Z",
+								"start": "2020-08-07T20:51:30.607525Z"
+							},
+							"id": "a0a4c5d1-62fd-b6f1-98ea-000000000006",
+							"name": "%s"
+						},
+						"tasks": []
+					}
+				],
+				"stats": {
+					"127.0.0.1": {
+						"changed": 0,
+						"failures": 0,
+						"ignored": 0,
+						"ok": 1,
+						"rescued": 0,
+						"skipped": 0,
+						"unreachable": 0
+					}
+				}
+			}`, longMessageLine),
+			expectedResult: fmt.Sprintf(`{"custom_stats": {},"global_custom_stats": {},"plays": [{"play": {"duration": {"end": "2020-08-07T20:51:30.942955Z","start": "2020-08-07T20:51:30.607525Z"},"id": "a0a4c5d1-62fd-b6f1-98ea-000000000006","name": "%s"},"tasks": []}],"stats": {"127.0.0.1": {"changed": 0,"failures": 0,"ignored": 0,"ok": 1,"rescued": 0,"skipped": 0,"unreachable": 0}}}`, longMessageLine),
+			err:            nil,
 		},
 		{
 			desc: "Testing stdout callback json result skipping lines",
@@ -275,7 +308,19 @@ func TestStdoutCallbackJSONResults(t *testing.T) {
 			if err != nil && assert.Error(t, err) {
 				assert.Equal(t, test.err, err)
 			} else {
-				assert.Equal(t, test.expectedResult, wbuff.String(), "Unexpected value")
+				var expectedResult, actualResult interface{}
+				err := json.Unmarshal([]byte(test.expectedResult), &expectedResult)
+				if err != nil {
+					assert.Fail(t, "Failed to unmarshal json", err)
+					return
+				}
+
+				err = json.Unmarshal(wbuff.Bytes(), &actualResult)
+				if err != nil {
+					assert.Fail(t, "Failed to unmarshal json", err)
+					return
+				}
+				assert.Equal(t, expectedResult, actualResult, "Unexpected value")
 			}
 		})
 	}
