@@ -1,4 +1,4 @@
-## undefined
+## v1.1.6
 
 ### Fixed
 - Quote `Args` value on `AnsibleAdhocCmd`'s `String` method #91

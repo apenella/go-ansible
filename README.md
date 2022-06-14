@@ -14,25 +14,25 @@ It supports the most of its options for each command.
 <!-- code_chunk_output -->
 
 - [go-ansible](#go-ansible)
-  - [Install](#install)
-    - [Upgrade to 1.x](#upgrade-to-1x)
-  - [Packages](#packages)
-    - [Adhoc](#adhoc)
-    - [Playbook](#playbook)
-    - [Execute](#execute)
-      - [DefaultExecute](#defaultexecute)
-      - [Custom executor](#custom-executor)
-      - [Measurements](#measurements)
-    - [Options](#options)
-      - [ansible adhoc and ansible-playbook common options](#ansible-adhoc-and-ansible-playbook-common-options)
-    - [Stdout Callback](#stdout-callback)
-    - [Results](#results)
-      - [Transformers](#transformers)
-      - [Default](#default)
-      - [JSON](#json)
-        - [Manage JSON output](#manage-json-output)
-  - [Examples](#examples)
-  - [License](#license)
+	- [Install](#install)
+		- [Upgrade to 1.x](#upgrade-to-1x)
+	- [Packages](#packages)
+		- [Adhoc](#adhoc)
+		- [Playbook](#playbook)
+		- [Execute](#execute)
+			- [DefaultExecute](#defaultexecute)
+			- [Custom executor](#custom-executor)
+			- [Measurements](#measurements)
+		- [Options](#options)
+			- [ansible adhoc and ansible-playbook common options](#ansible-adhoc-and-ansible-playbook-common-options)
+		- [Stdout Callback](#stdout-callback)
+		- [Results](#results)
+			- [Transformers](#transformers)
+			- [Default](#default)
+			- [JSON](#json)
+				- [Manage JSON output](#manage-json-output)
+	- [Examples](#examples)
+	- [License](#license)
 
 <!-- /code_chunk_output -->
 
@@ -40,7 +40,7 @@ It supports the most of its options for each command.
 
 To install the latest stable version run the command below:
 ```
-$ go get github.com/apenella/go-ansible@v1.1.5
+$ go get github.com/apenella/go-ansible@v1.1.6
 ```
 
 ### Upgrade to 1.x
