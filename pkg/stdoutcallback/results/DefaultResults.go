@@ -14,6 +14,8 @@ import (
 func DefaultStdoutCallbackResults(ctx context.Context, r io.Reader, w io.Writer, trans ...TransformerFunc) error {
 	var transformers []TransformerFunc
 
+	errContext := "(results::DefaultStdoutCallbackResults)"
+
 	if len(trans) > 0 {
 		transformers = append(transformers, Prepend(PrefixTokenSeparator))
 	}
@@ -22,7 +24,7 @@ func DefaultStdoutCallbackResults(ctx context.Context, r io.Reader, w io.Writer,
 
 	err := output(ctx, r, w, transformers...)
 	if err != nil {
-		return wrapError(err)
+		return errors.New(errContext, "Error processing execution output", err)
 	}
 
 	return nil
@@ -34,8 +36,10 @@ func output(ctx context.Context, r io.Reader, w io.Writer, trans ...TransformerF
 	errChan := make(chan error)
 	done := make(chan struct{})
 
+	errContext := "(results::output)"
+
 	if r == nil {
-		return errors.New("(results::DefaultStdoutCallbackResults)", "Reader is not defined")
+		return errors.New(errContext, "Reader is not defined")
 	}
 
 	if w == nil {
@@ -108,8 +112,4 @@ func readLine(r *bufio.Reader) (string, error) {
 	}
 
 	return string(line), nil
-}
-
-func wrapError(err error) error {
-	return errors.New("(results::DefaultStdoutCallbackResults)", "Error processing execution output", err)
 }
