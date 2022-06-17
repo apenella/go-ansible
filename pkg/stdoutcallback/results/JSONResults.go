@@ -101,7 +101,7 @@ type AnsiblePlaybookJSONResultsPlayTaskHostsItem struct {
 	FailedWhenResult bool                   `json:"failed_when_result"`
 	Skipped          bool                   `json:"skipped"`
 	SkipReason       string                 `json:"skip_reason"`
-	Unreachable      string                 `json:"unreachable"`
+	Unreachable      bool                   `json:"unreachable"`
 }
 
 type AnsiblePlaybookJSONResultsPlayTaskItem struct {
