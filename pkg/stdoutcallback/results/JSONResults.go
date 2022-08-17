@@ -72,14 +72,17 @@ type AnsiblePlaybookJSONResultsPlaysPlay struct {
 	Duration *AnsiblePlaybookJSONResultsPlayDuration `json:"duration"`
 }
 
-/* AnsiblePlaybookJSONResultsPlayTask
-'task': {
-	'name': task.get_name(),
-	'id': to_text(task._uuid),
-	'duration': {
-		'start': current_time()
-	}
-},
+/*
+	AnsiblePlaybookJSONResultsPlayTask
+
+	'task': {
+		'name': task.get_name(),
+		'id': to_text(task._uuid),
+		'duration': {
+			'start': current_time()
+		}
+	},
+
 'hosts': {}
 */
 type AnsiblePlaybookJSONResultsPlayTask struct {
@@ -92,7 +95,7 @@ type AnsiblePlaybookJSONResultsPlayTaskHostsItem struct {
 	Changed          bool                   `json:"changed"`
 	Msg              interface{}            `json:"msg"`
 	AnsibleFacts     map[string]interface{} `json:"ansible_facts"`
-	Stdout           string                 `json:"stdout"`
+	Stdout           interface{}            `json:"stdout"`
 	StdoutLines      []string               `json:"stdout_lines"`
 	Stderr           string                 `json:"stderr"`
 	StderrLines      []string               `json:"stderr_lines"`
