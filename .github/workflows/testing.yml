@@ -22,5 +22,5 @@ jobs:
         go-version: 1.15
 
     - name: Test
-      run: go test -v ./pkg/... -cover -count=1
+      run: go test ./pkg/... -cover -count=1
 
