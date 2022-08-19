@@ -97,7 +97,7 @@ type AnsiblePlaybookJSONResultsPlayTaskHostsItem struct {
 	AnsibleFacts     map[string]interface{} `json:"ansible_facts"`
 	Stdout           interface{}            `json:"stdout"`
 	StdoutLines      []string               `json:"stdout_lines"`
-	Stderr           string                 `json:"stderr"`
+	Stderr           interface{}            `json:"stderr"`
 	StderrLines      []string               `json:"stderr_lines"`
 	Cmd              interface{}            `json:"cmd"`
 	Failed           bool                   `json:"failed"`
