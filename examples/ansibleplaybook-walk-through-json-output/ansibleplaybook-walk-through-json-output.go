@@ -58,10 +58,10 @@ func main() {
 
 	for _, play := range res.Plays {
 		for _, task := range play.Tasks {
-			if task.Task.Name == "walk-through-json-output-ansibleplaybook" {
+			if task.Task.Name == "ansibleplaybook-walk-through-json-output" {
 				for _, content := range task.Hosts {
 
-					err = json.Unmarshal([]byte(content.Stdout), &msgOutput)
+					err = json.Unmarshal([]byte(fmt.Sprint(content.Stdout)), &msgOutput)
 					if err != nil {
 						panic(err)
 					}

@@ -40,7 +40,7 @@ It supports the most of its options for each command.
 
 To install the latest stable version run the command below:
 ```
-$ go get github.com/apenella/go-ansible@v1.1.6
+$ go get github.com/apenella/go-ansible@v1.1.7
 ```
 
 ### Upgrade to 1.x

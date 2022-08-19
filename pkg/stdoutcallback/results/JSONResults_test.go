@@ -350,6 +350,9 @@ func TestStdoutCallbackJSONResults(t *testing.T) {
 
 	for _, test := range tests {
 		t.Run(test.desc, func(t *testing.T) {
+
+			t.Log(test.desc)
+
 			wbuff := bytes.Buffer{}
 			writer := io.Writer(&wbuff)
 			reader := bufio.NewReader(strings.NewReader(test.inputResult))
@@ -370,9 +373,6 @@ func TestStdoutCallbackJSONResults(t *testing.T) {
 					return
 				}
 
-				fmt.Println(">>>>")
-				fmt.Println(wbuff.String())
-				fmt.Println(">>>>")
 				assert.Equal(t, expectedResult, actualResult, "Unexpected value")
 			}
 		})
@@ -490,6 +490,8 @@ func TestJSONParser(t *testing.T) {
 
 	for _, test := range tests {
 		t.Run(test.desc, func(t *testing.T) {
+			t.Log(test.desc)
+
 			res, _ := JSONParse([]byte(test.inputResult))
 			assert.Equal(t, test.res, res, "Unexpected result")
 		})
@@ -1071,6 +1073,7 @@ func TestParseJSONResultsStream(t *testing.T) {
 										Changed:          true,
 										Stdout:           "",
 										StdoutLines:      []string{},
+										Stderr:           "",
 										StderrLines:      []string{},
 										Cmd:              "/usr/bin/true",
 										Failed:           false,
@@ -1116,6 +1119,7 @@ func TestParseJSONResultsStream(t *testing.T) {
 										Action:           "command",
 										Changed:          true,
 										Msg:              "non-zero return code",
+										Stdout:           "",
 										StdoutLines:      []string{},
 										Stderr:           "",
 										StderrLines:      []string{},
@@ -1142,6 +1146,7 @@ func TestParseJSONResultsStream(t *testing.T) {
 										Action:           "ansible.builtin.command",
 										Changed:          true,
 										Msg:              "non-zero return code",
+										Stdout:           "",
 										StdoutLines:      []string{},
 										Stderr:           "/usr/bin/ls: cannot access '/tmp/foobar.baz': No such file or directory",
 										StderrLines:      []string{"/usr/bin/ls: cannot access '/tmp/foobar.baz': No such file or directory"},
@@ -1173,6 +1178,8 @@ func TestParseJSONResultsStream(t *testing.T) {
 
 	for _, test := range tests {
 		t.Run(test.desc, func(t *testing.T) {
+			t.Log(test.desc)
+
 			res, err := ParseJSONResultsStream(strings.NewReader(test.inputResult))
 			if err != nil {
 				t.Fatalf("unexpected error: %s", err)
@@ -1217,6 +1224,8 @@ Host: 127.0.0.1
 
 	for _, test := range tests {
 		t.Run(test.desc, func(t *testing.T) {
+			t.Log(test.desc)
+
 			res := test.results.String()
 			assert.Equal(t, test.res, res, "Unexpected result")
 		})
@@ -1246,6 +1255,8 @@ func TestAnsiblePlaybookJSONResultsStatsString(t *testing.T) {
 
 	for _, test := range tests {
 		t.Run(test.desc, func(t *testing.T) {
+			t.Log(test.desc)
+
 			res := test.stats.String()
 			assert.Equal(t, test.res, res, "Unexpected result")
 		})
