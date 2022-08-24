@@ -2,7 +2,7 @@ package main
 
 import (
 	"context"
-	"fmt"
+	"log"
 
 	"github.com/apenella/go-ansible/pkg/adhoc"
 	"github.com/apenella/go-ansible/pkg/options"
@@ -16,7 +16,17 @@ func main() {
 
 	ansibleAdhocOptions := &adhoc.AnsibleAdhocOptions{
 		Inventory:  "127.0.0.1,",
-		ModuleName: "ping",
+		ModuleName: "debug",
+		Args: `msg="
+{{ arg1 }}
+{{ arg2 }}
+{{ arg3 }}
+"`,
+		ExtraVars: map[string]interface{}{
+			"arg1": map[string]interface{}{"subargument": "subargument_value"},
+			"arg2": "arg2_value",
+			"arg3": "arg3_value",
+		},
 	}
 
 	adhoc := &adhoc.AnsibleAdhocCmd{
@@ -26,7 +36,7 @@ func main() {
 		//StdoutCallback:    "oneline",
 	}
 
-	fmt.Println("Command: ", adhoc.String())
+	log.Println("Command: ", adhoc)
 
 	err := adhoc.Run(context.TODO())
 	if err != nil {
