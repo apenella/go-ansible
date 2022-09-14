@@ -14,12 +14,15 @@ jobs:
   testing:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v2
-
-    - name: Set up Go
-      uses: actions/setup-go@v2
+    - uses: actions/checkout@v3
       with:
-        go-version: 1.15
+        fetch-depth: 0
+    - run: git fetch --force --tags
+
+    - uses: actions/setup-go@v3
+      with:
+        go-version: ^1.19
+        cache: true
 
     - name: Test
       run: go test ./pkg/... -cover -count=1
