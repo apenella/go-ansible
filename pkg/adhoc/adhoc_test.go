@@ -567,3 +567,75 @@ func TestAddExtraVarsFile(t *testing.T) {
 		})
 	}
 }
+
+func TestGenerateVerbosityFlag(t *testing.T) {
+	tests := []struct {
+		desc    string
+		options *AnsibleAdhocOptions
+		res     string
+		err     error
+	}{
+		{
+			desc: "Testing generate verbosity flag",
+			options: &AnsibleAdhocOptions{
+				Verbose: true,
+			},
+			res: "-vvvv",
+			err: &errors.Error{},
+		},
+		{
+			desc: "Testing generate verbosity flag V",
+			options: &AnsibleAdhocOptions{
+				VerboseV: true,
+			},
+			res: "-v",
+			err: &errors.Error{},
+		},
+		{
+			desc: "Testing generate verbosity flag VV",
+			options: &AnsibleAdhocOptions{
+				VerboseVV: true,
+			},
+			res: "-vv",
+			err: &errors.Error{},
+		},
+		{
+			desc: "Testing generate verbosity flag VVV",
+			options: &AnsibleAdhocOptions{
+				VerboseVVV: true,
+			},
+			res: "-vvv",
+			err: &errors.Error{},
+		},
+		{
+			desc: "Testing generate verbosity flag VVVV",
+			options: &AnsibleAdhocOptions{
+				VerboseVVVV: true,
+			},
+			res: "-vvvv",
+			err: &errors.Error{},
+		},
+		{
+			desc: "Testing generate verbosity flag VV has precedence over V",
+			options: &AnsibleAdhocOptions{
+				VerboseVV: true,
+				VerboseV:  true,
+			},
+			res: "-vv",
+			err: &errors.Error{},
+		},
+	}
+
+	for _, test := range tests {
+		t.Run(test.desc, func(t *testing.T) {
+			t.Log(test.desc)
+
+			res, err := test.options.generateVerbosityFlag()
+			if err != nil && assert.Error(t, err) {
+				assert.Equal(t, test.err, err)
+			} else {
+				assert.Equal(t, test.res, res)
+			}
+		})
+	}
+}

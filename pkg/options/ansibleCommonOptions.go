@@ -48,9 +48,6 @@ const (
 	// VersionFlag show program's version number, config file location, configured module search path, module location, executable location and exit
 	VersionFlag = "--version"
 
-	// VerboseFlag verbose mode enabled to connection debugging
-	VerboseFlag = "-vvvv"
-
 	//
 	// Connection Options
 
