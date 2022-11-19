@@ -79,6 +79,18 @@ const (
 
 	// VerboseFlag verbose mode enabled to connection debugging
 	VerboseFlag = "-vvvv"
+
+	// VerboseVFlag verbose with -v is enabled
+	VerboseVFlag = "-v"
+
+	// VerboseVVFlag verbose with -vv is enabled
+	VerboseVVFlag = "-vv"
+
+	// VerboseVFlag verbose with -vvv is enabled
+	VerboseVVVFlag = "-vvv"
+
+	// VerboseVFlag verbose with -vvvv is enabled
+	VerboseVVVVFlag = "-vvvv"
 )
 
 // AnsibleAdhocOptionsFunc is a function to set executor options
@@ -217,46 +229,79 @@ func (a *AnsibleAdhocCmd) String() string {
 type AnsibleAdhocOptions struct {
 	// Args module arguments
 	Args string
+
 	// AskVaultPassword ask for vault password
 	AskVaultPassword bool
+
 	// Background un asynchronously, failing after X seconds (default=N/A)
 	Background int
+
 	// Check don't make any changes; instead, try to predict some of the changes that may occur
 	Check bool
+
 	// Diff when changing (small) files and templates, show the differences in those files; works great with --check
 	Diff bool
+
 	// ExtraVars is a map of extra variables used on ansible-playbook execution
 	ExtraVars map[string]interface{}
+
 	// ExtraVarsFile is a list of files used to load extra-vars
 	ExtraVarsFile []string
+
 	// Forks specify number of parallel processes to use (default=50)
 	Forks string
+
 	// Inventory specify inventory host path
 	Inventory string
+
 	// Limit is selected hosts additional pattern
 	Limit string
+
 	// ListHosts outputs a list of matching hosts
 	ListHosts bool
+
 	// ModuleName module name to execute (default=command)
 	ModuleName string
+
 	// ModulePath repend colon-separated path(s) to module library (default=~/.ansible/plugins/modules:/usr/share/ansible/plugins/modules)
 	ModulePath string
+
 	// OneLine condense output
 	OneLine bool
+
 	// PlaybookDir since this tool does not use playbooks, use this as a substitute playbook directory.This sets the relative path for many features including roles/ group_vars/ etc.
 	PlaybookDir string
+
 	// Poll set the poll interval if using -B (default=15)
 	Poll int
+
 	// SyntaxCheck is the syntax check flag for ansible-playbook
 	SyntaxCheck bool
+
 	// Tree log output to this directory
 	Tree string
+
 	// VaultID the vault identity to use
 	VaultID string
+
 	// VaultPasswordFile path to the file holding vault decryption key
 	VaultPasswordFile string
+
 	// Verbose verbose mode enabled to connection debugging
 	Verbose bool
+
+	// Verbose verbose mode -v enabled
+	VerboseV bool
+
+	// Verbose verbose mode -vv enabled
+	VerboseVV bool
+
+	// Verbose verbose mode -vvv enabled
+	VerboseVVV bool
+
+	// Verbose verbose mode -vvvv enabled
+	VerboseVVVV bool
+
 	// Version show program's version number, config file location, configured module search path, module location, executable location and exit
 	Version bool
 }
@@ -378,7 +423,32 @@ func (o *AnsibleAdhocOptions) GenerateAnsibleAdhocOptions() ([]string, error) {
 	return cmd, nil
 }
 
-// generateExtraVarsCommand return an string which is a json structure having all the extra variable
+// generateVerbosityFlag return a string with the verbose flag. Higher verbosity (more v's) has precedence over lower
+func (o *AnsibleAdhocOptions) generateVerbosityFlag() (string, error) {
+	if o.Verbose {
+		return VerboseFlag, nil
+	}
+
+	if o.VerboseVVVV {
+		return VerboseVVVVFlag, nil
+	}
+
+	if o.VerboseVVV {
+		return VerboseVVVFlag, nil
+	}
+
+	if o.VerboseVV {
+		return VerboseVVFlag, nil
+	}
+
+	if o.VerboseV {
+		return VerboseVFlag, nil
+	}
+
+	return "", nil
+}
+
+// generateExtraVarsCommand return a string which is a json structure having all the extra variable
 func (o *AnsibleAdhocOptions) generateExtraVarsCommand() (string, error) {
 
 	extraVars, err := common.ObjectToJSONString(o.ExtraVars)

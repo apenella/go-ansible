@@ -80,8 +80,20 @@ const (
 	// VersionFlag show program's version number, config file location, configured module search path, module location, executable location and exit
 	VersionFlag = "--version"
 
-	// VerboseFlag verbose mode enabled to connection debugging
+	// VerboseFlag verbose mode enabled
 	VerboseFlag = "-vvvv"
+
+	// VerboseVFlag verbose with -v is enabled
+	VerboseVFlag = "-v"
+
+	// VerboseVVFlag verbose with -vv is enabled
+	VerboseVVFlag = "-vv"
+
+	// VerboseVFlag verbose with -vvv is enabled
+	VerboseVVVFlag = "-vvv"
+
+	// VerboseVFlag verbose with -vvvv is enabled
+	VerboseVVVVFlag = "-vvvv"
 )
 
 // AnsiblePlaybookOptionsFunc is a function to set executor options
@@ -282,8 +294,20 @@ type AnsiblePlaybookOptions struct {
 	// VaultPasswordFile path to the file holding vault decryption key
 	VaultPasswordFile string
 
-	// Verbose verbose mode enabled to connection debugging
+	// Verbose verbose mode enabled
 	Verbose bool
+
+	// Verbose verbose mode -v enabled
+	VerboseV bool
+
+	// Verbose verbose mode -vv enabled
+	VerboseVV bool
+
+	// Verbose verbose mode -vvv enabled
+	VerboseVVV bool
+
+	// Verbose verbose mode -vvvv enabled
+	VerboseVVVV bool
 
 	// Version show program's version number, config file location, configured module search path, module location, executable location and exit
 	Version bool
@@ -292,10 +316,12 @@ type AnsiblePlaybookOptions struct {
 // GenerateCommandOptions return a list of options flags to be used on ansible-playbook execution
 func (o *AnsiblePlaybookOptions) GenerateCommandOptions() ([]string, error) {
 
+	errContext := "(playbook::GenerateCommandOptions)"
+
 	cmd := []string{}
 
 	if o == nil {
-		return nil, errors.New("(playbook::GenerateCommandOptions)", "AnsiblePlaybookOptions is nil")
+		return nil, errors.New(errContext, "AnsiblePlaybookOptions is nil")
 	}
 
 	if o.AskVaultPassword {
@@ -314,7 +340,7 @@ func (o *AnsiblePlaybookOptions) GenerateCommandOptions() ([]string, error) {
 		cmd = append(cmd, ExtraVarsFlag)
 		extraVars, err := o.generateExtraVarsCommand()
 		if err != nil {
-			return nil, errors.New("(playbook::GenerateCommandOptions)", "Error generating extra-vars", err)
+			return nil, errors.New(errContext, "Error generating extra-vars", err)
 		}
 		cmd = append(cmd, extraVars)
 	}
@@ -397,8 +423,12 @@ func (o *AnsiblePlaybookOptions) GenerateCommandOptions() ([]string, error) {
 		cmd = append(cmd, o.VaultPasswordFile)
 	}
 
-	if o.Verbose {
-		cmd = append(cmd, VerboseFlag)
+	verboseFlag, err := o.generateVerbosityFlag()
+	if err != nil {
+		return nil, errors.New(errContext, "", err)
+	}
+	if verboseFlag != "" {
+		cmd = append(cmd, verboseFlag)
 	}
 
 	if o.Version {
@@ -408,7 +438,32 @@ func (o *AnsiblePlaybookOptions) GenerateCommandOptions() ([]string, error) {
 	return cmd, nil
 }
 
-// generateExtraVarsCommand return an string which is a json structure having all the extra variable
+// generateVerbosityFlag return a string with the verbose flag. Higher verbosity (more v's) has precedence over lower
+func (o *AnsiblePlaybookOptions) generateVerbosityFlag() (string, error) {
+	if o.Verbose {
+		return VerboseFlag, nil
+	}
+
+	if o.VerboseVVVV {
+		return VerboseVVVVFlag, nil
+	}
+
+	if o.VerboseVVV {
+		return VerboseVVVFlag, nil
+	}
+
+	if o.VerboseVV {
+		return VerboseVVFlag, nil
+	}
+
+	if o.VerboseV {
+		return VerboseVFlag, nil
+	}
+
+	return "", nil
+}
+
+// generateExtraVarsCommand return a string which is a json structure having all the extra variable
 func (o *AnsiblePlaybookOptions) generateExtraVarsCommand() (string, error) {
 
 	extraVars, err := common.ObjectToJSONString(o.ExtraVars)
