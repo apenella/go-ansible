@@ -11,11 +11,13 @@ import (
 // OptionsFunc is a function used to configure ReadPasswordFromFile
 type OptionsFunc func(*ReadPasswordFromFile)
 
+// ReadPasswordFromFile allows you to read a passowrd from a file
 type ReadPasswordFromFile struct {
 	file string
 	fs   afero.Fs
 }
 
+// NewReadPasswordFromFile returns a ReadPasswordFromFile
 func NewReadPasswordFromFile(options ...OptionsFunc) *ReadPasswordFromFile {
 	secret := &ReadPasswordFromFile{}
 	secret.Options(options...)
@@ -23,12 +25,14 @@ func NewReadPasswordFromFile(options ...OptionsFunc) *ReadPasswordFromFile {
 	return secret
 }
 
+// WithFile sets the a file where to look for a password
 func WithFile(file string) OptionsFunc {
 	return func(s *ReadPasswordFromFile) {
 		s.file = file
 	}
 }
 
+// WithFs set the filesystem
 func WithFs(fs afero.Fs) OptionsFunc {
 	return func(s *ReadPasswordFromFile) {
 		s.fs = fs
@@ -42,7 +46,7 @@ func (s *ReadPasswordFromFile) Options(opts ...OptionsFunc) {
 	}
 }
 
-// Read returns a secrets from a file. It return an error when the file does not exist or the content of the file can not be read.
+// Read returns a password from a file. It return an error when the file does not exist or the content of the file can not be read.
 func (s *ReadPasswordFromFile) Read() (string, error) {
 	var password string
 	var err error

@@ -471,9 +471,6 @@ func (o *AnsiblePlaybookOptions) generateExtraVarsCommand() (string, error) {
 		return "", errors.New("(playbook::generateExtraVarsCommand)", "Error creationg extra-vars JSON object to string", err)
 	}
 
-	// extraVars = strings.ReplaceAll(extraVars, `\"`, `"`)
-	// extraVars = strings.ReplaceAll(extraVars, `\\n`, `\n`)
-
 	return extraVars, nil
 }
 
