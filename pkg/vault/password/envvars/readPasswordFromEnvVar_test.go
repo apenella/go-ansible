@@ -9,7 +9,7 @@ import (
 
 func TestRead(t *testing.T) {
 
-	t.Setenv("VAULT_SECRET", "ThatIsASecret")
+	t.Setenv("VAULT_PASSWORD", "ThatIsAPassword")
 
 	tests := []struct {
 		desc     string
@@ -20,9 +20,9 @@ func TestRead(t *testing.T) {
 		{
 			desc: "Testing reading a secret from an environment variable",
 			reader: NewReadPasswordFromEnvVar(
-				WithEnvVar("VAULT_SECRET"),
+				WithEnvVar("VAULT_PASSWORD"),
 			),
-			expected: "ThatIsASecret",
+			expected: "ThatIsAPassword",
 			err:      nil,
 		},
 		{

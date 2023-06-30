@@ -4,15 +4,17 @@ import (
 	"github.com/stretchr/testify/mock"
 )
 
+// MockReadPassword mocks the PasswordReader
 type MockReadPassword struct {
 	mock.Mock
 }
 
+// NewMockReadPassword return a MockReadPassword
 func NewMockReadPassword() *MockReadPassword {
 	return &MockReadPassword{}
 }
 
-// Secret returns a secrets
+// Read returns a mocked password
 func (s *MockReadPassword) Read() (string, error) {
 	args := s.Called()
 
