@@ -470,6 +470,10 @@ func (o *AnsiblePlaybookOptions) generateExtraVarsCommand() (string, error) {
 	if err != nil {
 		return "", errors.New("(playbook::generateExtraVarsCommand)", "Error creationg extra-vars JSON object to string", err)
 	}
+
+	// extraVars = strings.ReplaceAll(extraVars, `\"`, `"`)
+	// extraVars = strings.ReplaceAll(extraVars, `\\n`, `\n`)
+
 	return extraVars, nil
 }
 
@@ -501,6 +505,32 @@ func (o *AnsiblePlaybookOptions) AddExtraVarsFile(file string) error {
 	}
 
 	o.ExtraVarsFile = append(o.ExtraVarsFile, file)
+
+	return nil
+}
+
+// AddVaultedExtraVar registers a new extra variable on ansible-playbook options item vaulting its value
+func (o *AnsiblePlaybookOptions) AddVaultedExtraVar(vaulter Vaulter, name string, value string) error {
+
+	if vaulter == nil {
+		return errors.New("(playbook::AddVaultedExtraVar)", "To define a vaulted extra-var you need to initialize a vaulter")
+	}
+
+	if o.ExtraVars == nil {
+		o.ExtraVars = map[string]interface{}{}
+	}
+
+	_, exists := o.ExtraVars[name]
+	if exists {
+		return errors.New("(playbook::AddVaultedExtraVar)", fmt.Sprintf("ExtraVar '%s' already exist", name))
+	}
+
+	vaultedValue, err := vaulter.Vault(value)
+	if err != nil {
+		return errors.New("(playbook::AddVaultedExtraVar)", fmt.Sprintf("Variable '%s' can not be vaulted", name), err)
+	}
+
+	o.ExtraVars[name] = vaultedValue
 
 	return nil
 }

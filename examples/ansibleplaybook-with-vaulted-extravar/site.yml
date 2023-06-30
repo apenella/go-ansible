@@ -1,0 +1,8 @@
+---
+
+- hosts: all
+
+  tasks:
+    - name: ansibleplaybook-with-vaulted-extravar
+      debug:
+        msg: Your are reading a vaulted variable provided as an extra-vars '{{ vaulted_extra_var }}'

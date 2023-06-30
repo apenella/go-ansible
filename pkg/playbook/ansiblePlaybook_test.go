@@ -9,6 +9,7 @@ import (
 	"github.com/apenella/go-ansible/pkg/execute"
 	"github.com/apenella/go-ansible/pkg/options"
 	"github.com/apenella/go-ansible/pkg/stdoutcallback"
+	"github.com/apenella/go-ansible/pkg/vault"
 	errors "github.com/apenella/go-common-utils/error"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -619,6 +620,66 @@ func TestAddExtraVarsFile(t *testing.T) {
 				assert.Equal(t, test.err, err)
 			} else {
 				assert.Equal(t, test.res, test.options.ExtraVarsFile, "Unexpected options value")
+			}
+		})
+	}
+}
+
+// AddVaultedExtraVar(vaulter Vaulter, name string, value string)
+func TestAddVaultedExtraVar(t *testing.T) {
+	vaulter := vault.NewMockVariableVaulter()
+	vaulter.On("Vault", "plain_text_value").Return(vault.NewVaultVariableValue("encrypted_value"), nil)
+
+	tests := []struct {
+		desc    string
+		options *AnsiblePlaybookOptions
+		vaulter Vaulter
+		name    string
+		value   string
+		res     map[string]interface{}
+		err     error
+	}{
+		{
+			desc:    "Testing add a vaulted extra-var",
+			options: &AnsiblePlaybookOptions{},
+			vaulter: vaulter,
+			name:    "variable_name",
+			value:   "plain_text_value",
+			res: map[string]interface{}{
+				"variable_name": vault.NewVaultVariableValue("encrypted_value"),
+			},
+			err: &errors.Error{},
+		},
+		{
+			desc:    "Testing error adding a vaulted extra-var when vaulter is nil",
+			options: &AnsiblePlaybookOptions{},
+			vaulter: nil,
+			err:     errors.New("(playbook::AddVaultedExtraVar)", "To define a vaulted extra-var you need to initialize a vaulter"),
+		},
+		{
+			desc: "Testing error adding a vaulted extra-var when variable already exist",
+			options: &AnsiblePlaybookOptions{
+				ExtraVars: map[string]interface{}{
+					"variable_name": "{\"__ansible_vault\":\"encrypted_value\"}",
+				},
+			},
+			vaulter: vaulter,
+			name:    "variable_name",
+			value:   "plain_text_value",
+			res:     map[string]interface{}{},
+			err:     errors.New("(playbook::AddVaultedExtraVar)", "ExtraVar 'variable_name' already exist"),
+		},
+	}
+
+	for _, test := range tests {
+		t.Run(test.desc, func(t *testing.T) {
+			t.Log(test.desc)
+
+			err := test.options.AddVaultedExtraVar(test.vaulter, test.name, test.value)
+			if err != nil {
+				assert.Equal(t, test.err, err)
+			} else {
+				assert.Equal(t, test.res, test.options.ExtraVars, "Unexpected options value")
 			}
 		})
 	}
