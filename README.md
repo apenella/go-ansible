@@ -21,14 +21,16 @@ Let's dive in and explore the capabilities of `go-ansible` together.
 				- [Custom executor](#custom-executor)
 				- [Measurements](#measurements)
 			- [Options](#options)
-				- [Ansible ad-hoc and ansible-playbook common options](#ansible-ad-hoc-and-ansible-playbook-common-options)
+				- [Ansible ad-hoc and ansible-playbook Common Options](#ansible-ad-hoc-and-ansible-playbook-common-options)
 			- [Stdout Callback](#stdout-callback)
 			- [Results](#results)
 				- [Transformers](#transformers)
 				- [Default](#default)
 				- [JSON](#json)
-					- [Manage JSON output](#manage-json-output)
+					- [Manage JSON Output](#manage-json-output)
 	- [Examples](#examples)
+	- [Contributing](#contributing)
+		- [Code Of Conduct](#code-of-conduct)
 	- [License](#license)
 
 ## Install
@@ -271,7 +273,7 @@ For a detailed example showcasing how to use measurement, refer to the [ansiblep
 These options can be used to customize the behaviour of `ansible` and `ansible-playbook` commands executions.
 The `go-ansible` library provides types for defining command execution options in the `github.com/apenella/go-ansible/pkg/options` package.
 
-##### Ansible ad-hoc and ansible-playbook common options
+##### Ansible ad-hoc and ansible-playbook Common Options
 
 - **AnsibleConnectionOptions**: This struct includes parameters described in the Connections Options section within the ansible or ansible-playbook's manual page. It defines how to connect to hosts when executing Ansible commands.
 - **AnsiblePrivilegeEscalationOptions**: This struct includes parameters described in the Escalation Options section within the ansible or ansible-playbook's manual page. It defines how to escalate privileges and become a user during ansible execution.
@@ -330,7 +332,7 @@ skipPatterns := []string{
   }
 ```
 
-###### Manage JSON output
+###### Manage JSON Output
 
 The [JSONStdoutCallbackResults](https://github.com/apenella/go-ansible/blob/master/pkg/stdoutcallback/results/JSONResults.go#L151) method writes the `JSON` output to the provided `io.Writer` parameter. The `github.com/apenella/go-ansible/pkg/stdoutcallback/results` package includes the `ParseJSONResultsStream` function, which can be used to decode the JSON output into an `AnsiblePlaybookJSONResults` data structure. You can manipulate this data structure to format the JSON output according to your specific needs.
 
@@ -364,6 +366,18 @@ Here you have a list of the examples:
 - [ansibleplaybook-with-executor-time-measurament](https://github.com/apenella/go-ansible/tree/master/examples/ansibleplaybook-with-executor-time-measurament)
 - [ansibleplaybook-with-timeout](https://github.com/apenella/go-ansible/tree/master/examples/ansibleplaybook-with-timeout)
 - [ansibleplaybook-with-vaulted-extravar](https://github.com/apenella/go-ansible/tree/master/examples/ansibleplaybook-with-vaulted-extravar)
+
+## Contributing
+
+Thank you for your interest in contributing to go-ansible! All contributions are welcome, whether they are bug reports, feature requests, or code contributions. Please read the contributor's guide [here](https://github.com/apenella/go-ansible/blob/master/CONTRIBUTING.md) to know more about how to contribute.
+
+### Code Of Conduct
+
+The go-ansible project is committed to providing a friendly, safe and welcoming environment for all, regardless of gender, sexual orientation, disability, ethnicity, religion, or similar personal characteristic.
+
+We expect all contributors, users, and community members to follow this code of conduct. This includes all interactions within the go-ansible community, whether online, in person, or otherwise.
+
+Please to know more about the code of conduct refer [here](https://github.com/apenella/go-ansible/blob/master/CODE-OF-CONDUCT.md).
 
 ## License
 
