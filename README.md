@@ -12,7 +12,7 @@ Let's dive in and explore the capabilities of `go-ansible` together.
   - [Install](#install)
     - [Upgrade to 1.x](#upgrade-to-1x)
   - [Getting Started](#getting-started)
-  - [Development Reference](#development-reference)
+  - [Usage Reference](#usage-reference)
     - [Packages](#packages)
       - [Adhoc](#adhoc)
       - [Playbook](#playbook)
@@ -127,7 +127,7 @@ The output of the `ansible-playbook` execution will be similar to the following:
  ── Playbook run took 0 days, 0 hours, 0 minutes, 0 seconds
 ```
 
-## Development Reference
+## Usage Reference
 
 The development reference is a comprehensive resource that provides everything you need to know to effectively use the library `go-ansible`.
 
