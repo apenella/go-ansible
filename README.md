@@ -9,29 +9,36 @@ Let's dive in and explore the capabilities of `go-ansible` together.
 > **Disclaimer**: Please note that the master branch may contain unreleased features. Be aware of this when utilizing the library in your projects.
 
 - [go-ansible](#go-ansible)
-	- [Install](#install)
-		- [Upgrade to 1.x](#upgrade-to-1x)
-	- [Getting Started](#getting-started)
-	- [Development Reference](#development-reference)
-		- [Packages](#packages)
-			- [Adhoc](#adhoc)
-			- [Playbook](#playbook)
-			- [Execute](#execute)
-				- [DefaultExecute](#defaultexecute)
-				- [Custom executor](#custom-executor)
-				- [Measurements](#measurements)
-			- [Options](#options)
-				- [Ansible ad-hoc and ansible-playbook Common Options](#ansible-ad-hoc-and-ansible-playbook-common-options)
-			- [Stdout Callback](#stdout-callback)
-			- [Results](#results)
-				- [Transformers](#transformers)
-				- [Default](#default)
-				- [JSON](#json)
-					- [Manage JSON Output](#manage-json-output)
-	- [Examples](#examples)
-	- [Contributing](#contributing)
-		- [Code Of Conduct](#code-of-conduct)
-	- [License](#license)
+  - [Install](#install)
+    - [Upgrade to 1.x](#upgrade-to-1x)
+  - [Getting Started](#getting-started)
+  - [Development Reference](#development-reference)
+    - [Packages](#packages)
+      - [Adhoc](#adhoc)
+      - [Playbook](#playbook)
+      - [Execute](#execute)
+        - [DefaultExecute](#defaultexecute)
+        - [Custom executor](#custom-executor)
+        - [Measurements](#measurements)
+      - [Options](#options)
+        - [Ansible ad-hoc and ansible-playbook Common Options](#ansible-ad-hoc-and-ansible-playbook-common-options)
+      - [Stdout Callback](#stdout-callback)
+      - [Results](#results)
+        - [Transformers](#transformers)
+        - [Default](#default)
+        - [JSON](#json)
+          - [Manage JSON Output](#manage-json-output)
+      - [Vault](#vault)
+        - [Encrypt](#encrypt)
+        - [Password](#password)
+          - [Envvars](#envvars)
+          - [File](#file)
+          - [Resolve](#resolve)
+          - [Text](#text)
+  - [Examples](#examples)
+  - [Contributing](#contributing)
+    - [Code Of Conduct](#code-of-conduct)
+  - [License](#license)
 
 ## Install
 
@@ -338,15 +345,137 @@ The [JSONStdoutCallbackResults](https://github.com/apenella/go-ansible/blob/mast
 
 The expected JSON schema from `ansible-playbook` is defined [here](https://github.com/ansible/ansible/blob/v2.9.11/lib/ansible/plugins/callback/json.py) file within the Ansible repository.
 
+#### Vault
+
+The `github.com/apenella/go-ansible/pkg/vault` package provides functionality to encrypt variables. It introduces the `VariableVaulter` struct, which is responsible for creating a `VaultVariableValue` from the value that you need to encrypt.
+
+The `VaultVariableValue` can return the instantiated variable in JSON format.
+
+To perform the encryption, the `vault` package relies on an `Encrypter` interface implementation.
+
+```go
+type Encrypter interface {
+  Encrypt(plainText string) (string, error)
+}
+```
+
+The encryption functionality is implemented in the `encrypt` package, which is described in the following section.
+
+##### Encrypt
+
+The `github.com/apenella/go-ansible/pkg/vault/encrypt` package is responsible for encrypting variables. It implements the `Encrypter` interface defined in the `github.com/apenella/go-ansible/pkg/vault` package.
+
+Currently, the package provides the `EncryptString` struct, which supports the encryption of string variables. It utilizes the `github.com/sosedoff/ansible-vault-go` library for encryption.
+
+To use the `EncryptString` struct, you need to instantiate it with a password reader. The password reader is responsible for providing the password used for encryption and it should implement the `PasswordReader` interface:
+
+```go
+type PasswordReader interface {
+  Read() (string, error)
+}
+```
+
+Here's an example of how to instantiate the `EncryptString` struct:
+
+```go
+encrypt := NewEncryptString(
+  WithReader(
+    text.NewReadPasswordFromText(
+      text.WithText("secret"),
+    ),
+  ),
+)
+```
+
+In this example, the `text.NewReadPasswordFromText` function is used to create a password reader that reads the password from a text source. The `WithText` option is used to specify the actual password value.
+
+##### Password
+
+The `go-ansible` library provides a set of packages that can be used as `PasswordReader` to read the password for encryption. The following sections describe these packages and how they can be used.
+
+###### Envvars
+
+The `github.com/apenella/go-ansible/pkg/vault/password/envvars` package allows you to read the password from an environment variable. To use this package, you need to use the `NewReadPasswordFromEnvVar` function and provide the name of the environment variable where the password is stored using the `WithEnvVar` option:
+
+```go
+reader := NewReadPasswordFromEnvVar(
+  WithEnvVar("VAULT_PASSWORD"),
+)
+```
+
+In this example, the `VAULT_PASSWORD` environment variable is specified as the source of the password. The `NewReadPasswordFromEnvVar` function creates a password reader that reads the password from the specified environment variable.
+
+Using the `envvars` package, you can conveniently read the password from an environment variable and use it for encryption.
+
+###### File
+
+The `github.com/apenella/go-ansible/pkg/vault/password/file` package allows you to read the password from a file, using the [afero](https://github.com/spf13/afero/blob/master/README.md) file system abstraction.
+
+To use this package, you need to instantiate the `NewReadPasswordFromFile` function and provide the necessary options. The `WithFs` option is used to specify the file system, and the `WithFile` option is used to specify the path to the password file.
+
+If you don't explicitly define a file system, the package uses the default file system, which is the [OsFs](https://pkg.go.dev/github.com/spf13/afero#OsFs) from the `github.com/spf13/afero` package. The OsFs represents the file system of your host machine.
+
+Therefore, if you don't provide a specific file system using the `WithFs` option when instantiating the password reader, the file package will automatically use the [OsFs](https://pkg.go.dev/github.com/spf13/afero#OsFs) as the file system to read the password from a file.
+
+Here's an example without specifying the file system:
+
+```go
+reader := NewReadPasswordFromFile(
+  WithFile("/password"),
+)
+```
+
+In this case, the [OsFs](https://pkg.go.dev/github.com/spf13/afero#OsFs) will be used to access the `/password` file on your host file system.
+
+###### Resolve
+
+The `github.com/apenella/go-ansible/pkg/vault/password/resolve` package provides a mechanism to resolve the password by exploring multiple `PasswordReader` implementations. It returns the first password obtained from any of the `PasswordReader` instances.
+
+To use this package, you need to create a `NewReadPasswordResolve` instance and provide a list of `PasswordReader` implementations as arguments to the `WithReader` option:
+
+```go
+reader := NewReadPasswordResolve(
+  WithReader(
+    envvars.NewReadPasswordFromEnvVar(
+      envvars.WithEnvVar("VAULT_PASSWORD"),
+    ),
+    file.NewReadPasswordFromFile(
+      file.WithFs(testFs),
+      file.WithFile("/password"),
+    ),
+  ),
+)
+```
+
+In this example, the `ReadPasswordResolve` instance is created with two `PasswordReader` implementations: one that reads the password from an environment variable (`envvars.NewReadPasswordFromEnvVar`), and another that reads the password from a file (`file.NewReadPasswordFromFile`).
+
+The `ReadPasswordResolve` will attempt to obtain the password from each `PasswordReader` in the provided order. The first successful password read will be returned. It returns an error when no password is achieved.
+
+Using the `resolve` package, you can explore multiple `PasswordReader` implementations to resolve the password for encryption.
+
+###### Text
+
+The `github.com/apenella/go-ansible/pkg/vault/password/text` package provides functionality to read the password from a text source.
+
+To use this package, you need to instantiate the `NewReadPasswordFromText` function and provide the password as a text value using the `WithText` option:
+
+```go
+reader := NewReadPasswordFromText(
+  WithText("ThatIsAPassword"),
+)
+```
+
+In this example, the password is directly specified as the text value "ThatIsAPassword" using the `WithText` option.
+
 ## Examples
 
 The `go-ansible` library includes a variety of examples that demonstrate how to use the library in different scenarios. These examples can be found in the [examples](https://github.com/apenella/go-ansible/tree/master/examples) directory of the `go-ansible` repository.
 
-The examples cover various use cases and provide practical demonstrations of utilizing different features and functionalities offered by `go-ansible`. They serve as a valuable resource to understand and learn how to integrate go-ansible into your applications.
+The examples cover various use cases and provide practical demonstrations of utilizing different features and functionalities offered by `go-ansible`. They serve as a valuable resource to understand and learn how to integrate `go-ansible` into your applications.
 
-Feel free to explore the [examples](https://github.com/apenella/go-ansible/tree/master/examples) directory to gain insights and ideas on how to leverage the go-ansible library in your projects.
+Feel free to explore the [examples](https://github.com/apenella/go-ansible/tree/master/examples) directory to gain insights and ideas on how to leverage the `go-ansible` library in your projects.
 
-Here you have a list of the examples:
+Here you have a list of examples:
 
 - [ansibleadhoc-command-module](https://github.com/apenella/go-ansible/tree/master/examples/ansibleadhoc-command-module)
 - [ansibleadhoc-simple](https://github.com/apenella/go-ansible/tree/master/examples/ansibleadhoc-simple)
@@ -373,12 +502,12 @@ Thank you for your interest in contributing to go-ansible! All contributions are
 
 ### Code Of Conduct
 
-The go-ansible project is committed to providing a friendly, safe and welcoming environment for all, regardless of gender, sexual orientation, disability, ethnicity, religion, or similar personal characteristic.
+The `go-ansible` project is committed to providing a friendly, safe and welcoming environment for all, regardless of gender, sexual orientation, disability, ethnicity, religion, or similar personal characteristic.
 
-We expect all contributors, users, and community members to follow this code of conduct. This includes all interactions within the go-ansible community, whether online, in person, or otherwise.
+We expect all contributors, users, and community members to follow this code of conduct. This includes all interactions within the `go-ansible` community, whether online, in person, or otherwise.
 
 Please to know more about the code of conduct refer [here](https://github.com/apenella/go-ansible/blob/master/CODE-OF-CONDUCT.md).
 
 ## License
 
-go-ansible is available under [MIT](https://github.com/apenella/go-ansible/blob/master/LICENSE) license.
+The `go-ansible` library is available under [MIT](https://github.com/apenella/go-ansible/blob/master/LICENSE) license.
