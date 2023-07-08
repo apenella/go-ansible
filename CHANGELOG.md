@@ -14,6 +14,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 - Added the `github.com/apenella/go-ansible/pkg/vault/password/file` package for reading encryption passwords from a file.
 - Introduced the `github.com/apenella/go-ansible/pkg/vault/password/envvars` package, allowing the reading of encryption passwords from an environment variable.
 - Added the `github.com/apenella/go-ansible/pkg/vault/encrypt` package, which provides the ability to encrypt strings using the `https://github.com/sosedoff/ansible-vault-go` package.
+- Included an example using `embed.FS`.
 
 ## 1.1.7
 
