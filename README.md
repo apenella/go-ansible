@@ -1,7 +1,7 @@
 
 # go-ansible
 
-![Test](https://github.com/apenella/go-ansible/actions/workflows/testing.yml/badge.svg) [![Go Reference](https://pkg.go.dev/badge/github.com/apenella/go-ansible.svg)](https://pkg.go.dev/github.com/apenella/go-ansible) [![Go Report Card](https://goreportcard.com/badge/github.com/apenella/go-ansible)](https://goreportcard.com/report/github.com/apenella/go-ansible)
+![Test](https://github.com/apenella/go-ansible/actions/workflows/testing.yml/badge.svg) [![Go Report Card](https://goreportcard.com/badge/github.com/apenella/go-ansible)](https://goreportcard.com/report/github.com/apenella/go-ansible) [![Go Reference](https://pkg.go.dev/badge/github.com/apenella/go-ansible.svg)](https://pkg.go.dev/github.com/apenella/go-ansible)
 
 ![go-ansible-logo](docs/logo/go-ansible_logo.png "Go-ansible Logo" )
 
@@ -135,7 +135,7 @@ The development reference is a comprehensive resource that provides everything y
 
 ### Packages
 
-This section describes the different packages and their resources available in the `go-ansible` library.
+This section describes the different packages and their resources available in the `go-ansible` library. You can find the complete reference of structs, methods and functions [here](https://pkg.go.dev/github.com/apenella/go-ansible).
 
 #### Adhoc
 
