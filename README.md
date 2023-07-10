@@ -1,7 +1,7 @@
 
 # go-ansible
 
-![Test](https://github.com/apenella/go-ansible/actions/workflows/testing/badge.svg) [![Go Reference](https://pkg.go.dev/badge/github.com/apenella/go-ansible.svg)](https://pkg.go.dev/github.com/apenella/go-ansible) [![Go Report Card](https://goreportcard.com/badge/github.com/apenella/go-ansible)](https://goreportcard.com/report/github.com/apenella/go-ansible)
+![Test](https://github.com/apenella/go-ansible/actions/workflows/testing.yml/badge.svg) [![Go Reference](https://pkg.go.dev/badge/github.com/apenella/go-ansible.svg)](https://pkg.go.dev/github.com/apenella/go-ansible) [![Go Report Card](https://goreportcard.com/badge/github.com/apenella/go-ansible)](https://goreportcard.com/report/github.com/apenella/go-ansible)
 
 ![go-ansible-logo](docs/logo/go-ansible_logo.png "Go-ansible Logo" )
 
