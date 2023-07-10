@@ -1,6 +1,8 @@
 
 # go-ansible
 
+![Test](https://github.com/apenella/go-ansible/actions/workflows/testing/badge.svg) [![Go Reference](https://pkg.go.dev/badge/github.com/apenella/go-ansible.svg)](https://pkg.go.dev/github.com/apenella/go-ansible) [![Go Report Card](https://goreportcard.com/badge/github.com/apenella/go-ansible)](https://goreportcard.com/report/github.com/apenella/go-ansible)
+
 ![go-ansible-logo](docs/logo/go-ansible_logo.png "Go-ansible Logo" )
 
 Go-ansible is a Go package that enables the execution of `ansible-playbook` or `ansible` commands directly from Golang applications. It supports a wide range of options for each command, enabling smooth integration of Ansible functionality into your projects.
