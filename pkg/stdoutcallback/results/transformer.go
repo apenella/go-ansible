@@ -31,7 +31,7 @@ func Append(expression string) TransformerFunc {
 	}
 }
 
-// LogFormat is a transformer function that includes a time reference at the begining of a message expression
+// LogFormat is a transformer function that includes a time reference at the beginning of a message expression
 func LogFormat(layout string, f func(string) string) TransformerFunc {
 	return func(message string) string {
 

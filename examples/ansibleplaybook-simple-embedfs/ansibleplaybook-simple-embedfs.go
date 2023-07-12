@@ -89,7 +89,7 @@ func copyDir(sourceFS embed.FS, src, dest string) error {
 			if err != nil {
 				return err
 			}
-			fmt.Printf("Copying file from the embeded filesystem '%s' to '%s'\n", srcPath, destPath)
+			fmt.Printf("Copying file from the embedded filesystem '%s' to '%s'\n", srcPath, destPath)
 		}
 	}
 

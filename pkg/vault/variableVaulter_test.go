@@ -43,7 +43,7 @@ func TestVault(t *testing.T) {
 		{
 			desc:    "Testing error vaulting a text when the Encrypter is not initialized ",
 			vaulter: NewVariableVaulter(),
-			err:     errors.New("Encrypter must be provided to encyrpt a variable."),
+			err:     errors.New("Encrypter must be provided to encrypt a variable."),
 		},
 	}
 

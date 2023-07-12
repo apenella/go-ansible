@@ -108,7 +108,7 @@ type AnsibleAdhocCmd struct {
 	Options *AnsibleAdhocOptions
 	// ConnectionOptions are the ansible's playbook specific options for connection
 	ConnectionOptions *options.AnsibleConnectionOptions
-	// PrivilegeEscalationOptions are the ansible's playbook privilage escalation options
+	// PrivilegeEscalationOptions are the ansible's playbook privilege escalation options
 	PrivilegeEscalationOptions *options.AnsiblePrivilegeEscalationOptions
 	// StdoutCallback defines which is the stdout callback method. By default is used 'default' method. Supported stdout method by go-ansible are: debug, default, dense, json, minimal, null, oneline, stderr, timer, yaml
 	StdoutCallback string

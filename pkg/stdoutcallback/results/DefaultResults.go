@@ -30,7 +30,7 @@ func DefaultStdoutCallbackResults(ctx context.Context, r io.Reader, w io.Writer,
 	return nil
 }
 
-// output process the output data with the transformers comming from the execution an writes it to the input writer
+// output process the output data with the transformers coming from the execution an writes it to the input writer
 func output(ctx context.Context, r io.Reader, w io.Writer, trans ...TransformerFunc) error {
 	printChan := make(chan string)
 	errChan := make(chan error)

@@ -39,7 +39,7 @@ func (v *VariableVaulter) Vault(value string) (*VaultVariableValue, error) {
 	}
 
 	if v.encrypt == nil {
-		return nil, errors.New("Encrypter must be provided to encyrpt a variable.")
+		return nil, errors.New("Encrypter must be provided to encrypt a variable.")
 	}
 
 	encryptedValue, err = v.encrypt.Encrypt(value)
