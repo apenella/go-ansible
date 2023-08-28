@@ -114,6 +114,9 @@ func (a *Playbook) ExecPlaybook(ctx context.Context) (*results.AnsiblePlaybookJS
 	}
 
 	hosts := strings.Join(a.Hosts, ",")
+	if !strings.HasPrefix(hosts, ",") {
+		hosts = hosts + ","
+	}
 	playbookOptions := &playbook.AnsiblePlaybookOptions{
 		Inventory: hosts,
 	}

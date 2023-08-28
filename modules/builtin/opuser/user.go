@@ -22,6 +22,9 @@ var Tmplt_ansible_create_user = `
         {{- if .CreateHome }}
         create_home: true
         {{- end }}
+        {{- if .Group }}
+        group: {{ .Group }}
+        {{- end }}
         {{- if .MoveHome}}
         move_home: true
         {{- end }}
@@ -49,6 +52,7 @@ var Tmplt_ansible_create_user = `
 type AnsibleCreateUser struct {
 	Username   string              `json:"username"`
 	Password   string              `json:"password"`
+	Group      string              `json:"group"`
 	Home       string              `json:"home"`
 	CreateHome enumtipe.CostomBool `json:"create_home"`
 	MoveHome   enumtipe.CostomBool `json:"move_home"`
