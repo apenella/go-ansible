@@ -3,7 +3,6 @@ package execute
 import (
 	"context"
 
-	"github.com/apenella/go-ansible/pkg/stdoutcallback"
 	"github.com/stretchr/testify/mock"
 )
 
@@ -18,7 +17,7 @@ func NewMockExecute() *MockExecute {
 }
 
 // Execute is a mock
-func (e *MockExecute) Execute(ctx context.Context, command []string, resultsFunc stdoutcallback.StdoutCallbackResultsFunc, options ...ExecuteOptions) error {
-	args := e.Called(ctx, command, resultsFunc, options)
+func (e *MockExecute) Execute(ctx context.Context, command []string, options ...ExecuteOptions) error {
+	args := e.Called(ctx, command, options)
 	return args.Error(0)
 }

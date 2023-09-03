@@ -12,7 +12,6 @@ import (
 	"github.com/apenella/go-ansible/pkg/vault"
 	errors "github.com/apenella/go-common-utils/error"
 	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/mock"
 )
 
 // TestGenerateCommandConnectionOptions
@@ -405,7 +404,6 @@ func TestRun(t *testing.T) {
 						"test/ansible/site.yml",
 						"test/ansible/site2.yml",
 					},
-					mock.AnythingOfType("StdoutCallbackResultsFunc"),
 					[]execute.ExecuteOptions{},
 				).Return(nil)
 			},

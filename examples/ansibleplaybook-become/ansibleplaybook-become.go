@@ -4,9 +4,9 @@ import (
 	"context"
 
 	"github.com/apenella/go-ansible/pkg/execute"
+	"github.com/apenella/go-ansible/pkg/execute/result/transformer"
 	"github.com/apenella/go-ansible/pkg/options"
 	"github.com/apenella/go-ansible/pkg/playbook"
-	"github.com/apenella/go-ansible/pkg/stdoutcallback/results"
 )
 
 func main() {
@@ -32,7 +32,7 @@ func main() {
 		Exec: execute.NewDefaultExecute(
 			execute.WithEnvVar("ANSIBLE_FORCE_COLOR", "true"),
 			execute.WithTransformers(
-				results.Prepend("Go-ansible example with become"),
+				transformer.Prepend("Go-ansible example with become"),
 			),
 		),
 	}

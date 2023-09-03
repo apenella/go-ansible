@@ -4,10 +4,11 @@ import (
 	"bytes"
 	"context"
 	"io"
-	"os/exec"
+	osexec "os/exec"
 	"testing"
 
-	"github.com/apenella/go-ansible/pkg/stdoutcallback/results"
+	"github.com/apenella/go-ansible/pkg/execute/executable/os/exec"
+	"github.com/apenella/go-ansible/pkg/execute/result/transformer"
 	errors "github.com/apenella/go-common-utils/error"
 	"github.com/stretchr/testify/assert"
 )
@@ -18,7 +19,7 @@ func TestNewDefaultExecute(t *testing.T) {
 
 	t.Log("Testing NewDefaultExecute and WithXXX methods")
 
-	trans := func() results.TransformerFunc {
+	trans := func() transformer.TransformerFunc {
 		return func(message string) string {
 			return message
 		}
@@ -28,22 +29,127 @@ func TestNewDefaultExecute(t *testing.T) {
 		WithCmdRunDir(runDir),
 		WithWrite(io.Writer(wr)),
 		WithWriteError(io.Writer(wr)),
-		WithShowDuration(),
 		WithTransformers(trans()),
 	)
 
 	assert.Equal(t, runDir, exe.CmdRunDir, "CmdRunDir does not match")
-	assert.True(t, exe.ShowDuration, "ShowDuration does not match")
 	assert.Equal(t, wr, exe.Write, "Write does not match")
 	assert.Equal(t, wr, exe.WriterError, "WriteError does not match")
 }
 
-func TestDefaultExecute(t *testing.T) {
+func TestExecute(t *testing.T) {
+	var stdout, stderr bytes.Buffer
+	var cmdRead bytes.Buffer
+
+	tests := []struct {
+		desc              string
+		err               error
+		execute           *DefaultExecute
+		cmd               *exec.MockCmd
+		command           []string
+		options           []ExecuteOptions
+		prepareAssertFunc func(e *exec.MockExec, cmd *exec.MockCmd)
+		assertFunc        func(e *exec.MockExec, cmd *exec.MockCmd)
+	}{
+		{
+			desc: "Testing execute a command",
+			err:  &errors.Error{},
+			cmd:  exec.NewMockCmd(),
+			execute: NewDefaultExecute(
+				WithExecutable(exec.NewMockExec()),
+				WithWrite(io.Writer(&stdout)),
+				WithWriteError(io.Writer(&stderr)),
+			),
+			command: []string{"command", "-flag"},
+			options: []ExecuteOptions{},
+			prepareAssertFunc: func(e *exec.MockExec, cmd *exec.MockCmd) {
+				if e == nil {
+					t.Fatal("prepareAssertFunc requires a *exec.MockExec")
+				}
+
+				if cmd == nil {
+					t.Fatal("prepareAssertFunc requires a *exec.MockCmd")
+				}
+
+				cmd.On("StdoutPipe").Return(io.NopCloser(io.Reader(&cmdRead)), nil)
+				cmd.On("StderrPipe").Return(io.NopCloser(io.Reader(&cmdRead)), nil)
+				cmd.On("Start").Return(nil)
+				cmd.On("Wait").Return(nil)
+
+				e.On("CommandContext", context.TODO(), "command", []string{"-flag"}).Return(cmd)
+			},
+			assertFunc: func(e *exec.MockExec, cmd *exec.MockCmd) {
+				cmd.AssertExpectations(t)
+				e.AssertExpectations(t)
+			},
+		},
+
+		// {
+		// 	desc: "Testing error when the command fails with AnsiblePlaybookErrorCodeGeneralError",
+		// 	err:  &errors.Error{},
+		// 	cmd:  exec.NewMockCmd(),
+		// 	execute: NewDefaultExecute(
+		// 		WithExecutable(exec.NewMockExec()),
+		// 		WithWrite(io.Writer(&stdout)),
+		// 		WithWriteError(io.Writer(&stderr)),
+		// 	),
+		// 	command: []string{"command", "-flag"},
+		// 	options: []ExecuteOptions{},
+		// 	prepareAssertFunc: func(e *exec.MockExec, cmd *exec.MockCmd) {
+		// 		if e == nil {
+		// 			t.Fatal("prepareAssertFunc requires a *exec.MockExec")
+		// 		}
+
+		// 		if cmd == nil {
+		// 			t.Fatal("prepareAssertFunc requires a *exec.MockCmd")
+		// 		}
+
+		// 		cmd.On("StdoutPipe").Return(io.NopCloser(io.Reader(&cmdRead)), nil)
+		// 		cmd.On("StderrPipe").Return(io.NopCloser(io.Reader(&cmdRead)), nil)
+		// 		cmd.On("Start").Return(nil)
+		// 		cmd.On("String").Return("That is an error")
+		// 		cmd.On("Wait").Return(nil)
+
+		// 		e.On("CommandContext", context.TODO(), "command", []string{"-flag"}).Return(cmd)
+		// 	},
+		// 	assertFunc: func(e *exec.MockExec, cmd *exec.MockCmd) {
+		// 		cmd.AssertExpectations(t)
+		// 		e.AssertExpectations(t)
+		// 	},
+		// },
+	}
+
+	for _, test := range tests {
+		t.Run(test.desc, func(t *testing.T) {
+			t.Log(test.desc)
+
+			stdout.Reset()
+			stderr.Reset()
+
+			if test.prepareAssertFunc != nil {
+				test.prepareAssertFunc(test.execute.Exec.(*exec.MockExec), test.cmd)
+			}
+
+			err := test.execute.Execute(context.TODO(), test.command, test.options...)
+			if err != nil {
+				assert.Equal(t, test.err, err)
+			}
+
+			if test.assertFunc != nil {
+				test.assertFunc(test.execute.Exec.(*exec.MockExec), test.cmd)
+			}
+		})
+	}
+}
+
+func TestExecuteFunctional(t *testing.T) {
 
 	var stdout, stderr bytes.Buffer
 
-	binary, err := exec.LookPath("ansible-playbook")
+	binary := "ansible-playbook"
+	_, err := osexec.LookPath(binary)
 	if err != nil {
+		t.Skip("")
 		t.Fatal(err)
 	}
 
@@ -53,12 +159,7 @@ func TestDefaultExecute(t *testing.T) {
 		execute        *DefaultExecute
 		command        []string
 		options        []ExecuteOptions
-		res            string
-		stdout         io.Writer
-		stderr         io.Writer
-		expectedStderr string
 		expectedStdout string
-		ctx            context.Context
 	}{
 		{
 			desc: "Testing an ansible-playbook with local connection",
@@ -67,26 +168,36 @@ func TestDefaultExecute(t *testing.T) {
 				WithWrite(io.Writer(&stdout)),
 				WithWriteError(io.Writer(&stderr)),
 			),
-			ctx:            context.TODO(),
-			command:        []string{binary, "-i", "127.0.0.1,", "../../test/test_site.yml", "-c", "local"},
-			expectedStdout: ``,
+			command: []string{binary, "-i", "127.0.0.1,", "../../test/test_site.yml", "-c", "local"},
+			expectedStdout: `
+PLAY [all] *********************************************************************
+
+TASK [Print test message] ******************************************************
+ok: [127.0.0.1] => 
+  msg: That's a message to test
+
+PLAY RECAP *********************************************************************
+127.0.0.1                  : ok=1    changed=0    unreachable=0    failed=0    skipped=0    rescued=0    ignored=0   
+
+`,
 		},
 	}
 
 	for _, test := range tests {
-		t.Log(test.desc)
+		t.Run(test.desc, func(t *testing.T) {
+			t.Log(test.desc)
 
-		stdout.Reset()
-		stderr.Reset()
+			stdout.Reset()
+			stderr.Reset()
 
-		err := test.execute.Execute(test.ctx, test.command, nil, test.options...)
-		if err != nil && assert.Error(t, err) {
-			assert.Equal(t, test.err, err)
-		}
+			err := test.execute.Execute(context.TODO(), test.command, test.options...)
+			if err != nil && assert.Error(t, err) {
+				assert.Equal(t, test.err, err)
+			}
 
-		assert.Equal(t, test.expectedStderr, stderr.String())
+			assert.Equal(t, test.expectedStdout, stdout.String())
+		})
 	}
-
 }
 
 func TestEnviron(t *testing.T) {
@@ -110,8 +221,8 @@ func TestEnviron(t *testing.T) {
 	}
 
 	for _, test := range tests {
-		t.Run(test.desc, func(tt *testing.T) {
-			assert.Equal(tt, test.expectedResult, test.envvars.Environ())
+		t.Run(test.desc, func(t *testing.T) {
+			assert.Equal(t, test.expectedResult, test.envvars.Environ())
 		})
 	}
 }

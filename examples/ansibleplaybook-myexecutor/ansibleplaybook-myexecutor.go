@@ -7,7 +7,6 @@ import (
 	"github.com/apenella/go-ansible/pkg/execute"
 	"github.com/apenella/go-ansible/pkg/options"
 	"github.com/apenella/go-ansible/pkg/playbook"
-	"github.com/apenella/go-ansible/pkg/stdoutcallback"
 )
 
 type MyExecutor struct {
@@ -27,7 +26,7 @@ func WithPrefix(prefix string) execute.ExecuteOptions {
 	}
 }
 
-func (e *MyExecutor) Execute(ctx context.Context, command []string, resultsFunc stdoutcallback.StdoutCallbackResultsFunc, options ...execute.ExecuteOptions) error {
+func (e *MyExecutor) Execute(ctx context.Context, command []string, options ...execute.ExecuteOptions) error {
 
 	// apply all options to the executor
 	for _, opt := range options {

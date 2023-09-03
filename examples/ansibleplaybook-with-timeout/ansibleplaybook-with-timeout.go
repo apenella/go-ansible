@@ -7,9 +7,9 @@ import (
 	"time"
 
 	"github.com/apenella/go-ansible/pkg/execute"
+	"github.com/apenella/go-ansible/pkg/execute/result/transformer"
 	"github.com/apenella/go-ansible/pkg/options"
 	"github.com/apenella/go-ansible/pkg/playbook"
-	"github.com/apenella/go-ansible/pkg/stdoutcallback/results"
 )
 
 func main() {
@@ -38,10 +38,10 @@ func main() {
 		Options:           ansiblePlaybookOptions,
 		Exec: execute.NewDefaultExecute(
 			execute.WithTransformers(
-				results.Prepend("Go-ansible example"),
+				transformer.Prepend("Go-ansible example"),
 			),
 		),
-		StdoutCallback: "json",
+		// StdoutCallback: "json",
 	}
 
 	err := playbook.Run(ctx)

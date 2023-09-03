@@ -5,15 +5,17 @@ import (
 	"fmt"
 	"io"
 	"os"
-	"os/exec"
+	osexec "os/exec"
 	"strings"
 	"sync"
 	"syscall"
 
-	"github.com/apenella/go-ansible/pkg/stdoutcallback"
-	"github.com/apenella/go-ansible/pkg/stdoutcallback/results"
+	"github.com/apenella/go-ansible/pkg/execute/executable/os/exec"
+
+	"github.com/apenella/go-ansible/pkg/execute/result"
+	defaultresults "github.com/apenella/go-ansible/pkg/execute/result/default"
+	"github.com/apenella/go-ansible/pkg/execute/result/transformer"
 	errors "github.com/apenella/go-common-utils/error"
-	"github.com/fatih/color"
 )
 
 const (
@@ -66,14 +68,16 @@ type DefaultExecute struct {
 	Write io.Writer
 	// WriterError is where is written the command stderr
 	WriterError io.Writer
-	// ShowDuration enables to show the execution duration time after the command finishes
-	ShowDuration bool
 	// CmdRunDir specifies the working directory of the command.
 	CmdRunDir string
 	// EnvVars specifies env vars of the command.
 	EnvVars EnvVars
-	// OutputFormat
-	Transformers []results.TransformerFunc
+	// Transformers
+	Transformers []transformer.TransformerFunc
+	// Output
+	Output result.ResultsOutputer
+	// Exec
+	Exec Executabler
 }
 
 // NewDefaultExecute return a new DefaultExecute instance with all options
@@ -87,6 +91,13 @@ func NewDefaultExecute(options ...ExecuteOptions) *DefaultExecute {
 	}
 
 	return execute
+}
+
+// WithExecutable set the execuctable parameter
+func WithExecutable(executable Executabler) ExecuteOptions {
+	return func(e Executor) {
+		e.(*DefaultExecute).Exec = executable
+	}
 }
 
 // WithWrite set the writer to be used by DefaultExecutor
@@ -110,15 +121,8 @@ func WithCmdRunDir(cmdRunDir string) ExecuteOptions {
 	}
 }
 
-// WithShowDuration enables to show command duration
-func WithShowDuration() ExecuteOptions {
-	return func(e Executor) {
-		e.(*DefaultExecute).ShowDuration = true
-	}
-}
-
 // WithTransformers add trasformes
-func WithTransformers(trans ...results.TransformerFunc) ExecuteOptions {
+func WithTransformers(trans ...transformer.TransformerFunc) ExecuteOptions {
 	return func(e Executor) {
 		e.(*DefaultExecute).Transformers = trans
 	}
@@ -131,26 +135,27 @@ func WithEnvVar(key, value string) ExecuteOptions {
 	}
 }
 
-// Execute takes a command and args and runs it, streaming output to stdout
-func (e *DefaultExecute) Execute(ctx context.Context, command []string, resultsFunc stdoutcallback.StdoutCallbackResultsFunc, options ...ExecuteOptions) error {
+// WithOutput add
+func WithOutput(output result.ResultsOutputer) ExecuteOptions {
+	return func(e Executor) {
+		e.(*DefaultExecute).Output = output
+	}
+}
 
-	var (
-		err                  error
-		cmdStderr, cmdStdout io.ReadCloser
-		wg                   sync.WaitGroup
-	)
+// Execute takes a command and args and runs it, streaming output to stdout
+func (e *DefaultExecute) Execute(ctx context.Context, command []string, options ...ExecuteOptions) error {
+
+	var err error
+	var cmdStderr, cmdStdout io.ReadCloser
+	var wg sync.WaitGroup
 
 	e.checkCompatibility()
 
 	execErrChan := make(chan error)
 
-	// apply all options to the executor
+	// Set all options the the DefaultExecute
 	for _, opt := range options {
 		opt(e)
-	}
-
-	if resultsFunc == nil {
-		resultsFunc = results.DefaultStdoutCallbackResults
 	}
 
 	// default stdout and stderr for the main process
@@ -162,18 +167,32 @@ func (e *DefaultExecute) Execute(ctx context.Context, command []string, resultsF
 		e.WriterError = os.Stderr
 	}
 
-	cmd := exec.CommandContext(ctx, command[0], command[1:]...)
-
-	if len(e.CmdRunDir) > 0 {
-		cmd.Dir = e.CmdRunDir
+	if e.Exec == nil {
+		e.Exec = exec.NewExec()
 	}
 
-	if len(e.EnvVars) > 0 {
-		cmd.Env = os.Environ()
-		cmd.Env = append(cmd.Env, e.EnvVars.Environ()...)
+	cmd := e.Exec.CommandContext(ctx, command[0], command[1:]...)
+
+	// Assert if cmd's type is the Golang's exec.Cmd as set the desired values for that case
+	_, isOsExecCmd := cmd.(*osexec.Cmd)
+	if isOsExecCmd {
+		if len(e.CmdRunDir) > 0 {
+			cmd.(*osexec.Cmd).Dir = e.CmdRunDir
+		}
+
+		if len(e.EnvVars) > 0 {
+			cmd.(*osexec.Cmd).Env = append(os.Environ(), e.EnvVars.Environ()...)
+		}
+
+		// connects the main process' stdin to ansible's stdin
+		cmd.(*osexec.Cmd).Stdin = os.Stdin
 	}
 
-	cmd.Stdin = os.Stdin // connects the main process' stdin to ansible's stdin
+	trans := []transformer.TransformerFunc{}
+
+	for _, t := range e.Transformers {
+		trans = append(trans, t)
+	}
 
 	cmdStdout, err = cmd.StdoutPipe()
 	defer cmdStdout.Close()
@@ -185,6 +204,13 @@ func (e *DefaultExecute) Execute(ctx context.Context, command []string, resultsF
 	defer cmdStderr.Close()
 	if err != nil {
 		return errors.New("(DefaultExecute::Execute)", "Error creating stderr pipe", err)
+	}
+
+	if e.Output == nil {
+
+		e.Output = defaultresults.NewDefaultResults(
+			defaultresults.WithTransformers(trans...),
+		)
 	}
 
 	err = cmd.Start()
@@ -199,15 +225,10 @@ func (e *DefaultExecute) Execute(ctx context.Context, command []string, resultsF
 	go func() {
 		defer close(execErrChan)
 
-		trans := []results.TransformerFunc{}
-
-		for _, t := range e.Transformers {
-			trans = append(trans, t)
-		}
-
 		// when using the default results func DefaultStdoutCallbackResults,
 		// reads from ansible's stdout and writes to main process' stdout
-		err := resultsFunc(ctx, cmdStdout, e.Write, trans...)
+		e.Output.Print(ctx, cmdStdout, e.Write)
+
 		wg.Done()
 		execErrChan <- err
 	}()
@@ -215,7 +236,7 @@ func (e *DefaultExecute) Execute(ctx context.Context, command []string, resultsF
 	// stderr management
 	go func() {
 		// show stderr messages using default stdout callback results
-		results.DefaultStdoutCallbackResults(ctx, cmdStderr, e.WriterError, []results.TransformerFunc{}...)
+		e.Output.Print(ctx, cmdStderr, e.WriterError)
 		wg.Done()
 	}()
 
@@ -236,12 +257,12 @@ func (e *DefaultExecute) Execute(ctx context.Context, command []string, resultsF
 				errorMessage = fmt.Sprintf("%s\nEnvironment variables:\n%s\n", errorMessage, strings.Join(e.EnvVars.Environ(), "\n"))
 			}
 			errorMessage = fmt.Sprintf("%s\nError:\n%s\n", errorMessage, err.Error())
-			stderrErrorMessage := string(err.(*exec.ExitError).Stderr)
+			stderrErrorMessage := string(err.(*osexec.ExitError).Stderr)
 			if len(stderrErrorMessage) > 0 {
 				errorMessage = fmt.Sprintf("%s\n'%s'\n", errorMessage, stderrErrorMessage)
 			}
 
-			exitError, exists := err.(*exec.ExitError)
+			exitError, exists := err.(*osexec.ExitError)
 			if exists {
 				ws := exitError.Sys().(syscall.WaitStatus)
 				switch ws.ExitStatus() {
@@ -268,8 +289,4 @@ func (e *DefaultExecute) Execute(ctx context.Context, command []string, resultsF
 	return nil
 }
 
-func (e *DefaultExecute) checkCompatibility() {
-	if e.ShowDuration {
-		color.Cyan("[WARNING] ShowDuration argument, on DefaultExecute, is deprecated and will be removed in future versions. Use the ExecutorTimeMeasurement middleware instead.")
-	}
-}
+func (e *DefaultExecute) checkCompatibility() {}

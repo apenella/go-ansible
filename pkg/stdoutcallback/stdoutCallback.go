@@ -5,11 +5,11 @@ import (
 	"io"
 	"os"
 
-	"github.com/apenella/go-ansible/pkg/stdoutcallback/results"
+	"github.com/apenella/go-ansible/pkg/execute/result/transformer"
 )
 
 // StdoutCallbackResultsFunc defines a function which manages ansible's stdout callbacks. The function expects a context, a reader that receives the data to be wrote and a writer that defines where to write the data coming from reader, Finally a list of transformers could be passed to update the output coming from the executor.
-type StdoutCallbackResultsFunc func(context.Context, io.Reader, io.Writer, ...results.TransformerFunc) error
+type StdoutCallbackResultsFunc func(context.Context, io.Reader, io.Writer, ...transformer.TransformerFunc) error
 
 const (
 	// AnsibleStdoutCallbackEnv
@@ -58,13 +58,13 @@ func AnsibleStdoutCallbackSetEnv(callback string) {
 	os.Setenv(AnsibleStdoutCallbackEnv, callback)
 }
 
-// GetResultsFunc return a func which manages the stdout callback results
-func GetResultsFunc(callback string) StdoutCallbackResultsFunc {
+// // GetResultsFunc return a func which manages the stdout callback results
+// func GetResultsFunc(callback string) StdoutCallbackResultsFunc {
 
-	switch callback {
-	case JSONStdoutCallback:
-		return results.JSONStdoutCallbackResults
-	default:
-		return results.DefaultStdoutCallbackResults
-	}
-}
+// 	switch callback {
+// 	case JSONStdoutCallback:
+// 		return results.JSONStdoutCallbackResults
+// 	default:
+// 		return output.DefaultStdoutCallbackResults
+// 	}
+// }

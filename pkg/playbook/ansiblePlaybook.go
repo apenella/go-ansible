@@ -152,7 +152,8 @@ func (p *AnsiblePlaybookCmd) Run(ctx context.Context) error {
 	}
 
 	// Execute the command an return
-	return p.Exec.Execute(ctx, command, stdoutcallback.GetResultsFunc(p.StdoutCallback), options...)
+	// >>> return p.Exec.Execute(ctx, command, stdoutcallback.GetResultsFunc(p.StdoutCallback), options...)
+	return p.Exec.Execute(ctx, command, options...)
 }
 
 // Command generate the ansible-playbook command which will be executed

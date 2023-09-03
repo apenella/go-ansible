@@ -1,12 +1,15 @@
 package results
 
 import (
+	"bufio"
 	"context"
 	"encoding/json"
 	"fmt"
 	"io"
+	"os"
 	"strconv"
 
+	"github.com/apenella/go-ansible/pkg/execute/result/transformer"
 	errors "github.com/apenella/go-common-utils/error"
 )
 
@@ -148,15 +151,15 @@ func (s *AnsiblePlaybookJSONResultsStats) String() string {
 }
 
 // JSONStdoutCallbackResults method manges the ansible' JSON stdout callback and print the result stats
-func JSONStdoutCallbackResults(ctx context.Context, r io.Reader, w io.Writer, transformers ...TransformerFunc) error {
+func JSONStdoutCallbackResults(ctx context.Context, r io.Reader, w io.Writer, transformers ...transformer.TransformerFunc) error {
 
 	skipPatterns := []string{
 		// This pattern skips timer's callback whitelist output
 		"^[\\s\\t]*Playbook run took [0-9]+ days, [0-9]+ hours, [0-9]+ minutes, [0-9]+ seconds$",
 	}
 
-	tranformers := []TransformerFunc{
-		IgnoreMessage(skipPatterns),
+	tranformers := []transformer.TransformerFunc{
+		transformer.IgnoreMessage(skipPatterns),
 	}
 
 	err := output(ctx, r, w, tranformers...)
@@ -195,4 +198,88 @@ func ParseJSONResultsStream(stream io.Reader) (*AnsiblePlaybookJSONResults, erro
 	}
 
 	return results, nil
+}
+
+// output processes the output data with the transformers coming from the execution an writes it to the input writer
+func output(ctx context.Context, r io.Reader, w io.Writer, trans ...transformer.TransformerFunc) error {
+	printChan := make(chan string)
+	errChan := make(chan error)
+	done := make(chan struct{})
+
+	errContext := "(DefaultResults::output)"
+
+	if r == nil {
+		return errors.New(errContext, "Reader is not defined")
+	}
+
+	if w == nil {
+		w = os.Stdout
+	}
+
+	if trans == nil {
+		trans = []transformer.TransformerFunc{}
+	}
+
+	go func() {
+		defer close(done)
+		defer close(errChan)
+		defer close(printChan)
+
+		reader := bufio.NewReader(r)
+		for {
+			line, err := readLine(reader)
+			if err != nil {
+				if err != io.EOF {
+					errChan <- err
+				}
+
+				break
+			}
+
+			for _, t := range trans {
+				line = t(line)
+			}
+
+			printChan <- line
+		}
+		done <- struct{}{}
+	}()
+
+	for {
+		select {
+		case line := <-printChan:
+			_, err := fmt.Fprintln(w, line)
+			if err != nil {
+				return err
+			}
+		case err := <-errChan:
+			return err
+		case <-done:
+			return nil
+		case <-ctx.Done():
+			return nil
+		}
+	}
+}
+
+func readLine(r *bufio.Reader) (string, error) {
+	var line []byte
+	for {
+		l, more, err := r.ReadLine()
+		if err != nil {
+			return "", err
+		}
+
+		// Avoid the copy if the first call produced a full line.
+		if line == nil && !more {
+			return string(l), nil
+		}
+
+		line = append(line, l...)
+		if !more {
+			break
+		}
+	}
+
+	return string(line), nil
 }

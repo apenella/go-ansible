@@ -8,7 +8,6 @@ import (
 	"time"
 
 	"github.com/apenella/go-ansible/pkg/execute"
-	"github.com/apenella/go-ansible/pkg/stdoutcallback"
 	errors "github.com/apenella/go-common-utils/error"
 )
 
@@ -42,7 +41,7 @@ func NewExecutorTimeMeasurement(executor execute.Executor, options ...ExecuteOpt
 }
 
 // Execute takes a command and args and runs it, streaming output to stdout
-func (e *ExecutorTimeMeasurement) Execute(ctx context.Context, command []string, resultsFunc stdoutcallback.StdoutCallbackResultsFunc, options ...execute.ExecuteOptions) error {
+func (e *ExecutorTimeMeasurement) Execute(ctx context.Context, command []string, options ...execute.ExecuteOptions) error {
 
 	if e.executor == nil {
 		return errors.New("(ExecutorTimeMeasurement::Execute)", "Executor must be provided on ExecutorTimeMeasurement")
@@ -60,7 +59,7 @@ func (e *ExecutorTimeMeasurement) Execute(ctx context.Context, command []string,
 		}
 	}()
 
-	err := e.executor.Execute(ctx, command, resultsFunc, options...)
+	err := e.executor.Execute(ctx, command, options...)
 	if err != nil {
 		return errors.New("(ExecutorTimeMeasurement::Execute)",
 			fmt.Sprintf("%s",

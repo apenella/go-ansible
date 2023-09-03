@@ -10,7 +10,6 @@ import (
 	"github.com/apenella/go-ansible/pkg/options"
 	errors "github.com/apenella/go-common-utils/error"
 	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/mock"
 )
 
 func TestRun(t *testing.T) {
@@ -152,7 +151,6 @@ func TestRun(t *testing.T) {
 						"--become-user",
 						"apenella",
 					},
-					mock.AnythingOfType("StdoutCallbackResultsFunc"),
 					[]execute.ExecuteOptions{},
 				).Return(nil)
 			},

@@ -11,9 +11,9 @@ import (
 	"strings"
 
 	"github.com/apenella/go-ansible/pkg/execute"
+	"github.com/apenella/go-ansible/pkg/execute/result/transformer"
 	"github.com/apenella/go-ansible/pkg/options"
 	"github.com/apenella/go-ansible/pkg/playbook"
-	"github.com/apenella/go-ansible/pkg/stdoutcallback/results"
 	errors "github.com/apenella/go-common-utils/error"
 	"github.com/spf13/cobra"
 )
@@ -79,7 +79,7 @@ func commandHandler(cmd *cobra.Command, args []string) error {
 		Options:           ansiblePlaybookOptions,
 		Exec: execute.NewDefaultExecute(
 			execute.WithTransformers(
-				results.Prepend("cobra-cmd-ansibleplaybook example"),
+				transformer.Prepend("cobra-cmd-ansibleplaybook example"),
 			),
 		),
 	}

@@ -149,7 +149,8 @@ func (a *AnsibleAdhocCmd) Run(ctx context.Context) error {
 	}
 
 	// Execute the command an return
-	return a.Exec.Execute(ctx, command, stdoutcallback.GetResultsFunc(a.StdoutCallback), options...)
+	return a.Exec.Execute(ctx, command, options...)
+	// >>>> return a.Exec.Execute(ctx, command, stdoutcallback.GetResultsFunc(a.StdoutCallback), options...)
 }
 
 // Command generate the ansible command which will be executed

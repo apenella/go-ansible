@@ -7,14 +7,14 @@ import (
 	"os/signal"
 
 	"github.com/apenella/go-ansible/pkg/execute"
+	"github.com/apenella/go-ansible/pkg/execute/result/transformer"
 	"github.com/apenella/go-ansible/pkg/options"
 	"github.com/apenella/go-ansible/pkg/playbook"
-	"github.com/apenella/go-ansible/pkg/stdoutcallback/results"
 	"github.com/fatih/color"
 )
 
 // customTrasnformer
-func outputColored() results.TransformerFunc {
+func outputColored() transformer.TransformerFunc {
 	return func(message string) string {
 		yellow := color.New(color.FgYellow).SprintFunc()
 		return fmt.Sprintf("%s", yellow(message))
@@ -42,10 +42,9 @@ func main() {
 			execute.WithEnvVar("ANSIBLE_FORCE_COLOR", "true"),
 			execute.WithTransformers(
 				outputColored(),
-				results.Prepend("Go-ansible example"),
-				results.LogFormat(results.DefaultLogFormatLayout, results.Now),
+				transformer.Prepend("Go-ansible example"),
+				transformer.LogFormat(transformer.DefaultLogFormatLayout, transformer.Now),
 			),
-			execute.WithShowDuration(),
 		),
 	}
 

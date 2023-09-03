@@ -6,9 +6,9 @@ import (
 
 	"github.com/apenella/go-ansible/pkg/execute"
 	"github.com/apenella/go-ansible/pkg/execute/measure"
+	"github.com/apenella/go-ansible/pkg/execute/result/transformer"
 	"github.com/apenella/go-ansible/pkg/options"
 	"github.com/apenella/go-ansible/pkg/playbook"
-	"github.com/apenella/go-ansible/pkg/stdoutcallback/results"
 	"github.com/fatih/color"
 )
 
@@ -28,10 +28,9 @@ func main() {
 		execute.NewDefaultExecute(
 			execute.WithEnvVar("ANSIBLE_FORCE_COLOR", "true"),
 			execute.WithTransformers(
-				results.Prepend("Go-ansible example"),
-				results.LogFormat(results.DefaultLogFormatLayout, results.Now),
+				transformer.Prepend("Go-ansible example"),
+				transformer.LogFormat(transformer.DefaultLogFormatLayout, transformer.Now),
 			),
-			execute.WithShowDuration(),
 		),
 		measure.WithShowDuration(),
 		measure.WithWrite(durationBuff),

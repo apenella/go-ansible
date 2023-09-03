@@ -13,6 +13,7 @@ Let's dive in and explore the capabilities of `go-ansible` together.
 - [go-ansible](#go-ansible)
   - [Install](#install)
     - [Upgrade to 1.x](#upgrade-to-1x)
+    - [Upgrade to 2.x](#upgrade-to-2x)
   - [Getting Started](#getting-started)
   - [Usage Reference](#usage-reference)
     - [Packages](#packages)
@@ -54,7 +55,11 @@ This command will fetch and install the latest version of `go-ansible`, ensuring
 
 ### Upgrade to 1.x
 
-If you are currently using a `go-ansible` version prior to 1.0.0, it's important to note that there have been significant breaking changes introduced in version 1.0.0 and beyond. Before proceeding with the upgrade, we highly recommend reading the [changelog](https://github.com/apenella/go-ansible/blob/master/CHANGELOG.md) and the [upgrade guide](https://github.com/apenella/go-ansible/blob/master/docs/upgrade_guide_to_1.0.0.md) carefully. These resources provide detailed information on the changes and steps required for a smooth transition to the new version.
+If you are currently using a `go-ansible` version prior to 1.0.0, it's important to note that there have been significant breaking changes introduced in version 1.0.0 and beyond. Before proceeding with the upgrade, we highly recommend reading the [changelog](https://github.com/apenella/go-ansible/blob/master/CHANGELOG.md) and the [upgrade guide](https://github.com/apenella/go-ansible/blob/master/docs/upgrade_guide_to_1.x.md) carefully. These resources provide detailed information on the changes and steps required for a smooth transition to the new version.
+
+### Upgrade to 2.x
+
+Versions 2.x introduced notorious changes since the major version 1. Among those changes, there are several breaking changes. The [upgrade guide](https://github.com/apenella/go-ansible/blob/master/docs/upgrade_guide_to_2.x.md) conveys the necessary information to migrate to version 2.x. Please thoroughly read that document and the changelog before upgrading from version 1.x to 2.x.
 
 ## Getting Started
 
@@ -167,9 +172,9 @@ An executor in `go-ansible` is a component that executes the command and retriev
 The `Executor` interface requires the implementation of the `Execute` method with the following signature:
 
 ```go
-// Executor interface is satisfied by those types which has a Execute(context.Context,[]string,stdoutcallback.StdoutCallbackResultsFunc,...ExecuteOptions)error method
+// Executor interface is satisfied by those types which has a Execute(context.Context,[]string,...ExecuteOptions)error method
 type Executor interface {
-  Execute(ctx context.Context, command []string, resultsFunc stdoutcallback.StdoutCallbackResultsFunc, options ...ExecuteOptions) error
+  Execute(ctx context.Context, command []string, options ...ExecuteOptions) error
 }
 ```
 
@@ -214,7 +219,7 @@ func WithPrefix(prefix string) execute.ExecuteOptions {
   }
 }
 
-func (e *MyExecutor) Execute(ctx context.Context, command []string, resultsFunc stdoutcallback.StdoutCallbackResultsFunc, options ...execute.ExecuteOptions) error {
+func (e *MyExecutor) Execute(ctx context.Context, command []string, options ...execute.ExecuteOptions) error {
   // It is possible to apply extra options when Execute is called
   for _, opt := range options {
     opt(e)
@@ -296,11 +301,11 @@ In `go-ansible`, you can define a specific stdout callback method by setting the
 type StdoutCallbackResultsFunc func(context.Context, io.Reader, io.Writer, ...results.TransformerFunc) error
 ```
 
-The functions to manage the output are defined in the `github.com/apenella/go-ansible/pkg/stdoutcallback/results` package. By utilizing these functions and defining a custom stdout callback, you can customize how the output of the execution.
+The functions to manage the output are defined in the `github.com/apenella/go-ansible/pkg/stdoutcallback/results` package. By utilizing these functions and defining a custom stdout callback, you can customize the output of the execution.
 
 #### Results
 
-In the `github.com/apenella/go-ansible/pkg/stdoutcallback/results` package, there are different methods available to manage the outputs of Ansible commands.
+In the `github.com/apenella/go-ansible/pkg/execute/result` package, there are different methods available to manage the outputs of Ansible commands.
 
 ##### Transformers
 
@@ -311,20 +316,20 @@ In `go-ansible`, a transformer is a function that enriches or updates the output
 type TransformerFunc func(string) string
 ```
 
-When the output is received from the executor, it is processed line by line, and the transformers are applied to each line. The `github.com/apenella/go-ansible/pkg/stdoutcallback/results` package provides a set of ready-to-use transformers, but you can also write custom transformers and set them through the executor.
+When the output is received from the executor, it is processed line by line, and the transformers are applied to each line. The `github.com/apenella/go-ansible/pkg/execute/result/transformer` package provides a set of ready-to-use transformers, but you can also write custom transformers and set them through the executor.
 
 Here are some examples of transformers available in the results package:
 
-- [**Prepend**](https://github.com/apenella/go-ansible/blob/master/pkg/stdoutcallback/results/transformer.go#L21): Adds a prefix string to each output line.
-- [**Append**:](https://github.com/apenella/go-ansible/blob/master/pkg/stdoutcallback/results/transformer.go#L28) Adds a suffix string to each output line.
-- [**LogFormat**:](https://github.com/apenella/go-ansible/blob/master/pkg/stdoutcallback/results/transformer.go#L35) Includes a date-time prefix to each output line.
-- [**IgnoreMessage**:](https://github.com/apenella/go-ansible/blob/master/pkg/stdoutcallback/results/transformer.go#L44) Ignores output lines based on the patterns provided as input parameters.
+- **Prepend**: Adds a prefix string to each output line.
+- **Append**: Adds a suffix string to each output line.
+- **LogFormat**: Includes a date-time prefix to each output line.
+- **IgnoreMessage**: Ignores output lines based on the patterns provided as input parameters.
 
 ##### Default
 
-By default, the stdout callback results are managed by the [DefaultStdoutCallbackResults](https://github.com/apenella/go-ansible/blob/master/pkg/stdoutcallback/results/DefaultResults.go#L14) method. This method handles the output by prepending the separator string `──` to each line when no transformer is defined. It also prepares all the transformers before invoking the worker function responsible for writing the output to the `io.Writer`.
+By default, the execution results are managed by the `DefaultResults` struct, defined in the package `github.com/apenella/go-ansible/pkg/execute/result/default`. Its `Print` method handles the output by prepending the separator string `──` to each line when no transformer is defined. It also prepares all the transformers before invoking the worker function responsible for writing the output to the `io.Writer`.
 
-The [DefaultStdoutCallbackResults](https://github.com/apenella/go-ansible/blob/master/pkg/stdoutcallback/results/DefaultResults.go#L14) method ensures that the output is formatted correctly and provides a basic handling of the results when no specific transformers are applied.
+The `Print` method ensures that the output is formatted correctly and provides basic handling of the results when no specific transformers are applied.
 
 ##### JSON
 
@@ -332,7 +337,7 @@ When the stdout callback method is set to `JSON` format, the output is managed b
 
 Within the [JSONStdoutCallbackResults](https://github.com/apenella/go-ansible/blob/master/pkg/stdoutcallback/results/JSONResults.go#L151) function, there is an array called `skipPatterns` that contains matching expressions for lines that should be ignored. These patterns are used to skip specific lines that may not be relevant to the JSON output.
 
-Here is an example of the skipPatterns array:
+Here is an example of the `skipPatterns` array:
 
 ```go
 skipPatterns := []string{
@@ -500,11 +505,11 @@ Here you have a list of examples:
 
 ## Contributing
 
-Thank you for your interest in contributing to go-ansible! All contributions are welcome, whether they are bug reports, feature requests, or code contributions. Please read the contributor's guide [here](https://github.com/apenella/go-ansible/blob/master/CONTRIBUTING.md) to know more about how to contribute.
+Thank you for your interest in contributing to go-ansible! All contributions are welcome, whether they are bug reports, feature requests, or code contributions. Please read the contributor's guide [here](https://github.com/apenella/go-ansible/blob/master/CONTRIBUTING.md) to learn more about how to contribute.
 
 ### Code Of Conduct
 
-The `go-ansible` project is committed to providing a friendly, safe and welcoming environment for all, regardless of gender, sexual orientation, disability, ethnicity, religion, or similar personal characteristic.
+The `go-ansible` project is committed to providing a friendly, safe and welcoming environment for all, regardless of gender, sexual orientation, disability, ethnicity, religion, or similar personal characteristics.
 
 We expect all contributors, users, and community members to follow this code of conduct. This includes all interactions within the `go-ansible` community, whether online, in person, or otherwise.
 
