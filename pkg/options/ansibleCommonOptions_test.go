@@ -65,7 +65,7 @@ func TestCommandConnectionOptionsString(t *testing.T) {
 
 	cmd := options.String()
 
-	expected := " --ask-pass --connection local --private-key pk --scp-extra-args scp-extra-args --sftp-extra-args sftp-extra-args --ssh-common-args ssh-common-args --ssh-extra-args ssh-extra-args --timeout 10 --user user"
+	expected := " --ask-pass --connection local --private-key pk --scp-extra-args 'scp-extra-args' --sftp-extra-args 'sftp-extra-args' --ssh-common-args 'ssh-common-args' --ssh-extra-args 'ssh-extra-args' --timeout 10 --user user"
 
 	assert.Equal(t, expected, cmd)
 }
