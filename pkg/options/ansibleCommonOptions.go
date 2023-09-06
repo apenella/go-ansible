@@ -208,19 +208,19 @@ func (o *AnsibleConnectionOptions) String() string {
 	}
 
 	if o.SCPExtraArgs != "" {
-		str = fmt.Sprintf("%s %s %s", str, SCPExtraArgsFlag, o.SCPExtraArgs)
+		str = fmt.Sprintf("%s %s '%s'", str, SCPExtraArgsFlag, o.SCPExtraArgs)
 	}
 
 	if o.SFTPExtraArgs != "" {
-		str = fmt.Sprintf("%s %s %s", str, SFTPExtraArgsFlag, o.SFTPExtraArgs)
+		str = fmt.Sprintf("%s %s '%s'", str, SFTPExtraArgsFlag, o.SFTPExtraArgs)
 	}
 
 	if o.SSHCommonArgs != "" {
-		str = fmt.Sprintf("%s %s %s", str, SSHCommonArgsFlag, o.SSHCommonArgs)
+		str = fmt.Sprintf("%s %s '%s'", str, SSHCommonArgsFlag, o.SSHCommonArgs)
 	}
 
 	if o.SSHExtraArgs != "" {
-		str = fmt.Sprintf("%s %s %s", str, SSHExtraArgsFlag, o.SSHExtraArgs)
+		str = fmt.Sprintf("%s %s '%s'", str, SSHExtraArgsFlag, o.SSHExtraArgs)
 	}
 
 	if o.Timeout > 0 {
