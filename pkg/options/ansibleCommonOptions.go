@@ -2,7 +2,6 @@ package options
 
 import (
 	"fmt"
-	"os"
 )
 
 const (
@@ -92,31 +91,7 @@ const (
 
 	// BecomeFlag is ansble-playbook's become flag
 	BecomeFlag = "--become"
-
-	//
-	// ansible configuration consts
-
-	// AnsibleForceColorEnv is the environment variable which forces color mode
-	AnsibleForceColorEnv = "ANSIBLE_FORCE_COLOR"
-
-	// AnsibleHostKeyCheckingEnv
-	AnsibleHostKeyCheckingEnv = "ANSIBLE_HOST_KEY_CHECKING"
 )
-
-// AnsibleForceColor changes to a forced color mode
-func AnsibleForceColor() {
-	os.Setenv(AnsibleForceColorEnv, "true")
-}
-
-// AnsibleAvoidHostKeyChecking sets the hosts key checking to false
-func AnsibleAvoidHostKeyChecking() {
-	os.Setenv(AnsibleHostKeyCheckingEnv, "false")
-}
-
-// AnsibleSetEnv set any configuration by environment variables. Check ansible configuration at https://docs.ansible.com/ansible/latest/reference_appendices/config.html
-func AnsibleSetEnv(key, value string) {
-	os.Setenv(key, value)
-}
 
 // AnsibleConnectionOptions object has those parameters described on `Connections Options` section within ansible-playbook's man page, and which defines how to connect to hosts.
 type AnsibleConnectionOptions struct {
