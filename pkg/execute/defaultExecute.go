@@ -10,8 +10,7 @@ import (
 	"sync"
 	"syscall"
 
-	"github.com/apenella/go-ansible/pkg/execute/executable/os/exec"
-
+	"github.com/apenella/go-ansible/internal/executable/os/exec"
 	"github.com/apenella/go-ansible/pkg/execute/result"
 	defaultresults "github.com/apenella/go-ansible/pkg/execute/result/default"
 	"github.com/apenella/go-ansible/pkg/execute/result/transformer"
@@ -72,12 +71,14 @@ type DefaultExecute struct {
 	CmdRunDir string
 	// EnvVars specifies env vars of the command.
 	EnvVars EnvVars
-	// Transformers
+	// Transformers is the list of transformers func for the output
 	Transformers []transformer.TransformerFunc
-	// Output
+	// Output manages the output of the command
 	Output result.ResultsOutputer
-	// Exec
+	// Exec is the executor
 	Exec Executabler
+	// Cmd is the command generator
+	Cmd Commander
 }
 
 // NewDefaultExecute return a new DefaultExecute instance with all options
@@ -93,70 +94,48 @@ func NewDefaultExecute(options ...ExecuteOptions) *DefaultExecute {
 	return execute
 }
 
-// WithExecutable set the execuctable parameter
-func WithExecutable(executable Executabler) ExecuteOptions {
-	return func(e Executor) {
-		e.(*DefaultExecute).Exec = executable
-	}
+// WithOutput sets the output mechanism to DefaultExecutor
+func (e *DefaultExecute) WithOutput(output result.ResultsOutputer) {
+	e.Output = output
 }
 
-// WithWrite set the writer to be used by DefaultExecutor
-func WithWrite(w io.Writer) ExecuteOptions {
-	return func(e Executor) {
-		e.(*DefaultExecute).Write = w
+// AddEnvVar add the provided environment variable. It overwrites the variable when it already exists.
+func (e *DefaultExecute) AddEnvVar(key, value string) {
+	if e.EnvVars == nil {
+		e.EnvVars = make(EnvVars)
 	}
+
+	e.EnvVars[key] = value
 }
 
-// WithWriteError set the error writer to be used by DefaultExecutor
-func WithWriteError(w io.Writer) ExecuteOptions {
-	return func(e Executor) {
-		e.(*DefaultExecute).WriterError = w
-	}
-}
+// AddEnvVarSafe add the provided environment variable. It returns an error when the variable already exists
+func (e *DefaultExecute) AddEnvVarSafe(key, value string) error {
 
-// WithCmdRunDir set the command run directory to be used by DefaultExecutor
-func WithCmdRunDir(cmdRunDir string) ExecuteOptions {
-	return func(e Executor) {
-		e.(*DefaultExecute).CmdRunDir = cmdRunDir
-	}
-}
+	errContext := "execute::DefaultExecute:AddEnvVarSafe"
 
-// WithTransformers add trasformes
-func WithTransformers(trans ...transformer.TransformerFunc) ExecuteOptions {
-	return func(e Executor) {
-		e.(*DefaultExecute).Transformers = trans
+	if e.EnvVars == nil {
+		e.EnvVars = make(EnvVars)
 	}
-}
 
-// WithEnvVar adds the provided env var to the command
-func WithEnvVar(key, value string) ExecuteOptions {
-	return func(e Executor) {
-		e.(*DefaultExecute).EnvVars[key] = value
+	_, exists := e.EnvVars[key]
+	if exists {
+		return errors.New(errContext, fmt.Sprintf("Environment variable '%s' already exists", key))
 	}
-}
 
-// WithOutput add
-func WithOutput(output result.ResultsOutputer) ExecuteOptions {
-	return func(e Executor) {
-		e.(*DefaultExecute).Output = output
-	}
+	e.EnvVars[key] = value
+	return nil
 }
 
 // Execute takes a command and args and runs it, streaming output to stdout
-func (e *DefaultExecute) Execute(ctx context.Context, command []string, options ...ExecuteOptions) error {
+func (e *DefaultExecute) Execute(ctx context.Context) error {
 
 	var err error
 	var cmdStderr, cmdStdout io.ReadCloser
 	var wg sync.WaitGroup
 
-	e.checkCompatibility()
+	defer e.checkCompatibility()
 
 	execErrChan := make(chan error)
-
-	// Set all options the the DefaultExecute
-	for _, opt := range options {
-		opt(e)
-	}
 
 	// default stdout and stderr for the main process
 	if e.Write == nil {
@@ -169,6 +148,15 @@ func (e *DefaultExecute) Execute(ctx context.Context, command []string, options 
 
 	if e.Exec == nil {
 		e.Exec = exec.NewExec()
+	}
+
+	if e.Cmd == nil {
+		return errors.New("(DefaultExecute::Execute)", "Command is not defined")
+	}
+
+	command, err := e.Cmd.Command()
+	if err != nil {
+		return errors.New("(DefaultExecute::Execute)", "Error creating command", err)
 	}
 
 	cmd := e.Exec.CommandContext(ctx, command[0], command[1:]...)
