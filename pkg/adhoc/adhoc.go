@@ -1,13 +1,9 @@
 package adhoc
 
 import (
-	"context"
 	"fmt"
-	"os/exec"
 
-	"github.com/apenella/go-ansible/pkg/execute"
 	"github.com/apenella/go-ansible/pkg/options"
-	"github.com/apenella/go-ansible/pkg/stdoutcallback"
 	common "github.com/apenella/go-common-utils/data"
 	errors "github.com/apenella/go-common-utils/error"
 )
@@ -100,8 +96,6 @@ type AnsibleAdhocOptionsFunc func(*AnsibleAdhocCmd)
 type AnsibleAdhocCmd struct {
 	// Ansible binary file
 	Binary string
-	// Exec is the executor item
-	Exec execute.Executor
 	// Pattern is the ansible's host pattern
 	Pattern string
 	// Options are the ansible's playbook options
@@ -110,47 +104,6 @@ type AnsibleAdhocCmd struct {
 	ConnectionOptions *options.AnsibleConnectionOptions
 	// PrivilegeEscalationOptions are the ansible's playbook privilege escalation options
 	PrivilegeEscalationOptions *options.AnsiblePrivilegeEscalationOptions
-	// StdoutCallback defines which is the stdout callback method. By default is used 'default' method. Supported stdout method by go-ansible are: debug, default, dense, json, minimal, null, oneline, stderr, timer, yaml
-	StdoutCallback string
-}
-
-// Run method runs the ansible-playbook
-func (a *AnsibleAdhocCmd) Run(ctx context.Context) error {
-	var err error
-	var command []string
-	options := []execute.ExecuteOptions{}
-
-	if a == nil {
-		return errors.New("(adhoc::Run)", "AnsibleAdhocCmd is nil")
-	}
-
-	// Use default binary when it is not already defined
-	if a.Binary == "" {
-		a.Binary = DefaultAnsibleAdhocBinary
-	}
-
-	_, err = exec.LookPath(a.Binary)
-	if err != nil {
-		return errors.New("(adhoc::Run)", fmt.Sprintf("Binary file '%s' does not exists", a.Binary), err)
-	}
-
-	// Define a default executor when it is not defined on AnsibleAdhocCmd
-	if a.Exec == nil {
-		a.Exec = execute.NewDefaultExecute()
-	}
-
-	// Configure StdoutCallback method. By default is used ansible's 'default' callback method
-	stdoutcallback.AnsibleStdoutCallbackSetEnv(a.StdoutCallback)
-
-	// Generate the command to be run
-	command, err = a.Command()
-	if err != nil {
-		return errors.New("(adhoc::Run)", fmt.Sprintf("Error running '%s'", a.String()), err)
-	}
-
-	// Execute the command an return
-	return a.Exec.Execute(ctx, command, options...)
-	// >>>> return a.Exec.Execute(ctx, command, stdoutcallback.GetResultsFunc(a.StdoutCallback), options...)
 }
 
 // Command generate the ansible command which will be executed
