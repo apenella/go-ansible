@@ -7,6 +7,7 @@ import (
 	"os/signal"
 
 	"github.com/apenella/go-ansible/pkg/execute"
+	"github.com/apenella/go-ansible/pkg/execute/configuration"
 	"github.com/apenella/go-ansible/pkg/execute/result/transformer"
 	"github.com/apenella/go-ansible/pkg/options"
 	"github.com/apenella/go-ansible/pkg/playbook"
@@ -30,12 +31,16 @@ func main() {
 		Playbooks:         []string{"site.yml"},
 		ConnectionOptions: ansiblePlaybookConnectionOptions,
 		Options:           ansiblePlaybookOptions,
-		Exec: execute.NewDefaultExecute(
+	}
+
+	exec := configuration.NewExecutorWithAnsibleConfigurationSettings(
+		execute.NewDefaultExecute(
+			execute.WithCmd(playbook),
 			execute.WithTransformers(
-				transformer.Prepend("Go-ansible example"),
+				transformer.Prepend("[ansibleplaybook-signals-and-cancellation]"),
 			),
 		),
-	}
+	).WithAnsibleForceColor()
 
 	signal.Notify(signalChan, os.Interrupt)
 	defer func() {
@@ -51,7 +56,7 @@ func main() {
 		}
 	}()
 
-	err := playbook.Run(ctx)
+	err := exec.Execute(ctx)
 	if err != nil {
 		fmt.Println(err.Error())
 		os.Exit(1)

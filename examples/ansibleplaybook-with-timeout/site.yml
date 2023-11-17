@@ -3,6 +3,10 @@
 - hosts: all
 
   tasks:
+    - name: sleep
+      pause:
+        seconds: 15
+        
     - name: ansibleplaybook-with-timeout
       debug:
         msg: Your are running 'ansibleplaybook-with-timeout' example

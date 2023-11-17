@@ -8,9 +8,10 @@ import (
 
 	"github.com/apenella/go-ansible/pkg/execute"
 	"github.com/apenella/go-ansible/pkg/execute/measure"
+	results "github.com/apenella/go-ansible/pkg/execute/result/json"
+	"github.com/apenella/go-ansible/pkg/execute/stdoutcallback"
 	"github.com/apenella/go-ansible/pkg/options"
 	"github.com/apenella/go-ansible/pkg/playbook"
-	"github.com/apenella/go-ansible/pkg/stdoutcallback/results"
 )
 
 func main() {
@@ -28,22 +29,23 @@ func main() {
 		Inventory: "127.0.0.1,",
 	}
 
-	executorTimeMeasurement := measure.NewExecutorTimeMeasurement(
-		execute.NewDefaultExecute(
-			execute.WithWrite(io.Writer(buff)),
-		),
-	)
-
 	playbooksList := []string{"site1.yml", "site2.yml", "site3.yml"}
 	playbook := &playbook.AnsiblePlaybookCmd{
 		Playbooks:         playbooksList,
-		Exec:              executorTimeMeasurement,
 		ConnectionOptions: ansiblePlaybookConnectionOptions,
 		Options:           ansiblePlaybookOptions,
-		StdoutCallback:    "json",
 	}
 
-	err = playbook.Run(context.TODO())
+	exec := measure.NewExecutorTimeMeasurement(
+		stdoutcallback.NewJSONStdoutCallbackExecute(
+			execute.NewDefaultExecute(
+				execute.WithCmd(playbook),
+				execute.WithWrite(io.Writer(buff)),
+			),
+		),
+	)
+
+	err = exec.Execute(context.TODO())
 	if err != nil {
 		fmt.Println(err.Error())
 	}
@@ -54,6 +56,6 @@ func main() {
 	}
 
 	fmt.Println(res.String())
-	fmt.Println("Duration: ", executorTimeMeasurement.Duration())
+	fmt.Println("Duration: ", exec.Duration().String())
 
 }

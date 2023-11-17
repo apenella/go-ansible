@@ -9,6 +9,7 @@ import (
 	"os"
 	"path/filepath"
 
+	"github.com/apenella/go-ansible/pkg/execute"
 	"github.com/apenella/go-ansible/pkg/options"
 	"github.com/apenella/go-ansible/pkg/playbook"
 )
@@ -46,7 +47,11 @@ func main() {
 		Options:           ansiblePlaybookOptions,
 	}
 
-	err = playbook.Run(context.TODO())
+	exec := execute.NewDefaultExecute(
+		execute.WithCmd(playbook),
+	)
+
+	err = exec.Execute(context.TODO())
 	if err != nil {
 		panic(err)
 	}

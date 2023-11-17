@@ -5,6 +5,8 @@ import (
 	"fmt"
 
 	"github.com/apenella/go-ansible/pkg/adhoc"
+	"github.com/apenella/go-ansible/pkg/execute"
+	"github.com/apenella/go-ansible/pkg/execute/stdoutcallback"
 	"github.com/apenella/go-ansible/pkg/options"
 )
 
@@ -24,12 +26,17 @@ func main() {
 		Pattern:           "all",
 		Options:           ansibleAdhocOptions,
 		ConnectionOptions: ansibleConnectionOptions,
-		StdoutCallback:    "oneline",
 	}
 
 	fmt.Println("Command: ", adhoc.String())
 
-	err := adhoc.Run(context.TODO())
+	onelineExecute := stdoutcallback.NewOnelineStdoutCallbackExecute(
+		execute.NewDefaultExecute(
+			execute.WithCmd(adhoc),
+		),
+	)
+
+	err := onelineExecute.Execute(context.TODO())
 	if err != nil {
 		panic(err)
 	}

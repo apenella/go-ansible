@@ -29,15 +29,21 @@ func main() {
 		ConnectionOptions:          ansiblePlaybookConnectionOptions,
 		PrivilegeEscalationOptions: ansiblePlaybookPrivilegeEscalationOptions,
 		Options:                    ansiblePlaybookOptions,
-		Exec: execute.NewDefaultExecute(
-			execute.WithEnvVar("ANSIBLE_FORCE_COLOR", "true"),
-			execute.WithTransformers(
-				transformer.Prepend("Go-ansible example with become"),
-			),
-		),
 	}
 
-	err := playbook.Run(context.TODO())
+	exec := execute.NewDefaultExecute(
+		execute.WithCmd(playbook),
+		execute.WithTransformers(
+			transformer.Prepend("Go-ansible example with become"),
+		),
+		execute.WithEnvVars(
+			map[string]string{
+				"ANSIBLE_FORCE_COLOR": "true",
+			},
+		),
+	)
+
+	err := exec.Execute(context.TODO())
 	if err != nil {
 		panic(err)
 	}
