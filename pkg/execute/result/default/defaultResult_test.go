@@ -1,4 +1,4 @@
-package defaultresults
+package defaultresult
 
 import (
 	"bufio"

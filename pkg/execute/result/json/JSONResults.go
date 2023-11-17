@@ -1,4 +1,4 @@
-package defaultresults
+package json
 
 import (
 	"bufio"
@@ -17,14 +17,12 @@ const (
 	PrefixTokenSeparator = "\u2500\u2500"
 )
 
-// DefaultResults prints results directly to stdout
-type DefaultResults struct {
+type JSONStdoutCallbackResults struct {
 	trans []transformer.TransformerFunc
 }
 
-// NewDefaultResults returns a DefaultResults instance
-func NewDefaultResults(options ...result.OptionsFunc) *DefaultResults {
-	results := &DefaultResults{}
+func NewJSONStdoutCallbackResults(options ...result.OptionsFunc) *JSONStdoutCallbackResults {
+	results := &JSONStdoutCallbackResults{}
 	results.Options(options...)
 	return results
 }
@@ -32,22 +30,35 @@ func NewDefaultResults(options ...result.OptionsFunc) *DefaultResults {
 // WithTransformers sets a transformes list to DefaultResults
 func WithTransformers(trans ...transformer.TransformerFunc) result.OptionsFunc {
 	return func(r result.ResultsOutputer) {
-		r.(*DefaultResults).trans = append(r.(*DefaultResults).trans, trans...)
+		r.(*JSONStdoutCallbackResults).trans = append(r.(*JSONStdoutCallbackResults).trans, trans...)
 	}
 }
 
 // Options executes the options functions received as a parameters to set the DefaultResults attributes
-func (r *DefaultResults) Options(options ...result.OptionsFunc) {
+func (r *JSONStdoutCallbackResults) Options(options ...result.OptionsFunc) {
 	for _, opt := range options {
 		opt(r)
 	}
 }
 
-// Print method prints the to the DefaultResults writer the date received as input
-func (r *DefaultResults) Print(ctx context.Context, reader io.Reader, writer io.Writer, options ...result.OptionsFunc) error {
+// JSONStdoutCallbackResults method manges the ansible' JSON stdout callback and print the result stats
+func (r *JSONStdoutCallbackResults) Print(ctx context.Context, reader io.Reader, writer io.Writer, options ...result.OptionsFunc) error {
 	var transformers []transformer.TransformerFunc
 
-	errContext := "(DefaultResults::Print)"
+	errContext := "(result::json::JSONStdoutCallbackResults::Print)"
+
+	if reader == nil {
+		return errors.New(errContext, "JSONStdoutCallbackResults requires a reader to print the output of the execution")
+	}
+
+	if writer == nil {
+		return errors.New(errContext, "JSONStdoutCallbackResults requires a writer to print the output of the execution")
+	}
+
+	skipPatterns := []string{
+		// This pattern skips timer's callback whitelist output
+		"^[\\s\\t]*Playbook run took [0-9]+ days, [0-9]+ hours, [0-9]+ minutes, [0-9]+ seconds$",
+	}
 
 	r.Options(options...)
 
@@ -55,32 +66,31 @@ func (r *DefaultResults) Print(ctx context.Context, reader io.Reader, writer io.
 		transformers = append(transformers, transformer.Prepend(PrefixTokenSeparator))
 	}
 
-	// TODO ensure r.reader and r.writer are set
-
 	transformers = append(transformers, r.trans...)
+	transformers = append(transformers, transformer.IgnoreMessage(skipPatterns))
 
 	err := output(ctx, reader, writer, transformers...)
 	if err != nil {
-		return errors.New(errContext, "Error processing the execution output", err)
+		return errors.New(errContext, "Error processing execution output", err)
 	}
 
 	return nil
 }
 
 // output processes the output data with the transformers coming from the execution an writes it to the input writer
-func output(ctx context.Context, r io.Reader, w io.Writer, trans ...transformer.TransformerFunc) error {
+func output(ctx context.Context, reader io.Reader, writer io.Writer, trans ...transformer.TransformerFunc) error {
 	printChan := make(chan string)
 	errChan := make(chan error)
 	done := make(chan struct{})
 
-	errContext := "(DefaultResults::output)"
+	errContext := "(result::json::JSONStdoutCallbackResults::output)"
 
-	if r == nil {
-		return errors.New(errContext, "Reader is not defined")
+	if reader == nil {
+		return errors.New(errContext, "JSONStdoutCallbackResults requires a reader to print the output of the execution")
 	}
 
-	if w == nil {
-		w = os.Stdout
+	if writer == nil {
+		writer = os.Stdout
 	}
 
 	if trans == nil {
@@ -92,9 +102,9 @@ func output(ctx context.Context, r io.Reader, w io.Writer, trans ...transformer.
 		defer close(errChan)
 		defer close(printChan)
 
-		reader := bufio.NewReader(r)
+		r := bufio.NewReader(reader)
 		for {
-			line, err := readLine(reader)
+			line, err := readLine(r)
 			if err != nil {
 				if err != io.EOF {
 					errChan <- err
@@ -115,7 +125,7 @@ func output(ctx context.Context, r io.Reader, w io.Writer, trans ...transformer.
 	for {
 		select {
 		case line := <-printChan:
-			_, err := fmt.Fprintln(w, line)
+			_, err := fmt.Fprintln(writer, line)
 			if err != nil {
 				return err
 			}
