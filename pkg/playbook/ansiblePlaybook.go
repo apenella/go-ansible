@@ -1,18 +1,44 @@
 package playbook
 
 import (
-	"context"
 	"fmt"
-	"os/exec"
 
-	"github.com/apenella/go-ansible/pkg/execute"
 	"github.com/apenella/go-ansible/pkg/options"
-	"github.com/apenella/go-ansible/pkg/stdoutcallback"
 	common "github.com/apenella/go-common-utils/data"
 	errors "github.com/apenella/go-common-utils/error"
 )
 
 const (
+	// TODO: error management
+	// // AnsiblePlaybookErrorCodeGeneralError is the error code for a general error
+	// AnsiblePlaybookErrorCodeGeneralError = 1
+	// // AnsiblePlaybookErrorCodeOneOrMoreHostFailed is the error code for a one or more host failed
+	// AnsiblePlaybookErrorCodeOneOrMoreHostFailed = 2
+	// // AnsiblePlaybookErrorCodeOneOrMoreHostUnreachable is the error code for a one or more host unreachable
+	// AnsiblePlaybookErrorCodeOneOrMoreHostUnreachable = 3
+	// // AnsiblePlaybookErrorCodeParserError is the error code for a parser error
+	// AnsiblePlaybookErrorCodeParserError = 4
+	// // AnsiblePlaybookErrorCodeBadOrIncompleteOptions is the error code for a bad or incomplete options
+	// AnsiblePlaybookErrorCodeBadOrIncompleteOptions = 5
+	// // AnsiblePlaybookErrorCodeUserInterruptedExecution is the error code for a user interrupted execution
+	// AnsiblePlaybookErrorCodeUserInterruptedExecution = 99
+	// // AnsiblePlaybookErrorCodeUnexpectedError is the error code for a unexpected error
+	// AnsiblePlaybookErrorCodeUnexpectedError = 250
+
+	// // AnsiblePlaybookErrorMessageGeneralError is the error message for a general error
+	// AnsiblePlaybookErrorMessageGeneralError = "ansible-playbook error: general error"
+	// // AnsiblePlaybookErrorMessageOneOrMoreHostFailed is the error message for a one or more host failed
+	// AnsiblePlaybookErrorMessageOneOrMoreHostFailed = "ansible-playbook error: one or more host failed"
+	// // AnsiblePlaybookErrorMessageOneOrMoreHostUnreachable is the error message for a one or more host unreachable
+	// AnsiblePlaybookErrorMessageOneOrMoreHostUnreachable = "ansible-playbook error: one or more host unreachable"
+	// // AnsiblePlaybookErrorMessageParserError is the error message for a parser error
+	// AnsiblePlaybookErrorMessageParserError = "ansible-playbook error: parser error"
+	// // AnsiblePlaybookErrorMessageBadOrIncompleteOptions is the error message for a bad or incomplete options
+	// AnsiblePlaybookErrorMessageBadOrIncompleteOptions = "ansible-playbook error: bad or incomplete options"
+	// // AnsiblePlaybookErrorMessageUserInterruptedExecution is the error message for a user interrupted execution
+	// AnsiblePlaybookErrorMessageUserInterruptedExecution = "ansible-playbook error: user interrupted execution"
+	// // AnsiblePlaybookErrorMessageUnexpectedError is the error message for a unexpected error
+	// AnsiblePlaybookErrorMessageUnexpectedError = "ansible-playbook error: unexpected error"
 
 	// DefaultAnsiblePlaybookBinary is the ansible-playbook binary file default value
 	DefaultAnsiblePlaybookBinary = "ansible-playbook"
@@ -103,57 +129,14 @@ type AnsiblePlaybookOptionsFunc func(*AnsiblePlaybookCmd)
 type AnsiblePlaybookCmd struct {
 	// Ansible binary file
 	Binary string
-	// Exec is the executor item
-	Exec execute.Executor
 	// Playbooks is the ansible's playbooks list to be used
 	Playbooks []string
-	// Options are the ansible's playbook options
+	// Options are the ansible's playbook options --> to deprecate and use PlaybookOptions
 	Options *AnsiblePlaybookOptions
 	// ConnectionOptions are the ansible's playbook specific options for connection
 	ConnectionOptions *options.AnsibleConnectionOptions
 	// PrivilegeEscalationOptions are the ansible's playbook privilege escalation options
 	PrivilegeEscalationOptions *options.AnsiblePrivilegeEscalationOptions
-	// StdoutCallback defines which is the stdout callback method. By default is used 'default' method. Supported stdout method by go-ansible are: debug, default, dense, json, minimal, null, oneline, stderr, timer, yaml
-	StdoutCallback string
-}
-
-// Run method runs the ansible-playbook
-func (p *AnsiblePlaybookCmd) Run(ctx context.Context) error {
-	var err error
-	var command []string
-	options := []execute.ExecuteOptions{}
-
-	if p == nil {
-		return errors.New("(playbook::Run)", "AnsiblePlaybookCmd is nil")
-	}
-
-	// Use default binary when it is not already defined
-	if p.Binary == "" {
-		p.Binary = DefaultAnsiblePlaybookBinary
-	}
-
-	_, err = exec.LookPath(p.Binary)
-	if err != nil {
-		return errors.New("(playbook::Run)", fmt.Sprintf("Binary file '%s' does not exists", p.Binary), err)
-	}
-
-	// Define a default executor when it is not defined on AnsiblePlaybookCmd
-	if p.Exec == nil {
-		p.Exec = execute.NewDefaultExecute()
-	}
-
-	// Configure StdoutCallback method. By default is used ansible's 'default' callback method
-	stdoutcallback.AnsibleStdoutCallbackSetEnv(p.StdoutCallback)
-
-	// Generate the command to be run
-	command, err = p.Command()
-	if err != nil {
-		return errors.New("(playbook::Run)", fmt.Sprintf("Error running '%s'", p.String()), err)
-	}
-
-	// Execute the command an return
-	// >>> return p.Exec.Execute(ctx, command, stdoutcallback.GetResultsFunc(p.StdoutCallback), options...)
-	return p.Exec.Execute(ctx, command, options...)
 }
 
 // Command generate the ansible-playbook command which will be executed
@@ -228,6 +211,50 @@ func (p *AnsiblePlaybookCmd) String() string {
 
 	return str
 }
+
+// TODO: error management for Ansible Playbook
+// func (p *AnsiblePlaybookCmd) Error(ctx context.Context, err error) error {
+
+// 	if err != nil {
+// 		if ctx.Err() != nil {
+// 			goerrors.Wrap(err, fmt.Sprintf("\nWhoops! %s\n", ctx.Err()))
+
+// 			fmt.Fprintf(e.Write, "%s\n", fmt.Sprintf("\nWhoops! %s\n", ctx.Err()))
+// 		} else {
+// 			errorMessage := fmt.Sprintf("Command executed:\n%s\n", cmd.String())
+// 			if len(e.EnvVars) > 0 {
+// 				errorMessage = fmt.Sprintf("%s\nEnvironment variables:\n%s\n", errorMessage, strings.Join(e.EnvVars.Environ(), "\n"))
+// 			}
+// 			errorMessage = fmt.Sprintf("%s\nError:\n%s\n", errorMessage, err.Error())
+// 			stderrErrorMessage := string(err.(*osexec.ExitError).Stderr)
+// 			if len(stderrErrorMessage) > 0 {
+// 				errorMessage = fmt.Sprintf("%s\n'%s'\n", errorMessage, stderrErrorMessage)
+// 			}
+
+// 			exitError, exists := err.(*osexec.ExitError)
+// 			if exists {
+// 				ws := exitError.Sys().(syscall.WaitStatus)
+// 				switch ws.ExitStatus() {
+// 				case AnsiblePlaybookErrorCodeGeneralError:
+// 					errorMessage = fmt.Sprintf("%s\n\n%s", AnsiblePlaybookErrorMessageGeneralError, errorMessage)
+// 				case AnsiblePlaybookErrorCodeOneOrMoreHostFailed:
+// 					errorMessage = fmt.Sprintf("%s\n\n%s", AnsiblePlaybookErrorMessageOneOrMoreHostFailed, errorMessage)
+// 				case AnsiblePlaybookErrorCodeOneOrMoreHostUnreachable:
+// 					errorMessage = fmt.Sprintf("%s\n\n%s", AnsiblePlaybookErrorMessageOneOrMoreHostUnreachable, errorMessage)
+// 				case AnsiblePlaybookErrorCodeParserError:
+// 					errorMessage = fmt.Sprintf("%s\n\n%s", AnsiblePlaybookErrorMessageParserError, errorMessage)
+// 				case AnsiblePlaybookErrorCodeBadOrIncompleteOptions:
+// 					errorMessage = fmt.Sprintf("%s\n\n%s", AnsiblePlaybookErrorMessageBadOrIncompleteOptions, errorMessage)
+// 				case AnsiblePlaybookErrorCodeUserInterruptedExecution:
+// 					errorMessage = fmt.Sprintf("%s\n\n%s", AnsiblePlaybookErrorMessageUserInterruptedExecution, errorMessage)
+// 				case AnsiblePlaybookErrorCodeUnexpectedError:
+// 					errorMessage = fmt.Sprintf("%s\n\n%s", AnsiblePlaybookErrorMessageUnexpectedError, errorMessage)
+// 				}
+// 			}
+// 			return errors.New("(DefaultExecute::Execute)", fmt.Sprintf("Error during command execution: %s", errorMessage))
+// 		}
+// 	}
+// }
 
 // AnsiblePlaybookOptions object has those parameters described on `Options` section within ansible-playbook's man page, and which defines which should be the ansible-playbook execution behavior.
 type AnsiblePlaybookOptions struct {
