@@ -47,7 +47,7 @@ Let's dive in and explore the capabilities of `go-ansible` together.
 To install the latest stable version of `go-ansible`, run the following command:
 
 ```sh
-go get github.com/apenella/go-ansible@v1.2.0
+go get github.com/apenella/go-ansible@v1.2.2
 ```
 
 This command will fetch and install the latest version of `go-ansible`, ensuring that you have the most up-to-date and stable release.
