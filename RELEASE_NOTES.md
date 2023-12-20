@@ -1,7 +1,7 @@
 # Release notes
 
-## v1.2.1
+## v1.2.2
 
-### Fix
+### Changed
 
-- In `AnsibleConnectionOptions`, add quotes to ssh, sftp, and scp arguments when generating the command
+- Bump golang.org/x/crypto from 0.8.0 to 0.17.0
