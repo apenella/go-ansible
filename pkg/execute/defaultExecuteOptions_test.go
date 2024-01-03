@@ -1,105 +1,105 @@
 package execute
 
-// import (
-// 	"os"
-// 	"testing"
+import (
+	"os"
+	"testing"
 
-// 	"github.com/apenella/go-ansible/pkg/execute/executable/os/exec"
-// 	defaultresults "github.com/apenella/go-ansible/pkg/execute/result/default"
-// 	"github.com/apenella/go-ansible/pkg/execute/result/transformer"
-// 	"github.com/apenella/go-ansible/pkg/playbook"
-// 	"github.com/stretchr/testify/assert"
-// )
+	"github.com/apenella/go-ansible/internal/executable/os/exec"
+	defaultresults "github.com/apenella/go-ansible/pkg/execute/result/default"
+	"github.com/apenella/go-ansible/pkg/execute/result/transformer"
+	"github.com/apenella/go-ansible/pkg/playbook"
+	"github.com/stretchr/testify/assert"
+)
 
-// // TestWithCmd tests the function WithCmd
-// func TestWithCmd(t *testing.T) {
-// 	cmd := &playbook.AnsiblePlaybookCmd{}
+// TestOptionsWithCmd tests the function WithCmd
+func TestOptionsWithCmd(t *testing.T) {
+	cmd := &playbook.AnsiblePlaybookCmd{}
 
-// 	execute := NewDefaultExecute(
-// 		WithCmd(cmd),
-// 	)
+	execute := NewDefaultExecute(
+		WithCmd(cmd),
+	)
 
-// 	assert.Equal(t, execute.Cmd, cmd)
-// }
+	assert.Equal(t, execute.Cmd, cmd)
+}
 
-// // TestWithExecutable tests the function WithExecutable
-// func TestWithExecutable(t *testing.T) {
-// 	e := exec.NewExec()
+// TestOptionsWithExecutable tests the function WithExecutable
+func TestOptionsWithExecutable(t *testing.T) {
+	e := exec.NewExec()
 
-// 	execute := NewDefaultExecute(
-// 		WithExecutable(e),
-// 	)
+	execute := NewDefaultExecute(
+		WithExecutable(e),
+	)
 
-// 	assert.Equal(t, execute.Exec, e)
-// }
+	assert.Equal(t, execute.Exec, e)
+}
 
-// // TestWithWrite tests the function WithWrite
-// func TestWithWrite(t *testing.T) {
-// 	write := os.Stdout
+// TestOptionsWithWrite tests the function WithWrite
+func TestOptionsWithWrite(t *testing.T) {
+	write := os.Stdout
 
-// 	execute := NewDefaultExecute(
-// 		WithWrite(write),
-// 	)
+	execute := NewDefaultExecute(
+		WithWrite(write),
+	)
 
-// 	assert.Equal(t, execute.Write, write)
-// }
+	assert.Equal(t, execute.Write, write)
+}
 
-// // TestWithWriteError tests the function WithWriteError
-// func TestWithWriteError(t *testing.T) {
-// 	write := os.Stderr
+// TestOptionsWithWriteError tests the function WithWriteError
+func TestOptionsWithWriteError(t *testing.T) {
+	write := os.Stderr
 
-// 	execute := NewDefaultExecute(
-// 		WithWriteError(write),
-// 	)
+	execute := NewDefaultExecute(
+		WithWriteError(write),
+	)
 
-// 	assert.Equal(t, execute.WriterError, write)
-// }
+	assert.Equal(t, execute.WriterError, write)
+}
 
-// // TestWithCmdRunDir tests the function WithCmdRunDir
-// func TestWithCmdRunDir(t *testing.T) {
-// 	cmdRunDir := "/tmp"
+// TestOptionsWithCmdRunDir tests the function WithCmdRunDir
+func TestOptionsWithCmdRunDir(t *testing.T) {
+	cmdRunDir := "/tmp"
 
-// 	execute := NewDefaultExecute(
-// 		WithCmdRunDir(cmdRunDir),
-// 	)
+	execute := NewDefaultExecute(
+		WithCmdRunDir(cmdRunDir),
+	)
 
-// 	assert.Equal(t, execute.CmdRunDir, cmdRunDir)
-// }
+	assert.Equal(t, execute.CmdRunDir, cmdRunDir)
+}
 
-// // TestWithTransformers tests the function WithTransformers
-// func TestWithTransformers(t *testing.T) {
-// 	trans := []transformer.TransformerFunc{
-// 		transformer.Prepend("prepend"),
-// 		transformer.Append("append"),
-// 	}
+// TestOptionsWithTransformers tests the function WithTransformers
+func TestOptionsWithTransformers(t *testing.T) {
+	trans := []transformer.TransformerFunc{
+		transformer.Prepend("prepend"),
+		transformer.Append("append"),
+	}
 
-// 	execute := NewDefaultExecute(
-// 		WithTransformers(trans...),
-// 	)
+	execute := NewDefaultExecute(
+		WithTransformers(trans...),
+	)
 
-// 	assert.Equal(t, execute.Transformers, trans)
-// }
+	assert.Equal(t, execute.Transformers, trans)
+}
 
-// // TestWithEnvVars tests the func WithEnvVars
-// func TestWithEnvVars(t *testing.T) {
-// 	envvars := EnvVars{
-// 		"var1": "value1",
-// 	}
+// TestOptionsWithEnvVars tests the func WithEnvVars
+func TestOptionsWithEnvVars(t *testing.T) {
+	envvars := EnvVars{
+		"var1": "value1",
+	}
 
-// 	execute := NewDefaultExecute(
-// 		WithEnvVars(envvars),
-// 	)
+	execute := NewDefaultExecute(
+		WithEnvVars(envvars),
+	)
 
-// 	assert.Equal(t, execute.EnvVars, envvars)
-// }
+	assert.Equal(t, execute.EnvVars, envvars)
+}
 
-// // TestWithOutput tests the function WithOutput
-// func TestWithOutput(t *testing.T) {
-// 	output := defaultresults.NewDefaultResults()
+// TestOptionsWithOutput tests the function WithOutput
+func TestOptionsWithOutput(t *testing.T) {
+	output := defaultresults.NewDefaultResults()
 
-// 	execute := NewDefaultExecute(
-// 		WithOutput(output),
-// 	)
+	execute := NewDefaultExecute(
+		WithOutput(output),
+	)
 
-// 	assert.Equal(t, execute.Output, output)
-// }
+	assert.Equal(t, execute.Output, output)
+}
