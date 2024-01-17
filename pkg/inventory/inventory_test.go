@@ -76,6 +76,7 @@ func TestGenerateCommandOptions(t *testing.T) {
 	}
 }
 
+// TestString tests
 func TestString(t *testing.T) {
 	tests := []struct {
 		desc                string
@@ -169,6 +170,7 @@ func TestCommand(t *testing.T) {
 	}
 }
 
+// TestRun tests
 func TestRun(t *testing.T) {
 	tests := []struct {
 		desc                string
@@ -278,6 +280,7 @@ func TestRun(t *testing.T) {
 	}
 }
 
+// TestGenerateVarsCommand tests
 func TestGenerateVarsCommand(t *testing.T) {
 
 	tests := []struct {
@@ -355,6 +358,7 @@ func TestGenerateVarsCommand(t *testing.T) {
 	}
 }
 
+// TestAddVar tests
 func TestAddVar(t *testing.T) {
 	tests := []struct {
 		desc    string
@@ -422,6 +426,7 @@ func TestAddVar(t *testing.T) {
 
 }
 
+// TestAddVarsFile tests
 func TestAddVarsFile(t *testing.T) {
 
 	tests := []struct {
@@ -474,6 +479,7 @@ func TestAddVarsFile(t *testing.T) {
 	}
 }
 
+// TestAddVaultedVar tests
 func TestAddVaultedVar(t *testing.T) {
 	vaulter := vault.NewMockVariableVaulter()
 	vaulter.On("Vault", "plain_text_value").Return(vault.NewVaultVariableValue("encrypted_value"), nil)
@@ -533,6 +539,7 @@ func TestAddVaultedVar(t *testing.T) {
 	}
 }
 
+// TestGenerateVerbosityFlag tests
 func TestGenerateVerbosityFlag(t *testing.T) {
 	tests := []struct {
 		desc    string
