@@ -16,26 +16,26 @@ import (
 // TestGenerateCommandOptions tests
 func TestGenerateCommandOptions(t *testing.T) {
 	tests := []struct {
-		desc                   string
-		ansiblePlaybookOptions *AnsibleInventoryOptions
-		err                    error
-		options                []string
+		desc                    string
+		ansibleInventoryOptions *AnsibleInventoryOptions
+		err                     error
+		options                 []string
 	}{
 		{
-			desc:                   "Testing nil AnsiblePlaybookOptions definition",
-			ansiblePlaybookOptions: nil,
-			err:                    errors.New("(inventory::GenerateCommandOptions)", "AnsibleInventoryOptions is nil"),
-			options:                nil,
+			desc:                    "Testing nil AnsibleInventoryOptions definition",
+			ansibleInventoryOptions: nil,
+			err:                     errors.New("(inventory::GenerateCommandOptions)", "AnsibleInventoryOptions is nil"),
+			options:                 nil,
 		},
 		{
-			desc:                   "Testing an empty AnsibleInventoryOptions definition",
-			ansiblePlaybookOptions: &AnsibleInventoryOptions{},
-			err:                    nil,
-			options:                []string{},
+			desc:                    "Testing an empty AnsibleInventoryOptions definition",
+			ansibleInventoryOptions: &AnsibleInventoryOptions{},
+			err:                     nil,
+			options:                 []string{},
 		},
 		{
 			desc: "Testing AnsibleInventoryOptions except vars",
-			ansiblePlaybookOptions: &AnsibleInventoryOptions{
+			ansibleInventoryOptions: &AnsibleInventoryOptions{
 				Host:      "localhost",
 				Inventory: "test/ansible/inventory/all",
 				Output:    "/tmp/output.ini",
@@ -45,7 +45,7 @@ func TestGenerateCommandOptions(t *testing.T) {
 		},
 		{
 			desc: "Testing AnsibleInventoryOptions with vars",
-			ansiblePlaybookOptions: &AnsibleInventoryOptions{
+			ansibleInventoryOptions: &AnsibleInventoryOptions{
 				Vars: map[string]interface{}{
 					"key":     "value",
 					"key_int": 1,
@@ -65,7 +65,7 @@ func TestGenerateCommandOptions(t *testing.T) {
 		t.Run(test.desc, func(t *testing.T) {
 			t.Log(test.desc)
 
-			options, err := test.ansiblePlaybookOptions.GenerateCommandOptions()
+			options, err := test.ansibleInventoryOptions.GenerateCommandOptions()
 
 			if err != nil && assert.Error(t, err) {
 				assert.Equal(t, test.err, err)
@@ -85,7 +85,7 @@ func TestString(t *testing.T) {
 		res                 string
 	}{
 		{
-			desc: "Testing AnsiblePlaybookCmd to string",
+			desc: "Testing AnsibleInventoryCmd to string",
 			err:  nil,
 			ansibleInventoryCmd: &AnsibleInventoryCmd{
 				Binary:  "ansible-inventory",
@@ -179,7 +179,7 @@ func TestRun(t *testing.T) {
 		prepareAssertFunc   func(cmd *AnsibleInventoryCmd)
 	}{
 		{
-			desc:                "Run nil ansiblePlaybookCmd",
+			desc:                "Run nil ansibleInventoryCmd",
 			ansibleInventoryCmd: nil,
 			err:                 errors.New("(inventory::Run)", "AnsibleInventoryCmd is nil"),
 		},
