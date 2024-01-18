@@ -97,6 +97,7 @@ func TestString(t *testing.T) {
 					Graph:            true,
 					Host:             "localhost",
 					Inventory:        "test/ansible/inventory/all",
+					Limit:            "myhost",
 					List:             true,
 					Output:           "/tmp/output.ini",
 					PlaybookDir:      "/playbook/",
@@ -116,7 +117,7 @@ func TestString(t *testing.T) {
 					Yaml:              true,
 				},
 			},
-			res: "ansible-inventory  --ask-vault-password --export --graph --host localhost --inventory test/ansible/inventory/all --list --output /tmp/output.ini --playbook-dir /playbook/ --toml --vars '{\"array\":[\"one\",\"two\"],\"bool\":true,\"dict\":{\"one\":true,\"two\":false},\"int\":10,\"string\":\"testing an string\"}' --vars @test/ansible/vars.yml --vault-id asdf --vault-password-file /vault/password/file -vvvv --version --yaml all",
+			res: "ansible-inventory  --ask-vault-password --export --graph --host localhost --inventory test/ansible/inventory/all --limit myhost --list --output /tmp/output.ini --playbook-dir /playbook/ --toml --vars '{\"array\":[\"one\",\"two\"],\"bool\":true,\"dict\":{\"one\":true,\"two\":false},\"int\":10,\"string\":\"testing an string\"}' --vars @test/ansible/vars.yml --vault-id asdf --vault-password-file /vault/password/file -vvvv --version --yaml all",
 		},
 	}
 
@@ -202,6 +203,7 @@ func TestRun(t *testing.T) {
 					Graph:            true,
 					Host:             "localhost",
 					Inventory:        "test/ansible/inventory/all",
+					Limit:            "myhost",
 					List:             true,
 					Output:           "/tmp/output.ini",
 					PlaybookDir:      "/playbook/",
@@ -234,6 +236,8 @@ func TestRun(t *testing.T) {
 						"localhost",
 						"--inventory",
 						"test/ansible/inventory/all",
+						"--limit",
+						"myhost",
 						"--list",
 						"--output",
 						"/tmp/output.ini",
