@@ -18,6 +18,7 @@ Let's dive in and explore the capabilities of `go-ansible` together.
     - [Packages](#packages)
       - [Adhoc](#adhoc)
       - [Playbook](#playbook)
+      - [Inventory](#Inventory)
       - [Execute](#execute)
         - [DefaultExecute](#defaultexecute)
         - [Custom executor](#custom-executor)
@@ -159,6 +160,18 @@ The `github.com/apenella/go-ansible/pkg/playbook` package provides the functiona
 - **AnsiblePlaybookOptions**: This type includes the parameters described in the `Options` section within Ansible's manual page. It defines the execution behaviour of the `ansible-playbook` and specifies where to find the execution configuration.
 
 Additionally, you can provide privilege escalation options or connection options to the `AnsiblePlaybookCmd`. These options are defined in the `github.com/apenella/go-ansible/pkg/options` package. Refer to the [options](#options) sections to know more about it.
+
+### Inventory
+
+The information provided in this section gives an overview of the `Inventory` package in `go-ansible`.
+
+The `github.com/apenella/go-ansible/pkg/inventory` package provides the functionality to execute `ansible-inventory`. To perform these tasks, you can use the following inventory structs:
+
+- **AnsibleInventoryCmd**: This main struct defines the Ansible inventory and specifies how to execute it. Defining an `AnsibleInventoryCmd` is mandatory for working with the inventory. The `AnsibleInventoryCmd` requires a parameter to specify which `Executor` to use. The executor acts as the worker responsible for launching the operations. If no `Executor` is explicitly specified, the `DefaultExecute` is used by default.
+
+- **AnsibleInventoryOptions**: This struct offers parameters as described in the `Options` section of the Ansible manual page. It defines the behavior of the Ansible inventory operations and specifies where to find the configuration settings.
+
+Note: Unlike other Ansible commands, the `ansible-inventory` command does not provide privilege escalation or connection options, aligning with the functionality of the command itself.
 
 #### Execute
 
