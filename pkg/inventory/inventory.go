@@ -29,6 +29,9 @@ const (
 	// InventoryFlag is the inventory flag for ansible-inventory
 	InventoryFlag = "--inventory"
 
+	// LimitFlag further limit selected hosts to an additional pattern
+	LimitFlag = "--limit"
+
 	// ListFlag Output all hosts info, works as inventory script
 	ListFlag = "--list"
 
@@ -189,6 +192,9 @@ type AnsibleInventoryOptions struct {
 	// Inventory is the inventory flag for ansible-inventory
 	Inventory string
 
+	// Limit further limit selected hosts to an additional pattern
+	Limit string
+
 	// List Output all hosts info, works as inventory script
 	List bool
 
@@ -265,6 +271,11 @@ func (o *AnsibleInventoryOptions) GenerateCommandOptions() ([]string, error) {
 	if o.Inventory != "" {
 		cmd = append(cmd, InventoryFlag)
 		cmd = append(cmd, o.Inventory)
+	}
+
+	if o.Limit != "" {
+		cmd = append(cmd, LimitFlag)
+		cmd = append(cmd, o.Limit)
 	}
 
 	if o.List {
@@ -446,6 +457,10 @@ func (o *AnsibleInventoryOptions) String() string {
 
 	if o.Inventory != "" {
 		str = fmt.Sprintf("%s %s %s", str, InventoryFlag, o.Inventory)
+	}
+
+	if o.Limit != "" {
+		str = fmt.Sprintf("%s %s %s", str, LimitFlag, o.Limit)
 	}
 
 	if o.List {
