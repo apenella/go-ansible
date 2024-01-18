@@ -8,7 +8,7 @@
 Go-ansible is a Go package that enables the execution of `ansible-playbook` or `ansible` commands directly from Golang applications. It supports a wide range of options for each command, enabling smooth integration of Ansible functionality into your projects.
 Let's dive in and explore the capabilities of `go-ansible` together.
 
-> **Disclaimer**: Please note that the master branch may contain unreleased features. Be aware of this when utilizing the library in your projects.
+> **Disclaimer**: Please note that the master branch may contain unreleased or prereleased features. Be aware of this when utilizing the library in your projects.
 
 - [go-ansible](#go-ansible)
   - [Install](#install)
@@ -59,7 +59,7 @@ If you are currently using a `go-ansible` version prior to 1.0.0, it's important
 
 ### Upgrade to 2.x
 
-Versions 2.x introduced notorious changes since the major version 1. Among those changes, there are several breaking changes. The [upgrade guide](https://github.com/apenella/go-ansible/blob/master/docs/upgrade_guide_to_2.x.md) conveys the necessary information to migrate to version 2.x. Please thoroughly read that document and the changelog before upgrading from version 1.x to 2.x.
+Version 2.x introduced notorious changes since the major version 1. Among those changes, there are several breaking changes. The [upgrade guide](https://github.com/apenella/go-ansible/blob/master/docs/upgrade_guide_to_2.x.md) conveys the necessary information to migrate to version 2.x. Please thoroughly read that document and the changelog before upgrading from version 1.x to 2.x.
 
 ## Getting Started
 
