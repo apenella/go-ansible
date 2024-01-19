@@ -1,7 +1,7 @@
 # Release notes
 
-## v1.2.2
+## v1.3.0
 
-### Changed
+### Added
 
-- Bump golang.org/x/crypto from 0.8.0 to 0.17.0
+- New feature to execute the Ansible inventory command. [#132](https://github.com/apenella/go-ansible/issues/132)
