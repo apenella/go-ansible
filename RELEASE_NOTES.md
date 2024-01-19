@@ -31,7 +31,7 @@ Version 2.0.0 of *go-ansible* introduces several disruptive changes. Read the up
 - A new package `github.com/apenella/go-ansible/pkg/execute/stdoutcallback`. This package offers multiple decorators designed to set the stdout callback for Ansible executions.
 - An utility to generate the code for the configuration package has been introduced. This utility is located in the `utils/cmd/configGenerator.go`.
 
-### Changed
+### Added
 
 - The `AdhocPlaybookCmd` struct has been updated to implement the `Commander` interface.
 - The `AnsiblePlaybookCmd` struct has been updated to implement the `Commander` interface.
