@@ -3,29 +3,36 @@
 - [Upgrade Guide to go-ansible 2.x](#upgrade-guide-to-go-ansible-2x)
   - [Overview](#overview)
   - [Changes on the _Executor_ interface](#changes-on-the-executor-interface)
-    - [How to adapt your code to the new _Executor_ interface](#how-to-adapt-your-code-to-the-new-executor-interface)
-      - [How to replace the _command_ argument](#how-to-replace-the-command-argument)
-      - [How to replace the _resultsFunc_ argument](#how-to-replace-the-resultsfunc-argument)
-      - [How to replace the _options_ argument](#how-to-replace-the-options-argument)
+    - [Replacing the _command_ argument](#replacing-the-command-argument)
+    - [Replacing the _resultsFunc_ argument](#replacing-the-resultsfunc-argument)
+    - [Replacing the _options_ argument](#replacing-the-options-argument)
   - [Changes on the _DefaultExecute_ struct](#changes-on-the-defaultexecute-struct)
-    - [Removed the _ShowDuration_ attribute](#removed-the-showduration-attribute)
-    - [New attribute _Output_ for printing execution results](#new-attribute-output-for-printing-execution-results)
-    - [New attribute _Exec_ for running external commands](#new-attribute-exec-for-running-external-commands)
+    - [Adding _Cmd_ attribute to generate commands](#adding-cmd-attribute-to-generate-commands)
+    - [Adding _Exec_ attribute for running external commands](#adding-exec-attribute-for-running-external-commands)
+    - [Adding _Output_ attribute for printing execution results](#adding-output-attribute-for-printing-execution-results)
+    - [Removing the _ShowDuration_ attribute](#removing-the-showduration-attribute)
+    - [Adpating your code to new the _Transformer_ location](#adpating-your-code-to-new-the-transformer-location)
+  - [Changes on the _AnsiblePlaybookCmd_ struct](#changes-on-the-ansibleplaybookcmd-struct)
+    - [Removing the _Exec_ attribute and _Run_ method](#removing-the-exec-attribute-and-run-method)
+    - [Removing the _StdoutCallback_ attribute](#removing-the-stdoutcallback-attribute)
+  - [Changes on the _AnsibleAdhocCmd_ struct](#changes-on-the-ansibleadhoccmd-struct)
   - [Packages Reorganization](#packages-reorganization)
     - [github.com/apenella/go-ansible/pkg/stdoutcallback](#githubcomapenellago-ansiblepkgstdoutcallback)
 
 ## Overview
 
-This document offers guidance for upgrading from go-ansible _v1.x_ to _v2.x_. It also presents the changes introduced in _go-ansible v2.0.0_ since the major version _1.x_. Some those changes are breaking changes.
+This document offers guidance for upgrading from _go-ansible_ _v1.x_ to _v2.x_. It also presents the changes introduced in _go-ansible v2.0.0_ since the major version _1.x_. Some of those changes are breaking changes.
 
-The most relevant change is that command structs no longer execute commands. So, `AnsiblePlaybookCmd` and `AnsibleAdhocCmd` do not requiere an `Executor` anymore. Instead, the `Executor` is responsible of the command execution. To achieve that, the `Executor` depends on the command structs to generates the commands to execute.
+The most relevant change is that command structs no longer execute commands. So, `AnsiblePlaybookCmd` and `AnsibleAdhocCmd` do not require an `Executor` anymore. Instead, the `Executor` is responsible for the command execution. To achieve that, the `Executor` depends on the command structs to generate the commands to execute.
 
-Go through the following sections to learn about the changes introduced in version 2.x and how to adapt your code to those changes.
+Go through the following sections to learn about the changes introduced in version _2.x_ and how to adapt your code to those changes.
 
 ## Changes on the _Executor_ interface
 
+> Changes on the _Executor_ interface are breaking changes. These changes affects several packages or structs in _go-ansible_. In this section, you will find guidance on how to adapt your custom implentation of an executor.
+> To know how these changes impact other packages or structs, refer to the corresponding sections in this document.
+
 The `Executor` interface has undergone significant breaking changes. It removes the `command`, `resultsFunc`, and `options` arguments from the `Execute` method.
-That changes only affects your code if you have defined a custom _Executor_ struct.
 
 Here is the updated `Executor` interface:
 
@@ -35,17 +42,11 @@ type Executor interface {
 }
 ```
 
-### How to adapt your code to the new _Executor_ interface
+To align with the updated `Executor` interface, you need to adapt your custom executor by removing the `command`, `resultsFunc`, and `options` arguments from its `Execute` method. The following points detail how to replace each of these arguments.
 
-To align with the updated `Executor` interface, you need to adapt your custom _Executor_ by removing the `command`, `resultsFunc`, and `options` arguments from its `Execute` method. The following points detail how to replace each of these arguments.
+### Replacing the _command_ argument
 
-#### How to replace the _command_ argument
-
-Instead of using the command argument, the new `Executor` utilizes a `Commander` to generate commands for execution. Therefore, the `Executor` should include an attribute of type `Commander`.
-
-Both the `AnsiblePlaybookCmd` and `AnsibleAdhocCmd` structs already implement the `Commander` interface.
-
-The `Commander` interface definition is as follows:
+Instead of using the _command_ argument, the `Executor` should expect a `Commander` to generates the command to execute. Therefore, your executor should include an attribute of type `Commander`. The `Commander` is interface defined in _github.com/apenella/go-ansible/pkg/execute_ as follows:
 
 ```go
 // Commander generates commands to be executed
@@ -54,50 +55,15 @@ type Commander interface {
 }
 ```
 
-The `Command` method returns an array of strings representing the command to execute. You should use this array for the component responsible for executing external commands.
+The `Command` method returns an array of strings representing the command to execute. You should provide the component responsible for executing external commands with this array.
+Both the `AnsiblePlaybookCmd` and `AnsibleAdhocCmd` structs implement the `Commander` interface.
 
-The `DefaultExecute` in _go-ansible_ utilizes an `Executabler` to execute external commands. The `Executabler` is an interface defined as:
+You can review changes on `DefaultExecute` [here](#adding-cmd-attribute-to-generate-commands) and see how it has been adapted to use the `Commander` to generate the command to execute.
 
-```go
-// Executabler is an interface to run commands
-type Executabler interface {
-  Command(name string, arg ...string) exec.Cmder
-  CommandContext(ctx context.Context, name string, arg ...string) exec.Cmder
-}
-```
+### Replacing the _resultsFunc_ argument
 
-The `os/exec`'s `Cmd` struct implements the `Executabler` interface.
-
-The following code showcases how the `DefaultExecute` uses the `Commander` and the `Executabler`.
-
-```go
-// e.Cmd is a Commander
-command, err := e.Cmd.Command()
-if err != nil {
-  return errors.New("(DefaultExecute::Execute)", "Error creating command", err)
-}
-
-// e.Exec is an Executabler
-cmd := e.Exec.CommandContext(ctx, command[0], command[1:]...)
-```
-
-By incorporating these changes, your code will align with the updated `Executor` interface in _go-ansible v2.x_.
-
-#### How to replace the _resultsFunc_ argument
-
-The _resultsFunc_ previously managed the results output from command execution. With its removal, a new component within the Executor must assume this responsibility.
-
-To handle the results output, _go-ansible_ provides two mechanisms:
-
-- **DefaultResults Struct**
-Located in the package _github.com/apenella/go-ansible/pkg/execute/result/default_, the `DefaultResults` struct handles Ansible's results in plain text.
-
-- **JSONResults Struct**
-Defined in the package github.com/apenella/go-ansible/pkg/execute/json, the JSONResults struct manages Ansible's results in JSON format.
-
-Choose between these mechanisms based on the stdout callback plugin you use.
-
-Both components implement the `ResultsOutputer` interface, defined in _github.com/apenella/go-ansible/pkg/execute/result_ as follows:
+The _resultsFunc_ previously managed the results output from command execution. With its removal, your executor should expect a new component to assume this responsibility. That component for handling the results output should be of type `ResultsOutputer`.
+A `ResultsOutputer` is an interface defined in _github.com/apenella/go-ansible/pkg/execute/result_ as follows:
 
 ```go
 // OptionsFunc is a function that can be used to configure a ResultsOutputer struct
@@ -109,51 +75,77 @@ type ResultsOutputer interface {
 }
 ```
 
-To replace the _resultsFunc_, introduce an attribute of type `ResultsOutputer` in your `Executor` struct. Utilize this attribute to print the results output from command execution.
+The _go-ansible_ library provides two implementations of the `ResultsOutputer` interface:
 
-The `DefaultExecute` includes a default `ResultsOutputer` attribute named `Output`, which uses the `DefaultResults` struct to print execution results.
+- **DefaultResults Struct**
+Located in the package _github.com/apenella/go-ansible/pkg/execute/result/default_, the `DefaultResults` struct handles Ansible's results in plain text.
 
-#### How to replace the _options_ argument
+- **JSONResults Struct**
+Defined in the package _github.com/apenella/go-ansible/pkg/execute/json_, the `JSONResults` struct manages Ansible's results in JSON format.
 
-By removing the _options_ argument, you will not be able to overwrite the _Executor_ configuration when you executing the command. You must set up the Executor when instanciating the struct.
+Choose between these mechanisms based on the stdout callback plugin you use.
+
+To sum it up, to replace the _resultsFunc_, introduce an attribute of type `ResultsOutputer` in your executor, and utilize this attribute to print the results output from command execution.
+
+[Here](#adding-output-attribute-for-printing-execution-results) you can find how the `DefaultExecute` struct has been adapted to use a `ResultsOutputer` to print the execution results.
+
+### Replacing the _options_ argument
+
+By removing the options argument, the ability to overwrite the `Executor` struct attributes in the `Execute` method is no longer available. To configure your executor, you must set it up during the instantiation of the struct.
 
 ## Changes on the _DefaultExecute_ struct
 
-The `DefaultExecute` struct, functioning as the default executor in the `go-ansible` library, has introduced significant changes in version 2.0.0. The next sections describe how to adapt your code to that component to version v2.0.0:
+The `DefaultExecute` struct is a ready-to-go component provided by the _go-ansible_ library for executing external commands. You can find its definition in the _github.com/apenella/go-ansible/pkg/execute_ package.
+Changes on the `Executor` interface impacts the `DefaultExecute` struct. You can read more about the changes on the `Executor` interface [here](#changes-on-the-executor-interface).
 
-### Removed the _ShowDuration_ attribute
-
-The `DefaultExacute` has removed the attribute `ShowDuration`, as previously announced. Starting from version v2.0.0, to measure the duration of the execution you should utilize the `measure.ExecutiorTimeMeasurement` component.
-
-For guidance on how to use the `ExecutiorTimeMeasurement` decorator component, please refer to the example [ansibleplaybook-time-measurement](https://github.com/apenella/go-ansible/blob/master/examples/ansibleplaybook-time-measurement/ansibleplaybook-time-measurement.go) to know how to use it.
-
-### New attribute _Output_ for printing execution results
-
-Inside the `DefaultExecute` struct, the `Execute` method has undergone an update that removes the `resultsFunc` attribute. This attribute was previously of type `stdoutcallback.StdoutCallbackResultsFunc` and was responsible for printing the execution's output. Instead, a new attribute named `Output` has been introduced to the struct.
-
-The `Output` attribute is of type `results.ResultsOutputer`, which represents an interface defined as follows:
+In version _v2.x_ you need to instantiate the `DefaultExecute` struct to execute the Ansible commands, as is shown in the following code snippet. 
 
 ```go
-// OptionsFunc is a function that can be used to configure a ResultsOutputer struct
-type OptionsFunc func(ResultsOutputer)
+// playbookCmd is the Commander responsible for generating the command to execute
+exec := execute.NewDefaultExecute(
+  execute.WithCmd(playbookCmd),
+)
 
-// ResultsOutputer is the interface that must implements an struct to print the execution results
-type ResultsOutputer interface {
-  Print(ctx context.Context, reader io.Reader, writer io.Writer, options ...OptionsFunc) error
+// Execute the Ansible command
+err := exec.Execute(context.TODO())
+if err != nil {
+  panic(err)
 }
 ```
 
-If the `Output` attribute is not explicitly specified within the `DefaultExecute` struct, the default behaviour uses the `DefaultResults` struct as the output mechanism. You can find this struct in the `github.com/apenella/go-ansible/pkg/execute/result/default` package, and it is responsible for handling the printing of execution output.
+If you already configured the `DefaultExecute` struct in your code, you should adapt it to the new version. Follow the coming sections to learn how to adapt your code to these changes.
 
-For further details on the `DefaultResults` struct, please refer to the section that discusses the package reorganization at [github.com/apenella/go-ansible/pkg/stdoutcallback](#githubcomapenellago-ansiblepkgstdoutcallback).
+### Adding _Cmd_ attribute to generate commands
 
-### New attribute _Exec_ for running external commands
+The `DefaultExecute` requires a `Commander` to generate the external ommand to execute. For that reason, it includes the `Cmd` attribute of type `Commander`. Both the `AnsiblePlaybookCmd` and `AnsibleAdhocCmd` structs implement the `Commander` interface.
 
-In versions prior to v2.0.0, `DefaultResults` utilized the `os.exec` package to run external commands. However, in version v2.0.0, direct usage of `os.exec` has been replaced by defining a new attribute called `Exec`. This attribute instantiates a component of type `Executabler`, responsible for executing external commands.
+When you instantiate the `DefaultExecute` struct, you should provide the `Cmd` attribute with a `Commander` to generate the commands. The following code shows how to instantiate the `DefaultExecute` struct using a `AnsiblePlaybookCmd` as the `Commander`.
 
-By default, if you do not explicitly define an `Exec` attribute, `Exec` uses the `DefaultExecute` struct to execute external commands, which is defined in the `github.com/apenella/go-ansible/pkg/execute/executable/os/exec` package.
+```go
+// Define the AnsiblePlaybookCmd and the required options.
+playbookCmd := &playbook.AnsiblePlaybookCmd{
+  Playbooks:         []string{"site.yml", "site2.yml"},
+  ConnectionOptions: &options.AnsibleConnectionOptions{
+    Connection: "local",
+  },
+  Options:           &playbook.AnsiblePlaybookOptions{
+    Inventory: "all,",
+  },
+}
+// Instanciate a DefaultExecutoe by providing 'playbookCmd' as the Commander.
+exec := execute.NewDefaultExecute(
+  execute.WithCmd(playbookCmd),
+)
+```
 
-The `Executabler` interface is defined as follows:
+In the example above, the `playbookCmd` is of type `Commander`. You set the `Cmd` value as `playbookCmd` through the function `WithCmd` when you instantiate a new `DefaultExecute`. So, the `DefaultExecute` utilizes the `playbookCmd` to generate the command to execute.
+
+### Adding _Exec_ attribute for running external commands
+
+In the latest _go-ansible_ version, the `DefaultExecute` struct includes the `Exec` attribute of type `Executabler`. The `Exec` component is responsible for executing external commands.
+By default, if you do not define the `Exec` attribute, it uses the `OsExec` struct. The `OsExec` implementation is found in the _github.com/apenella/go-ansible/internal/execute/executable/os/exec_ package. This struct wraps the `os/exec` package.
+
+If you need to implement a custom executabler, you should implement the `Executabler` interface. The interface is defined in _github.com/apenella/go-ansible/pkg/execute_ as follows:
 
 ```go
 // Executabler is an interface to run commands
@@ -163,44 +155,139 @@ type Executabler interface {
 }
 ```
 
-The `exec.Cmder` type used on the `Executabler` interface is defined as:
+Below, you can find an example of how to instantiate a `DefaultExecute` struct with a custom executabler.
 
 ```go
-// Cmder is an interface to run a command
-type Cmder interface {
-  CombinedOutput() ([]byte, error)
-  Environ() []string
-  Output() ([]byte, error)
-  Run() error
-  Start() error
-  StderrPipe() (io.ReadCloser, error)
-  StdinPipe() (io.WriteCloser, error)
-  StdoutPipe() (io.ReadCloser, error)
-  String() string
-  Wait() error
+// Define the AnsiblePlaybookCmd and the required options.
+playbookCmd := &playbook.AnsiblePlaybookCmd{
+  Playbooks:         []string{"site.yml", "site2.yml"},
+  ConnectionOptions: &options.AnsibleConnectionOptions{
+    Connection: "local",
+  },
+  Options:           &playbook.AnsiblePlaybookOptions{
+    Inventory: "all,",
+  },
+}
+
+// Define a custom Executabler
+executable := &myCustomExecutabler{}
+
+// Instanciate a DefaultExecutoe by providing 'playbookCmd' and 'executabler' as the Commander and Executabler respectively.
+executor := execute.NewDefaultExecute(
+  execute.WithCmd(playbookCmd),
+  execute.WithExecutable(executable),
+)
+```
+
+In the example above, _executable_ implements the `Executabler` interface. When you instantiate a new `DefaultExecute`, you set the `Exec` value to _executable_ using the function `WithExecutable`. So, the `DefaultExecute` will use the _executable_ to execute the command.
+
+### Adding _Output_ attribute for printing execution results
+
+To align with the new `Executor` interface, the `DefaultExecute` struct includes the `Output` attribute of type `ResultsOutputer`. It manages the output of Ansible commands. You can find the definition for `ResultsOutputer` in _github.com/apenella/go-ansible/pkg/execute/result_ as follows:
+
+```go
+// OptionsFunc is a function that can be used to configure a ResultsOutputer struct
+type OptionsFunc func(ResultsOutputer)
+
+// ResultsOutputer is the interface that must implements an struct to print the execution results
+type ResultsOutputer interface {
+ Print(ctx context.Context, reader io.Reader, writer io.Writer, options ...OptionsFunc) error
 }
 ```
 
+When you do not specify the `Output` attribute, it uses as a fallback mechanism the `DefaultResults` struct for output. You can find this struct in the _github.com/apenella/go-ansible/pkg/execute/result/default_ package.
 
+You can use the `WithOutput` function defined in the _github.com/apenella/go-ansible/pkg/execute_ package to configure the `Output` attribute during the instantiation of the `DefaultExecute` struct.
 
-if you have configured the executor
+Below, you can find an example of how to instantiate a `DefaultExecute` struct with a custom output mechanism.
 
 ```go
-execute := execute.NewDefaultExecute(
-  execute.WithWrite(io.Writer(buff)),
+// Define the AnsiblePlaybookCmd and the required options.
+playbookCmd := &playbook.AnsiblePlaybookCmd{
+  Playbooks:         []string{"site.yml", "site2.yml"},
+  ConnectionOptions: &options.AnsibleConnectionOptions{
+    Connection: "local",
+  },
+  Options:           &playbook.AnsiblePlaybookOptions{
+    Inventory: "all,",
+  },
+}
+// Define a custom ResultsOutputer
+output := &myCustomResultsOutputer{}
+
+// Instanciate a DefaultExecutoe by providing 'playbookCmd' and 'outputer' as the Commander and ResultsOutputer respectively.
+executor := execute.NewDefaultExecute(
+  execute.WithCmd(playbookCmd),
+  execute.WithOutput(output),
 )
 ```
+
+The example above shows how to instantiate a `DefaultExecute` struct with a custom `ResultsOutputer`. The _output_ is of type `ResultsOutputer`. When you instantiate a new `DefaultExecute`, you set the `Output` attribute with the _output_. So, the `DefaultExecute` uses _output_ to print the execution results.
+
+### Removing the _ShowDuration_ attribute
+
+As announced in prior go-ansible versions, the `DefaultExecute` has removed the ShowDuration attribute.
+
+Starting from version _v2.0.0_, to measure the duration of the execution, you should use the `ExecutorTimeMeasurement` struct. This struct acts as a decorator over the `Executor` and is available in the _github.com/apenella/go-ansible/pkg/execute/measure_ package.
+
+For guidance on how to use the ExecutorTimeMeasurement, please refer to the [ansibleplaybook-time-measurement](https://github.com/apenella/go-ansible/blob/master/examples/ansibleplaybook-time-measurement/ansibleplaybook-time-measurement.go) example. However, the following code snippet shows how to use the `ExecutorTimeMeasurement` struct.
 
 ```go
 exec := measure.NewExecutorTimeMeasurement(
-  stdoutcallback.NewJSONStdoutCallbackExecute(
     execute.NewDefaultExecute(
       execute.WithCmd(playbook),
-      execute.WithWrite(io.Writer(buff)),
     ),
-  ),
 )
+
+err := exec.Execute(context.TODO())
+if err != nil {
+  fmt.Println(err.Error())
+}
+
+fmt.Println("Duration: ", exec.Duration().String())
 ```
+
+### Adpating your code to new the _Transformer_ location
+
+You can configure a set of transformers to modify the output of the execution's results. The _go-ansible_ library has moved the `transformer` package from _github.com/apenella/go-ansible/pkg/stdoutcallback/results_ to _github.com/apenella/go-ansible/pkg/execute/result/transformer_. So, you should adapt your code to this change.
+
+## Changes on the _AnsiblePlaybookCmd_ struct
+
+The `AnsiblePlaybookCmd` struct has undergone significant changes. It changed its responsibilities and no longer executes commands. Instead, it implements the `Commander` interface, which generates commands for execution. So, you need to adapt your code to these changes. This section outlines the necessary steps to migrate from the older version to the new one.
+
+### Removing the _Exec_ attribute and _Run_ method
+
+The `AnsiblePlaygookCmd` struct is not responsible for executing commands anymore. For that reason, the `Exec` attribute has been removed.
+
+Along with the `Exec` attribute, the `Run` method is not available anymore. To execute a command, you should use an `Executor`. Then, the `Executor` should receive an `AnsiblePlaybookCmd` struct to generate the command to execute.
+
+```go
+// Define the AnsiblePlaybookCmd and the required options.
+playbookCmd := &playbook.AnsiblePlaybookCmd{
+  Playbooks:         []string{"site.yml", "site2.yml"},
+  ConnectionOptions: &options.AnsibleConnectionOptions{
+    Connection: "local",
+  },
+  Options:           &playbook.AnsiblePlaybookOptions{
+    Inventory: "127.0.0.1,",
+  },
+}
+
+// Instanciate a DefaultExecutoe by providing 'playbookCmd' as the Commander
+exec := execute.NewDefaultExecute(
+  execute.WithCmd(playbookCmd),
+)
+
+// Execute the external command through the executor
+err := exec.Execute(context.TODO())
+if err != nil {
+  panic(err)
+}
+```
+
+### Removing the _StdoutCallback_ attribute
+
+## Changes on the _AnsibleAdhocCmd_ struct
 
 ## Packages Reorganization
 
