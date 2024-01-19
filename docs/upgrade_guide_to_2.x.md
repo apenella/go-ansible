@@ -6,8 +6,7 @@
     - [How to adapt your code to the new _Executor_ interface](#how-to-adapt-your-code-to-the-new-executor-interface)
       - [How to replace the _command_ argument](#how-to-replace-the-command-argument)
       - [How to replace the _resultsFunc_ argument](#how-to-replace-the-resultsfunc-argument)
-      - [Remove the _resultsFunc_ argument](#remove-the-resultsfunc-argument)
-      - [Remove the _options_ argument](#remove-the-options-argument)
+      - [How to replace the _options_ argument](#how-to-replace-the-options-argument)
   - [Changes on the _DefaultExecute_ struct](#changes-on-the-defaultexecute-struct)
     - [Removed the _ShowDuration_ attribute](#removed-the-showduration-attribute)
     - [New attribute _Output_ for printing execution results](#new-attribute-output-for-printing-execution-results)
@@ -98,7 +97,7 @@ Defined in the package github.com/apenella/go-ansible/pkg/execute/json, the JSON
 
 Choose between these mechanisms based on the stdout callback plugin you use.
 
-Both implement the `ResultsOutputer` interface, defined in _github.com/apenella/go-ansible/pkg/execute/result_ as follows:
+Both components implement the `ResultsOutputer` interface, defined in _github.com/apenella/go-ansible/pkg/execute/result_ as follows:
 
 ```go
 // OptionsFunc is a function that can be used to configure a ResultsOutputer struct
@@ -114,26 +113,9 @@ To replace the _resultsFunc_, introduce an attribute of type `ResultsOutputer` i
 
 The `DefaultExecute` includes a default `ResultsOutputer` attribute named `Output`, which uses the `DefaultResults` struct to print execution results.
 
-#### Remove the _resultsFunc_ argument
+#### How to replace the _options_ argument
 
-
-#### Remove the _options_ argument
-
-
-
----
-
-The `Executor` interface has undergone a significant changes in version v2.0.0 by removing the `resultsFunc` argument from the `Execute` method. This change constitutes a breaking change. In prior versions, the `Execute` method accepted an argument for `resultsFunc`, which represented the function responsible for handling and printing the execution's results. With the revised signature, the mechanism for printing the execution results must be an attribute of the executor.
-
-If you defined a custom executor you need to adapt it by removing the `resultsFunc` argument, and defining the component that prints the execution's output in the struct. The section [Changes on the DefaultExecute struct](#changes-to-defaultexecute-struct) describes how the `DefaultExecutor` is provided with a new attribute that is responsible for printing the execution's output.
-
-Here is the updated `Executor` interface:
-
-```go
-type Executor interface {
-  Execute(ctx context.Context, command []string, options ...ExecuteOptions) error
-}
-```
+By removing the _options_ argument, you will not be able to overwrite the _Executor_ configuration when you executing the command. You must set up the Executor when instanciating the struct.
 
 ## Changes on the _DefaultExecute_ struct
 
