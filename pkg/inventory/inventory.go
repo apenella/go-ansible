@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"github.com/apenella/go-ansible/pkg/execute"
 	"github.com/apenella/go-ansible/pkg/stdoutcallback"
-	common "github.com/apenella/go-common-utils/data"
 	errors "github.com/apenella/go-common-utils/error"
 	"os/exec"
 )
@@ -208,10 +207,7 @@ type AnsibleInventoryOptions struct {
 	Toml bool
 
 	// Vars Add vars to graph display, ignored unless used with –graph
-	Vars map[string]interface{}
-
-	// VarsFile is a list of files used to load vars
-	VarsFile []string
+	Vars bool
 
 	// VaultID the vault identity to use
 	VaultID string
@@ -296,18 +292,8 @@ func (o *AnsibleInventoryOptions) GenerateCommandOptions() ([]string, error) {
 		cmd = append(cmd, TomlFlag)
 	}
 
-	if len(o.Vars) > 0 {
+	if o.Vars {
 		cmd = append(cmd, VarsFlag)
-		vars, err := o.generateVarsCommand()
-		if err != nil {
-			return nil, errors.New(errContext, "Error generating vars", err)
-		}
-		cmd = append(cmd, vars)
-	}
-
-	for _, file := range o.VarsFile {
-		cmd = append(cmd, VarsFlag)
-		cmd = append(cmd, file)
 	}
 
 	if o.VaultID != "" {
@@ -367,74 +353,6 @@ func (o *AnsibleInventoryOptions) generateVerbosityFlag() (string, error) {
 	return "", nil
 }
 
-// generateVarsCommand return a string which is a json structure having all the variable
-func (o *AnsibleInventoryOptions) generateVarsCommand() (string, error) {
-
-	vars, err := common.ObjectToJSONString(o.Vars)
-	if err != nil {
-		return "", errors.New("(inventory::generateExtraVarsCommand)", "Error creationg vars JSON object to string", err)
-	}
-
-	return vars, nil
-}
-
-// AddVar registers a new variable
-func (o *AnsibleInventoryOptions) AddVar(name string, value interface{}) error {
-
-	if o.Vars == nil {
-		o.Vars = map[string]interface{}{}
-	}
-	_, exists := o.Vars[name]
-	if exists {
-		return errors.New("(inventory::AddVar)", fmt.Sprintf("Var '%s' already exist", name))
-	}
-
-	o.Vars[name] = value
-
-	return nil
-}
-
-// AddVarsFile adds an vars file on ansible-inventory options item
-func (o *AnsibleInventoryOptions) AddVarsFile(file string) error {
-	if o.VarsFile == nil {
-		o.VarsFile = []string{}
-	}
-
-	if file[0] != '@' {
-		file = fmt.Sprintf("@%s", file)
-	}
-
-	o.VarsFile = append(o.VarsFile, file)
-
-	return nil
-}
-
-// AddVaultedExtraVar registers a new variable on ansible-inventory options item vaulting its value
-func (o *AnsibleInventoryOptions) AddVaultedVar(vaulter Vaulter, name string, value string) error {
-
-	if vaulter == nil {
-		return errors.New("(inventory::AddVaultedVar)", "To define a vaulted var you need to initialize a vaulter")
-	}
-
-	if o.Vars == nil {
-		o.Vars = map[string]interface{}{}
-	}
-
-	_, exists := o.Vars[name]
-	if exists {
-		return errors.New("(inventory::AddVaultedVar)", fmt.Sprintf("Var '%s' already exist", name))
-	}
-
-	vaultedValue, err := vaulter.Vault(value)
-	if err != nil {
-		return errors.New("(inventory::AddVaultedVar)", fmt.Sprintf("Variable '%s' can not be vaulted", name), err)
-	}
-
-	o.Vars[name] = vaultedValue
-
-	return nil
-}
-
 // GenerateCommandCommonOptions return a list of command options flags to be used on ansible execution
 func (o *AnsibleInventoryOptions) String() string {
 	str := ""
@@ -479,13 +397,8 @@ func (o *AnsibleInventoryOptions) String() string {
 		str = fmt.Sprintf("%s %s", str, TomlFlag)
 	}
 
-	if len(o.Vars) > 0 {
-		vars, _ := o.generateVarsCommand()
-		str = fmt.Sprintf("%s %s %s", str, VarsFlag, fmt.Sprintf("'%s'", vars))
-	}
-
-	for _, varsFile := range o.VarsFile {
-		str = fmt.Sprintf("%s %s %s", str, VarsFlag, varsFile)
+	if o.Vars {
+		str = fmt.Sprintf("%s %s", str, VarsFlag)
 	}
 
 	if o.VaultID != "" {
