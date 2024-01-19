@@ -27,6 +27,7 @@ _**Important:** The master branch may contain unreleased or pre-released feature
     - [Create the _DefaultExecute_ executor](#create-the-defaultexecute-executor)
     - [Manage the output of the command execution](#manage-the-output-of-the-command-execution)
   - [Usage Reference](#usage-reference)
+<<<<<<< HEAD
     - [Adhoc package](#adhoc-package)
       - [AnsibleAdhocCmd struct](#ansibleadhoccmd-struct)
       - [AnsibleAdhocOptions struct](#ansibleadhocoptions-struct)
@@ -66,6 +67,31 @@ _**Important:** The master branch may contain unreleased or pre-released feature
         - [File](#file)
         - [Resolve](#resolve)
         - [Text](#text)
+=======
+    - [Packages](#packages)
+      - [Adhoc](#adhoc)
+      - [Playbook](#playbook)
+    - [Inventory](#inventory)
+      - [Execute](#execute)
+        - [DefaultExecute](#defaultexecute)
+        - [Custom executor](#custom-executor)
+        - [Measurements](#measurements)
+      - [Options](#options)
+        - [Ansible ad-hoc and ansible-playbook Common Options](#ansible-ad-hoc-and-ansible-playbook-common-options)
+      - [Stdout Callback](#stdout-callback)
+      - [Results](#results)
+        - [Transformers](#transformers)
+        - [Default](#default)
+        - [JSON](#json)
+          - [Manage JSON Output](#manage-json-output)
+      - [Vault](#vault)
+        - [Encrypt](#encrypt)
+        - [Password](#password)
+          - [Envvars](#envvars)
+          - [File](#file)
+          - [Resolve](#resolve)
+          - [Text](#text)
+>>>>>>> 4c2e989 (update installation instructions)
   - [Examples](#examples)
   - [Contributing](#contributing)
     - [Code Of Conduct](#code-of-conduct)
@@ -76,7 +102,11 @@ _**Important:** The master branch may contain unreleased or pre-released feature
 Use this command to fetch and install the latest version of _go-ansible_, ensuring you have the most up-to-date and stable release.
 
 ```sh
+<<<<<<< HEAD
 go get github.com/apenella/go-ansible@v2.0.0
+=======
+go get github.com/apenella/go-ansible@v1.3.0
+>>>>>>> 4c2e989 (update installation instructions)
 ```
 
 ### Upgrade to 1.x
