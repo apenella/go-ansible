@@ -141,6 +141,9 @@ func (p *AnsibleInventoryCmd) Command() ([]string, error) {
 	// Set the ansible-inventory binary file
 	cmd = append(cmd, p.Binary)
 
+	// set the pattern
+	cmd = append(cmd, p.Pattern)
+
 	// Determine the options to be set
 	if p.Options != nil {
 		options, err := p.Options.GenerateCommandOptions()
@@ -149,8 +152,6 @@ func (p *AnsibleInventoryCmd) Command() ([]string, error) {
 		}
 		cmd = append(cmd, options...)
 	}
-
-	cmd = append(cmd, p.Pattern)
 
 	return cmd, nil
 }
@@ -165,11 +166,11 @@ func (p *AnsibleInventoryCmd) String() string {
 
 	str := p.Binary
 
+	str = fmt.Sprintf("%s %s", str, p.Pattern)
+
 	if p.Options != nil {
 		str = fmt.Sprintf("%s %s", str, p.Options.String())
 	}
-
-	str = fmt.Sprintf("%s %s", str, p.Pattern)
 
 	return str
 }
@@ -369,7 +370,7 @@ func (o *AnsibleInventoryOptions) String() string {
 		str = fmt.Sprintf("%s %s", str, GraphFlag)
 	}
 
-	if o.Host != "nil" {
+	if o.Host != "" {
 		str = fmt.Sprintf("%s %s %s", str, HostFlag, o.Host)
 	}
 
@@ -385,11 +386,11 @@ func (o *AnsibleInventoryOptions) String() string {
 		str = fmt.Sprintf("%s %s", str, ListFlag)
 	}
 
-	if o.Output != "nil" {
+	if o.Output != "" {
 		str = fmt.Sprintf("%s %s %s", str, OutputFlag, o.Output)
 	}
 
-	if o.PlaybookDir != "nil" {
+	if o.PlaybookDir != "" {
 		str = fmt.Sprintf("%s %s %s", str, PlaybookDirFlag, o.PlaybookDir)
 	}
 

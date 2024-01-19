@@ -105,7 +105,7 @@ func TestString(t *testing.T) {
 					Yaml:              true,
 				},
 			},
-			res: "ansible-inventory  --ask-vault-password --export --graph --host localhost --inventory test/ansible/inventory/all --limit myhost --list --output /tmp/output.ini --playbook-dir /playbook/ --toml --vars --vault-id asdf --vault-password-file /vault/password/file -vvvv --version --yaml all",
+			res: "ansible-inventory all  --ask-vault-password --export --graph --host localhost --inventory test/ansible/inventory/all --limit myhost --list --output /tmp/output.ini --playbook-dir /playbook/ --toml --vars --vault-id asdf --vault-password-file /vault/password/file -vvvv --version --yaml",
 		},
 	}
 
@@ -139,7 +139,7 @@ func TestCommand(t *testing.T) {
 					Output:    "/tmp/output.ini",
 				},
 			},
-			command: []string{"ansible-inventory", "--host", "localhost", "--inventory", "test/ansible/inventory/all", "--output", "/tmp/output.ini", "all"},
+			command: []string{"ansible-inventory", "all", "--host", "localhost", "--inventory", "test/ansible/inventory/all", "--output", "/tmp/output.ini"},
 		},
 	}
 
@@ -210,6 +210,7 @@ func TestRun(t *testing.T) {
 					"Execute",
 					context.TODO(),
 					[]string{"ansible-inventory",
+						"all",
 						"--ask-vault-password",
 						"--export",
 						"--graph",
@@ -233,7 +234,6 @@ func TestRun(t *testing.T) {
 						"--version",
 						"-vvvv",
 						"--yaml",
-						"all",
 					},
 					mock.AnythingOfType("StdoutCallbackResultsFunc"),
 					[]execute.ExecuteOptions{},
