@@ -18,7 +18,7 @@ Let's dive in and explore the capabilities of `go-ansible` together.
     - [Packages](#packages)
       - [Adhoc](#adhoc)
       - [Playbook](#playbook)
-    - [Inventory](#inventory)
+      - [Inventory](#inventory)
       - [Execute](#execute)
         - [DefaultExecute](#defaultexecute)
         - [Custom executor](#custom-executor)
@@ -161,7 +161,7 @@ The `github.com/apenella/go-ansible/pkg/playbook` package provides the functiona
 
 Additionally, you can provide privilege escalation options or connection options to the `AnsiblePlaybookCmd`. These options are defined in the `github.com/apenella/go-ansible/pkg/options` package. Refer to the [options](#options) sections to know more about it.
 
-### Inventory
+#### Inventory
 
 The information provided in this section gives an overview of the `Inventory` package in `go-ansible`.
 
