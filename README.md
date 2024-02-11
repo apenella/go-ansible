@@ -5,7 +5,7 @@
 
 ![go-ansible-logo](docs/logo/go-ansible_logo.png "Go-ansible Logo" )
 
-Go-ansible is a Go package that allows executing `ansible-playbook` or `ansible` commands directly from Golang applications. It offers a variety of options for each command, facilitating seamless integration of Ansible functionality into your projects. Let's dive in and explore the capabilities of `go-ansible` together.
+Go-ansible is a Go package that allows executing `ansible-playbook` or `ansible` commands directly from Golang applications. It offers a variety of options for each command, facilitating seamless integration of Ansible functionality into your projects. Let's dive in and explore the capabilities of _go-ansible_ together.
 
 _**Important:** The master branch may contain unreleased or prereleased features. Exercise caution when utilizing the library in your projects._
 
@@ -33,8 +33,12 @@ _**Important:** The master branch may contain unreleased or prereleased features
       - [Commander interface](#commander-interface)
       - [Executabler interface](#executabler-interface)
       - [DefaultExecute](#defaultexecute)
-      - [Custom executor](#custom-executor)
-      - [Measurements](#measurements)
+      - [Defining a Custom Executor](#defining-a-custom-executor)
+      - [Customizing the Execution](#customizing-the-execution)
+        - [Configuration](#configuration)
+        - [Measure](#measure)
+        - [Result](#result)
+        - [Stdoutcallback](#stdoutcallback)
     - [Adhoc](#adhoc)
     - [Playbook](#playbook)
     - [Options](#options)
@@ -188,18 +192,19 @@ By default, the `DefaultExecute` uses the `DefaultResults` struct to manage the 
 
 ## Usage Reference
 
-The development reference is a comprehensive resource that provides everything you need to know to effectively use the library _go-ansible_.
+The Usage Reference is the resource containing everything you need to effectively utilize the _go-ansible_ library to develop your applications.
 
-This section describes the different packages and their main resources available in the _go-ansible_ library. You can find the complete reference of structs, methods and functions [here](https://pkg.go.dev/github.com/apenella/go-ansible).
+This section provides an overview of the different packages and their main resources available in the _go-ansible_ library. For detailed information on the library's packages, structs, methods, and functions, please refer to the complete reference available [here](https://pkg.go.dev/github.com/apenella/go-ansible).
 
 ### Execute
 
-The execute package located in `github.com/apenella/go-ansible/pkg/execute` provides an [executor](#executor) implementation. That executor is the `DefaultExecute`. You can use it to execute any commands and handle the output of the command execution.
-The same package also provides the `Executor` interface, which can be implemented to create custom executors.
+The _execute_ package, available at `github.com/apenella/go-ansible/pkg/execute`, provides an [executor](#executor) implementation. It manages the execution of external commands, such as `ansible-playbook` or `ansible`, and handles the output of the command execution. Additionally, the package offers interfaces for managing command execution and customizing the behavior of the executor.
+
+Find below the main resources available in the execute package:
 
 #### Executor interface
 
-The `Executor` interface requires the implementation of the `Execute` method with the following signature:
+The `Executor` interface defines components responsible for executing external commands. The `DefaultExecute` struct implements this interface. Below is the definition of the `Executor` interface:
 
 ```go
 type Executor interface {
@@ -209,7 +214,8 @@ type Executor interface {
 
 #### Commander interface
 
-The `Commander` interface is used to define the components that generate the command to be executed. The `AnsiblePlaybookCmd` and `AnsibleAdhocCmd` structs implement the `Commander` interface.
+The `Commander` interface defines components responsible for generating the command to be executed. The `AnsiblePlaybookCmd` and `AnsibleAdhocCmd` structs implement this interface. Below is the definition of the `Commander` interface:
+
 
 ```go
 type Commander interface {
@@ -219,9 +225,9 @@ type Commander interface {
 
 #### Executabler interface
 
-// TODO
+The `Executabler` interface defines a component required by the `DefaultExecute` executor, responsible for executing commands. Through the `Executabler` interface, you can model the execution of commands according to your requirements.
 
-The `Executabler` interface is used to define the components that can be executed. The `AnsiblePlaybookCmd` and `AnsibleAdhocCmd` structs implement the `Executabler` interface.
+Below is the definition of the `Executabler` interface:
 
 ```go
 type Executabler interface {
@@ -232,86 +238,119 @@ type Executabler interface {
 
 #### DefaultExecute
 
-The `DefaultExecute` executor, provided by `go-ansible`, writes the command's stdout and stderr to the system stdout by default. However, it can be easily customized and extended to handle stdout and stderr differently. This can be achieved using the `ExecuteOptions` functions, which can be passed to the executor.
+The `DefaultExecute` executor is a component provided by the _go-ansible_ library for managing command execution. It offers flexibility and customization options to suit various use cases. Think of the `DefaultExecute` executor as a pipeline that handles command execution. It consists of three main components:
+
+- **Commander**: Generates the command to be executed.
+- **Executabler**: Executes the command.
+- **ResultsOutputer**: Manages the output of the command execution.
+
+By default, the `DefaultExecute` executor uses the `OsExec` struct, a wrapper around the `os/exec` package, as the `Executabler` for executing commands. It also uses the `DefaultResults` struct as the `ResultsOutputer` for managing the output of the command execution. However, you can customize these components to tailor the execution process to your needs.
+
+Here are some options you can use to customize the `DefaultExecute` executor:
+
+- `WithCmd(cmd Commander) ExecuteOptions`: Set the component responsible for generating the command.
+- `WithCmdRunDir(cmdRunDir string) ExecuteOptions`: Define the directory where the command will be executed.
+- `WithEnvVars(vars map[string]string) ExecuteOptions`: Set environment variables for command execution.
+- `WithExecutable(executable Executabler) ExecuteOptions`: Define the component responsible for executing the command.
+- `WithOutput(output result.ResultsOutputer) ExecuteOptions`: Specify the component responsible for managing command output.
+- `WithTransformers(trans ...transformer.TransformerFunc) ExecuteOptions`: Add transformers to modify command output.
+- `WithWrite(w io.Writer) ExecuteOptions`: Set the writer for command output.
+- `WithWriteError(w io.Writer) ExecuteOptions`: Set the writer for command error output.
+
+The snippet below shows how to customize the `DefaultExecute` executor using the `ExecuteOptions` functions:
 
 ```go
-// ExecuteOptions is a function to set executor options
-type ExecuteOptions func(Executor)
+// playbookCmd is the Commander responsible for generating the command to execute
+playbookCmd := &playbook.AnsiblePlaybookCmd{
+  Playbook:          "site.yml",
+  ConnectionOptions: ansiblePlaybookConnectionOptions,
+  Options:           ansiblePlaybookOptions,
+  PrivilegeEscalationOptions: privilegeEscalationOptions,
+}
+
+// myExecutabler is an hypothetical implementation of the Executabler interface
+executabler := &myExecutabler{}
+
+// myOutputer is an hypothetical implementation of the ResultsOutputer interface
+output := &myOutputer{}
+
+// exec is an instance of the DefaultExecute executor
+exec := execute.NewDefaultExecute(
+  execute.WithCmd(playbookCmd),
+  execute.WithExecutable(executabler),
+  execute.WithOutput(output),
+)
+
+// Execute the ansible-playbook command
+err := exec.Execute(context.Background())
+if err != nil {
+  panic(err)
+}
 ```
 
-The `DefaultExecute` executor also allows the configuration of Ansible through environment variables. This can be done using the `WithEnvVar` function, which injects environment variables into the command before its execution. To apply Ansible parameters as environment variables, pass `WithEnvVar` as an `ExecuteOption` to `NewDefaultExecute`.
+For more examples and practical use cases, refer to the [examples](https://github.com/apenella/go-ansible/tree/master/examples) directory in the _go-ansible_ repository.
 
-To further customize the way results are returned to the user, `go-ansible` provides transformers. These transformers can be added to the `DefaultExecute` using the `WithTransformers(...results.TransformerFunc)` function, which can be included as an `ExecuteOption`.
+#### Defining a Custom Executor
 
-For more examples and practical use cases, refer to the [examples](https://github.com/apenella/go-ansible/tree/master/examples) directory in the `go-ansible` repository.
-
-#### Custom executor
-
-If the `DefaultExecute` executor does not meet your requirements or expectations, you have the flexibility to implement a custom executor and set it on the `AnsiblePlaybookCmd` struct. The `AnsiblePlaybookCmd` expects a struct that implements the `Executor` interface.
-
-Here is an example of a custom executor that demonstrates how to implement a custom executor and integrate it with the `AnsiblePlaybookCmd` or `AnsibleAdhocCmd` structs to execute the playbook with your desired behaviour.
+If the `DefaultExecute` [executor](#executor) does not meet your requirements or expectations, you have the option to implement a custom executor. Below is an example of a custom executor that demonstrates how to integrate it with the AnsiblePlaybookCmd or AnsibleAdhocCmd structs to execute the playbook with your desired behavior:
 
 ```go
 type MyExecutor struct {
   Prefix string
+  Cmd    Commander
 }
 
-// Options method is used as a helper to apply a bunch of options to executor
-func (e *MyExecutor) Options(options ...execute.ExecuteOptions) {
-  // apply all options to the executor
-  for _, opt := range options {
-    opt(e)
-  }
-}
-
-// WithPrefix method is used to set the executor prefix attribute
-func WithPrefix(prefix string) execute.ExecuteOptions {
-  return func(e execute.Executor) {
-    e.(*MyExecutor).Prefix = prefix
-  }
-}
-
-func (e *MyExecutor) Execute(ctx context.Context, command []string, options ...execute.ExecuteOptions) error {
-  // It is possible to apply extra options when Execute is called
-  for _, opt := range options {
-    opt(e)
-  }
+func (e *MyExecutor) Execute(ctx context.Context) error {
   // that's a dummy work
   fmt.Println(fmt.Sprintf("[%s] %s\n", e.Prefix, "I am MyExecutor and I am doing nothing"))
   return nil
 }
 ```
 
-To execute the `ansible-playbook` command using the custom executor, you can use the following code:
+The next code snippet demonstrates how to execute the `ansible-playbook` command using the custom executor:
 
 ```go
-// define an instance for the new executor and set the options
-exe := &MyExecutor{}
-
-exe.Options(
-  WithPrefix("Go ansible example"),
-)
-
-playbook := &ansibler.AnsiblePlaybookCmd{
+// define the command to execute
+playbookCmd := &ansibler.AnsiblePlaybookCmd{
   Playbook:          "site.yml",
   ConnectionOptions: ansiblePlaybookConnectionOptions,
   Options:           ansiblePlaybookOptions,
-  Exec:              exe,
 }
 
-playbook.Run(context.TODO())
+// define an instance for the new executor and set the options
+exec := &MyExecutor{
+  Prefix: "Go ansible example",
+  Cmd:    playbookCmd,
+}
+
+err := exec.Execute(context.Background())
+if err != nil {
+  panic(err)
+}
 ```
 
-When you run the playbook using your dummy executor, the output will be as follows:
+When you run the playbook using the custom executor, the output will be:
 
 ```sh
-go run myexecutor-ansibleplaybook.go
 [Go ansible example] I am MyExecutor and I am doing nothing
 ```
 
-#### Measurements
+#### Customizing the Execution
 
-To facilitate taking measurements, `go-ansible` provides the `github.com/apenella/go-ansible/pkg/execute/measure` package. This package includes an `ExecutorTimeMeasurement` that acts as an `Executor` decorator, allowing you to measure the execution time that takes to finish either `ansible` or `ansible-playbook` commands.
+The _go-ansible_ library provides a variety of options to customize the behavior of the command execution. It does so through a set of decorators that allow you to modify the command execution process according to your specific requirements.
+It gained these capabilities after the changes introduced in the major version 2.0.0, when the [executor](#executor) became to main actor in the command execution process.
+
+The following sections describe the options available to customize the execution process:
+
+##### Configuration
+
+The `github.com/apenella/go-ansible/pkg/execute/configuration` package provides a struct component that acts as a decorator over an `Executor`. It accepts a set of functions that allow you to configure the Ansible settings for the command execution. On the package, you can find one function for each configuration setting available in [Ansible's reference guide](https://docs.ansible.com/ansible/latest/reference_appendices/config.html).
+
+// TODO
+
+##### Measure
+
+To facilitate taking measurements, _go-ansible_ provides the `github.com/apenella/go-ansible/pkg/execute/measure` package. This package includes an `ExecutorTimeMeasurement` that acts as an `Executor` decorator, allowing you to measure the execution time that takes to finish either `ansible` or `ansible-playbook` commands.
 
 To use the time measurement feature, you need to create an instance of `ExecutorTimeMeasurement`:
 
@@ -333,6 +372,10 @@ playbook := &playbook.AnsiblePlaybookCmd{
 ```
 
 For a detailed example showcasing how to use measurement, refer to the [ansibleplaybook-time-measurement](https://github.com/apenella/go-ansible/blob/master/examples/ansibleplaybook-time-measurement/ansibleplaybook-time-measurement.go) example in the `go-ansible repository.
+
+##### Result
+
+##### Stdoutcallback
 
 ### Adhoc
 
@@ -359,7 +402,7 @@ Additionally, users can set privilege escalation options or connection options t
 ### Options
 
 These options can be used to customize the behaviour of `ansible` and `ansible-playbook` commands executions.
-The `go-ansible` library provides types for defining command execution options in the `github.com/apenella/go-ansible/pkg/options` package.
+The _go-ansible_ library provides types for defining command execution options in the `github.com/apenella/go-ansible/pkg/options` package.
 
 #### Ansible ad-hoc and ansible-playbook Common Options
 
@@ -368,7 +411,7 @@ The `go-ansible` library provides types for defining command execution options i
 
 ### Stdout Callback
 
-In `go-ansible`, you can define a specific stdout callback method by setting the `StdoutCallback` attribute on the `AnsiblePlaybookCmd` or `AnsibleAdhocCmd` structs. This allows you to customize the output of the commands. The output is managed by a function that adheres to the following signature:
+In _go-ansible_, you can define a specific stdout callback method by setting the `StdoutCallback` attribute on the `AnsiblePlaybookCmd` or `AnsibleAdhocCmd` structs. This allows you to customize the output of the commands. The output is managed by a function that adheres to the following signature:
 
 ```go
 // StdoutCallbackResultsFunc defines a function which manages ansible's stdout callbacks. The function expects a context, a reader that receives the data to be wrote and a writer that defines where to write the data coming from reader, Finally a list of transformers could be passed to update the output coming from the executor.
@@ -383,7 +426,7 @@ In the `github.com/apenella/go-ansible/pkg/execute/result` package, there are di
 
 #### Transformers
 
-In `go-ansible`, a transformer is a function that enriches or updates the output received from the executor, according to your needs. The `TransformerFunc` type defines the signature of a transformer function:
+In _go-ansible_, a transformer is a function that enriches or updates the output received from the executor, according to your needs. The `TransformerFunc` type defines the signature of a transformer function:
 
 ```go
 // TransformerFunc is used to enrich or update messages before to be printed out
@@ -472,7 +515,7 @@ In this example, the `text.NewReadPasswordFromText` function is used to create a
 
 #### Password
 
-The `go-ansible` library provides a set of packages that can be used as `PasswordReader` to read the password for encryption. The following sections describe these packages and how they can be used.
+The _go-ansible_ library provides a set of packages that can be used as `PasswordReader` to read the password for encryption. The following sections describe these packages and how they can be used.
 
 ##### Envvars
 
@@ -550,11 +593,11 @@ In this example, the password is directly specified as the text value "ThatIsAPa
 
 ## Examples
 
-The `go-ansible` library includes a variety of examples that demonstrate how to use the library in different scenarios. These examples can be found in the [examples](https://github.com/apenella/go-ansible/tree/master/examples) directory of the `go-ansible` repository.
+The _go-ansible_ library includes a variety of examples that demonstrate how to use the library in different scenarios. These examples can be found in the [examples](https://github.com/apenella/go-ansible/tree/master/examples) directory of the _go-ansible_ repository.
 
-The examples cover various use cases and provide practical demonstrations of utilizing different features and functionalities offered by `go-ansible`. They serve as a valuable resource to understand and learn how to integrate `go-ansible` into your applications.
+The examples cover various use cases and provide practical demonstrations of utilizing different features and functionalities offered by _go-ansible_. They serve as a valuable resource to understand and learn how to integrate _go-ansible_ into your applications.
 
-Feel free to explore the [examples](https://github.com/apenella/go-ansible/tree/master/examples) directory to gain insights and ideas on how to leverage the `go-ansible` library in your projects.
+Feel free to explore the [examples](https://github.com/apenella/go-ansible/tree/master/examples) directory to gain insights and ideas on how to leverage the _go-ansible_ library in your projects.
 
 Here you have a list of examples:
 
@@ -583,12 +626,12 @@ Thank you for your interest in contributing to go-ansible! All contributions are
 
 ### Code Of Conduct
 
-The `go-ansible` project is committed to providing a friendly, safe and welcoming environment for all, regardless of gender, sexual orientation, disability, ethnicity, religion, or similar personal characteristics.
+The _go-ansible_ project is committed to providing a friendly, safe and welcoming environment for all, regardless of gender, sexual orientation, disability, ethnicity, religion, or similar personal characteristics.
 
-We expect all contributors, users, and community members to follow this code of conduct. This includes all interactions within the `go-ansible` community, whether online, in person, or otherwise.
+We expect all contributors, users, and community members to follow this code of conduct. This includes all interactions within the _go-ansible_ community, whether online, in person, or otherwise.
 
 Please to know more about the code of conduct refer [here](https://github.com/apenella/go-ansible/blob/master/CODE-OF-CONDUCT.md).
 
 ## License
 
-The `go-ansible` library is available under [MIT](https://github.com/apenella/go-ansible/blob/master/LICENSE) license.
+The _go-ansible_ library is available under [MIT](https://github.com/apenella/go-ansible/blob/master/LICENSE) license.
