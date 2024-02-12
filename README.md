@@ -5,15 +5,14 @@
 
 ![go-ansible-logo](docs/logo/go-ansible_logo.png "Go-ansible Logo" )
 
-Go-ansible is a Go package that allows executing `ansible-playbook` or `ansible` commands directly from Golang applications. It offers a variety of options for each command, facilitating seamless integration of Ansible functionality into your projects. Let's dive in and explore the capabilities of _go-ansible_ together.
+Go-ansible is a Go package that allows executing `ansible-playbook` or `ansible` commands directly from Golang applications. It offers a variety of options for each command, facilitating seamless integration of _Ansible_ functionality into your projects. It is important to highlight that _go-ansible_ is not an alternative implementation of Ansible, but rather a wrapper around the _Ansible_ commands.
+Let's dive in and explore the capabilities of _go-ansible_ together.
 
-_**Important:** The master branch may contain unreleased or prereleased features. Exercise caution when utilizing the library in your projects._
+_**Important:** The master branch may contain unreleased or pre-released features. Be cautious when using that branch in your projects. It is recommended to use the stable releases available in the [releases](https://github.com/apenella/go-ansible/releases)._
 
 > **Note**
-> The latest major version of _go-ansible_, version 2.x, introduced significant changes and breaking changes. If you are currently using a version prior to 2.x, please refer to the [upgrade guide](https://github.com/apenella/go-ansible/blob/master/docs/upgrade_guide_to_2.x.md) for detailed information on how to migrate to version 2.x.
-> The most relevant change is that command structs no longer execute commands. So, `AnsiblePlaybookCmd` and `AnsibleAdhocCmd` do not require an `Executor` anymore. Instead, the `Executor` is responsible for the command execution. To achieve that, the `Executor` depends on the command structs to generate the commands to execute.
-
-
+> The latest major version of _go-ansible_, version 2.x, introduced significant and breaking changes. If you are currently using a version prior to 2.x, please refer to the [upgrade guide](https://github.com/apenella/go-ansible/blob/master/docs/upgrade_guide_to_2.x.md) for detailed information on how to migrate to version 2.x.
+> The most relevant change is that [command structs](#command-generator) no longer execute commands. So, `AnsiblePlaybookCmd` and `AnsibleAdhocCmd` do not require an [executor](#executor) anymore. Instead, the [executor](#executor) is responsible for receiving the command to execute and executing it.
 
 - [go-ansible](#go-ansible)
   - [Install](#install)
@@ -42,7 +41,7 @@ _**Important:** The master branch may contain unreleased or prereleased features
     - [Adhoc](#adhoc)
     - [Playbook](#playbook)
     - [Options](#options)
-      - [Ansible ad-hoc and ansible-playbook Common Options](#ansible-ad-hoc-and-ansible-playbook-common-options)
+      - [_Ansible_ ad-hoc and ansible-playbook Common Options](#ansible-ad-hoc-and-ansible-playbook-common-options)
     - [Stdout Callback](#stdout-callback)
     - [Results](#results)
       - [Transformers](#transformers)
@@ -63,17 +62,15 @@ _**Important:** The master branch may contain unreleased or prereleased features
 
 ## Install
 
-To install the latest stable version of _go-ansible_, use the following command:
+Use this command to fetch and install the latest version of _go-ansible_, ensuring you have the most up-to-date and stable release.
 
 ```sh
 go get github.com/apenella/go-ansible@v2.0.0
 ```
 
-Use this command to fetch and install the latest version of _go-ansible_, ensuring you have the most up-to-date and stable release.
-
 ### Upgrade to 1.x
 
-If you are currently using a _go-ansible_ version prior to _1.0.0_, note that there have been significant breaking changes introduced in version _1.0.0_ and beyond. Before proceeding with the upgrade, we highly recommend reading the [changelog](https://github.com/apenella/go-ansible/blob/master/CHANGELOG.md) and the [upgrade guide](https://github.com/apenella/go-ansible/blob/master/docs/upgrade_guide_to_1.x.md) carefully. These resources provide detailed information on the changes and steps required for a smooth transition to the new version.
+If you are currently using a _go-ansible_ version before _1.0.0_, note that there have been significant breaking changes introduced in version _1.0.0_ and beyond. Before proceeding with the upgrade, we highly recommend reading the [changelog](https://github.com/apenella/go-ansible/blob/master/CHANGELOG.md) and the [upgrade guide](https://github.com/apenella/go-ansible/blob/master/docs/upgrade_guide_to_1.x.md) carefully. These resources provide detailed information on the changes and steps required for a smooth transition to the new version.
 
 ### Upgrade to 2.x
 
@@ -85,12 +82,12 @@ There are a few concepts that you need to understand before using the _go-ansibl
 
 ### Executor
 
-An _executor_ is a component that executes the command and retrieves the results from the execution output. The library includes the `DefaultExecute` executor, which is the default executor implementation. However, you can also create a custom executor to meet your specific requirements.
-To know more about the executor, refer to the [DefaultExecute](#defaultexecute) section.
+An _executor_ is a component that executes the command and handles the results from the execution output. The library includes the [DefaultExecute](#defaultexecute) executor, which is a ready-to-go implementation of an executor. If the `DefaultExecute` does not meet your requirements, you can also create a custom executor.
+To know more about the `DefaultExecute`, refer to [that](#defaultexecute) section.
 
 ### Command Generator
 
-A _command generator_ or a _commander_ is responsible for generating the command to be executed. The `AnsiblePlaybookCmd` and `AnsibleAdhocCmd` structs are examples of command generators. The [DefaultExecute](#defaultexecute) requires a _command generator_ to create the command to be executed.
+A _command generator_ or a _commander_ is responsible for generating the command to be executed. The `AnsiblePlaybookCmd` and `AnsibleAdhocCmd` structs are examples of command generators. That concept has been introduced in the major version _2.0.0_. Before version _2.0.0_, the `AnsiblePlaybookCmd` and `AnsibleAdhocCmd` structs were known as _command structs_.
 
 ### Results Outputer
 
@@ -100,11 +97,11 @@ A _results outputer_ or an _outputer_ is responsible for managing the output of 
 
 ## Getting Started
 
-This section will guide you through the step-by-step process of using the _go-ansible_ library. Follow these instructions to create an application that utilizes the `ansible-playbook` utility. However, the same guidelines can be applied to the `ansible` command as well.
+This section will guide you through the step-by-step process of using the _go-ansible_ library. Follow these instructions to create an application that utilizes the `ansible-playbook` utility. The same guidelines can be applied to the `ansible` command as well.
 
 Before proceeding, ensure you have installed the latest version of the go-ansible library. If not, please refer to the [Installation section](#install) for instructions.
 
-To create an application that uses the `ansible-playbook` command you need to create an `AnsiblePlaybookCmd` struct. This struct defines the command to execute the `ansible-playbook` command. Then, you need to execute the command using an [executor](#executor). In that case, we will use the `DefaultExecute` executor, which is the default executor provided by the _go-ansible_ library.
+To create an application that launches the `ansible-playbook` command you need to create an `AnsiblePlaybookCmd` struct. This struct generates the _Ansible_ command to be run. Then, you nyou need to execute the command usingng an [executor](#executor). In that guided example, you will use the `DefaultExecute` executor, the [executor](#executor) provided by the _go-ansible_ library.
 
 ### Create the _AnsiblePlaybookCmd_ struct
 
@@ -131,7 +128,6 @@ Then, use the `AnsiblePlaybookPrivilegeEscalationOptions` struct to define the p
 ```go
 privilegeEscalationOptions := &options.AnsiblePlaybookPrivilegeEscalationOptions{
   Become:        true,
-  BecomeMethod:  "sudo",
 }
 ```
 
@@ -146,11 +142,11 @@ playbookCmd := &playbook.AnsiblePlaybookCmd{
 }
 ```
 
-Once the `AnsiblePlaybookCmd` is defined, provide the command to an executor to run the `ansible-playbook` command.
+Once the `AnsiblePlaybookCmd` is defined, provide the command to an [executor](#executor) to run the `ansible-playbook` command.
 
 ### Create the _DefaultExecute_ executor
 
-The `DefaultExecute` struct, provided by the _go-ansible_ library, executes external commands. It requires a `Commander` responsible for generating the command to be executed. In this guided example, we will use the `AnsiblePlaybookCmd` previously defined as the `Commander` to generate the command to execute the `ansible-playbook` command.
+The `DefaultExecute` struct, provided by the _go-ansible_ library, will execute the _Ansible_ command. It requires a `Commander` responsible for generating the command to be executed. In that example, you will use the `AnsiblePlaybookCmd` previously defined.
 
 ```go
 // playbookCmd is the Commander responsible for generating the command to execute
@@ -159,7 +155,7 @@ exec := execute.NewDefaultExecute(
 )
 ```
 
-Once you have defined the `DefaultExecute`, execute the `ansible-playbook` command using the following code:
+Once you have defined the `DefaultExecute`, execute the _Ansible_ command using the following code:
 
 ```go
 err := exec.Execute(context.Background())
@@ -319,7 +315,7 @@ playbookCmd := &ansibler.AnsiblePlaybookCmd{
 
 // define an instance for the new executor and set the options
 exec := &MyExecutor{
-  Prefix: "Go ansible example",
+  Prefix: "Go _ansible_ example",
   Cmd:    playbookCmd,
 }
 
@@ -332,7 +328,7 @@ if err != nil {
 When you run the playbook using the custom executor, the output will be:
 
 ```sh
-[Go ansible example] I am MyExecutor and I am doing nothing
+[Go _ansible_ example] I am MyExecutor and I am doing nothing
 ```
 
 #### Customizing the Execution
@@ -344,7 +340,7 @@ The following sections describe the options available to customize the execution
 
 ##### Configuration
 
-The `github.com/apenella/go-ansible/pkg/execute/configuration` package provides a struct component that acts as a decorator over an `Executor`. It accepts a set of functions that allow you to configure the Ansible settings for the command execution. On the package, you can find one function for each configuration setting available in [Ansible's reference guide](https://docs.ansible.com/ansible/latest/reference_appendices/config.html).
+The `github.com/apenella/go-ansible/pkg/execute/configuration` package provides a struct component that acts as a decorator over an `Executor`. It accepts a set of functions that allow you to configure the _Ansible_ settings for the command execution. On the package, you can find one function for each configuration setting available in [Ansible's reference guide](https://docs.ansible.com/ansible/latest/reference_appendices/config.html).
 
 // TODO
 
@@ -381,7 +377,7 @@ For a detailed example showcasing how to use measurement, refer to the [ansiblep
 
 This section provides an overview of the `adhoc` package in the _go-ansible_ library, outlining its key components and functionalities.
 
-The `github.com/apenella/go-ansible/pkg/adhoc` package facilitates the generation of Ansible ad-hoc commands. It does not execute the commands directly, but instead provides the necessary structs to generate the command to be executed by an executor. The `adhoc` package includes the following essential structs for executing ad-hoc commands:
+The `github.com/apenella/go-ansible/pkg/adhoc` package facilitates the generation of _Ansible_ ad-hoc commands. It does not execute the commands directly, but instead provides the necessary structs to generate the command to be executed by an executor. The `adhoc` package includes the following essential structs for executing ad-hoc commands:
 
 - **AnsibleAdhocCmd**: This struct enables the generation of _Ansible ad-hoc_ commands. It implements the `Commander` interface, so its method `Command` returns an array of strings that represents the command to be executed. An executor can use it to create the command to be executed.
 - **AnsibleAdhocOptions**: With this struct, you can define parameters described in Ansible's manual page's `Options` section.
@@ -404,10 +400,10 @@ Additionally, users can set privilege escalation options or connection options t
 These options can be used to customize the behaviour of `ansible` and `ansible-playbook` commands executions.
 The _go-ansible_ library provides types for defining command execution options in the `github.com/apenella/go-ansible/pkg/options` package.
 
-#### Ansible ad-hoc and ansible-playbook Common Options
+#### _Ansible_ ad-hoc and ansible-playbook Common Options
 
-- **AnsibleConnectionOptions**: This struct includes parameters described in the Connections Options section within the ansible or ansible-playbook's manual page. It defines how to connect to hosts when executing Ansible commands.
-- **AnsiblePrivilegeEscalationOptions**: This struct includes parameters described in the Escalation Options section within the ansible or ansible-playbook's manual page. It defines how to escalate privileges and become a user during ansible execution.
+- **AnsibleConnectionOptions**: This struct includes parameters described in the Connections Options section within the _ansible_ or ansible-playbook's manual page. It defines how to connect to hosts when executing _Ansible_ commands.
+- **AnsiblePrivilegeEscalationOptions**: This struct includes parameters described in the Escalation Options section within the _ansible_ or ansible-playbook's manual page. It defines how to escalate privileges and become a user during _ansible_ execution.
 
 ### Stdout Callback
 
@@ -422,7 +418,7 @@ The functions to manage the output are defined in the `github.com/apenella/go-an
 
 ### Results
 
-In the `github.com/apenella/go-ansible/pkg/execute/result` package, there are different methods available to manage the outputs of Ansible commands.
+In the `github.com/apenella/go-ansible/pkg/execute/result` package, there are different methods available to manage the outputs of _Ansible_ commands.
 
 #### Transformers
 
@@ -467,7 +463,7 @@ skipPatterns := []string{
 
 The [JSONStdoutCallbackResults](https://github.com/apenella/go-ansible/blob/master/pkg/stdoutcallback/results/JSONResults.go#L151) method writes the `JSON` output to the provided `io.Writer` parameter. The `github.com/apenella/go-ansible/pkg/stdoutcallback/results` package includes the `ParseJSONResultsStream` function, which can be used to decode the JSON output into an `AnsiblePlaybookJSONResults` data structure. You can manipulate this data structure to format the JSON output according to your specific needs.
 
-The expected JSON schema from `ansible-playbook` is defined [here](https://github.com/ansible/ansible/blob/v2.9.11/lib/ansible/plugins/callback/json.py) file within the Ansible repository.
+The expected JSON schema from `ansible-playbook` is defined [here](https://github.com/ansible/ansible/blob/v2.9.11/lib/ansible/plugins/callback/json.py) file within the _Ansible_ repository.
 
 ### Vault
 
