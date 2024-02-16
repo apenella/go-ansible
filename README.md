@@ -535,10 +535,10 @@ transformer.Append(" [suffix]")
 transformer.LogFormat(transformer.DefaultLogFormatLayout, transformer.Now)
 ```
 
-- **IgnoreMessage**: Filters out output lines based on specified patterns.
+- **IgnoreMessage**: Filters out output lines based on specified patterns. It uses the [regexp.MatchString](https://pkg.go.dev/regexp#MatchString) function to match the output lines with the specified patterns.
 
 ```go
-skipPatterns := []string{"pattern1", "pattern2"}
+skipPatterns := []string{"regexp-pattern1", "regexp-pattern2"}
 transformer.IgnoreMessage(skipPatterns...)
 ```
 
@@ -590,7 +590,7 @@ For example, to configure the `JSON` stdout callback method for command executio
 execJson := stdoutcallback.NewJSONStdoutCallbackExecute(
   execute.NewDefaultExecute(
     execute.WithCmd(playbookCmd),
-  ),
+  )
 )
 
 err := execJson.Execute(context.Background())
