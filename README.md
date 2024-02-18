@@ -50,6 +50,9 @@ _**Important:** The master branch may contain unreleased or pre-released feature
         - [Stdoutcallback package](#stdoutcallback-package)
           - [ExecutorStdoutCallbackSetter interface](#executorstdoutcallbacksetter-interface)
           - [Stdout Callback Execute structs](#stdout-callback-execute-structs)
+    - [Inventory package](#inventory-package)
+      - [AnsibleInventoryCmd struct](#ansibleinventorycmd-struct)
+      - [AnsibleInventoryOptions struct](#ansibleinventoryoptions-struct)
     - [Options package](#options-package)
       - [AnsibleConnectionOptions struct](#ansibleconnectionoptions-struct)
       - [AnsiblePrivilegeEscalationOptions struct](#ansibleprivilegeescalationoptions-struct)
@@ -643,6 +646,23 @@ if err != nil {
   // Manage the error
 }
 ```
+
+### Inventory package
+
+The information provided in this section gives an overview of the `Inventory` package in `go-ansible`.
+
+The `github.com/apenella/go-ansible/pkg/inventory` package provides the functionality to execute `ansible-inventory`. To perform these tasks, you can use the following inventory structs:
+
+#### AnsibleInventoryCmd struct
+
+The `AnsibleInventoryCmd` struct enables the generation of `ansible-inventory` commands. It implements the [Commander](#commander-interface) interface, so its method `Command` returns an array of strings that represents the command to be executed. An executor can use it to create the command to be executed.
+
+> Note
+> Unlike other _Ansible_ commands, the `ansible-inventory` command does not provide privilege escalation or connection options, aligning with the functionality of the command itself.
+
+#### AnsibleInventoryOptions struct
+
+The `AnsibleInventoryOptions` struct includes parameters described in the `Options` section of the _Ansible_ manual page. It defines the behavior of the Ansible inventory operations and specifies where to find the configuration settings.
 
 ### Options package
 
