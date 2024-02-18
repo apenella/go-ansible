@@ -1,18 +1,12 @@
 package playbook
 
 import (
-	"context"
-	goerrors "errors"
-	execerrors "os/exec"
 	"testing"
 
-	"github.com/apenella/go-ansible/pkg/execute"
 	"github.com/apenella/go-ansible/pkg/options"
-	"github.com/apenella/go-ansible/pkg/stdoutcallback"
 	"github.com/apenella/go-ansible/pkg/vault"
 	errors "github.com/apenella/go-common-utils/error"
 	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/mock"
 )
 
 // TestGenerateCommandConnectionOptions
@@ -259,177 +253,6 @@ func TestString(t *testing.T) {
 		})
 	}
 
-}
-
-func TestRun(t *testing.T) {
-
-	tests := []struct {
-		desc               string
-		ansiblePlaybookCmd *AnsiblePlaybookCmd
-		err                error
-		prepareAssertFunc  func(*AnsiblePlaybookCmd)
-	}{
-		{
-			desc:               "Run nil ansiblePlaybookCmd",
-			ansiblePlaybookCmd: nil,
-			err:                errors.New("(playbook::Run)", "AnsiblePlaybookCmd is nil"),
-		},
-		{
-			desc: "Testing run a ansiblePlaybookCmd with unexisting binary file",
-			ansiblePlaybookCmd: &AnsiblePlaybookCmd{
-				Binary: "unexisting",
-			},
-			err: errors.New("(playbook::Run)", "Binary file 'unexisting' does not exists", &execerrors.Error{Name: "unexisting", Err: goerrors.New("executable file not found in $PATH")}),
-		},
-		{
-			desc: "Testing run a ansiblePlaybookCmd",
-			ansiblePlaybookCmd: &AnsiblePlaybookCmd{
-				Binary:    "ansible-playbook",
-				Exec:      execute.NewMockExecute(),
-				Playbooks: []string{"test/ansible/site.yml", "test/ansible/site2.yml"},
-				ConnectionOptions: &options.AnsibleConnectionOptions{
-					AskPass:       true,
-					Connection:    "local",
-					PrivateKey:    "pk",
-					SCPExtraArgs:  "-o StrictHostKeyChecking=no",
-					SFTPExtraArgs: "-o StrictHostKeyChecking=no",
-					SSHCommonArgs: "-o StrictHostKeyChecking=no",
-					SSHExtraArgs:  "-o StrictHostKeyChecking=no",
-					Timeout:       10,
-					User:          "apenella",
-				},
-				Options: &AnsiblePlaybookOptions{
-					AskVaultPassword: true,
-					Check:            true,
-					Diff:             true,
-					ExtraVars: map[string]interface{}{
-						"string": "testing an string",
-						"bool":   true,
-						"int":    10,
-						"array":  []string{"one", "two"},
-						"dict": map[string]bool{
-							"one": true,
-							"two": false,
-						},
-					},
-					ExtraVarsFile:     []string{"@test/ansible/extra_vars.yml"},
-					FlushCache:        true,
-					ForceHandlers:     true,
-					Forks:             "10",
-					Inventory:         "test/ansible/inventory/all",
-					Limit:             "myhost",
-					ListHosts:         true,
-					ListTags:          true,
-					ListTasks:         true,
-					ModulePath:        "/module/path",
-					SkipTags:          "tag",
-					StartAtTask:       "task",
-					Step:              true,
-					SyntaxCheck:       true,
-					Tags:              "tag",
-					VaultID:           "asdf",
-					VaultPasswordFile: "/vault/password/file",
-					Verbose:           true,
-					Version:           true,
-				},
-				PrivilegeEscalationOptions: &options.AnsiblePrivilegeEscalationOptions{
-					Become:        true,
-					BecomeMethod:  "sudo",
-					BecomeUser:    "apenella",
-					AskBecomePass: true,
-				},
-				StdoutCallback: stdoutcallback.JSONStdoutCallback,
-			},
-			prepareAssertFunc: func(playbook *AnsiblePlaybookCmd) {
-				playbook.Exec.(*execute.MockExecute).On(
-					"Execute",
-					context.TODO(),
-					[]string{"ansible-playbook",
-						"--ask-vault-password",
-						"--check",
-						"--diff",
-						"--extra-vars",
-						"{\"array\":[\"one\",\"two\"],\"bool\":true,\"dict\":{\"one\":true,\"two\":false},\"int\":10,\"string\":\"testing an string\"}",
-						"--extra-vars",
-						"@test/ansible/extra_vars.yml",
-						"--flush-cache",
-						"--force-handlers",
-						"--forks",
-						"10",
-						"--inventory",
-						"test/ansible/inventory/all",
-						"--limit",
-						"myhost",
-						"--list-hosts",
-						"--list-tags",
-						"--list-tasks",
-						"--module-path",
-						"/module/path",
-						"--skip-tags",
-						"tag",
-						"--start-at-task",
-						"task",
-						"--step",
-						"--syntax-check",
-						"--tags",
-						"tag",
-						"--vault-id",
-						"asdf",
-						"--vault-password-file",
-						"/vault/password/file",
-						"-vvvv",
-						"--version",
-						"--ask-pass",
-						"--connection",
-						"local",
-						"--private-key",
-						"pk",
-						"--scp-extra-args",
-						"'-o StrictHostKeyChecking=no'",
-						"--sftp-extra-args",
-						"'-o StrictHostKeyChecking=no'",
-						"--ssh-common-args",
-						"'-o StrictHostKeyChecking=no'",
-						"--ssh-extra-args",
-						"'-o StrictHostKeyChecking=no'",
-						"--timeout",
-						"10",
-						"--user",
-						"apenella",
-						"--ask-become-pass",
-						"--become",
-						"--become-method",
-						"sudo",
-						"--become-user",
-						"apenella",
-						"test/ansible/site.yml",
-						"test/ansible/site2.yml",
-					},
-					mock.AnythingOfType("StdoutCallbackResultsFunc"),
-					[]execute.ExecuteOptions{},
-				).Return(nil)
-			},
-			err: nil,
-		},
-	}
-
-	for _, test := range tests {
-
-		t.Run(test.desc, func(t *testing.T) {
-			t.Log(test.desc)
-
-			if test.prepareAssertFunc != nil {
-				test.prepareAssertFunc(test.ansiblePlaybookCmd)
-			}
-
-			err := test.ansiblePlaybookCmd.Run(context.TODO())
-			if err != nil && assert.Error(t, err) {
-				assert.Equal(t, test.err, err)
-			} else {
-				test.ansiblePlaybookCmd.Exec.(*execute.MockExecute).AssertExpectations(t)
-			}
-		})
-	}
 }
 
 func TestGenerateExtraVarsCommand(t *testing.T) {

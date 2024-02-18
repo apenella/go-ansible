@@ -3,10 +3,21 @@ package execute
 import (
 	"context"
 
-	"github.com/apenella/go-ansible/pkg/stdoutcallback"
+	"github.com/apenella/go-ansible/internal/executable/os/exec"
 )
 
-// Executor interface is satisfied by those types which has a Execute(context.Context,[]string,stdoutcallback.StdoutCallbackResultsFunc,...ExecuteOptions)error method
+// Executor interface to execute commands
 type Executor interface {
-	Execute(ctx context.Context, command []string, resultsFunc stdoutcallback.StdoutCallbackResultsFunc, options ...ExecuteOptions) error
+	Execute(ctx context.Context) error
+}
+
+// Executabler is an interface to run commands
+type Executabler interface {
+	Command(name string, arg ...string) exec.Cmder
+	CommandContext(ctx context.Context, name string, arg ...string) exec.Cmder
+}
+
+// Commander generates commands to be executed
+type Commander interface {
+	Command() ([]string, error)
 }

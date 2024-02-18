@@ -1,4 +1,4 @@
-package results
+package transformer
 
 import (
 	"fmt"

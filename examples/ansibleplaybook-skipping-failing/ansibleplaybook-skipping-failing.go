@@ -5,11 +5,13 @@ import (
 	"context"
 	"fmt"
 	"io"
+	"log"
 
 	"github.com/apenella/go-ansible/pkg/execute"
+	results "github.com/apenella/go-ansible/pkg/execute/result/json"
+	"github.com/apenella/go-ansible/pkg/execute/stdoutcallback"
 	"github.com/apenella/go-ansible/pkg/options"
 	"github.com/apenella/go-ansible/pkg/playbook"
-	"github.com/apenella/go-ansible/pkg/stdoutcallback/results"
 )
 
 func main() {
@@ -30,16 +32,21 @@ func main() {
 
 	playbooksList := []string{"site1.yml"}
 	playbook := &playbook.AnsiblePlaybookCmd{
-		Playbooks: playbooksList,
-		Exec: execute.NewDefaultExecute(
-			execute.WithWrite(io.Writer(buff)),
-		),
+		Playbooks:         playbooksList,
 		ConnectionOptions: ansiblePlaybookConnectionOptions,
 		Options:           ansiblePlaybookOptions,
-		StdoutCallback:    "json",
 	}
 
-	err = playbook.Run(context.TODO())
+	log.Println("Command: ", playbook)
+
+	exec := stdoutcallback.NewJSONStdoutCallbackExecute(
+		execute.NewDefaultExecute(
+			execute.WithCmd(playbook),
+			execute.WithWrite(io.Writer(buff)),
+		),
+	)
+
+	err = exec.Execute(context.TODO())
 	if err != nil {
 		fmt.Println(err.Error())
 	}

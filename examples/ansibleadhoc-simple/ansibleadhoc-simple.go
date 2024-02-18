@@ -5,6 +5,7 @@ import (
 	"log"
 
 	"github.com/apenella/go-ansible/pkg/adhoc"
+	"github.com/apenella/go-ansible/pkg/execute"
 	"github.com/apenella/go-ansible/pkg/options"
 )
 
@@ -33,12 +34,15 @@ func main() {
 		Pattern:           "all",
 		Options:           ansibleAdhocOptions,
 		ConnectionOptions: ansibleConnectionOptions,
-		//StdoutCallback:    "oneline",
 	}
 
 	log.Println("Command: ", adhoc)
 
-	err := adhoc.Run(context.TODO())
+	exec := execute.NewDefaultExecute(
+		execute.WithCmd(adhoc),
+	)
+
+	err := exec.Execute(context.TODO())
 	if err != nil {
 		panic(err)
 	}

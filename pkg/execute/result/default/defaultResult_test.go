@@ -1,4 +1,4 @@
-package results
+package defaultresult
 
 import (
 	"bufio"
@@ -11,6 +11,7 @@ import (
 	"testing"
 
 	"github.com/apenella/go-ansible/mocks"
+	"github.com/apenella/go-ansible/pkg/execute/result/transformer"
 	errors "github.com/apenella/go-common-utils/error"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -18,20 +19,22 @@ import (
 
 const letterBytes = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
 
-func TestDefaultStdoutCallbackResults(t *testing.T) {
+func TestPrint(t *testing.T) {
 
 	longMessageLine := randStringBytes(512_000)
-	// errContext := "(results::DefaultStdoutCallbackResults)"
+	// errContext := "(results::Print)"
 
 	tests := []struct {
-		desc  string
-		input string
-		res   string
-		err   error
-		trans []TransformerFunc
+		desc   string
+		input  string
+		res    string
+		err    error
+		result *DefaultResults
+		trans  []transformer.TransformerFunc
 	}{
 		{
-			desc: "Testing default stdout callback",
+			desc:   "Testing default stdout callback",
+			result: NewDefaultResults(),
 			input: `
 PLAY [local] *********************************************************************************************************************************************************************************
 
@@ -59,7 +62,8 @@ Playbook run took 0 days, 0 hours, 0 minutes, 0 seconds
 			err: &errors.Error{},
 		},
 		{
-			desc: "Testing very long lines reading",
+			desc:   "Testing very long lines reading",
+			result: NewDefaultResults(),
 			input: fmt.Sprintf(`
 PLAY [local] *********************************************************************************************************************************************************************************
 
@@ -99,7 +103,7 @@ Playbook run took 0 days, 0 hours, 0 minutes, 0 seconds
 
 			reader = bufio.NewReader(strings.NewReader(test.input))
 
-			err := DefaultStdoutCallbackResults(context.TODO(), reader, writer, test.trans...)
+			err := test.result.Print(context.TODO(), reader, writer, WithTransformers(test.trans...))
 			if err != nil {
 				assert.Equal(t, test.err.Error(), err.Error())
 			} else {
@@ -121,7 +125,7 @@ func TestOutput(t *testing.T) {
 		writer            io.Writer
 		err               error
 		res               string
-		trans             []TransformerFunc
+		trans             []transformer.TransformerFunc
 		prepareAssertFunc func(io.Reader, io.Writer)
 	}{
 		{

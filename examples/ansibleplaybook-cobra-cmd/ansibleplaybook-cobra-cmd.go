@@ -11,9 +11,10 @@ import (
 	"strings"
 
 	"github.com/apenella/go-ansible/pkg/execute"
+	"github.com/apenella/go-ansible/pkg/execute/configuration"
+	"github.com/apenella/go-ansible/pkg/execute/result/transformer"
 	"github.com/apenella/go-ansible/pkg/options"
 	"github.com/apenella/go-ansible/pkg/playbook"
-	"github.com/apenella/go-ansible/pkg/stdoutcallback/results"
 	errors "github.com/apenella/go-common-utils/error"
 	"github.com/spf13/cobra"
 )
@@ -35,12 +36,12 @@ func init() {
 }
 
 var rootCmd = &cobra.Command{
-	Use:   "cobra-cmd-ansibleplaybook",
-	Short: "cobra-cmd-ansibleplaybook",
-	Long: `cobra-cmd-ansibleplaybook is an example which show how to use go-ansible library from cobra cli
+	Use:   "ansibleplaybook-cobra-cmd",
+	Short: "ansibleplaybook-cobra-cmd",
+	Long: `ansibleplaybook-cobra-cmd is an example which show how to use go-ansible library from cobra cli
 	
  Run the example:
-go run cobra-cmd-ansibleplaybook.go -L -i 127.0.0.1, -p site.yml -e example="hello go-ansible!"
+go run ansibleplaybook-cobra-cmd.go -L -i 127.0.0.1, -p site.yml -e example="hello go-ansible!"
 `,
 	RunE: commandHandler,
 }
@@ -77,18 +78,20 @@ func commandHandler(cmd *cobra.Command, args []string) error {
 		Playbooks:         playbookFiles,
 		ConnectionOptions: ansiblePlaybookConnectionOptions,
 		Options:           ansiblePlaybookOptions,
-		Exec: execute.NewDefaultExecute(
-			execute.WithTransformers(
-				results.Prepend("cobra-cmd-ansibleplaybook example"),
-			),
-		),
 	}
 
-	options.AnsibleForceColor()
+	exec := configuration.NewExecutorWithAnsibleConfigurationSettings(
+		execute.NewDefaultExecute(
+			execute.WithCmd(playbook),
+			execute.WithTransformers(
+				transformer.Prepend("Go-ansible example with become"),
+			),
+		),
+	).WithAnsibleForceColor()
 
-	err = playbook.Run(context.TODO())
+	err = exec.Execute(context.TODO())
 	if err != nil {
-		return err
+		panic(err)
 	}
 
 	return nil

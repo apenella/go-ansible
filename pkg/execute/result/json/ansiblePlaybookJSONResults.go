@@ -1,7 +1,6 @@
-package results
+package json
 
 import (
-	"context"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -145,26 +144,6 @@ func (s *AnsiblePlaybookJSONResultsStats) String() string {
 	str = fmt.Sprintf("%s Unreachable: %s", str, strconv.Itoa(s.Unreachable))
 
 	return str
-}
-
-// JSONStdoutCallbackResults method manges the ansible' JSON stdout callback and print the result stats
-func JSONStdoutCallbackResults(ctx context.Context, r io.Reader, w io.Writer, transformers ...TransformerFunc) error {
-
-	skipPatterns := []string{
-		// This pattern skips timer's callback whitelist output
-		"^[\\s\\t]*Playbook run took [0-9]+ days, [0-9]+ hours, [0-9]+ minutes, [0-9]+ seconds$",
-	}
-
-	tranformers := []TransformerFunc{
-		IgnoreMessage(skipPatterns),
-	}
-
-	err := output(ctx, r, w, tranformers...)
-	if err != nil {
-		return errors.New("(results::JSONStdoutCallbackResults)", "Error processing execution output", err)
-	}
-
-	return nil
 }
 
 // JSONParse return an AnsiblePlaybookJSONResults from
