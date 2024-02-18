@@ -2,8 +2,10 @@ package main
 
 import (
 	"context"
+	"fmt"
+
+	"github.com/apenella/go-ansible/pkg/execute"
 	"github.com/apenella/go-ansible/pkg/inventory"
-	"log"
 )
 
 func main() {
@@ -13,20 +15,19 @@ func main() {
 		Yaml:      true,
 	}
 
-	inventoryCmd := inventory.AnsibleInventoryCmd{
+	inventoryCmd := &inventory.AnsibleInventoryCmd{
 		Pattern: "all",
 		Options: &ansibleInventoryOptions,
 	}
 
-	results, _ := inventoryCmd.Command()
-	log.Println("Test strings", inventoryCmd.String())
-	for _, result := range results {
-		log.Println("Command Data: ", result)
-	}
+	fmt.Println("Test strings:", inventoryCmd.String())
 
-	err := inventoryCmd.Run(context.TODO())
+	exec := execute.NewDefaultExecute(
+		execute.WithCmd(inventoryCmd),
+	)
+
+	err := exec.Execute(context.TODO())
 	if err != nil {
 		panic(err)
 	}
-
 }

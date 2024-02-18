@@ -1,15 +1,10 @@
 package inventory
 
 import (
-	"context"
-	goerrors "errors"
-	"github.com/apenella/go-ansible/pkg/execute"
-	"github.com/apenella/go-ansible/pkg/stdoutcallback"
+	"testing"
+
 	errors "github.com/apenella/go-common-utils/error"
 	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/mock"
-	execerrors "os/exec"
-	"testing"
 )
 
 // TestGenerateCommandOptions tests
@@ -84,7 +79,6 @@ func TestString(t *testing.T) {
 			err:  nil,
 			ansibleInventoryCmd: &AnsibleInventoryCmd{
 				Binary:  "ansible-inventory",
-				Exec:    execute.NewMockExecute(),
 				Pattern: "all",
 				Options: &AnsibleInventoryOptions{
 					AskVaultPassword:  true,
@@ -134,12 +128,51 @@ func TestCommand(t *testing.T) {
 			AnsibleInventoryCmd: &AnsibleInventoryCmd{
 				Pattern: "all",
 				Options: &AnsibleInventoryOptions{
-					Host:      "localhost",
-					Inventory: "test/ansible/inventory/all",
-					Output:    "/tmp/output.ini",
+					AskVaultPassword:  true,
+					Export:            true,
+					Graph:             true,
+					Host:              "localhost",
+					Inventory:         "test/ansible/inventory/all",
+					Limit:             "limit",
+					List:              true,
+					Output:            "/tmp/output.ini",
+					PlaybookDir:       "playbook-dir",
+					Toml:              true,
+					Vars:              true,
+					VaultID:           "vault-id",
+					VaultPasswordFile: "vault-password-file",
+					Verbose:           true,
+					Version:           true,
+					Yaml:              true,
 				},
 			},
-			command: []string{"ansible-inventory", "all", "--host", "localhost", "--inventory", "test/ansible/inventory/all", "--output", "/tmp/output.ini"},
+			command: []string{
+				"ansible-inventory",
+				"all",
+				"--ask-vault-password",
+				"--export",
+				"--graph",
+				"--host",
+				"localhost",
+				"--inventory",
+				"test/ansible/inventory/all",
+				"--limit",
+				"limit",
+				"--list",
+				"--output",
+				"/tmp/output.ini",
+				"--playbook-dir",
+				"playbook-dir",
+				"--toml",
+				"--vars",
+				"--vault-id",
+				"vault-id",
+				"--vault-password-file",
+				"vault-password-file",
+				"--version",
+				"-vvvv",
+				"--yaml",
+			},
 		},
 	}
 
@@ -154,109 +187,6 @@ func TestCommand(t *testing.T) {
 				assert.Equal(t, test.err, err)
 			} else {
 				assert.Equal(t, test.command, command, "Unexpected value")
-			}
-		})
-	}
-}
-
-// TestRun tests
-func TestRun(t *testing.T) {
-	tests := []struct {
-		desc                string
-		ansibleInventoryCmd *AnsibleInventoryCmd
-		err                 error
-		prepareAssertFunc   func(cmd *AnsibleInventoryCmd)
-	}{
-		{
-			desc:                "Run nil ansibleInventoryCmd",
-			ansibleInventoryCmd: nil,
-			err:                 errors.New("(inventory::Run)", "AnsibleInventoryCmd is nil"),
-		},
-		{
-			desc: "Testing run a ansibleInventoryCmd with unexisting binary file",
-			ansibleInventoryCmd: &AnsibleInventoryCmd{
-				Binary: "unexisting",
-			},
-			err: errors.New("(inventory::Run)", "Binary file 'unexisting' does not exists", &execerrors.Error{Name: "unexisting", Err: goerrors.New("executable file not found in $PATH")}),
-		},
-		{
-			desc: "Testing run a ansibleInventoryCmd",
-			ansibleInventoryCmd: &AnsibleInventoryCmd{
-				Binary:  "ansible-inventory",
-				Exec:    execute.NewMockExecute(),
-				Pattern: "all",
-				Options: &AnsibleInventoryOptions{
-					AskVaultPassword:  true,
-					Export:            true,
-					Graph:             true,
-					Host:              "localhost",
-					Inventory:         "test/ansible/inventory/all",
-					Limit:             "myhost",
-					List:              true,
-					Output:            "/tmp/output.ini",
-					PlaybookDir:       "/playbook/",
-					Toml:              true,
-					Vars:              true,
-					VaultID:           "asdf",
-					VaultPasswordFile: "/vault/password/file",
-					Verbose:           true,
-					Version:           true,
-					Yaml:              true,
-				},
-				StdoutCallback: stdoutcallback.JSONStdoutCallback,
-			},
-			prepareAssertFunc: func(inventory *AnsibleInventoryCmd) {
-				inventory.Exec.(*execute.MockExecute).On(
-					"Execute",
-					context.TODO(),
-					[]string{"ansible-inventory",
-						"all",
-						"--ask-vault-password",
-						"--export",
-						"--graph",
-						"--host",
-						"localhost",
-						"--inventory",
-						"test/ansible/inventory/all",
-						"--limit",
-						"myhost",
-						"--list",
-						"--output",
-						"/tmp/output.ini",
-						"--playbook-dir",
-						"/playbook/",
-						"--toml",
-						"--vars",
-						"--vault-id",
-						"asdf",
-						"--vault-password-file",
-						"/vault/password/file",
-						"--version",
-						"-vvvv",
-						"--yaml",
-					},
-					mock.AnythingOfType("StdoutCallbackResultsFunc"),
-					[]execute.ExecuteOptions{},
-				).Return(nil)
-			},
-			err: nil,
-		},
-	}
-
-	for _, test := range tests {
-
-		t.Run(test.desc, func(t *testing.T) {
-			t.Log(test.desc)
-
-			if test.prepareAssertFunc != nil {
-				test.prepareAssertFunc(test.ansibleInventoryCmd)
-			}
-
-			err := test.ansibleInventoryCmd.Run(context.TODO())
-			if err != nil && assert.Error(t, err) {
-				assert.Equal(t, test.err, err)
-			} else {
-				test.ansibleInventoryCmd.Exec.(*execute.MockExecute).AssertExpectations(t)
 			}
 		})
 	}

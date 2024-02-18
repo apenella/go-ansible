@@ -1,12 +1,9 @@
 package inventory
 
 import (
-	"context"
 	"fmt"
-	"github.com/apenella/go-ansible/pkg/execute"
-	"github.com/apenella/go-ansible/pkg/stdoutcallback"
+
 	errors "github.com/apenella/go-common-utils/error"
-	"os/exec"
 )
 
 const (
@@ -81,52 +78,10 @@ type AnsibleInventoryOptionFunc func(*AnsibleInventoryCmd)
 type AnsibleInventoryCmd struct {
 	// Ansible-inventory binary file
 	Binary string
-	// Exec is the executor item
-	Exec execute.Executor
 	// Pattern is the ansible's group pattern
 	Pattern string
 	// Options are the ansible's inventory options
 	Options *AnsibleInventoryOptions
-	// StdoutCallback defines which is the stdout callback method. By default is used 'default' method. Supported stdout method by go-ansible are: debug, default, dense, json, minimal, null, oneline, stderr, timer, yaml
-	StdoutCallback string
-}
-
-// Run method runs the ansible-inventory
-func (p *AnsibleInventoryCmd) Run(ctx context.Context) error {
-	var err error
-	var command []string
-	options := []execute.ExecuteOptions{}
-
-	if p == nil {
-		return errors.New("(inventory::Run)", "AnsibleInventoryCmd is nil")
-	}
-
-	// Use default binary when it is not already defined
-	if p.Binary == "" {
-		p.Binary = DefaultAnsibleInventoryBinary
-	}
-
-	_, err = exec.LookPath(p.Binary)
-	if err != nil {
-		return errors.New("(inventory::Run)", fmt.Sprintf("Binary file '%s' does not exists", p.Binary), err)
-	}
-
-	// Define a default executor when it is not defined on AnsibleInventoryCmd
-	if p.Exec == nil {
-		p.Exec = execute.NewDefaultExecute()
-	}
-
-	// Configure StdoutCallback method. By default is used ansible's 'default' callback method
-	stdoutcallback.AnsibleStdoutCallbackSetEnv(p.StdoutCallback)
-
-	// Generate the command to be run
-	command, err = p.Command()
-	if err != nil {
-		return errors.New("(inventory::Run)", fmt.Sprintf("Error running '%s'", p.String()), err)
-	}
-
-	// Execute the command an return
-	return p.Exec.Execute(ctx, command, stdoutcallback.GetResultsFunc(p.StdoutCallback), options...)
 }
 
 // Command generate the ansible command which will be executed
