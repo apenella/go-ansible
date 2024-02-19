@@ -6,11 +6,12 @@ Version 2.0.0 of *go-ansible* introduces several disruptive changes. Read the up
 
 ### BREAKING CHANGES
 
-- The relationship between the executor and `AnsiblePlaybookCmd` / `AnsibleAdhocCmd` have undergone an important change.
+- The relationship between the executor and `AnsiblePlaybookCmd` / `AnsibleAdhocCmd` / `AnsibleInvetoryCmd` have undergone an important change.
   - **Inversion of responsabilities**: The executor is now responsible for executing external commands, while `AnsiblePlaybookCmd` and `AnsibleAdhocCmd` have cut down its responsibilities, primarily focusing on generating the command to be executed.
-  - **Method and Attribute Removal**: The following methods and attributes have been removed on `AnsiblePlaybookCmd` and `AnsibleAdhocCmd`:
+  - **Method and Attribute Removal**: The following methods and attributes have been removed on `AnsiblePlaybookCmd`, `AnsibleInventoryCmd` and `AnsibleAdhocCmd`:
     - The `Run` method.
     - The `Exec` and `StdoutCallback` attributes.
+  - **Attributes Renaming**: The `Options` attribute has been renamed to `PlaybookOptions` in `AnsiblePlaybookCmd`, `AdhocOptions` in `AnsibleAdhocCmd` and `InventoryOptions` in `AnsibleInventoryCmd`.
 - The `Executor` interface has undergone a significant signature change. This change entails the removal of the following arguments `resultsFunc` and `options`. The current signature is: `Execute(ctx context.Context) error`.
 - The `github.com/apenella/go-ansible/pkg/stdoutcallback` package has been removed. Its responsabilities has been absorbed by two distinc packages `github.com/apenella/go-ansible/pkg/execute/result`, which manages the output of the commands, and `github.com/apenella/go-ansible/pkg/execute/stdoutcallback` that enables the setting of the stdout callback.
 - The constants `AnsibleForceColorEnv` and `AnsibleHostKeyCheckingEnv` have been removed from the `github.com/apenella/go-ansible/pkg/options` package.
@@ -19,6 +20,9 @@ Version 2.0.0 of *go-ansible* introduces several disruptive changes. Read the up
 
 ### Added
 
+- A new _executor_ `AnsibleAdhocExecute` has been introduced. That _executor_ allows you to create an executor to run `ansible` commands using the default settings of `DefaultExecute`. This _executor_ is located in the `github.com/apenella/go-ansible/pkg/execute/adhoc` package.
+- A new _executor_ `AnsibleInventoryExecute` has been introduced. That _executor_ allows you to create an executor to run `ansible-inventory` commands using the default settings of `DefaultExecute`. This _executor_ is located in the `github.com/apenella/go-ansible/pkg/execute/inventory` package.
+- A new _executor_ `AnsiblePlaybookExecute` has been introduced. That _executor_ allows you to create an executor to run `ansible-playbook` commands using the default settings of `DefaultExecute`. This _executor_ is located in the `github.com/apenella/go-ansible/pkg/execute/playbook` package.
 - A new interface `Commander` has been introduced in the `github.com/apenella/go-ansible/pkg/execute` package. This interface defines the criteria for a struct to be compliant in generating execution commands.
 - A new interface `Executabler` has been introduced in the `github.com/apenella/go-ansible/pkg/execute` package. This interface defines the criteria for a struct to be compliant in executing external commands.
 - A new interface `ExecutorEnvVarSetter` in `github.com/apenella/go-ansible/pkg/execute/configuration` that defines the criteria for a struct to be compliant in setting Ansible configuration.
@@ -31,15 +35,19 @@ Version 2.0.0 of *go-ansible* introduces several disruptive changes. Read the up
 - A new package `github.com/apenella/go-ansible/pkg/execute/stdoutcallback`. This package offers multiple decorators designed to set the stdout callback for Ansible executions.
 - An utility to generate the code for the configuration package has been introduced. This utility is located in the `utils/cmd/configGenerator.go`.
 
-### Added
+### Changed
 
-- The `AdhocPlaybookCmd` struct has been updated to implement the `Commander` interface.
+- The `AnsibleAdhocCmd` struct has been updated to implement the `Commander` interface.
+- The `AnsibleInventoryCmd` struct has been updated to implement the `Commander` interface.
 - The `AnsiblePlaybookCmd` struct has been updated to implement the `Commander` interface.
 - The `DefaultExecute` struct has been updated to have a new attribute named `Exec` of type `Executabler` that is responsible for executing external commands.
 - The `DefaultExecute` struct has been updated to have a new attribute named `Output` of type `ResultsOutputer` that is responsible for printing the execution's output.
 - The `DefaultExecute` struct has been updated to implement the `Executor` interface.
 - The `DefaultExecute` struct has been updated to implement the `ExecutorEnvVarSetter` interface.
 - The `DefaultExecute` struct has been updated to implement the `ExecutorStdoutCallbackSetter` interface.
+- The `Options` attribute in `AnsibleAdhocCmd` struct has been renamed to `AdhocOptions`.
+- The `Options` attribute in `AnsibleInventoryCmd` struct has been renamed to `InventoryOptions`.
+- The `Options` attribute in `AnsiblePlaybookCmd` struct has been renamed to `PlaybookOptions`.
 - The examples has been adapted to use executor as the component to execute Ansible commands.
 - The package `github.com/apenella/go-ansible/pkg/stdoutcallback/result/transformer` has been moved to `github.com/apenella/go-ansible/pkg/execute/result/transformer`.
 
