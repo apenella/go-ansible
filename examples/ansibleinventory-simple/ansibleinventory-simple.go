@@ -16,7 +16,7 @@ func main() {
 	}
 
 	err := inventory.NewAnsibleInventoryExecute().
-		WithOptions(&ansibleInventoryOptions).
+		WithInventoryOptions(&ansibleInventoryOptions).
 		WithPattern("all").
 		Execute(context.TODO())
 

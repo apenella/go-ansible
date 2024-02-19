@@ -30,9 +30,9 @@ func (e *AnsibleInventoryExecute) WithBinary(binary string) *AnsibleInventoryExe
 	return e
 }
 
-// WithOptions returns an AnsibleInventoryExecute with the ansible's inventory options set
-func (e *AnsibleInventoryExecute) WithOptions(options *AnsibleInventoryOptions) *AnsibleInventoryExecute {
-	e.cmd.Options = options
+// WithInventoryOptions returns an AnsibleInventoryExecute with the ansible's inventory options set
+func (e *AnsibleInventoryExecute) WithInventoryOptions(options *AnsibleInventoryOptions) *AnsibleInventoryExecute {
+	e.cmd.InventoryOptions = options
 
 	return e
 }

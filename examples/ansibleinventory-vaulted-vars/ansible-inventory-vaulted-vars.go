@@ -18,8 +18,8 @@ func main() {
 	}
 
 	inventoryCmd := &inventory.AnsibleInventoryCmd{
-		Pattern: "all",
-		Options: &ansibleInventoryOptions,
+		Pattern:          "all",
+		InventoryOptions: &ansibleInventoryOptions,
 	}
 
 	fmt.Println("Test strings:", inventoryCmd.String())

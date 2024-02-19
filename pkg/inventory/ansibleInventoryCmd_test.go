@@ -80,7 +80,7 @@ func TestString(t *testing.T) {
 			ansibleInventoryCmd: &AnsibleInventoryCmd{
 				Binary:  "ansible-inventory",
 				Pattern: "all",
-				Options: &AnsibleInventoryOptions{
+				InventoryOptions: &AnsibleInventoryOptions{
 					AskVaultPassword:  true,
 					Export:            true,
 					Graph:             true,
@@ -127,7 +127,7 @@ func TestCommand(t *testing.T) {
 			err:  nil,
 			AnsibleInventoryCmd: &AnsibleInventoryCmd{
 				Pattern: "all",
-				Options: &AnsibleInventoryOptions{
+				InventoryOptions: &AnsibleInventoryOptions{
 					AskVaultPassword:  true,
 					Export:            true,
 					Graph:             true,

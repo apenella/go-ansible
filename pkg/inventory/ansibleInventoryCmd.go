@@ -81,7 +81,7 @@ type AnsibleInventoryCmd struct {
 	// Pattern is the ansible's host or group pattern
 	Pattern string
 	// Options are the ansible's inventory options
-	Options *AnsibleInventoryOptions
+	InventoryOptions *AnsibleInventoryOptions
 }
 
 // Command generate the ansible command which will be executed
@@ -100,8 +100,8 @@ func (p *AnsibleInventoryCmd) Command() ([]string, error) {
 	cmd = append(cmd, p.Pattern)
 
 	// Determine the options to be set
-	if p.Options != nil {
-		options, err := p.Options.GenerateCommandOptions()
+	if p.InventoryOptions != nil {
+		options, err := p.InventoryOptions.GenerateCommandOptions()
 		if err != nil {
 			return nil, errors.New("(inventory::Command)", "Error creating options", err)
 		}
@@ -123,8 +123,8 @@ func (p *AnsibleInventoryCmd) String() string {
 
 	str = fmt.Sprintf("%s %s", str, p.Pattern)
 
-	if p.Options != nil {
-		str = fmt.Sprintf("%s %s", str, p.Options.String())
+	if p.InventoryOptions != nil {
+		str = fmt.Sprintf("%s %s", str, p.InventoryOptions.String())
 	}
 
 	return str
