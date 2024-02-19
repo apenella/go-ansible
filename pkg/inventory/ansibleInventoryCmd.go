@@ -78,7 +78,7 @@ type AnsibleInventoryOptionFunc func(*AnsibleInventoryCmd)
 type AnsibleInventoryCmd struct {
 	// Ansible-inventory binary file
 	Binary string
-	// Pattern is the ansible's group pattern
+	// Pattern is the ansible's host or group pattern
 	Pattern string
 	// Options are the ansible's inventory options
 	Options *AnsibleInventoryOptions

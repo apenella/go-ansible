@@ -3,8 +3,8 @@ package main
 import (
 	"context"
 	"fmt"
+	"os"
 
-	"github.com/apenella/go-ansible/pkg/execute"
 	"github.com/apenella/go-ansible/pkg/inventory"
 )
 
@@ -15,19 +15,13 @@ func main() {
 		Yaml:      true,
 	}
 
-	inventoryCmd := &inventory.AnsibleInventoryCmd{
-		Pattern: "all",
-		Options: &ansibleInventoryOptions,
-	}
+	err := inventory.NewAnsibleInventoryExecute().
+		WithOptions(&ansibleInventoryOptions).
+		WithPattern("all").
+		Execute(context.TODO())
 
-	fmt.Println("Test strings:", inventoryCmd.String())
-
-	exec := execute.NewDefaultExecute(
-		execute.WithCmd(inventoryCmd),
-	)
-
-	err := exec.Execute(context.TODO())
 	if err != nil {
-		panic(err)
+		fmt.Println(err.Error())
+		os.Exit(1)
 	}
 }
