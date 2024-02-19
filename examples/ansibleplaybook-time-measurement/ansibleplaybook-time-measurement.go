@@ -28,7 +28,7 @@ func main() {
 	}
 
 	exec := measure.NewExecutorTimeMeasurement(
-		configuration.NewExecutorWithAnsibleConfigurationSettings(
+		configuration.NewAnsibleWithConfigurationSettingsExecute(
 			execute.NewDefaultExecute(
 				execute.WithCmd(playbook),
 			),

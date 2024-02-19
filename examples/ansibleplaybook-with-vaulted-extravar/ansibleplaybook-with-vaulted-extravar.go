@@ -66,7 +66,7 @@ func main() {
 
 	fmt.Printf("\n  Ansible playbook command:\n%s\n\n", playbook.String())
 
-	exec := configuration.NewExecutorWithAnsibleConfigurationSettings(
+	exec := configuration.NewAnsibleWithConfigurationSettingsExecute(
 		execute.NewDefaultExecute(
 			execute.WithCmd(playbook),
 			execute.WithTransformers(

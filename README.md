@@ -40,7 +40,7 @@ _**Important:** The master branch may contain unreleased or pre-released feature
         - [Configuration package](#configuration-package)
           - [ExecutorEnvVarSetter interface](#executorenvvarsetter-interface)
           - [Ansible Configuration functions](#ansible-configuration-functions)
-          - [ExecutorWithAnsibleConfigurationSettings struct](#executorwithansibleconfigurationsettings-struct)
+          - [AnsibleWithConfigurationSettingsExecute struct](#ansiblewithconfigurationsettingsexecute-struct)
         - [Measure package](#measure-package)
         - [Result package](#result-package)
           - [ResultsOutputer interface](#resultsoutputer-interface)
@@ -404,10 +404,10 @@ type ExecutorEnvVarSetter interface {
 
 The `github.com/apenella/go-ansible/pkg/execute/configuration` package provides a set of functions for configuring _Ansible_ settings during command execution. Each function corresponds to a configuration setting available in [Ansible's reference guide](https://docs.ansible.com/ansible/latest/reference_appendices/config.html). The functions follow a consistent naming convention: `With<setting name>` or `Without<setting name>`, where `<setting name>` is the name of the _Ansible_ setting to be configured.
 
-###### ExecutorWithAnsibleConfigurationSettings struct
+###### AnsibleWithConfigurationSettingsExecute struct
 
-The `ExecutorWithAnsibleConfigurationSettings` struct serves as a decorator over an [ExecutorEnvVarSetter](#executorenvvarsetter-interface), enabling configuration of _Ansible_ settings for execution. When instantiating a new `ExecutorWithAnsibleConfigurationSettings`, you must provide an `ExecutorEnvVarSetter` and a list of functions for configuring Ansible settings.
-Here you can see an example of how to use the `ExecutorWithAnsibleConfigurationSettings` struct to configure _Ansible_ settings for execution:
+The `AnsibleWithConfigurationSettingsExecute` struct serves as a decorator over an [ExecutorEnvVarSetter](#executorenvvarsetter-interface), enabling configuration of _Ansible_ settings for execution. When instantiating a new `AnsibleWithConfigurationSettingsExecute`, you must provide an `ExecutorEnvVarSetter` and a list of functions for configuring Ansible settings.
+Here you can see an example of how to use the `AnsibleWithConfigurationSettingsExecute` struct to configure _Ansible_ settings for execution:
 
 ```go
 ansiblePlaybookConnectionOptions := &options.AnsibleConnectionOptions{
@@ -424,7 +424,7 @@ playbookCmd := &playbook.AnsiblePlaybookCmd{
   Options:           ansiblePlaybookOptions,
 }
 
-exec := configuration.NewExecutorWithAnsibleConfigurationSettings(
+exec := configuration.NewAnsibleWithConfigurationSettingsExecute(
   execute.NewDefaultExecute(
     execute.WithCmd(playbookCmd),
   ),

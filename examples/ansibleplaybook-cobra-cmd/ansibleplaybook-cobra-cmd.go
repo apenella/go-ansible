@@ -80,7 +80,7 @@ func commandHandler(cmd *cobra.Command, args []string) error {
 		Options:           ansiblePlaybookOptions,
 	}
 
-	exec := configuration.NewExecutorWithAnsibleConfigurationSettings(
+	exec := configuration.NewAnsibleWithConfigurationSettingsExecute(
 		execute.NewDefaultExecute(
 			execute.WithCmd(playbook),
 			execute.WithTransformers(

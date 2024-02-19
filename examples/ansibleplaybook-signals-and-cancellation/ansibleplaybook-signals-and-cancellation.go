@@ -33,7 +33,7 @@ func main() {
 		Options:           ansiblePlaybookOptions,
 	}
 
-	exec := configuration.NewExecutorWithAnsibleConfigurationSettings(
+	exec := configuration.NewAnsibleWithConfigurationSettingsExecute(
 		execute.NewDefaultExecute(
 			execute.WithCmd(playbook),
 			execute.WithTransformers(
