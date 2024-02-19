@@ -44,7 +44,7 @@ func main() {
 	playbook := &playbook.AnsiblePlaybookCmd{
 		Playbooks:         []string{filepath.Join(tempDir, "site.yml"), filepath.Join(tempDir, "site2.yml")},
 		ConnectionOptions: ansiblePlaybookConnectionOptions,
-		Options:           ansiblePlaybookOptions,
+		PlaybookOptions:   ansiblePlaybookOptions,
 	}
 
 	exec := execute.NewDefaultExecute(

@@ -20,12 +20,12 @@ func main() {
 	}
 
 	err := playbook.NewAnsiblePlaybookExecute("site.yml", "site2.yml").
-		WithOptions(ansiblePlaybookOptions).
+		WithPlaybookOptions(ansiblePlaybookOptions).
 		WithConnectionOptions(ansiblePlaybookConnectionOptions).
 		Execute(context.TODO())
 
 	if err != nil {
-		fmt.Print()
+		fmt.Println(err.Error())
 		os.Exit(1)
 	}
 }

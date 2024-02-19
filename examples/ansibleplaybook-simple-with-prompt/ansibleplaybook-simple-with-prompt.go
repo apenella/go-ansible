@@ -21,7 +21,7 @@ func main() {
 	playbook := &playbook.AnsiblePlaybookCmd{
 		Playbooks:         []string{"input.yml"},
 		ConnectionOptions: ansiblePlaybookConnectionOptions,
-		Options:           ansiblePlaybookOptions,
+		PlaybookOptions:   ansiblePlaybookOptions,
 	}
 
 	exec := execute.NewDefaultExecute(

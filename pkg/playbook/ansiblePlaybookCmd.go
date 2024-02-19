@@ -131,8 +131,8 @@ type AnsiblePlaybookCmd struct {
 	Binary string
 	// Playbooks is the ansible's playbooks list to be used
 	Playbooks []string
-	// Options are the ansible's playbook options --> to deprecate and use PlaybookOptions
-	Options *AnsiblePlaybookOptions
+	// PlaybookOptions are the ansible's playbook options
+	PlaybookOptions *AnsiblePlaybookOptions
 	// ConnectionOptions are the ansible's playbook specific options for connection
 	ConnectionOptions *options.AnsibleConnectionOptions
 	// PrivilegeEscalationOptions are the ansible's playbook privilege escalation options
@@ -152,8 +152,8 @@ func (p *AnsiblePlaybookCmd) Command() ([]string, error) {
 	cmd = append(cmd, p.Binary)
 
 	// Determine the options to be set
-	if p.Options != nil {
-		options, err := p.Options.GenerateCommandOptions()
+	if p.PlaybookOptions != nil {
+		options, err := p.PlaybookOptions.GenerateCommandOptions()
 		if err != nil {
 			return nil, errors.New("(playbook::Command)", "Error creating options", err)
 		}
@@ -194,8 +194,8 @@ func (p *AnsiblePlaybookCmd) String() string {
 
 	str := p.Binary
 
-	if p.Options != nil {
-		str = fmt.Sprintf("%s %s", str, p.Options.String())
+	if p.PlaybookOptions != nil {
+		str = fmt.Sprintf("%s %s", str, p.PlaybookOptions.String())
 	}
 	if p.ConnectionOptions != nil {
 		str = fmt.Sprintf("%s %s", str, p.ConnectionOptions.String())

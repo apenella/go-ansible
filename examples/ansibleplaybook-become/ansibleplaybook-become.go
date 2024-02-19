@@ -28,7 +28,7 @@ func main() {
 		Playbooks:                  []string{"site.yml"},
 		ConnectionOptions:          ansiblePlaybookConnectionOptions,
 		PrivilegeEscalationOptions: ansiblePlaybookPrivilegeEscalationOptions,
-		Options:                    ansiblePlaybookOptions,
+		PlaybookOptions:            ansiblePlaybookOptions,
 	}
 
 	exec := execute.NewDefaultExecute(

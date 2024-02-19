@@ -61,7 +61,7 @@ func main() {
 	playbook := &playbook.AnsiblePlaybookCmd{
 		Playbooks:         []string{"site.yml"},
 		ConnectionOptions: ansiblePlaybookConnectionOptions,
-		Options:           ansiblePlaybookOptions,
+		PlaybookOptions:   ansiblePlaybookOptions,
 	}
 
 	fmt.Printf("\n  Ansible playbook command:\n%s\n\n", playbook.String())

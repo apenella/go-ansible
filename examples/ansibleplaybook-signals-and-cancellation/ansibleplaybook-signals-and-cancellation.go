@@ -30,7 +30,7 @@ func main() {
 	playbook := &playbook.AnsiblePlaybookCmd{
 		Playbooks:         []string{"site.yml"},
 		ConnectionOptions: ansiblePlaybookConnectionOptions,
-		Options:           ansiblePlaybookOptions,
+		PlaybookOptions:   ansiblePlaybookOptions,
 	}
 
 	exec := configuration.NewAnsibleWithConfigurationSettingsExecute(

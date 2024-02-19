@@ -33,9 +33,9 @@ func (e *AnsiblePlaybookExecute) WithBinary(binary string) *AnsiblePlaybookExecu
 	return e
 }
 
-// WithOptions returns an AnsiblePlaybookExecute with the ansible's playbook options set
-func (e *AnsiblePlaybookExecute) WithOptions(options *AnsiblePlaybookOptions) *AnsiblePlaybookExecute {
-	e.cmd.Options = options
+// WithPlaybookOptions returns an AnsiblePlaybookExecute with the ansible's playbook options set
+func (e *AnsiblePlaybookExecute) WithPlaybookOptions(options *AnsiblePlaybookOptions) *AnsiblePlaybookExecute {
+	e.cmd.PlaybookOptions = options
 
 	return e
 }

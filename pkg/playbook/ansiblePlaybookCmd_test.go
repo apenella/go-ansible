@@ -138,7 +138,7 @@ func TestCommand(t *testing.T) {
 					Timeout:    10,
 					User:       "apenella",
 				},
-				Options: &AnsiblePlaybookOptions{
+				PlaybookOptions: &AnsiblePlaybookOptions{
 					AskVaultPassword:  true,
 					Check:             true,
 					Diff:              true,
@@ -205,7 +205,7 @@ func TestString(t *testing.T) {
 					Timeout:    10,
 					User:       "apenella",
 				},
-				Options: &AnsiblePlaybookOptions{
+				PlaybookOptions: &AnsiblePlaybookOptions{
 					AskVaultPassword:  true,
 					Check:             true,
 					Diff:              true,

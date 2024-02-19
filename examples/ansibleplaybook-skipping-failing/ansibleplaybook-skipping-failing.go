@@ -34,7 +34,7 @@ func main() {
 	playbook := &playbook.AnsiblePlaybookCmd{
 		Playbooks:         playbooksList,
 		ConnectionOptions: ansiblePlaybookConnectionOptions,
-		Options:           ansiblePlaybookOptions,
+		PlaybookOptions:   ansiblePlaybookOptions,
 	}
 
 	log.Println("Command: ", playbook)

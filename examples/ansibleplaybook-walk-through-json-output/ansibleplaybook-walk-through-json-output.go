@@ -33,7 +33,7 @@ func main() {
 	playbook := &playbook.AnsiblePlaybookCmd{
 		Playbooks:         []string{"site1.yml", "site2.yml"},
 		ConnectionOptions: ansiblePlaybookConnectionOptions,
-		Options:           ansiblePlaybookOptions,
+		PlaybookOptions:   ansiblePlaybookOptions,
 	}
 
 	exec := stdoutcallback.NewJSONStdoutCallbackExecute(
