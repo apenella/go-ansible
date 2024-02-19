@@ -98,8 +98,8 @@ type AnsibleAdhocCmd struct {
 	Binary string
 	// Pattern is the ansible's host pattern
 	Pattern string
-	// Options are the ansible's playbook options
-	Options *AnsibleAdhocOptions
+	// AdhocOptions are the ansible's playbook options
+	AdhocOptions *AnsibleAdhocOptions
 	// ConnectionOptions are the ansible's playbook specific options for connection
 	ConnectionOptions *options.AnsibleConnectionOptions
 	// PrivilegeEscalationOptions are the ansible's playbook privilege escalation options
@@ -122,8 +122,8 @@ func (a *AnsibleAdhocCmd) Command() ([]string, error) {
 	cmd = append(cmd, a.Pattern)
 
 	// Determine the options to be set
-	if a.Options != nil {
-		options, err := a.Options.GenerateAnsibleAdhocOptions()
+	if a.AdhocOptions != nil {
+		options, err := a.AdhocOptions.GenerateAnsibleAdhocOptions()
 		if err != nil {
 			return nil, errors.New("(adhoc::Command)", "Error creating options", err)
 		}
@@ -166,8 +166,8 @@ func (a *AnsibleAdhocCmd) String() string {
 
 	str = fmt.Sprintf("%s %s", str, a.Pattern)
 
-	if a.Options != nil {
-		str = fmt.Sprintf("%s %s", str, a.Options.String())
+	if a.AdhocOptions != nil {
+		str = fmt.Sprintf("%s %s", str, a.AdhocOptions.String())
 	}
 	if a.ConnectionOptions != nil {
 		str = fmt.Sprintf("%s %s", str, a.ConnectionOptions.String())

@@ -176,7 +176,7 @@ func TestCommand(t *testing.T) {
 	adhoc := &AnsibleAdhocCmd{
 		Binary:  "custom-binary",
 		Pattern: "pattenr",
-		Options: &AnsibleAdhocOptions{
+		AdhocOptions: &AnsibleAdhocOptions{
 			Args:        "args",
 			Background:  11,
 			ModuleName:  "module-name",
@@ -223,7 +223,7 @@ func TestString(t *testing.T) {
 	adhoc := &AnsibleAdhocCmd{
 		Binary:  "custom-binary",
 		Pattern: "pattern",
-		Options: &AnsibleAdhocOptions{
+		AdhocOptions: &AnsibleAdhocOptions{
 			Args:        "args",
 			Background:  11,
 			ModuleName:  "module-name",

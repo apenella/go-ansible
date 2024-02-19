@@ -31,7 +31,7 @@ func main() {
 	}
 
 	err := adhoc.NewAnsibleAdhocExecute("all").
-		WithOptions(ansibleAdhocOptions).
+		WithAdhocOptions(ansibleAdhocOptions).
 		WithConnectionOptions(ansibleConnectionOptions).
 		Execute(context.TODO())
 

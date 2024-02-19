@@ -33,9 +33,9 @@ func (e *AnsibleAdhocExecute) WithBinary(binary string) *AnsibleAdhocExecute {
 	return e
 }
 
-// WithOptions returns an AnsibleAdhocExecute with the ansible's playbook options set
-func (e *AnsibleAdhocExecute) WithOptions(options *AnsibleAdhocOptions) *AnsibleAdhocExecute {
-	e.cmd.Options = options
+// WithAdhocOptions returns an AnsibleAdhocExecute with the ansible's playbook options set
+func (e *AnsibleAdhocExecute) WithAdhocOptions(options *AnsibleAdhocOptions) *AnsibleAdhocExecute {
+	e.cmd.AdhocOptions = options
 
 	return e
 }

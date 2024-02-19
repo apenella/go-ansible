@@ -24,7 +24,7 @@ func main() {
 
 	adhoc := &adhoc.AnsibleAdhocCmd{
 		Pattern:           "all",
-		Options:           ansibleAdhocOptions,
+		AdhocOptions:      ansibleAdhocOptions,
 		ConnectionOptions: ansibleConnectionOptions,
 	}
 
