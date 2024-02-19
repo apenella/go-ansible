@@ -24,6 +24,7 @@
     - [Removing the _Exec_ attribute and _Run_ method](#removing-the-exec-attribute-and-run-method)
     - [Removing the _StdoutCallback_ attribute](#removing-the-stdoutcallback-attribute)
   - [Changes on the _AnsibleAdhocCmd_ struct](#changes-on-the-ansibleadhoccmd-struct)
+  - [Changes on the _AnsibleInventoryCmd_ struct](#changes-on-the-ansibleinventorycmd-struct)
   - [Changes on the _Transformer_ functions](#changes-on-the-transformer-functions)
   - [Managing Ansible Stdout Callback](#managing-ansible-stdout-callback)
   - [Managing Ansible configuration settings](#managing-ansible-configuration-settings)
@@ -413,6 +414,10 @@ For more details on managing Ansible Stdout Callback, refer to the [Managing Ans
 
 Similar to the changes made to the `AnsiblePlaybookCmd` struct, the `AnsibleAdhocCmd` struct no longer executes commands. Instead, it now implements the `Commander` interface, responsible for generating commands for execution. To adapt your code to these changes, refer to the guidelines provided in the section [Changes on the _AnsiblePlaybookCmd_ struct](#changes-on-the-ansibleplaybookcmd-struct).
 
+## Changes on the _AnsibleInventoryCmd_ struct
+
+The `AnsibleInventoryCmd` have undergone significant changes. It no longer executes commands, instead, it now implements the `Commander` interface, which is responsible for generating commands for execution. To adapt your code to these changes, refer to the guidelines provided in the section [Changes on the _AnsiblePlaybookCmd_ struct](#changes-on-the-ansibleplaybookcmd-struct).
+
 ## Changes on the _Transformer_ functions
 
 In version _v2.0.0_, the _github.com/apenella/go-ansible/pkg/stdoutcallback/results_ package has been removed. This package previously contained the transformer functions responsible for modifying the output lines of the execution's results. This section provides guidance on how to adapt your code to these changes.
@@ -435,7 +440,7 @@ Configuring the StdoutCallback method involves two steps:
 - Set the `ANSIBLE_STDOUT_CALLBACK` environment variable to the desired stdout callback plugin name.
 - Set the method responsible for handling the results output from command execution. The responsibility of setting the StdoutCallback method has shifted to the `Executor` struct, necessitating an adjustment in your code.
 
-To simplify stdout callback configuration, the _go-ansible_ library provides a set of structs dedicated to setting the stdout callback method and results output mechanism. Each struct corresponds to a stdout callback plugin and is available in the _github.com/apenella/go-ansible/pkg/stdoutcallback_ package. The following is a list of available structs:
+To simplify stdout callback configuration, the _go-ansible_ library provides a set of structs dedicated to setting the stdout callback method and results output mechanism. Each struct corresponds to a stdout callback plugin and is available in the _github.com/apenella/go-ansible/pkg/execute/stdoutcallback_ package. The following is a list of available structs:
 
 - DebugStdoutCallbackExecute
 - DefaultStdoutCallbackExecute
@@ -448,7 +453,7 @@ To simplify stdout callback configuration, the _go-ansible_ library provides a s
 - TimerStdoutCallbackExecute
 - YamlStdoutCallbackExecute
 
-These structs serve as decorators over the `ExecutorStdoutCallbackSetter` interface, defined in _github.com/apenella/go-ansible/pkg/stdoutcallback_. The `ExecutorStdoutCallbackSetter` interface is defined [here](#added-executorstdoutcallbacksetter-interface).
+These structs serve as decorators over the `ExecutorStdoutCallbackSetter` interface, defined in _github.com/apenella/go-ansible/pkg/execute/stdoutcallback_. The `ExecutorStdoutCallbackSetter` interface is defined [here](#added-executorstdoutcallbacksetter-interface).
 
 For each stdout callback struct, there is a corresponding constructor function that takes an `ExecutorStdoutCallbackSetter` as an argument. The `DefaultExecute` struct implements the `ExecutorStdoutCallbackSetter` interface, allowing you to set the stdout callback method using the constructor functions.
 The following code snippet demonstrates how to instantiate the `JSONStdoutCallbackExecute` struct:
