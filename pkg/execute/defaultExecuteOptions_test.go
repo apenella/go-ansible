@@ -5,15 +5,15 @@ import (
 	"testing"
 
 	"github.com/apenella/go-ansible/internal/executable/os/exec"
+	"github.com/apenella/go-ansible/mocks"
 	defaultresults "github.com/apenella/go-ansible/pkg/execute/result/default"
 	"github.com/apenella/go-ansible/pkg/execute/result/transformer"
-	"github.com/apenella/go-ansible/pkg/playbook"
 	"github.com/stretchr/testify/assert"
 )
 
 // TestOptionsWithCmd tests the function WithCmd
 func TestOptionsWithCmd(t *testing.T) {
-	cmd := &playbook.AnsiblePlaybookCmd{}
+	cmd := &mocks.MockAnsibleCmd{}
 
 	execute := NewDefaultExecute(
 		WithCmd(cmd),
