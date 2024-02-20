@@ -5,14 +5,14 @@
 
 ![go-ansible-logo](docs/logo/go-ansible_logo.png "Go-ansible Logo" )
 
-Go-ansible is a Go package that allows executing _Ansible_ commands, such as `ansible-playbook` or `ansible`, directly from Golang applications. It offers a variety of options for each command, facilitating seamless integration of _Ansible_ functionality into your projects. It is important to highlight that _go-ansible_ is not an alternative implementation of _Ansible_, but rather a wrapper around the _Ansible_ commands.
+Go-ansible is a Go package that allows executing _Ansible_ commands, such as `ansible-playbook`, `ansible-inventory` or `ansible`, directly from Golang applications. It offers a variety of options for each command, facilitating seamless integration of _Ansible_ functionality into your projects. It is important to highlight that _go-ansible_ is not an alternative implementation of _Ansible_, but rather a wrapper around the _Ansible_ commands.
 Let's dive in and explore the capabilities of _go-ansible_ together.
 
 _**Important:** The master branch may contain unreleased or pre-released features. Be cautious when using that branch in your projects. It is recommended to use the stable releases available in the [releases](https://github.com/apenella/go-ansible/releases)._
 
 > **Note**
 > The latest major version of _go-ansible_, version _2.x_, introduced significant and breaking changes. If you are currently using a version prior to _2.x_, please refer to the [upgrade guide](https://github.com/apenella/go-ansible/blob/master/docs/upgrade_guide_to_2.x.md) for detailed information on how to migrate to version _2.x_.
-> The most relevant change is that [command structs](#command-generator) no longer execute commands. So, [AnsiblePlaybookCmd](#ansibleplaybookcmd-struct) and [AnsibleAdhocCmd](#ansibleadhoccmd-struct) do not require an [executor](#executor) anymore. Instead, the _executor_ is responsible for receiving the command to execute and executing it.
+> The most relevant change is that [command structs](#command-generator) no longer execute commands. So, [AnsiblePlaybookCmd](#ansibleplaybookcmd-struct), [AnsibleInventoryCmd](#ansibleinventorycmd-struct) and [AnsibleAdhocCmd](#ansibleadhoccmd-struct) do not require an [executor](#executor) anymore. Instead, the _executor_ is responsible for receiving the command to execute and executing it.
 
 - [go-ansible](#go-ansible)
   - [Install](#install)
@@ -29,6 +29,7 @@ _**Important:** The master branch may contain unreleased or pre-released feature
   - [Usage Reference](#usage-reference)
     - [Adhoc package](#adhoc-package)
       - [AnsibleAdhocCmd struct](#ansibleadhoccmd-struct)
+      - [AnsibleAdhocExecute struct](#ansibleadhocexecute-struct)
       - [AnsibleAdhocOptions struct](#ansibleadhocoptions-struct)
     - [Execute package](#execute-package)
       - [Executor interface](#executor-interface)
@@ -52,12 +53,14 @@ _**Important:** The master branch may contain unreleased or pre-released feature
           - [Stdout Callback Execute structs](#stdout-callback-execute-structs)
     - [Inventory package](#inventory-package)
       - [AnsibleInventoryCmd struct](#ansibleinventorycmd-struct)
+      - [AnsibleInventoryExecute struct](#ansibleinventoryexecute-struct)
       - [AnsibleInventoryOptions struct](#ansibleinventoryoptions-struct)
     - [Options package](#options-package)
       - [AnsibleConnectionOptions struct](#ansibleconnectionoptions-struct)
       - [AnsiblePrivilegeEscalationOptions struct](#ansibleprivilegeescalationoptions-struct)
     - [Playbook package](#playbook-package)
       - [AnsiblePlaybookCmd struct](#ansibleplaybookcmd-struct)
+      - [AnsiblePlaybookExecute struct](#ansibleplaybookexecute-struct)
       - [AnsiblePlaybookOptions struct](#ansibleplaybookoptions-struct)
     - [Vault package](#vault-package)
       - [Encrypt](#encrypt)
@@ -106,9 +109,12 @@ A _results handler_ or an _results outputer_ is responsible for managing the out
 
 ## Getting Started
 
-This section will guide you through the step-by-step process of using the _go-ansible_ library. Follow these instructions to create an application that utilizes the `ansible-playbook` utility. The same guidelines can be applied to other _Ansible_ commands, such as the `ansible` command.
+This section will guide you through the step-by-step process of using the _go-ansible_ library. Follow these instructions to create an application that utilizes the `ansible-playbook` utility. The same guidelines can be applied to other _Ansible_ commands, such as the `ansible` or `ansible-inventory` command.
 
-Before proceeding, ensure you have installed the latest version of the go-ansible library. If not, please refer to the [Installation section](#install) for instructions.
+> **Note**
+> The following example will guide you through a complete process of creating all the components necessary to execute an `ansible-playbook` command. For a simpler example utilizing the [AnsiblePlaybookExecute](#ansibleplaybookexecute-struct) struct, please refer to the [ansibleplaybook-simple](https://github.com/apenella/go-ansible/blob/master/examples/ansibleplaybook-simple/ansibleplaybook-simple.go) example in the repository.
+
+Before proceeding, ensure you have installed the latest version of the _go-ansible_ library. If not, please refer to the [Installation section](#install) for instructions.
 
 To create an application that launches the `ansible-playbook` command you need to create an [AnsiblePlaybookCmd](#ansibleplaybookcmd-struct) struct. This struct generates the _Ansible_ command to be run. Then, you need to execute the command usingng an [executor](#executor). In that guided example, you will use the [DefaultExecute](#defaultexecute-struct) executor, an _executor_ provided by the _go-ansible_ library.
 
@@ -229,6 +235,30 @@ adhocCmd := &adhoc.AnsibleAdhocCmd{
 
 // Generate the command to be executed
 cmd, err := adhocCmd.Command()
+if err != nil {
+  // Manage the error
+}
+```
+
+#### AnsibleAdhocExecute struct
+
+The `AnsibleAdhocExecute` struct serves as a streamlined [executor](#executor) for running `ansible` commands. It encapsulates the setup process for both the [command generator](#command-generator) and _executor_. This _executor_ is particularly useful when no additional configuration or customization is required.
+
+The following methods are available to set attributes for the [AnsibleAdhocCmd](#ansibleadhoccmd-struct) struct:
+
+- `WithBinary(binary string) *AnsibleAdhocExecute`: The method sets the `Binary` attribute.
+- `WithAdhocOptions(options *AnsibleAdhocOptions) *AnsibleAdhocExecute`: The method sets the `AdhocOptions`  attribute.
+- `WithConnectionOptions(options *options.AnsibleConnectionOptions) *AnsibleAdhocExecute`: The method sets the `ConnectionOptions`  attribute.
+- `WithPrivilegeEscalationOptions(options *options.AnsiblePrivilegeEscalationOptions) *AnsibleAdhocExecute`: The method sets the `PrivilegeEscalationOptions`  attribute.
+
+Here is an example of launching an `ansible` command using `AnsibleAdhocExecute`:
+
+```go
+err := adhoc.NewAnsibleAdhocExecute("all").
+  WithAdhocOptions(ansibleAdhocOptions).
+  WithConnectionOptions(ansibleConnectionOptions).
+  Execute(context.TODO())
+
 if err != nil {
   // Manage the error
 }
@@ -660,6 +690,29 @@ The `AnsibleInventoryCmd` struct enables the generation of `ansible-inventory` c
 > Note
 > Unlike other _Ansible_ commands, the `ansible-inventory` command does not provide privilege escalation or connection options, aligning with the functionality of the command itself.
 
+#### AnsibleInventoryExecute struct
+
+The `AnsibleInventoryExecute` struct serves as a streamlined [executor](#executor) for running `ansible-inventory` commands. It encapsulates the setup process for both the [command generator](#command-generator) and _executor_. This _executor_ is particularly useful when no additional configuration or customization is required.
+
+The following methods are available to set attributes for the [AnsibleInventoryCmd](#ansibleinventorycmd-struct) struct:
+
+- `WithBinary(binary string) *AnsibleInventoryExecute`: The method sets the `Binary` attribute.
+- `WithInventoryOptions(options *AnsibleAdhocOptions) *AnsibleInventoryExecute`: The method sets the `InventoryOptions`  attribute.
+- `WithPattern(pattern string) *AnsibleInventoryExecute`: The method sets the `Pattern`  attribute.
+
+Here is an example of launching an `ansible-inventory` command using `AnsibleInventoryExecute`:
+
+```go
+err := inventory.NewAnsibleInventoryExecute().
+  WithInventoryOptions(&ansibleInventoryOptions).
+  WithPattern("all").
+  Execute(context.TODO())
+
+if err != nil {
+  // Manage the error
+}
+```
+
 #### AnsibleInventoryOptions struct
 
 The `AnsibleInventoryOptions` struct includes parameters described in the `Options` section of the _Ansible_ manual page. It defines the behavior of the Ansible inventory operations and specifies where to find the configuration settings.
@@ -715,6 +768,30 @@ playbookCmd := &playbook.AnsiblePlaybookCmd{
 
 // Generate the command to be executed
 cmd, err := playbookCmd.Command()
+if err != nil {
+  // Manage the error
+}
+```
+
+#### AnsiblePlaybookExecute struct
+
+The `AnsiblePlaybookExecute` struct serves as a streamlined [executor](#executor) for running `ansible-playbook` commands. It encapsulates the setup process for both the [command generator](#command-generator) and _executor_. This _executor_ is particularly useful when no additional configuration or customization is required.
+
+The following methods are available to set attributes for the [AnsiblePlaybookCmd](#ansibleplaybookcmd-struct) struct:
+
+- `WithBinary(binary string) *AnsiblePlaybookExecute`: The method sets the `Binary` attribute.
+- `WithPlaybookOptions(options *AnsiblePlaybookOptions) *AnsiblePlaybookExecute`: The method sets the `PlaybookOptions`  attribute.
+- `WithConnectionOptions(options *options.AnsibleConnectionOptions) *AnsiblePlaybookExecute`: The method sets the `ConnectionOptions`  attribute.
+- `WithPrivilegeEscalationOptions(options *options.AnsiblePrivilegeEscalationOptions) *AnsiblePlaybookExecute`: The method sets the `PrivilegeEscalationOptions`  attribute.
+
+Here is an example of launching an `ansible-playbook` command using `AnsiblePlaybookExecute`:
+
+```go
+err := playbook.NewAnsiblePlaybookExecute("site.yml", "site2.yml").
+  WithPlaybookOptions(ansiblePlaybookOptions).
+  WithConnectionOptions(ansibleConnectionOptions).
+  Execute(context.TODO())
+
 if err != nil {
   // Manage the error
 }
