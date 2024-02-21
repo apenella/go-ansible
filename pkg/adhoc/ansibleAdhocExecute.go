@@ -26,7 +26,7 @@ func NewAnsibleAdhocExecute(pattern string) *AnsibleAdhocExecute {
 	return exec
 }
 
-// WithAnsible return a AnsibleAdhocExecute withthe binary file set
+// WithBinary return a AnsibleAdhocExecute with the binary file set
 func (e *AnsibleAdhocExecute) WithBinary(binary string) *AnsibleAdhocExecute {
 	e.cmd.Binary = binary
 

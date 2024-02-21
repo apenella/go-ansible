@@ -13,6 +13,8 @@
   - [Changes on the _Executor_ interface](#changes-on-the-executor-interface)
     - [Replacing the _command_ argument](#replacing-the-command-argument)
     - [Replacing the _resultsFunc_ argument](#replacing-the-resultsfunc-argument)
+      - [DefaultResults struct](#defaultresults-struct)
+      - [JSONStdoutCallbackResults struct](#jsonstdoutcallbackresults-struct)
     - [Replacing the _options_ argument](#replacing-the-options-argument)
   - [Changes on the _DefaultExecute_ struct](#changes-on-the-defaultexecute-struct)
     - [Adding _Cmd_ attribute to generate commands](#adding-cmd-attribute-to-generate-commands)
@@ -21,8 +23,10 @@
     - [Removing the _ShowDuration_ attribute](#removing-the-showduration-attribute)
     - [Changing the _Transformer_ location](#changing-the-transformer-location)
   - [Changes on the _AnsiblePlaybookCmd_ struct](#changes-on-the-ansibleplaybookcmd-struct)
+    - [Renaming the _Options_ attribute](#renaming-the-options-attribute)
     - [Removing the _Exec_ attribute and _Run_ method](#removing-the-exec-attribute-and-run-method)
     - [Removing the _StdoutCallback_ attribute](#removing-the-stdoutcallback-attribute)
+    - [Using the _AnsiblePlaybookExecute_ struct as executor](#using-the-ansibleplaybookexecute-struct-as-executor)
   - [Changes on the _AnsibleAdhocCmd_ struct](#changes-on-the-ansibleadhoccmd-struct)
   - [Changes on the _AnsibleInventoryCmd_ struct](#changes-on-the-ansibleinventorycmd-struct)
   - [Changes on the _Transformer_ functions](#changes-on-the-transformer-functions)
@@ -96,7 +100,7 @@ type Executabler interface {
 
 ### Added _ExecutorEnvVarSetter_ interface
 
-The `ExecutorEnvVarSetter` interface defined in _github.com/apenella/go-ansible/pkg/execute/configuration_ defines an executor interface that you can set environment variables to. It is required by `ExecutorWithAnsibleConfigurationSettings` decorator struct.
+The `ExecutorEnvVarSetter` interface defined in _github.com/apenella/go-ansible/pkg/execute/configuration_ defines an executor interface that you can set environment variables to. It is required by `AnsibleWithConfigurationSettingsExecute` decorator struct.
 
 ```go
 // ExecutorEnvVarSetter extends the executor interface by adding methods to configure environment variables
@@ -144,6 +148,7 @@ Read the section [Changes on the _Executor_ interface](#changes-on-the-executor-
 
 ## Changes on the _Executor_ interface
 
+> **Note**
 > The modifications to the `Executor` interface in _go-ansible_ involve breaking changes that impact various packages and structs. This section provides guidance on adapting your custom executor implementation.
 > Refer to corresponding sections for insights into how these changes affect other components.
 
@@ -173,11 +178,13 @@ Previously, the _resultsFunc_ managed the results output from command execution.
 
 The _go-ansible_ library provides two implementations of the `ResultsOutputer` interface:
 
-- **DefaultResults Struct**
+#### DefaultResults struct
+
 Found in the package _github.com/apenella/go-ansible/pkg/execute/result/default_, the `DefaultResults` struct handles Ansible's results in plain text.
 
-- **JSONResults Struct**
-Defined in the package _github.com/apenella/go-ansible/pkg/execute/json_, the `JSONResults` struct manages Ansible's results in JSON format.
+#### JSONStdoutCallbackResults struct
+
+Defined in the package _github.com/apenella/go-ansible/pkg/execute/json_, the `JSONStdoutCallbackResults` struct manages Ansible's results in JSON format.
 
 Select the appropriate mechanism based on the stdout callback plugin you are using.
 
@@ -205,7 +212,7 @@ playbookCmd := &playbook.AnsiblePlaybookCmd{
   ConnectionOptions: &options.AnsibleConnectionOptions{
     Connection: "local",
   },
-  Options:           &playbook.AnsiblePlaybookOptions{
+  PlaybookOptions:           &playbook.AnsiblePlaybookOptions{
     Inventory: "all,",
   },
 }
@@ -239,7 +246,7 @@ playbookCmd := &playbook.AnsiblePlaybookCmd{
   ConnectionOptions: &options.AnsibleConnectionOptions{
     Connection: "local",
   },
-  Options:           &playbook.AnsiblePlaybookOptions{
+  PlaybookOptions:           &playbook.AnsiblePlaybookOptions{
     Inventory: "all,",
   },
 }
@@ -266,7 +273,7 @@ playbookCmd := &playbook.AnsiblePlaybookCmd{
   ConnectionOptions: &options.AnsibleConnectionOptions{
     Connection: "local",
   },
-  Options:           &playbook.AnsiblePlaybookOptions{
+  PlaybookOptions:           &playbook.AnsiblePlaybookOptions{
     Inventory: "all,",
   },
 }
@@ -298,7 +305,7 @@ playbookCmd := &playbook.AnsiblePlaybookCmd{
   ConnectionOptions: &options.AnsibleConnectionOptions{
     Connection: "local",
   },
-  Options:           &playbook.AnsiblePlaybookOptions{
+  PlaybookOptions:           &playbook.AnsiblePlaybookOptions{
     Inventory: "all,",
   },
 }
@@ -345,6 +352,10 @@ Refer to section [Changes on the _Transformer_ functions](#changes-on-the-transf
 
 The `AnsiblePlaybookCmd` struct has undergone significant changes. It no longer executes commands, instead, it now implements the `Commander` interface, which is responsible for generating commands for execution. This section provides guidance on adapting your code to these changes.
 
+### Renaming the _Options_ attribute
+
+The `Options` attribute has been renamed to `PlaybookOptions` to better reflect its purpose. The `PlaybookOptions` attribute is of type `*AnsiblePlaybookOptions` and is used to configure the playbook execution. The `AnsiblePlaybookOptions` struct is defined in the _github.com/apenella/go-ansible/pkg/playbook_ package.
+
 ### Removing the _Exec_ attribute and _Run_ method
 
 The `AnsiblePlaybookCmd` struct no longer handles command execution, therefore, the `Exec` attribute and `Run` method have been removed. To execute a command, you should use an `Executor`. The `Executor` should receive an `AnsiblePlaybookCmd` struct to generate the command to execute.
@@ -375,6 +386,8 @@ if err != nil {
 }
 ```
 
+In the section [Using the _AnsiblePlaybookExecute_ as executor](#using-the-ansibleplaybookexecute-as-executor), you can find a more straightforward alternative to execute the `ansible-playbook` command for simple use cases.
+
 ### Removing the _StdoutCallback_ attribute
 
 The responsibility to set the stdout callback method is no longer part of the `AnsiblePlaybookCmd` struct, therefore, the `StdoutCallback` attribute has been removed.
@@ -388,7 +401,7 @@ playbookCmd := &playbook.AnsiblePlaybookCmd{
   ConnectionOptions: &options.AnsibleConnectionOptions{
     Connection: "local",
   },
-  Options:           &playbook.AnsiblePlaybookOptions{
+  PlaybookOptions:           &playbook.AnsiblePlaybookOptions{
     Inventory: "127.0.0.1,",
   },
 }
@@ -409,6 +422,34 @@ if err != nil {
 ```
 
 For more details on managing Ansible Stdout Callback, refer to the [Managing Ansible Stdout Callback](#managing-ansible-stdout-callback) section.
+
+### Using the _AnsiblePlaybookExecute_ struct as executor
+
+The usage of `AnsiblePlaybookExecute` as an _executor_ simplifies the process of running `ansible-playbook` commands, especially for straightforward use cases. It encapsulates the instantiation of `AnsiblePlaybookCmd` and creates a `DefaultExecute` to run the command.
+
+Here's the code snippet demonstrating how to use `AnsiblePlaybookExecute`:
+
+```go
+ansiblePlaybookConnectionOptions := &options.AnsibleConnectionOptions{
+  Connection: "local",
+}
+
+ansiblePlaybookOptions := &playbook.AnsiblePlaybookOptions{
+  Inventory: "127.0.0.1,",
+}
+
+err := playbook.NewAnsiblePlaybookExecute("site.yml", "site2.yml").
+  WithPlaybookOptions(ansiblePlaybookOptions).
+  WithConnectionOptions(ansiblePlaybookConnectionOptions).
+  Execute(context.TODO())
+
+if err != nil {
+  fmt.Println(err.Error())
+  os.Exit(1)
+}
+```
+
+Please refer to the [ansibleplaybook-simple](https://github.com/apenella/go-ansible/blob/master/examples/ansibleplaybook-simple/ansibleplaybook-simple.go) example to see the complete code.
 
 ## Changes on the _AnsibleAdhocCmd_ struct
 
@@ -471,7 +512,7 @@ With these new mechanisms for configuring the stdout callback method, the _githu
 
 ## Managing Ansible configuration settings
 
-Version _v2.0.0_ introduces a new capability allowing you to configure Ansible settings for your executor. A new decorator struct, `ExecutorWithAnsibleConfigurationSettings`, has been added for this purpose. To instantiate this struct, you can use the `NewExecutorWithAnsibleConfigurationSettings` function, available in the _github.com/apenella/go-ansible/pkg/execute/configuration_ package. This function requires an `ExecutorEnvVarSetter` as an argument and a list of functions to configure Ansible settings. The package also provides individual functions to configure each Ansible setting, and you can find one function per Ansible setting here.
+Version _v2.0.0_ introduces a new capability allowing you to configure Ansible settings for your executor. A new decorator struct, `AnsibleWithConfigurationSettingsExecute`, has been added for this purpose. To instantiate this struct, you can use the `NewAnsibleWithConfigurationSettingsExecute` function, available in the _github.com/apenella/go-ansible/pkg/execute/configuration_ package. This function requires an `ExecutorEnvVarSetter` as an argument and a list of functions to configure Ansible settings. The package also provides individual functions to configure each Ansible setting, and you can find one function per Ansible setting here.
 
 Refer to the [Added _ExecutorEnvVarSetter_ interface](#added-executorenvvarsetter-interface) section for more information about the `ExecutorEnvVarSetter` interface. The `DefaultExecute` struct implements the `ExecutorEnvVarSetter` interface, allowing you to set environment variables for the executor.
 
@@ -484,14 +525,14 @@ playbookCmd := &playbook.AnsiblePlaybookCmd{
   ConnectionOptions: &options.AnsibleConnectionOptions{
     Connection: "local",
   },
-  Options:           &playbook.AnsiblePlaybookOptions{
+  PlaybookOptions:           &playbook.AnsiblePlaybookOptions{
     Inventory: "127.0.0.1,",
   },
 }
 
 // Instanciate a DefaultExecutoe by providing 'playbookCmd' as the Commander and enabling the Ansible Force Color setting
 exec := measure.NewExecutorTimeMeasurement(
-  configuration.NewExecutorWithAnsibleConfigurationSettings(
+  configuration.NewAnsibleWithConfigurationSettingsExecute(
     execute.NewDefaultExecute(
       execute.WithCmd(playbookCmd),
     ),
@@ -506,14 +547,14 @@ With the new capability to configure Ansible settings described [here](#managing
 
 #### Replacing the _AnsibleForceColor_ function
 
-To enable the _AnsibleForceColor_ setting, the `ExecutorWithAnsibleConfigurationSettings` should receive the `WithAnsibleForceColor` function as an argument. The `WithAnsibleForceColor` function is available in the _github.com/apenella/go-ansible/pkg/execute/configuration_ package.
+To enable the _AnsibleForceColor_ setting, the `AnsibleWithConfigurationSettingsExecute` should receive the `WithAnsibleForceColor` function as an argument. The `WithAnsibleForceColor` function is available in the _github.com/apenella/go-ansible/pkg/execute/configuration_ package.
 
 ```go
 // import "github.com/apenella/go-ansible/pkg/execute/configuration"
 
 // Instantiate a DefaultExecutoe by providing 'playbookCmd' as the Commander and enabling the Ansible Force Color setting
 exec := measure.NewExecutorTimeMeasurement(
-  configuration.NewExecutorWithAnsibleConfigurationSettings(
+  configuration.NewAnsibleWithConfigurationSettingsExecute(
     execute.NewDefaultExecute(
       execute.WithCmd(playbookCmd),
     ),
@@ -524,14 +565,14 @@ exec := measure.NewExecutorTimeMeasurement(
 
 #### Replacing the _AnsibleAvoidHostKeyChecking_ function
 
-To disable the _AnsibleHostKeyChecking_ setting, the `ExecutorWithAnsibleConfigurationSettings` should receive the `WithoutAnsibleHostKeyChecking` function as an argument. The `WithoutAnsibleHostKeyChecking` function is available in the _github.com/apenella/go-ansible/pkg/execute/configuration_ package.
+To disable the _AnsibleHostKeyChecking_ setting, the `AnsibleWithConfigurationSettingsExecute` should receive the `WithoutAnsibleHostKeyChecking` function as an argument. The `WithoutAnsibleHostKeyChecking` function is available in the _github.com/apenella/go-ansible/pkg/execute/configuration_ package.
 
 ```go
 // import "github.com/apenella/go-ansible/pkg/execute/configuration"
 
 // Instantiate a DefaultExecutoe by providing 'playbookCmd' as the Commander and enabling the Ansible Avoid Host Key Checking setting
 exec := measure.NewExecutorTimeMeasurement(
-  configuration.NewExecutorWithAnsibleConfigurationSettings(
+  configuration.NewAnsibleWithConfigurationSettingsExecute(
     execute.NewDefaultExecute(
       execute.WithCmd(playbookCmd),
     ),
@@ -544,4 +585,34 @@ In case you need to enable the _AnsibleHostKeyChecking_ setting, you should use 
 
 #### Replacing the _AnsibleSetEnv_ function
 
-If you used the `AnsibleSetEnv` function to set environment variables for the executor, you should use the `AddEnvVar` method instead. If you were using any Ansible configuration setting, you should look for its corresponding function in the _github.com/apenella/go-ansible/pkg/execute/configuration_ package.
+If you used the `AnsibleSetEnv` function to set environment variables for the _executor_, you should replace it by the `AddEnvVar` method.
+In case you were using the `AnsibleSetEnv` to set an _Ansible_ configuration setting, it is recommended to use the `AnsibleWithConfigurationSettingsExecute` _executor_ instead. The `AnsibleWithConfigurationSettingsExecute` struct is available in the _github.com/apenella/go-ansible/pkg/execute/configuration_ package, and provides you with multiple functions to configure _Ansible_ settings.
+
+If you were previously using the `AnsibleSetEnv` function to set environment variables for the _executor_, you should replace it with the `AddEnvVar` method.
+
+Additionally, if you were using `AnsibleSetEnv` to configure an Ansible setting, it's recommended to use the `AnsibleWithConfigurationSettingsExecute` executor instead. This struct, available in the _github.com/apenella/go-ansible/pkg/execute/configuration_ package, offers multiple functions to configure Ansible settings more effectively.
+
+Here's how you can make these replacements from the following example:
+
+```go
+// Previous usage of AnsibleSetEnv:
+options.AnsibleSetEnv("ANSIBLE_LOG_PATH", "/path/to/logfile")
+```
+
+- Replacement using the `AddEnvVar` method:
+
+```go
+executor := execute.NewDefaultExecute()
+executor.AddEnvVar("ANSIBLE_LOG_PATH", "/path/to/logfile")
+```
+
+- Using the `AnsibleWithConfigurationSettingsExecute` _executor_:
+
+```go
+executor := configuration.NewAnsibleWithConfigurationSettingsExecute(
+    execute.NewDefaultExecute(
+      execute.WithCmd(playbookCmd),
+    ),
+    configuration.WithAnsibleLogPath("/path/to/logfile"),
+)
+```
