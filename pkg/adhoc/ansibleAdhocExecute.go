@@ -4,7 +4,6 @@ import (
 	"context"
 
 	"github.com/apenella/go-ansible/pkg/execute"
-	"github.com/apenella/go-ansible/pkg/options"
 )
 
 // AnsibleAdhocExecute is an executor for ansible command that runs the command using a DefaultExecute with default options
@@ -36,20 +35,6 @@ func (e *AnsibleAdhocExecute) WithBinary(binary string) *AnsibleAdhocExecute {
 // WithAdhocOptions returns an AnsibleAdhocExecute with the ansible's playbook options set
 func (e *AnsibleAdhocExecute) WithAdhocOptions(options *AnsibleAdhocOptions) *AnsibleAdhocExecute {
 	e.cmd.AdhocOptions = options
-
-	return e
-}
-
-// WithConnectionOptions returns an AnsibleAdhocExecute with the ansible's playbook specific options for connection set
-func (e *AnsibleAdhocExecute) WithConnectionOptions(options *options.AnsibleConnectionOptions) *AnsibleAdhocExecute {
-	e.cmd.ConnectionOptions = options
-
-	return e
-}
-
-// WithPrivilegeEscalationOptions returns an AnsibleAdhocExecute with the ansible's playbook privilege escalation options set
-func (e *AnsibleAdhocExecute) WithPrivilegeEscalationOptions(options *options.AnsiblePrivilegeEscalationOptions) *AnsibleAdhocExecute {
-	e.cmd.PrivilegeEscalationOptions = options
 
 	return e
 }

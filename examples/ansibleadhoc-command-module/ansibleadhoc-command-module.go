@@ -7,25 +7,20 @@ import (
 	"github.com/apenella/go-ansible/pkg/adhoc"
 	"github.com/apenella/go-ansible/pkg/execute"
 	"github.com/apenella/go-ansible/pkg/execute/stdoutcallback"
-	"github.com/apenella/go-ansible/pkg/options"
 )
 
 func main() {
 
-	ansibleConnectionOptions := &options.AnsibleConnectionOptions{
-		Connection: "local",
-	}
-
 	ansibleAdhocOptions := &adhoc.AnsibleAdhocOptions{
+		Args:       "ping 127.0.0.1 -c 2",
+		Connection: "local",
 		Inventory:  " 127.0.0.1,",
 		ModuleName: "command",
-		Args:       "ping 127.0.0.1 -c 2",
 	}
 
 	adhoc := &adhoc.AnsibleAdhocCmd{
-		Pattern:           "all",
-		AdhocOptions:      ansibleAdhocOptions,
-		ConnectionOptions: ansibleConnectionOptions,
+		Pattern:      "all",
+		AdhocOptions: ansibleAdhocOptions,
 	}
 
 	fmt.Println("Command: ", adhoc.String())
