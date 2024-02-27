@@ -209,10 +209,8 @@ In version _v2.x_ you need to instantiate the `DefaultExecute` struct to execute
 // Define the AnsiblePlaybookCmd and the required options.
 playbookCmd := &playbook.AnsiblePlaybookCmd{
   Playbooks:         []string{"site.yml", "site2.yml"},
-  ConnectionOptions: &options.AnsibleConnectionOptions{
-    Connection: "local",
-  },
   PlaybookOptions:           &playbook.AnsiblePlaybookOptions{
+    Connection: "local",
     Inventory: "all,",
   },
 }
@@ -243,10 +241,8 @@ When instantiating the `DefaultExecute` struct, provide the `Cmd` attribute with
 // Define the AnsiblePlaybookCmd and the required options.
 playbookCmd := &playbook.AnsiblePlaybookCmd{
   Playbooks:         []string{"site.yml", "site2.yml"},
-  ConnectionOptions: &options.AnsibleConnectionOptions{
-    Connection: "local",
-  },
   PlaybookOptions:           &playbook.AnsiblePlaybookOptions{
+    Connection: "local",
     Inventory: "all,",
   },
 }
@@ -270,10 +266,8 @@ The example below illustrates how to instantiate a `DefaultExecute` struct with 
 // Define the AnsiblePlaybookCmd and the required options.
 playbookCmd := &playbook.AnsiblePlaybookCmd{
   Playbooks:         []string{"site.yml", "site2.yml"},
-  ConnectionOptions: &options.AnsibleConnectionOptions{
-    Connection: "local",
-  },
   PlaybookOptions:           &playbook.AnsiblePlaybookOptions{
+    Connection: "local",
     Inventory: "all,",
   },
 }
@@ -302,10 +296,8 @@ The example below demonstrates how to instantiate a `DefaultExecute` struct with
 // Define the AnsiblePlaybookCmd and the required options.
 playbookCmd := &playbook.AnsiblePlaybookCmd{
   Playbooks:         []string{"site.yml", "site2.yml"},
-  ConnectionOptions: &options.AnsibleConnectionOptions{
-    Connection: "local",
-  },
   PlaybookOptions:           &playbook.AnsiblePlaybookOptions{
+    Connection: "local",
     Inventory: "all,",
   },
 }
@@ -366,10 +358,8 @@ Here's a basic example of running an ansible-playbook command through the `Defau
 // Define the AnsiblePlaybookCmd and the required options.
 playbookCmd := &playbook.AnsiblePlaybookCmd{
   Playbooks:         []string{"site.yml", "site2.yml"},
-  ConnectionOptions: &options.AnsibleConnectionOptions{
-    Connection: "local",
-  },
   Options:           &playbook.AnsiblePlaybookOptions{
+    Connection: "local",
     Inventory: "127.0.0.1,",
   },
 }
@@ -398,7 +388,6 @@ Configuring the stdout callback involves setting the environment variable `ANSIB
 // Define the AnsiblePlaybookCmd and the required options.
 playbookCmd := &playbook.AnsiblePlaybookCmd{
   Playbooks:         []string{"site.yml", "site2.yml"},
-  ConnectionOptions: &options.AnsibleConnectionOptions{
     Connection: "local",
   },
   PlaybookOptions:           &playbook.AnsiblePlaybookOptions{
@@ -430,17 +419,13 @@ The usage of `AnsiblePlaybookExecute` as an _executor_ simplifies the process of
 Here's the code snippet demonstrating how to use `AnsiblePlaybookExecute`:
 
 ```go
-ansiblePlaybookConnectionOptions := &options.AnsibleConnectionOptions{
-  Connection: "local",
-}
-
 ansiblePlaybookOptions := &playbook.AnsiblePlaybookOptions{
+  Connection: "local",
   Inventory: "127.0.0.1,",
 }
 
 err := playbook.NewAnsiblePlaybookExecute("site.yml", "site2.yml").
   WithPlaybookOptions(ansiblePlaybookOptions).
-  WithConnectionOptions(ansiblePlaybookConnectionOptions).
   Execute(context.TODO())
 
 if err != nil {
@@ -522,10 +507,8 @@ Here's an example illustrating how to prepare an executor to set Ansible configu
 // Define the AnsiblePlaybookCmd and the required options.
 playbookCmd := &playbook.AnsiblePlaybookCmd{
   Playbooks:         []string{"site.yml", "site2.yml"},
-  ConnectionOptions: &options.AnsibleConnectionOptions{
-    Connection: "local",
-  },
   PlaybookOptions:           &playbook.AnsiblePlaybookOptions{
+    Connection: "local",
     Inventory: "127.0.0.1,",
   },
 }

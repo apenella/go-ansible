@@ -5,7 +5,7 @@
 
 ![go-ansible-logo](docs/logo/go-ansible_logo.png "Go-ansible Logo" )
 
-Go-ansible is a Go package that allows executing _Ansible_ commands, such as `ansible-playbook`, `ansible-inventory` or `ansible`, directly from Golang applications. It offers a variety of options for each command, facilitating seamless integration of _Ansible_ functionality into your projects. It is important to highlight that _go-ansible_ is not an alternative implementation of _Ansible_, but rather a wrapper around the _Ansible_ commands.
+Go-ansible is a Go package that allows executing _Ansible_ commands, such as `ansible-playbook`, `ansible-inventory`, or `ansible`, directly from Golang applications. It offers a variety of options for each command, facilitating seamless integration of _Ansible_ functionality into your projects. It is important to highlight that _go-ansible_ is not an alternative implementation of _Ansible_, but rather a wrapper around the _Ansible_ commands.
 Let's dive in and explore the capabilities of _go-ansible_ together.
 
 _**Important:** The master branch may contain unreleased or pre-released features. Be cautious when using that branch in your projects. It is recommended to use the stable releases available in the [releases](https://github.com/apenella/go-ansible/releases)._
@@ -55,9 +55,6 @@ _**Important:** The master branch may contain unreleased or pre-released feature
       - [AnsibleInventoryCmd struct](#ansibleinventorycmd-struct)
       - [AnsibleInventoryExecute struct](#ansibleinventoryexecute-struct)
       - [AnsibleInventoryOptions struct](#ansibleinventoryoptions-struct)
-    - [Options package](#options-package)
-      - [AnsibleConnectionOptions struct](#ansibleconnectionoptions-struct)
-      - [AnsiblePrivilegeEscalationOptions struct](#ansibleprivilegeescalationoptions-struct)
     - [Playbook package](#playbook-package)
       - [AnsiblePlaybookCmd struct](#ansibleplaybookcmd-struct)
       - [AnsiblePlaybookExecute struct](#ansibleplaybookexecute-struct)
@@ -122,27 +119,13 @@ To create an application that launches the `ansible-playbook` command you need t
 
 To execute `ansible-playbook` commands, first, define the necessary connection, playbook, and privilege escalation options.
 
-Start by creating the [AnsiblePlaybookConnectionOptions](#ansibleconnectionoptions-struct) struct:
-
-```go
-ansiblePlaybookConnectionOptions := &options.AnsiblePlaybookConnectionOptions{
-  Connection: "local",
-}
-```
-
-Next, define the playbook options using the [AnsiblePlaybookOptions](#ansibleplaybookoptions-struct) struct:
+Start by creating the [AnsiblePlaybookOptions](#ansibleplaybookoptions-struct) struct:
 
 ```go
 ansiblePlaybookOptions := &playbook.AnsiblePlaybookOptions{
-  Inventory: "127.0.0.1,",
-}
-```
-
-Then, use the [AnsiblePlaybookPrivilegeEscalationOptions](#ansibleprivilegeescalationoptions-struct) struct to define the privilege escalation options:
-
-```go
-privilegeEscalationOptions := &options.AnsiblePlaybookPrivilegeEscalationOptions{
   Become:        true,
+  Connection: "local",
+  Inventory: "127.0.0.1,",
 }
 ```
 
@@ -151,9 +134,7 @@ Finally, create the [AnsiblePlaybookCmd](#ansibleplaybookcmd-struct) struct that
 ```go
 playbookCmd := &playbook.AnsiblePlaybookCmd{
   Playbook:          "site.yml",
-  ConnectionOptions: ansiblePlaybookConnectionOptions,
-  Options:           ansiblePlaybookOptions,
-  PrivilegeEscalationOptions: privilegeEscalationOptions,
+  PlaybookOptions:           ansiblePlaybookOptions,
 }
 ```
 
@@ -242,21 +223,18 @@ if err != nil {
 
 #### AnsibleAdhocExecute struct
 
-The `AnsibleAdhocExecute` struct serves as a streamlined [executor](#executor) for running `ansible` commands. It encapsulates the setup process for both the [command generator](#command-generator) and _executor_. This _executor_ is particularly useful when no additional configuration or customization is required.
+The `AnsibleAdhocExecute` struct serves as a streamlined [executor](#executor) for running `ansible` command. It encapsulates the setup process for both the [command generator](#command-generator) and _executor_. This _executor_ is particularly useful when no additional configuration or customization is required.
 
 The following methods are available to set attributes for the [AnsibleAdhocCmd](#ansibleadhoccmd-struct) struct:
 
 - `WithBinary(binary string) *AnsibleAdhocExecute`: The method sets the `Binary` attribute.
 - `WithAdhocOptions(options *AnsibleAdhocOptions) *AnsibleAdhocExecute`: The method sets the `AdhocOptions`  attribute.
-- `WithConnectionOptions(options *options.AnsibleConnectionOptions) *AnsibleAdhocExecute`: The method sets the `ConnectionOptions`  attribute.
-- `WithPrivilegeEscalationOptions(options *options.AnsiblePrivilegeEscalationOptions) *AnsibleAdhocExecute`: The method sets the `PrivilegeEscalationOptions`  attribute.
 
 Here is an example of launching an `ansible` command using `AnsibleAdhocExecute`:
 
 ```go
 err := adhoc.NewAnsibleAdhocExecute("all").
   WithAdhocOptions(ansibleAdhocOptions).
-  WithConnectionOptions(ansibleConnectionOptions).
   Execute(context.TODO())
 
 if err != nil {
@@ -266,9 +244,7 @@ if err != nil {
 
 #### AnsibleAdhocOptions struct
 
-With `AnsibleAdhocOptions` struct, you can define parameters described in Ansible's manual page's `Options` section.
-
-Additionally, users can set privilege escalation options or connection options to the [AnsibleAdhocCmd](#ansibleadhoccmd-struct). These options are defined in the `github.com/apenella/go-ansible/pkg/options` package. Refer to the [options](#options-package) section for further details.
+With `AnsibleAdhocOptions` struct, you can define parameters described in Ansible's manual page's `Options` section. On the same struct, you can define the connection options and privilage escalation options.
 
 ### Execute package
 
@@ -337,9 +313,7 @@ The snippet below shows how to customize the `DefaultExecute` executor using the
 // PlaybookCmd is the Commander responsible for generating the command to execute
 playbookCmd := &playbook.AnsiblePlaybookCmd{
   Playbook:          "site.yml",
-  ConnectionOptions: ansiblePlaybookConnectionOptions,
-  Options:           ansiblePlaybookOptions,
-  PrivilegeEscalationOptions: privilegeEscalationOptions,
+  PlaygookOptions:   ansiblePlaybookOptions,
 }
 
 // MyExecutabler is an hypothetical implementation of the Executabler interface
@@ -386,9 +360,8 @@ The next code snippet demonstrates how to execute the `ansible-playbook` command
 ```go
 // Define the command to execute
 playbookCmd := &ansibler.AnsiblePlaybookCmd{
-  Playbook:          "site.yml",
-  ConnectionOptions: ansiblePlaybookConnectionOptions,
-  Options:           ansiblePlaybookOptions,
+  Playbook:          []string{"site.yml"},
+  PlaybookOptions:   ansiblePlaybookOptions,
 }
 
 // Define an instance for the new executor and set the options
@@ -440,18 +413,14 @@ The `AnsibleWithConfigurationSettingsExecute` struct serves as a decorator over 
 Here you can see an example of how to use the `AnsibleWithConfigurationSettingsExecute` struct to configure _Ansible_ settings for execution:
 
 ```go
-ansiblePlaybookConnectionOptions := &options.AnsibleConnectionOptions{
-  Connection: "local",
-}
-
 ansiblePlaybookOptions := &playbook.AnsiblePlaybookOptions{
+  Connection: "local",
   Inventory: "127.0.0.1,",
 }
 
 playbookCmd := &playbook.AnsiblePlaybookCmd{
   Playbooks:         []string{"site.yml"},
-  ConnectionOptions: ansiblePlaybookConnectionOptions,
-  Options:           ansiblePlaybookOptions,
+  PlaybookOptions:   ansiblePlaybookOptions,
 }
 
 exec := configuration.NewAnsibleWithConfigurationSettingsExecute(
@@ -478,18 +447,14 @@ The _go-ansible_ library offers a convenient mechanism for measuring the executi
 To illustrate, consider the following code snippet, which demonstrates how to use the `ExecutorTimeMeasurement` struct to measure the time it takes to execute the `ansible-playbook` command:
 
 ```go
-ansiblePlaybookConnectionOptions := &options.AnsibleConnectionOptions{
-  Connection: "local",
-}
-
 ansiblePlaybookOptions := &playbook.AnsiblePlaybookOptions{
+  Connection: "local",
   Inventory: "127.0.0.1,",
 }
 
 playbookCmd := &playbook.AnsiblePlaybookCmd{
   Playbooks:         []string{"site.yml"},
-  ConnectionOptions: ansiblePlaybookConnectionOptions,
-  Options:           ansiblePlaybookOptions,
+  PlaybookOptions:   ansiblePlaybookOptions,
 }
 
 executorTimeMeasurement := measure.NewExecutorTimeMeasurement(
@@ -717,23 +682,6 @@ if err != nil {
 
 The `AnsibleInventoryOptions` struct includes parameters described in the `Options` section of the _Ansible_ manual page. It defines the behavior of the Ansible inventory operations and specifies where to find the configuration settings.
 
-### Options package
-
-These options can be used to customize the behaviour of `ansible` and `ansible-playbook` commands executions.
-The _go-ansible_ library provides types for defining command execution options in the `github.com/apenella/go-ansible/pkg/options` package.
-
-#### AnsibleConnectionOptions struct
-
-The `AnsibleConnectionOptions` includes parameters described in the Connections Options section within the _ansible_ or _ansible-playbook_'s manual page. It defines how to connect to hosts when executing _Ansible_ commands.
-
-The struct can be used either in the [AnsibleAdhocCmd](#ansibleadhoccmd-struct) or [AnsiblePlaybookCmd](#ansibleplaybookcmd-struct) to define the connection options.
-
-#### AnsiblePrivilegeEscalationOptions struct
-
-The `AnsiblePrivilegeEscalationOptions` includes parameters described in the Privilege Escalation Options section within the _ansible_ or _ansible-playbook_'s manual page. It defines how to escalate privileges and become a user during _ansible_ execution.
-
-The struct can be used either in the [AnsibleAdhocCmd](#ansibleadhoccmd-struct) or [AnsiblePlaybookCmd](#ansibleplaybookcmd-struct) to define the connection options.
-
 ### Playbook package
 
 This section provides an overview of the `playbook` package in the _go-ansible_ library. Here are described its main components and functionalities.
@@ -747,23 +695,15 @@ The `AnsiblePlaybookCmd` struct enables the generation of _ansible-playbook_ com
 Next is an example of how to use the `AnsiblePlaybookCmd` struct to generate a _ansible-playbook_ command:
 
 ```go
-ansiblePlaybookConnectionOptions := &options.AnsiblePlaybookConnectionOptions{
-  Connection: "local",
-}
-
 ansiblePlaybookOptions := &playbook.AnsiblePlaybookOptions{
-  Inventory: "127.0.0.1,",
-}
-
-privilegeEscalationOptions := &options.AnsiblePlaybookPrivilegeEscalationOptions{
+  Connection: "local",
   Become:        true,
+  Inventory: "127.0.0.1,",
 }
 
 playbookCmd := &playbook.AnsiblePlaybookCmd{
   Playbook:          "site.yml",
-  ConnectionOptions: ansiblePlaybookConnectionOptions,
-  Options:           ansiblePlaybookOptions,
-  PrivilegeEscalationOptions: privilegeEscalationOptions,
+  PlaybookOptions:           ansiblePlaybookOptions,
 }
 
 // Generate the command to be executed
@@ -775,21 +715,18 @@ if err != nil {
 
 #### AnsiblePlaybookExecute struct
 
-The `AnsiblePlaybookExecute` struct serves as a streamlined [executor](#executor) for running `ansible-playbook` commands. It encapsulates the setup process for both the [command generator](#command-generator) and _executor_. This _executor_ is particularly useful when no additional configuration or customization is required.
+The `AnsiblePlaybookExecute` struct serves as a streamlined [executor](#executor) for running `ansible-playbook` command. It encapsulates the setup process for both the [command generator](#command-generator) and _executor_. This _executor_ is particularly useful when no additional configuration or customization is required.
 
 The following methods are available to set attributes for the [AnsiblePlaybookCmd](#ansibleplaybookcmd-struct) struct:
 
 - `WithBinary(binary string) *AnsiblePlaybookExecute`: The method sets the `Binary` attribute.
 - `WithPlaybookOptions(options *AnsiblePlaybookOptions) *AnsiblePlaybookExecute`: The method sets the `PlaybookOptions`  attribute.
-- `WithConnectionOptions(options *options.AnsibleConnectionOptions) *AnsiblePlaybookExecute`: The method sets the `ConnectionOptions`  attribute.
-- `WithPrivilegeEscalationOptions(options *options.AnsiblePrivilegeEscalationOptions) *AnsiblePlaybookExecute`: The method sets the `PrivilegeEscalationOptions`  attribute.
 
 Here is an example of launching an `ansible-playbook` command using `AnsiblePlaybookExecute`:
 
 ```go
 err := playbook.NewAnsiblePlaybookExecute("site.yml", "site2.yml").
   WithPlaybookOptions(ansiblePlaybookOptions).
-  WithConnectionOptions(ansibleConnectionOptions).
   Execute(context.TODO())
 
 if err != nil {
@@ -799,9 +736,7 @@ if err != nil {
 
 #### AnsiblePlaybookOptions struct
 
-With `AnsiblePlaybookOptions` struct, you can define parameters described in Ansible's manual page's `Options` section.
-
-Additionally, users can set privilege escalation options or connection options to the [AnsiblePlaybookCmd](#ansibleplaybookcmd-struct). These options are defined in the `github.com/apenella/go-ansible/pkg/options` package. Refer to the [options](#options-package) section for further details.
+With `AnsiblePlaybookOptions` struct, you can define parameters described in Ansible's manual page's `Options` section. It also allows you to define the connection options and privilege escalation options.
 
 ### Vault package
 

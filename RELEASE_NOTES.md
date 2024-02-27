@@ -13,6 +13,7 @@ Version 2.0.0 of *go-ansible* introduces several disruptive changes. Read the up
     - The `Exec` and `StdoutCallback` attributes.
   - **Attributes Renaming**: The `Options` attribute has been renamed to `PlaybookOptions` in `AnsiblePlaybookCmd`, `AdhocOptions` in `AnsibleAdhocCmd` and `InventoryOptions` in `AnsibleInventoryCmd`.
 - The `Executor` interface has undergone a significant signature change. This change entails the removal of the following arguments `resultsFunc` and `options`. The current signature is: `Execute(ctx context.Context) error`.
+- The `github.com/apenella/go-ansible/pkg/options` package has been removed. After that deletion the attributes from `AnsibleConnectionOptions` and `AnsiblePrivilegeEscalationOptions` attributes have been moved to the `PlaybookOptions`, `AdhocOptions` and `InventoryOptions` structs.
 - The `github.com/apenella/go-ansible/pkg/stdoutcallback` package has been removed. Its responsabilities has been absorbed by two distinc packages `github.com/apenella/go-ansible/pkg/execute/result`, which manages the output of the commands, and `github.com/apenella/go-ansible/pkg/execute/stdoutcallback` that enables the setting of the stdout callback.
 - The constants `AnsibleForceColorEnv` and `AnsibleHostKeyCheckingEnv` have been removed from the `github.com/apenella/go-ansible/pkg/options` package.
 - The functions `AnsibleForceColor`, `AnsibleAvoidHostKeyChecking` and `AnsibleSetEnv` have been removed from the `github.com/apenella/go-ansible/pkg/options` package.
@@ -40,6 +41,7 @@ Version 2.0.0 of *go-ansible* introduces several disruptive changes. Read the up
 - The `AnsibleAdhocCmd` struct has been updated to implement the `Commander` interface.
 - The `AnsibleInventoryCmd` struct has been updated to implement the `Commander` interface.
 - The `AnsiblePlaybookCmd` struct has been updated to implement the `Commander` interface.
+- The `AnsiblePlaybookOptions` and `AnsibleAdhocOptions` structs have been updated to include the attributes from `AnsibleConnectionOptions` and `AnsiblePrivilegeEscalationOptions`.
 - The `DefaultExecute` struct has been updated to have a new attribute named `Exec` of type `Executabler` that is responsible for executing external commands.
 - The `DefaultExecute` struct has been updated to have a new attribute named `Output` of type `ResultsOutputer` that is responsible for printing the execution's output.
 - The `DefaultExecute` struct has been updated to implement the `Executor` interface.
@@ -54,6 +56,7 @@ Version 2.0.0 of *go-ansible* introduces several disruptive changes. Read the up
 ### Removed
 
 - The `Exec` attribute has been removed from `AnsiblePlaybookCmd` and `AdhocPlaybookCmd`.
+- The `github.com/apenella/go-ansible/pkg/options` package has been removed. After the `AnsibleConnectionOptions` and `AnsiblePrivilegeEscalationOptions` structs are not available anymore.
 - The `github.com/apenella/go-ansible/pkg/stdoutcallback` package has been removed.
 - The `Run` method has been removed from the `AnsiblePlaybookCmd` and `AdhocPlaybookCmd` structs.
 - The `ShowDuration` attribute in the `DefaultExecute` struct has been removed.
