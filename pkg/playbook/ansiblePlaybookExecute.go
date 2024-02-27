@@ -4,7 +4,6 @@ import (
 	"context"
 
 	"github.com/apenella/go-ansible/pkg/execute"
-	"github.com/apenella/go-ansible/pkg/options"
 )
 
 // AnsiblePlaybookExecute is an executor for ansible-playbook command that runs the command using a DefaultExecute with default options
@@ -36,20 +35,6 @@ func (e *AnsiblePlaybookExecute) WithBinary(binary string) *AnsiblePlaybookExecu
 // WithPlaybookOptions returns an AnsiblePlaybookExecute with the ansible's playbook options set
 func (e *AnsiblePlaybookExecute) WithPlaybookOptions(options *AnsiblePlaybookOptions) *AnsiblePlaybookExecute {
 	e.cmd.PlaybookOptions = options
-
-	return e
-}
-
-// WithConnectionOptions returns an AnsiblePlaybookExecute with the ansible's playbook specific options for connection set
-func (e *AnsiblePlaybookExecute) WithConnectionOptions(options *options.AnsibleConnectionOptions) *AnsiblePlaybookExecute {
-	e.cmd.ConnectionOptions = options
-
-	return e
-}
-
-// WithPrivilegeEscalationOptions returns an AnsiblePlaybookExecute with the ansible's playbook privilege escalation options set
-func (e *AnsiblePlaybookExecute) WithPrivilegeEscalationOptions(options *options.AnsiblePrivilegeEscalationOptions) *AnsiblePlaybookExecute {
-	e.cmd.PrivilegeEscalationOptions = options
 
 	return e
 }

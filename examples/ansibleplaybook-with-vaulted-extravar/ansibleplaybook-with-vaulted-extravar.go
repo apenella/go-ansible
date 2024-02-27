@@ -7,7 +7,6 @@ import (
 	"github.com/apenella/go-ansible/pkg/execute"
 	"github.com/apenella/go-ansible/pkg/execute/configuration"
 	"github.com/apenella/go-ansible/pkg/execute/result/transformer"
-	"github.com/apenella/go-ansible/pkg/options"
 	"github.com/apenella/go-ansible/pkg/playbook"
 	"github.com/apenella/go-ansible/pkg/vault"
 	"github.com/apenella/go-ansible/pkg/vault/encrypt"
@@ -45,12 +44,9 @@ func main() {
 		),
 	)
 
-	ansiblePlaybookConnectionOptions := &options.AnsibleConnectionOptions{
-		Connection: "local",
-	}
-
 	ansiblePlaybookOptions := &playbook.AnsiblePlaybookOptions{
-		Inventory: "127.0.0.1,",
+		Connection: "local",
+		Inventory:  "127.0.0.1,",
 	}
 
 	err = ansiblePlaybookOptions.AddVaultedExtraVar(vaulter, "vaulted_extra_var", "That is a secret")
@@ -59,9 +55,8 @@ func main() {
 	}
 
 	playbook := &playbook.AnsiblePlaybookCmd{
-		Playbooks:         []string{"site.yml"},
-		ConnectionOptions: ansiblePlaybookConnectionOptions,
-		PlaybookOptions:   ansiblePlaybookOptions,
+		Playbooks:       []string{"site.yml"},
+		PlaybookOptions: ansiblePlaybookOptions,
 	}
 
 	fmt.Printf("\n  Ansible playbook command:\n%s\n\n", playbook.String())

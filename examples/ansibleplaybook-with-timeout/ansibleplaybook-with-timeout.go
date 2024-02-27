@@ -8,7 +8,6 @@ import (
 
 	"github.com/apenella/go-ansible/pkg/execute"
 	"github.com/apenella/go-ansible/pkg/execute/result/transformer"
-	"github.com/apenella/go-ansible/pkg/options"
 	"github.com/apenella/go-ansible/pkg/playbook"
 )
 
@@ -23,19 +22,15 @@ func main() {
 	ctx, cancel := context.WithTimeout(context.Background(), time.Duration(timeout)*time.Second)
 	defer cancel()
 
-	ansiblePlaybookConnectionOptions := &options.AnsibleConnectionOptions{
-		Connection: "local",
-		User:       "apenella",
-	}
-
 	ansiblePlaybookOptions := &playbook.AnsiblePlaybookOptions{
-		Inventory: "127.0.0.1,",
+		User:       "apenella",
+		Connection: "local",
+		Inventory:  "127.0.0.1,",
 	}
 
 	playbook := &playbook.AnsiblePlaybookCmd{
-		Playbooks:         []string{"site.yml"},
-		ConnectionOptions: ansiblePlaybookConnectionOptions,
-		PlaybookOptions:   ansiblePlaybookOptions,
+		Playbooks:       []string{"site.yml"},
+		PlaybookOptions: ansiblePlaybookOptions,
 	}
 
 	exec := execute.NewDefaultExecute(

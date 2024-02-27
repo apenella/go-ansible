@@ -5,7 +5,6 @@ import (
 	"fmt"
 
 	"github.com/apenella/go-ansible/pkg/execute"
-	"github.com/apenella/go-ansible/pkg/options"
 	"github.com/apenella/go-ansible/pkg/playbook"
 )
 
@@ -32,18 +31,14 @@ func (e *MyExecutor) Execute(ctx context.Context) error {
 
 func main() {
 
-	ansiblePlaybookConnectionOptions := &options.AnsibleConnectionOptions{
-		Connection: "local",
-	}
-
 	ansiblePlaybookOptions := &playbook.AnsiblePlaybookOptions{
-		Inventory: "127.0.0.1,",
+		Connection: "local",
+		Inventory:  "127.0.0.1,",
 	}
 
 	playbook := &playbook.AnsiblePlaybookCmd{
-		Playbooks:         []string{"site.yml"},
-		ConnectionOptions: ansiblePlaybookConnectionOptions,
-		PlaybookOptions:   ansiblePlaybookOptions,
+		Playbooks:       []string{"site.yml"},
+		PlaybookOptions: ansiblePlaybookOptions,
 	}
 
 	exec := NewMyExecutor(playbook)

@@ -10,7 +10,6 @@ import (
 	"github.com/apenella/go-ansible/pkg/execute/measure"
 	results "github.com/apenella/go-ansible/pkg/execute/result/json"
 	"github.com/apenella/go-ansible/pkg/execute/stdoutcallback"
-	"github.com/apenella/go-ansible/pkg/options"
 	"github.com/apenella/go-ansible/pkg/playbook"
 )
 
@@ -21,19 +20,15 @@ func main() {
 
 	buff := new(bytes.Buffer)
 
-	ansiblePlaybookConnectionOptions := &options.AnsibleConnectionOptions{
-		Connection: "local",
-	}
-
 	ansiblePlaybookOptions := &playbook.AnsiblePlaybookOptions{
-		Inventory: "127.0.0.1,",
+		Connection: "local",
+		Inventory:  "127.0.0.1,",
 	}
 
 	playbooksList := []string{"site1.yml", "site2.yml", "site3.yml"}
 	playbook := &playbook.AnsiblePlaybookCmd{
-		Playbooks:         playbooksList,
-		ConnectionOptions: ansiblePlaybookConnectionOptions,
-		PlaybookOptions:   ansiblePlaybookOptions,
+		Playbooks:       playbooksList,
+		PlaybookOptions: ansiblePlaybookOptions,
 	}
 
 	exec := measure.NewExecutorTimeMeasurement(

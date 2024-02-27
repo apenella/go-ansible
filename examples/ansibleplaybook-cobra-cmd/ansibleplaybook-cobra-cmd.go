@@ -13,7 +13,6 @@ import (
 	"github.com/apenella/go-ansible/pkg/execute"
 	"github.com/apenella/go-ansible/pkg/execute/configuration"
 	"github.com/apenella/go-ansible/pkg/execute/result/transformer"
-	"github.com/apenella/go-ansible/pkg/options"
 	"github.com/apenella/go-ansible/pkg/playbook"
 	errors "github.com/apenella/go-common-utils/error"
 	"github.com/spf13/cobra"
@@ -61,13 +60,12 @@ func commandHandler(cmd *cobra.Command, args []string) error {
 		return errors.New("(commandHandler)", "Error parsing extra variables", err)
 	}
 
-	ansiblePlaybookConnectionOptions := &options.AnsibleConnectionOptions{}
-	if connectionLocal {
-		ansiblePlaybookConnectionOptions.Connection = "local"
-	}
-
 	ansiblePlaybookOptions := &playbook.AnsiblePlaybookOptions{
 		Inventory: inventory,
+	}
+
+	if connectionLocal {
+		ansiblePlaybookOptions.Connection = "local"
 	}
 
 	for keyVar, valueVar := range vars {
@@ -75,9 +73,8 @@ func commandHandler(cmd *cobra.Command, args []string) error {
 	}
 
 	playbook := &playbook.AnsiblePlaybookCmd{
-		Playbooks:         playbookFiles,
-		ConnectionOptions: ansiblePlaybookConnectionOptions,
-		PlaybookOptions:   ansiblePlaybookOptions,
+		Playbooks:       playbookFiles,
+		PlaybookOptions: ansiblePlaybookOptions,
 	}
 
 	exec := configuration.NewAnsibleWithConfigurationSettingsExecute(

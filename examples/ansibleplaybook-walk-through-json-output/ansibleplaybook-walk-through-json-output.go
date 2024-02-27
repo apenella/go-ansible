@@ -10,7 +10,6 @@ import (
 	"github.com/apenella/go-ansible/pkg/execute"
 	results "github.com/apenella/go-ansible/pkg/execute/result/json"
 	"github.com/apenella/go-ansible/pkg/execute/stdoutcallback"
-	"github.com/apenella/go-ansible/pkg/options"
 	"github.com/apenella/go-ansible/pkg/playbook"
 )
 
@@ -21,19 +20,15 @@ func main() {
 
 	buff := new(bytes.Buffer)
 
-	ansiblePlaybookConnectionOptions := &options.AnsibleConnectionOptions{
+	ansiblePlaybookOptions := &playbook.AnsiblePlaybookOptions{
 		Connection: "local",
 		User:       "apenella",
-	}
-
-	ansiblePlaybookOptions := &playbook.AnsiblePlaybookOptions{
-		Inventory: "127.0.0.1,",
+		Inventory:  "127.0.0.1,",
 	}
 
 	playbook := &playbook.AnsiblePlaybookCmd{
-		Playbooks:         []string{"site1.yml", "site2.yml"},
-		ConnectionOptions: ansiblePlaybookConnectionOptions,
-		PlaybookOptions:   ansiblePlaybookOptions,
+		Playbooks:       []string{"site1.yml", "site2.yml"},
+		PlaybookOptions: ansiblePlaybookOptions,
 	}
 
 	exec := stdoutcallback.NewJSONStdoutCallbackExecute(
