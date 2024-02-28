@@ -35,6 +35,7 @@ func (e *OnelineStdoutCallbackExecute) Execute(ctx context.Context) error {
 
 	e.executor.WithOutput(defaultresult.NewDefaultResults())
 
-	return configuration.NewAnsibleWithConfigurationSettingsExecute(e.executor).
-		WithAnsibleStdoutCallback(OnelineStdoutCallback).Execute(ctx)
+	return configuration.NewAnsibleWithConfigurationSettingsExecute(e.executor,
+		configuration.WithAnsibleStdoutCallback(OnelineStdoutCallback),
+	).Execute(ctx)
 }

@@ -35,7 +35,8 @@ func main() {
 				transformer.Prepend("[ansibleplaybook-signals-and-cancellation]"),
 			),
 		),
-	).WithAnsibleForceColor()
+		configuration.WithAnsibleForceColor(),
+	)
 
 	signal.Notify(signalChan, os.Interrupt)
 	defer func() {

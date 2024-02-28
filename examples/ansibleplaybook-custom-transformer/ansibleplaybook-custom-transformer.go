@@ -45,7 +45,8 @@ func main() {
 				transformer.LogFormat(transformer.DefaultLogFormatLayout, transformer.Now),
 			),
 		),
-	).WithAnsibleForceColor()
+		configuration.WithAnsibleForceColor(),
+	)
 
 	signal.Notify(signalChan, os.Interrupt)
 	defer func() {

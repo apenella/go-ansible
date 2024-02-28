@@ -27,7 +27,8 @@ func main() {
 			execute.NewDefaultExecute(
 				execute.WithCmd(playbook),
 			),
-		).WithAnsibleForceColor(),
+			configuration.WithAnsibleForceColor(),
+		),
 	)
 
 	err := exec.Execute(context.TODO())

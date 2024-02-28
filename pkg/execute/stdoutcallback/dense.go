@@ -35,6 +35,7 @@ func (e *DenseStdoutCallbackExecute) Execute(ctx context.Context) error {
 
 	e.executor.WithOutput(defaultresult.NewDefaultResults())
 
-	return configuration.NewAnsibleWithConfigurationSettingsExecute(e.executor).
-		WithAnsibleStdoutCallback(DenseStdoutCallback).Execute(ctx)
+	return configuration.NewAnsibleWithConfigurationSettingsExecute(e.executor,
+		configuration.WithAnsibleStdoutCallback(DenseStdoutCallback),
+	).Execute(ctx)
 }

@@ -111,17 +111,17 @@ func generateConfigMethod(config *config) string {
 		switch config.vartype {
 		case "boolean":
 			str = fmt.Sprintf("// With%s sets the option %s to true (%s)\n", optionName, config.env, config.description)
-			str = fmt.Sprintf("%sfunc (e *ExecutorWithAnsibleConfigurationSettings) With%s() *ExecutorWithAnsibleConfigurationSettings {\n	e.configurationSettings[%s] = \"true\"\n	return e\n}\n", str, optionName, optionName)
+			str = fmt.Sprintf("%sfunc With%s() ConfigurationSettingsFunc {\n	return func(e *AnsibleWithConfigurationSettingsExecute) {\n		e.configurationSettings[%s] = \"true\"\n	}\n}\n", str, optionName, optionName)
 
 			str = fmt.Sprintf("%s// Without%s sets the option %s to false\n", str, optionName, config.env)
-			str = fmt.Sprintf("%sfunc (e *ExecutorWithAnsibleConfigurationSettings) Without%s() *ExecutorWithAnsibleConfigurationSettings {\n	e.configurationSettings[%s] = \"false\"\n	return e\n}\n", str, optionName, optionName)
+			str = fmt.Sprintf("%sfunc Without%s() ConfigurationSettingsFunc {\n	return func(e *AnsibleWithConfigurationSettingsExecute) {\n		e.configurationSettings[%s] = \"false\"\n	}\n}\n", str, optionName, optionName)
 		case "integer":
 			str = fmt.Sprintf("// With%s sets the value for the configuraion %s (%s)\n", optionName, config.env, config.description)
-			str = fmt.Sprintf("%sfunc (e *ExecutorWithAnsibleConfigurationSettings) With%s(value int) *ExecutorWithAnsibleConfigurationSettings {\n	e.configurationSettings[%s] = fmt.Sprint(value)\n	return e\n}\n", str, optionName, optionName)
+			str = fmt.Sprintf("%sfunc With%s(value int) ConfigurationSettingsFunc {\n	return func(e *AnsibleWithConfigurationSettingsExecute) {\n		e.configurationSettings[%s] = fmt.Sprint(value)\n	}\n}\n", str, optionName, optionName)
 
 		default:
 			str = fmt.Sprintf("// With%s sets the value for the configuraion %s (%s)\n", optionName, config.env, config.description)
-			str = fmt.Sprintf("%sfunc (e *ExecutorWithAnsibleConfigurationSettings) With%s(value string) *ExecutorWithAnsibleConfigurationSettings {\n	e.configurationSettings[%s] = value\n	return e\n}\n", str, optionName, optionName)
+			str = fmt.Sprintf("%sfunc With%s(value string) ConfigurationSettingsFunc {\n	return func(e *AnsibleWithConfigurationSettingsExecute) {\n		e.configurationSettings[%s] = value\n	}\n}\n", str, optionName, optionName)
 		}
 	}
 	return str
@@ -145,18 +145,18 @@ func generateTest(config *config) string {
 		switch config.vartype {
 		case "boolean":
 			str = fmt.Sprintf("// TestWith%s tests the method that sets %s to true\n", optionName, config.env)
-			str = fmt.Sprintf("%sfunc TestWith%s(t *testing.T) {\nexec := NewExecutorWithAnsibleConfigurationSettings(nil).With%s()\nsetting := exec.configurationSettings[%s]\nexpected := \"true\"\nassert.Equal(t, setting, expected)\n}\n", str, optionName, optionName, optionName)
+			str = fmt.Sprintf("%sfunc TestWith%s(t *testing.T) {\nexec := NewAnsibleWithConfigurationSettingsExecute(nil,\n	With%s(),\n)\nsetting := exec.configurationSettings[%s]\nexpected := \"true\"\nassert.Equal(t, setting, expected)\n}\n", str, optionName, optionName, optionName)
 
 			str = fmt.Sprintf("%s\n// TestWithout%s tests the method that sets %s to false\n", str, optionName, config.env)
-			str = fmt.Sprintf("%sfunc TestWithout%s(t *testing.T) {\nexec := NewExecutorWithAnsibleConfigurationSettings(nil).Without%s()\nsetting := exec.configurationSettings[%s]\nexpected := \"false\"\nassert.Equal(t, setting, expected)\n}\n", str, optionName, optionName, optionName)
+			str = fmt.Sprintf("%sfunc TestWithout%s(t *testing.T) {\nexec := NewAnsibleWithConfigurationSettingsExecute(nil,\n	Without%s(),\n)\nsetting := exec.configurationSettings[%s]\nexpected := \"false\"\nassert.Equal(t, setting, expected)\n}\n", str, optionName, optionName, optionName)
 
 		case "integer":
 			str = fmt.Sprintf("// TestWith%s tests the method that sets the value for %s\n", optionName, config.env)
-			str = fmt.Sprintf("%sfunc TestWith%s(t *testing.T) {\nvalue := 10\nexec := NewExecutorWithAnsibleConfigurationSettings(nil).With%s(value)\nsetting := exec.configurationSettings[%s]\nassert.Equal(t, setting, fmt.Sprint(value))\n}\n", str, optionName, optionName, optionName)
+			str = fmt.Sprintf("%sfunc TestWith%s(t *testing.T) {\nvalue := 10\nexec := NewAnsibleWithConfigurationSettingsExecute(nil,\n	With%s(value),\n)\nsetting := exec.configurationSettings[%s]\nassert.Equal(t, setting, fmt.Sprint(value))\n}\n", str, optionName, optionName, optionName)
 
 		default:
 			str = fmt.Sprintf("// TestWith%s tests the method that sets the value for %s\n", optionName, config.env)
-			str = fmt.Sprintf("%sfunc TestWith%s(t *testing.T) {\nvalue := \"testvalue\"\nexec := NewExecutorWithAnsibleConfigurationSettings(nil).With%s(value)\nsetting := exec.configurationSettings[%s]\nassert.Equal(t, setting, value)\n}\n", str, optionName, optionName, optionName)
+			str = fmt.Sprintf("%sfunc TestWith%s(t *testing.T) {\nvalue := \"testvalue\"\nexec := NewAnsibleWithConfigurationSettingsExecute(nil,\n	With%s(value),\n)\nsetting := exec.configurationSettings[%s]\nassert.Equal(t, setting, value)\n}\n", str, optionName, optionName, optionName)
 		}
 	}
 

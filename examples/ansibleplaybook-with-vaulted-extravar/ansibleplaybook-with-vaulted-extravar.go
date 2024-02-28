@@ -68,7 +68,9 @@ func main() {
 				transformer.Prepend("Go-ansible example with become"),
 			),
 		),
-	).WithAnsibleVaultPasswordFile("./vault_password.cfg").WithAnsibleForceColor()
+		configuration.WithAnsibleVaultPasswordFile("./vault_password.cfg"),
+		configuration.WithAnsibleForceColor(),
+	)
 
 	err = exec.Execute(context.TODO())
 	if err != nil {

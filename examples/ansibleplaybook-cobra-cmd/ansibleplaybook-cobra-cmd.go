@@ -84,7 +84,8 @@ func commandHandler(cmd *cobra.Command, args []string) error {
 				transformer.Prepend("Go-ansible example with become"),
 			),
 		),
-	).WithAnsibleForceColor()
+		configuration.WithAnsibleForceColor(),
+	)
 
 	err = exec.Execute(context.TODO())
 	if err != nil {

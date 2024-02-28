@@ -1,7 +1,5 @@
 package configuration
 
-// import "fmt"
-
 const (
 	// AnsibleActionWarnings (boolean) By default Ansible will issue a warning when received from a task action (module or action plugin) These warnings can be silenced by adjusting this setting to False.
 	AnsibleActionWarnings = "ANSIBLE_ACTION_WARNINGS"
@@ -273,7 +271,7 @@ const (
 	// AnsiblePrivateKeyFile (path) Option for connections using a certificate or key file to authenticate, rather than an agent or passwords, you can set the default value here to avoid re-specifying –private-key with every invocation.
 	AnsiblePrivateKeyFile = "ANSIBLE_PRIVATE_KEY_FILE"
 
-	// AnsiblePrivateRoleVars (boolean) Makes role variables inaccessible from other roles. This was introduced as a way to reset role variables to default values if a role is used more than once in a playbook.
+	// AnsiblePrivateRoleVars (boolean) By default, imported roles publish their variables to the play and other roles, this setting can avoid that. This was introduced as a way to reset role variables to default values if a role is used more than once in a playbook. Included roles only make their variables public at execution, unlike imported roles which happen at playbook compile time.
 	AnsiblePrivateRoleVars = "ANSIBLE_PRIVATE_ROLE_VARS"
 
 	// AnsibleRemotePort (integer) Port to use in remote connections, when blank it will use the connection plugin default.
@@ -312,7 +310,7 @@ const (
 	// AnsibleTimeout (integer) This is the default timeout for connection plugins to use.
 	AnsibleTimeout = "ANSIBLE_TIMEOUT"
 
-	// AnsibleTransport () Default connection plugin to use, the ‘smart’ option will toggle between ‘ssh’ and ‘paramiko’ depending on controller OS and ssh versions
+	// AnsibleTransport () Can be any connection plugin available to your ansible installation. There is also a (DEPRECATED) special ‘smart’ option, that will toggle between ‘ssh’ and ‘paramiko’ depending on controller OS and ssh versions.
 	AnsibleTransport = "ANSIBLE_TRANSPORT"
 
 	// AnsibleErrorOnUndefinedVars (boolean) When True, this causes ansible templating to fail steps that reference variable names that are likely typoed. Otherwise, any ‘{{ template_expression }}’ that contains undefined variables will be rendered in a template or ansible action line exactly as written.
@@ -387,6 +385,9 @@ const (
 	// AnsibleGalaxyCollectionSkeletonIgnore (list) patterns of files to ignore inside a Galaxy collection skeleton directory
 	AnsibleGalaxyCollectionSkeletonIgnore = "ANSIBLE_GALAXY_COLLECTION_SKELETON_IGNORE"
 
+	// AnsibleGalaxyCollectionsPathWarning (bool) whether ansible-galaxy collection install should warn about --collections-path missing from configured COLLECTIONS_PATHS
+	AnsibleGalaxyCollectionsPathWarning = "ANSIBLE_GALAXY_COLLECTIONS_PATH_WARNING"
+
 	// AnsibleGalaxyDisableGpgVerify (bool) Disable GPG signature verification during collection installation.
 	AnsibleGalaxyDisableGpgVerify = "ANSIBLE_GALAXY_DISABLE_GPG_VERIFY"
 
@@ -416,6 +417,9 @@ const (
 
 	// AnsibleGalaxyServerList (list) A list of Galaxy servers to use when installing a collection. The value corresponds to the config ini header [galaxy_server.{{item}}] which defines the server details. See Configuring the ansible-galaxy client for more details on how to define a Galaxy server. The order of servers in this list is used to as the order in which a collection is resolved. Setting this config option will ignore the GALAXY_SERVER config option.
 	AnsibleGalaxyServerList = "ANSIBLE_GALAXY_SERVER_LIST"
+
+	// AnsibleGalaxyServerTimeout (int) The default timeout for Galaxy API calls. Galaxy servers that don’t configure a specific timeout will fall back to this value.
+	AnsibleGalaxyServerTimeout = "ANSIBLE_GALAXY_SERVER_TIMEOUT"
 
 	// AnsibleGalaxyTokenPath (path) Local path to galaxy access token file
 	AnsibleGalaxyTokenPath = "ANSIBLE_GALAXY_TOKEN_PATH"

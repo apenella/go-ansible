@@ -32,7 +32,8 @@ func main() {
 					transformer.LogFormat(transformer.DefaultLogFormatLayout, transformer.Now),
 				),
 			),
-		).WithAnsibleForceColor(),
+			configuration.WithAnsibleForceColor(),
+		),
 	)
 
 	err := exec.Execute(context.TODO())

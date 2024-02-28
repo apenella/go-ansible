@@ -35,6 +35,7 @@ func (e *JSONStdoutCallbackExecute) Execute(ctx context.Context) error {
 
 	e.executor.WithOutput(jsonresults.NewJSONStdoutCallbackResults())
 
-	return configuration.NewAnsibleWithConfigurationSettingsExecute(e.executor).
-		WithAnsibleStdoutCallback(JSONStdoutCallback).Execute(ctx)
+	return configuration.NewAnsibleWithConfigurationSettingsExecute(e.executor,
+		configuration.WithAnsibleStdoutCallback(JSONStdoutCallback),
+	).Execute(ctx)
 }
