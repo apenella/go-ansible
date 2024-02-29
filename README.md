@@ -51,6 +51,8 @@ _**Important:** The master branch may contain unreleased or pre-released feature
         - [Stdoutcallback package](#stdoutcallback-package)
           - [ExecutorStdoutCallbackSetter interface](#executorstdoutcallbacksetter-interface)
           - [Stdout Callback Execute structs](#stdout-callback-execute-structs)
+        - [Workflow package](#workflow-package)
+          - [WorkflowExecute struct](#workflowexecute-struct)
     - [Inventory package](#inventory-package)
       - [AnsibleInventoryCmd struct](#ansibleinventorycmd-struct)
       - [AnsibleInventoryExecute struct](#ansibleinventoryexecute-struct)
@@ -76,7 +78,7 @@ _**Important:** The master branch may contain unreleased or pre-released feature
 Use this command to fetch and install the latest version of _go-ansible_, ensuring you have the most up-to-date and stable release.
 
 ```sh
-go get github.com/apenella/go-ansible@v2.0.0
+go get github.com/apenella/go-ansible@v2.0.0-rc.1
 ```
 
 ### Upgrade to 1.x
@@ -123,9 +125,9 @@ Start by creating the [AnsiblePlaybookOptions](#ansibleplaybookoptions-struct) s
 
 ```go
 ansiblePlaybookOptions := &playbook.AnsiblePlaybookOptions{
-  Become:        true,
+  Become:     true,
   Connection: "local",
-  Inventory: "127.0.0.1,",
+  Inventory:  "127.0.0.1,",
 }
 ```
 
@@ -133,8 +135,8 @@ Finally, create the [AnsiblePlaybookCmd](#ansibleplaybookcmd-struct) struct that
 
 ```go
 playbookCmd := &playbook.AnsiblePlaybookCmd{
-  Playbook:          "site.yml",
-  PlaybookOptions:           ansiblePlaybookOptions,
+  Playbook:         "site.yml",
+  PlaybookOptions:  ansiblePlaybookOptions,
 }
 ```
 
@@ -201,17 +203,17 @@ The following code snippet demonstrates how to use the `AnsibleAdhocCmd` struct 
 
 ```go
 ansibleAdhocOptions := &adhoc.AnsibleAdhocOptions{
-  Inventory : "127.0.0.1,",
-  ModuleName: "degut",
-  Args: "msg={{ arg }}",
-  ExtraVars: map[string]interface{}{
+  Inventory:  "127.0.0.1,",
+  ModuleName: "debug",
+  Args:       "msg={{ arg }}",
+  ExtraVars:  map[string]interface{}{
       "arg": "value",
   }
 }
 
 adhocCmd := &adhoc.AnsibleAdhocCmd{
-  Pattern:           "all",
-  Options:           ansibleAdhocOptions,
+  Pattern:  "all",
+  Options:  ansibleAdhocOptions,
 }
 
 // Generate the command to be executed
@@ -415,12 +417,12 @@ Here you can see an example of how to use the `AnsibleWithConfigurationSettingsE
 ```go
 ansiblePlaybookOptions := &playbook.AnsiblePlaybookOptions{
   Connection: "local",
-  Inventory: "127.0.0.1,",
+  Inventory:  "127.0.0.1,",
 }
 
 playbookCmd := &playbook.AnsiblePlaybookCmd{
-  Playbooks:         []string{"site.yml"},
-  PlaybookOptions:   ansiblePlaybookOptions,
+  Playbooks:        []string{"site.yml"},
+  PlaybookOptions:  ansiblePlaybookOptions,
 }
 
 exec := configuration.NewAnsibleWithConfigurationSettingsExecute(
@@ -449,7 +451,7 @@ To illustrate, consider the following code snippet, which demonstrates how to us
 ```go
 ansiblePlaybookOptions := &playbook.AnsiblePlaybookOptions{
   Connection: "local",
-  Inventory: "127.0.0.1,",
+  Inventory:  "127.0.0.1,",
 }
 
 playbookCmd := &playbook.AnsiblePlaybookCmd{
@@ -642,6 +644,40 @@ if err != nil {
 }
 ```
 
+##### Workflow package
+
+The `github.com/apenella/go-ansible/pkg/execute/workflow` package provides an executor that allows you to run a sequence of executors.
+
+###### WorkflowExecute struct
+
+The `WorkflowExecute` struct is responsible for managing the execution of a sequence of executors. It allows you to define a workflow for running _Ansible_ commands. Additionally, the `WorkflowExecute` implements the [Executor](#executor-interface) interface, enabling you to apply some decorators such as the [ExecutorTimeMeasurement](#measure-package) to the workflow.
+
+By default, when an _executor_ execution in the sequence fails, the `WorkflowExecute` stops the execution of the remaining executors. However, you can customize this behaviour by setting the `ContinueOnError` attribute to `true`. In that case, if one executor fails, the `WorkflowExecute` continues with the remaining executors and raises an error at the end of the execution.
+
+The `WorkflowExecute` struct provides the following methods to setup the execution process:
+
+- `AppendExecutor(exec Executor) *WorkflowExecute`: Appends an executor to the sequence.
+- `Execute(ctx context.Context) error`: Executes the sequence of executors.
+- `WithContinueOnError() *WorkflowExecute`: Sets the `ContinueOnError` attribute to `true`.
+
+Here is an example of how to use the `WorkflowExecute` struct to run a sequence of executors:
+
+```go
+exec1 := playbook.NewAnsiblePlaybookExecute("first.yml").
+    WithPlaybookOptions(ansiblePlaybookOptions)
+
+exec2 := playbook.NewAnsiblePlaybookExecute("second.yml").
+    WithPlaybookOptions(ansiblePlaybookOptions)
+
+err := workflow.NewWorkflowExecute(exec1, exec2).
+    WithContinueOnError().
+    Execute(context.TODO())
+
+if err != nil {
+  // Manage the error
+}
+```
+
 ### Inventory package
 
 The information provided in this section gives an overview of the `Inventory` package in `go-ansible`.
@@ -697,13 +733,13 @@ Next is an example of how to use the `AnsiblePlaybookCmd` struct to generate a _
 ```go
 ansiblePlaybookOptions := &playbook.AnsiblePlaybookOptions{
   Connection: "local",
-  Become:        true,
-  Inventory: "127.0.0.1,",
+  Become:     true,
+  Inventory:  "127.0.0.1,",
 }
 
 playbookCmd := &playbook.AnsiblePlaybookCmd{
-  Playbook:          "site.yml",
-  PlaybookOptions:           ansiblePlaybookOptions,
+  Playbook:         "site.yml",
+  PlaybookOptions:  ansiblePlaybookOptions,
 }
 
 // Generate the command to be executed
@@ -872,6 +908,9 @@ Here you have a list of examples:
 
 - [ansibleadhoc-command-module](https://github.com/apenella/go-ansible/tree/master/examples/ansibleadhoc-command-module)
 - [ansibleadhoc-simple](https://github.com/apenella/go-ansible/tree/master/examples/ansibleadhoc-simple)
+- [ansibleinventory-graph](https://github.com/apenella/go-ansible/tree/master/examples/ansibleinventory-graph)
+- [ansibleinventory-simple](https://github.com/apenella/go-ansible/tree/master/examples/ansibleinventory-simple)
+- [ansibleinventory-vaulted-vars](https://github.com/apenella/go-ansible/tree/master/examples/ansibleinventory-vaulted-vars)
 - [ansibleplaybook-become](https://github.com/apenella/go-ansible/tree/master/examples/ansibleplaybook-become)
 - [ansibleplaybook-cobra-cmd](https://github.com/apenella/go-ansible/tree/master/examples/ansibleplaybook-cobra-cmd)
 - [ansibleplaybook-custom-transformer](https://github.com/apenella/go-ansible/tree/master/examples/ansibleplaybook-custom-transformer)
@@ -879,15 +918,17 @@ Here you have a list of examples:
 - [ansibleplaybook-json-stdout](https://github.com/apenella/go-ansible/tree/master/examples/ansibleplaybook-json-stdout)
 - [ansibleplaybook-myexecutor](https://github.com/apenella/go-ansible/tree/master/examples/ansibleplaybook-myexecutor)
 - [ansibleplaybook-signals-and-cancellation](https://github.com/apenella/go-ansible/tree/master/examples/ansibleplaybook-signals-and-cancellation)
-- [ansibleplaybook-simple](https://github.com/apenella/go-ansible/tree/master/examples/ansibleplaybook-simple)
 - [ansibleplaybook-simple-embedfs](https://github.com/apenella/go-ansible/tree/master/examples/ansibleplaybook-simple-embedfs)
 - [ansibleplaybook-simple-with-prompt](https://github.com/apenella/go-ansible/tree/master/examples/ansibleplaybook-simple-with-prompt)
+- [ansibleplaybook-simple](https://github.com/apenella/go-ansible/tree/master/examples/ansibleplaybook-simple)
 - [ansibleplaybook-skipping-failing](https://github.com/apenella/go-ansible/tree/master/examples/ansibleplaybook-skipping-failing)
 - [ansibleplaybook-time-measurement](https://github.com/apenella/go-ansible/tree/master/examples/ansibleplaybook-time-measurement)
 - [ansibleplaybook-walk-through-json-output](https://github.com/apenella/go-ansible/tree/master/examples/ansibleplaybook-walk-through-json-output)
 - [ansibleplaybook-with-executor-time-measurament](https://github.com/apenella/go-ansible/tree/master/examples/ansibleplaybook-with-executor-time-measurament)
 - [ansibleplaybook-with-timeout](https://github.com/apenella/go-ansible/tree/master/examples/ansibleplaybook-with-timeout)
 - [ansibleplaybook-with-vaulted-extravar](https://github.com/apenella/go-ansible/tree/master/examples/ansibleplaybook-with-vaulted-extravar)
+- [workflowexecute-simple](https://github.com/apenella/go-ansible/tree/master/examples/workflowexecute-simple)
+- [workflowexecute-time-measurament](https://github.com/apenella/go-ansible/tree/master/examples/workflowexecute-time-measurament)
 
 ## Contributing
 
