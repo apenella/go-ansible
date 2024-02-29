@@ -2,7 +2,6 @@ package measure
 
 import (
 	"context"
-	"fmt"
 	"time"
 
 	"github.com/apenella/go-ansible/pkg/execute"
@@ -48,10 +47,7 @@ func (e *ExecutorTimeMeasurement) Execute(ctx context.Context) error {
 
 	err := e.executor.Execute(ctx)
 	if err != nil {
-		return errors.New("(ExecutorTimeMeasurement::Execute)",
-			fmt.Sprintf("%s",
-				err.Error(),
-			))
+		return errors.New("(ExecutorTimeMeasurement::Execute)", err.Error())
 	}
 
 	return nil

@@ -176,11 +176,8 @@ func (e *DefaultExecute) Execute(ctx context.Context) error {
 		cmd.(*osexec.Cmd).Stdin = os.Stdin
 	}
 
-	trans := []transformer.TransformerFunc{}
-
-	for _, t := range e.Transformers {
-		trans = append(trans, t)
-	}
+	trans := make([]transformer.TransformerFunc, 0)
+	trans = append(trans, e.Transformers...)
 
 	cmdStdout, err = cmd.StdoutPipe()
 	defer cmdStdout.Close()
