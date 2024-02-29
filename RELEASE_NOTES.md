@@ -1,13 +1,16 @@
 # Release notes
 
-## v2.0.0
+## v2.0.0-rc.1
 
 Version 2.0.0 of *go-ansible* introduces several disruptive changes. Read the upgrade guide carefully before proceeding with the upgrade.
 
 ### BREAKING CHANGES
 
-- The relationship between the executor and `AnsiblePlaybookCmd` / `AnsibleAdhocCmd` / `AnsibleInvetoryCmd` have undergone an important change.
-  - **Inversion of responsabilities**: The executor is now responsible for executing external commands, while `AnsiblePlaybookCmd` and `AnsibleAdhocCmd` have cut down its responsibilities, primarily focusing on generating the command to be executed.
+> **Note**
+> The latest major version of _go-ansible_, version _2.x_, introduced significant and breaking changes. If you are currently using a version prior to _2.x_, please refer to the [upgrade guide](https://github.com/apenella/go-ansible/blob/master/docs/upgrade_guide_to_2.x.md) for detailed information on how to migrate to version _2.x_.
+
+- The relationship between the executor and `AnsiblePlaybookCmd` / `AnsibleAdhocCmd` / `AnsibleInvetoryCmd` have undergone important changes.
+  - **Inversion of responsabilities**: The executor is now responsible for executing external commands, while `AnsiblePlaybookCmd`, `AnsibleInventoryCmd` and `AnsibleAdhocCmd` have cut down its responsibilities, primarily focusing on generating the command to be executed.
   - **Method and Attribute Removal**: The following methods and attributes have been removed on `AnsiblePlaybookCmd`, `AnsibleInventoryCmd` and `AnsibleAdhocCmd`:
     - The `Run` method.
     - The `Exec` and `StdoutCallback` attributes.
@@ -34,6 +37,7 @@ Version 2.0.0 of *go-ansible* introduces several disruptive changes. Read the up
 - A new package `github.com/apenella/go-ansible/pkg/execute/result/default` has been introduced. This package offers the default component for printing execution results. It supersedes the `DefaultStdoutCallbackResults` function that was previously defined in the `github.com/apenella/go-ansible/pkg/stdoutcallback` package.
 - A new package `github.com/apenella/go-ansible/pkg/execute/result/json` has been introduced. This package offers the component for printing execution results from the JSON stdout callback. It supersedes the `JSONStdoutCallbackResults` function that was previously defined in the `github.com/apenella/go-ansible/pkg/stdoutcallback` package.
 - A new package `github.com/apenella/go-ansible/pkg/execute/stdoutcallback`. This package offers multiple decorators designed to set the stdout callback for Ansible executions.
+- A new package `github.com/apenella/go-ansible/pkg/execute/workflow` has been introduced. This package allows you to define a workflow for executing multiple commands in a sequence.
 - An utility to generate the code for the configuration package has been introduced. This utility is located in the `utils/cmd/configGenerator.go`.
 
 ### Changed
