@@ -27,7 +27,7 @@ If you would like to contribute code to go-ansible, please follow these steps:
 
 1. Create a new branch for your changes.
 2. Make your changes.
-3. Submit a pull request.
+3. Submit a pull request with a proper description of the introduced changes, features, etc.
 
 Please ensure that your code adheres to our coding standards, that all tests pass before submitting a pull request, and you update the project [README](https://github.com/apenella/go-ansible/blob/master/README.md) and the [RELEASE_NOTES](https://github.com/apenella/go-ansible/blob/master/RELEASE_NOTES.md).
 

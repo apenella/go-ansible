@@ -2,29 +2,25 @@ package main
 
 import (
 	"context"
+	"fmt"
+	"os"
 
-	"github.com/apenella/go-ansible/pkg/options"
 	"github.com/apenella/go-ansible/pkg/playbook"
 )
 
 func main() {
 
-	ansiblePlaybookConnectionOptions := &options.AnsibleConnectionOptions{
-		Connection: "local",
-	}
-
 	ansiblePlaybookOptions := &playbook.AnsiblePlaybookOptions{
-		Inventory: "127.0.0.1,",
+		Connection: "local",
+		Inventory:  "127.0.0.1,",
 	}
 
-	playbook := &playbook.AnsiblePlaybookCmd{
-		Playbooks:         []string{"site.yml", "site2.yml"},
-		ConnectionOptions: ansiblePlaybookConnectionOptions,
-		Options:           ansiblePlaybookOptions,
-	}
+	err := playbook.NewAnsiblePlaybookExecute("site.yml", "site2.yml").
+		WithPlaybookOptions(ansiblePlaybookOptions).
+		Execute(context.TODO())
 
-	err := playbook.Run(context.TODO())
 	if err != nil {
-		panic(err)
+		fmt.Println(err.Error())
+		os.Exit(1)
 	}
 }

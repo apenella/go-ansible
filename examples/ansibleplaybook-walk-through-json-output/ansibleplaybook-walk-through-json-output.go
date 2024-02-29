@@ -8,9 +8,9 @@ import (
 	"io"
 
 	"github.com/apenella/go-ansible/pkg/execute"
-	"github.com/apenella/go-ansible/pkg/options"
+	results "github.com/apenella/go-ansible/pkg/execute/result/json"
+	"github.com/apenella/go-ansible/pkg/execute/stdoutcallback"
 	"github.com/apenella/go-ansible/pkg/playbook"
-	"github.com/apenella/go-ansible/pkg/stdoutcallback/results"
 )
 
 func main() {
@@ -20,28 +20,25 @@ func main() {
 
 	buff := new(bytes.Buffer)
 
-	ansiblePlaybookConnectionOptions := &options.AnsibleConnectionOptions{
+	ansiblePlaybookOptions := &playbook.AnsiblePlaybookOptions{
 		Connection: "local",
 		User:       "apenella",
+		Inventory:  "127.0.0.1,",
 	}
-
-	ansiblePlaybookOptions := &playbook.AnsiblePlaybookOptions{
-		Inventory: "127.0.0.1,",
-	}
-
-	execute := execute.NewDefaultExecute(
-		execute.WithWrite(io.Writer(buff)),
-	)
 
 	playbook := &playbook.AnsiblePlaybookCmd{
-		Playbooks:         []string{"site1.yml", "site2.yml"},
-		Exec:              execute,
-		ConnectionOptions: ansiblePlaybookConnectionOptions,
-		Options:           ansiblePlaybookOptions,
-		StdoutCallback:    "json",
+		Playbooks:       []string{"site1.yml", "site2.yml"},
+		PlaybookOptions: ansiblePlaybookOptions,
 	}
 
-	err = playbook.Run(context.TODO())
+	exec := stdoutcallback.NewJSONStdoutCallbackExecute(
+		execute.NewDefaultExecute(
+			execute.WithCmd(playbook),
+			execute.WithWrite(io.Writer(buff)),
+		),
+	)
+
+	err = exec.Execute(context.TODO())
 	if err != nil {
 		fmt.Println(err.Error())
 	}

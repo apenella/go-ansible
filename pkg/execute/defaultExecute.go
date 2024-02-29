@@ -5,15 +5,16 @@ import (
 	"fmt"
 	"io"
 	"os"
-	"os/exec"
+	osexec "os/exec"
 	"strings"
 	"sync"
 	"syscall"
 
-	"github.com/apenella/go-ansible/pkg/stdoutcallback"
-	"github.com/apenella/go-ansible/pkg/stdoutcallback/results"
+	"github.com/apenella/go-ansible/internal/executable/os/exec"
+	"github.com/apenella/go-ansible/pkg/execute/result"
+	defaultresults "github.com/apenella/go-ansible/pkg/execute/result/default"
+	"github.com/apenella/go-ansible/pkg/execute/result/transformer"
 	errors "github.com/apenella/go-common-utils/error"
-	"github.com/fatih/color"
 )
 
 const (
@@ -66,14 +67,18 @@ type DefaultExecute struct {
 	Write io.Writer
 	// WriterError is where is written the command stderr
 	WriterError io.Writer
-	// ShowDuration enables to show the execution duration time after the command finishes
-	ShowDuration bool
 	// CmdRunDir specifies the working directory of the command.
 	CmdRunDir string
 	// EnvVars specifies env vars of the command.
 	EnvVars EnvVars
-	// OutputFormat
-	Transformers []results.TransformerFunc
+	// Transformers is the list of transformers func for the output
+	Transformers []transformer.TransformerFunc
+	// Output manages the output of the command
+	Output result.ResultsOutputer
+	// Exec is the executor
+	Exec Executabler
+	// Cmd is the command generator
+	Cmd Commander
 }
 
 // NewDefaultExecute return a new DefaultExecute instance with all options
@@ -89,69 +94,48 @@ func NewDefaultExecute(options ...ExecuteOptions) *DefaultExecute {
 	return execute
 }
 
-// WithWrite set the writer to be used by DefaultExecutor
-func WithWrite(w io.Writer) ExecuteOptions {
-	return func(e Executor) {
-		e.(*DefaultExecute).Write = w
-	}
+// WithOutput sets the output mechanism to DefaultExecutor
+func (e *DefaultExecute) WithOutput(output result.ResultsOutputer) {
+	e.Output = output
 }
 
-// WithWriteError set the error writer to be used by DefaultExecutor
-func WithWriteError(w io.Writer) ExecuteOptions {
-	return func(e Executor) {
-		e.(*DefaultExecute).WriterError = w
+// AddEnvVar add the provided environment variable. It overwrites the variable when it already exists.
+func (e *DefaultExecute) AddEnvVar(key, value string) {
+	if e.EnvVars == nil {
+		e.EnvVars = make(EnvVars)
 	}
+
+	e.EnvVars[key] = value
 }
 
-// WithCmdRunDir set the command run directory to be used by DefaultExecutor
-func WithCmdRunDir(cmdRunDir string) ExecuteOptions {
-	return func(e Executor) {
-		e.(*DefaultExecute).CmdRunDir = cmdRunDir
-	}
-}
+// AddEnvVarSafe add the provided environment variable. It returns an error when the variable already exists
+func (e *DefaultExecute) AddEnvVarSafe(key, value string) error {
 
-// WithShowDuration enables to show command duration
-func WithShowDuration() ExecuteOptions {
-	return func(e Executor) {
-		e.(*DefaultExecute).ShowDuration = true
-	}
-}
+	errContext := "execute::DefaultExecute:AddEnvVarSafe"
 
-// WithTransformers add trasformes
-func WithTransformers(trans ...results.TransformerFunc) ExecuteOptions {
-	return func(e Executor) {
-		e.(*DefaultExecute).Transformers = trans
+	if e.EnvVars == nil {
+		e.EnvVars = make(EnvVars)
 	}
-}
 
-// WithEnvVar adds the provided env var to the command
-func WithEnvVar(key, value string) ExecuteOptions {
-	return func(e Executor) {
-		e.(*DefaultExecute).EnvVars[key] = value
+	_, exists := e.EnvVars[key]
+	if exists {
+		return errors.New(errContext, fmt.Sprintf("Environment variable '%s' already exists", key))
 	}
+
+	e.EnvVars[key] = value
+	return nil
 }
 
 // Execute takes a command and args and runs it, streaming output to stdout
-func (e *DefaultExecute) Execute(ctx context.Context, command []string, resultsFunc stdoutcallback.StdoutCallbackResultsFunc, options ...ExecuteOptions) error {
+func (e *DefaultExecute) Execute(ctx context.Context) error {
 
-	var (
-		err                  error
-		cmdStderr, cmdStdout io.ReadCloser
-		wg                   sync.WaitGroup
-	)
+	var err error
+	var cmdStderr, cmdStdout io.ReadCloser
+	var wg sync.WaitGroup
 
-	e.checkCompatibility()
+	defer e.checkCompatibility()
 
 	execErrChan := make(chan error)
-
-	// apply all options to the executor
-	for _, opt := range options {
-		opt(e)
-	}
-
-	if resultsFunc == nil {
-		resultsFunc = results.DefaultStdoutCallbackResults
-	}
 
 	// default stdout and stderr for the main process
 	if e.Write == nil {
@@ -162,18 +146,38 @@ func (e *DefaultExecute) Execute(ctx context.Context, command []string, resultsF
 		e.WriterError = os.Stderr
 	}
 
-	cmd := exec.CommandContext(ctx, command[0], command[1:]...)
-
-	if len(e.CmdRunDir) > 0 {
-		cmd.Dir = e.CmdRunDir
+	if e.Exec == nil {
+		e.Exec = exec.NewExec()
 	}
 
-	if len(e.EnvVars) > 0 {
-		cmd.Env = os.Environ()
-		cmd.Env = append(cmd.Env, e.EnvVars.Environ()...)
+	if e.Cmd == nil {
+		return errors.New("(DefaultExecute::Execute)", "Command is not defined")
 	}
 
-	cmd.Stdin = os.Stdin // connects the main process' stdin to ansible's stdin
+	command, err := e.Cmd.Command()
+	if err != nil {
+		return errors.New("(DefaultExecute::Execute)", "Error creating command", err)
+	}
+
+	cmd := e.Exec.CommandContext(ctx, command[0], command[1:]...)
+
+	// Assert if cmd's type is the Golang's exec.Cmd as set the desired values for that case
+	_, isOsExecCmd := cmd.(*osexec.Cmd)
+	if isOsExecCmd {
+		if len(e.CmdRunDir) > 0 {
+			cmd.(*osexec.Cmd).Dir = e.CmdRunDir
+		}
+
+		if len(e.EnvVars) > 0 {
+			cmd.(*osexec.Cmd).Env = append(os.Environ(), e.EnvVars.Environ()...)
+		}
+
+		// connects the main process' stdin to ansible's stdin
+		cmd.(*osexec.Cmd).Stdin = os.Stdin
+	}
+
+	trans := make([]transformer.TransformerFunc, 0)
+	trans = append(trans, e.Transformers...)
 
 	cmdStdout, err = cmd.StdoutPipe()
 	defer cmdStdout.Close()
@@ -185,6 +189,13 @@ func (e *DefaultExecute) Execute(ctx context.Context, command []string, resultsF
 	defer cmdStderr.Close()
 	if err != nil {
 		return errors.New("(DefaultExecute::Execute)", "Error creating stderr pipe", err)
+	}
+
+	if e.Output == nil {
+
+		e.Output = defaultresults.NewDefaultResults(
+			defaultresults.WithTransformers(trans...),
+		)
 	}
 
 	err = cmd.Start()
@@ -199,15 +210,10 @@ func (e *DefaultExecute) Execute(ctx context.Context, command []string, resultsF
 	go func() {
 		defer close(execErrChan)
 
-		trans := []results.TransformerFunc{}
-
-		for _, t := range e.Transformers {
-			trans = append(trans, t)
-		}
-
 		// when using the default results func DefaultStdoutCallbackResults,
 		// reads from ansible's stdout and writes to main process' stdout
-		err := resultsFunc(ctx, cmdStdout, e.Write, trans...)
+		e.Output.Print(ctx, cmdStdout, e.Write)
+
 		wg.Done()
 		execErrChan <- err
 	}()
@@ -215,7 +221,7 @@ func (e *DefaultExecute) Execute(ctx context.Context, command []string, resultsF
 	// stderr management
 	go func() {
 		// show stderr messages using default stdout callback results
-		results.DefaultStdoutCallbackResults(ctx, cmdStderr, e.WriterError, []results.TransformerFunc{}...)
+		e.Output.Print(ctx, cmdStderr, e.WriterError)
 		wg.Done()
 	}()
 
@@ -236,12 +242,12 @@ func (e *DefaultExecute) Execute(ctx context.Context, command []string, resultsF
 				errorMessage = fmt.Sprintf("%s\nEnvironment variables:\n%s\n", errorMessage, strings.Join(e.EnvVars.Environ(), "\n"))
 			}
 			errorMessage = fmt.Sprintf("%s\nError:\n%s\n", errorMessage, err.Error())
-			stderrErrorMessage := string(err.(*exec.ExitError).Stderr)
+			stderrErrorMessage := string(err.(*osexec.ExitError).Stderr)
 			if len(stderrErrorMessage) > 0 {
 				errorMessage = fmt.Sprintf("%s\n'%s'\n", errorMessage, stderrErrorMessage)
 			}
 
-			exitError, exists := err.(*exec.ExitError)
+			exitError, exists := err.(*osexec.ExitError)
 			if exists {
 				ws := exitError.Sys().(syscall.WaitStatus)
 				switch ws.ExitStatus() {
@@ -268,8 +274,4 @@ func (e *DefaultExecute) Execute(ctx context.Context, command []string, resultsF
 	return nil
 }
 
-func (e *DefaultExecute) checkCompatibility() {
-	if e.ShowDuration {
-		color.Cyan("[WARNING] ShowDuration argument, on DefaultExecute, is deprecated and will be removed in future versions. Use the ExecutorTimeMeasurement middleware instead.")
-	}
-}
+func (e *DefaultExecute) checkCompatibility() {}

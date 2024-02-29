@@ -9,7 +9,7 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/apenella/go-ansible/pkg/options"
+	"github.com/apenella/go-ansible/pkg/execute"
 	"github.com/apenella/go-ansible/pkg/playbook"
 )
 
@@ -32,21 +32,21 @@ func main() {
 		panic(err)
 	}
 
-	ansiblePlaybookConnectionOptions := &options.AnsibleConnectionOptions{
-		Connection: "local",
-	}
-
 	ansiblePlaybookOptions := &playbook.AnsiblePlaybookOptions{
-		Inventory: filepath.Join(tempDir, "inventory.ini"),
+		Connection: "local",
+		Inventory:  filepath.Join(tempDir, "inventory.ini"),
 	}
 
 	playbook := &playbook.AnsiblePlaybookCmd{
-		Playbooks:         []string{filepath.Join(tempDir, "site.yml"), filepath.Join(tempDir, "site2.yml")},
-		ConnectionOptions: ansiblePlaybookConnectionOptions,
-		Options:           ansiblePlaybookOptions,
+		Playbooks:       []string{filepath.Join(tempDir, "site.yml"), filepath.Join(tempDir, "site2.yml")},
+		PlaybookOptions: ansiblePlaybookOptions,
 	}
 
-	err = playbook.Run(context.TODO())
+	exec := execute.NewDefaultExecute(
+		execute.WithCmd(playbook),
+	)
+
+	err = exec.Execute(context.TODO())
 	if err != nil {
 		panic(err)
 	}

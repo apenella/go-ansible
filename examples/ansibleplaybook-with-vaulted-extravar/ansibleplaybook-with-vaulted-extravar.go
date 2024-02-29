@@ -5,7 +5,8 @@ import (
 	"fmt"
 
 	"github.com/apenella/go-ansible/pkg/execute"
-	"github.com/apenella/go-ansible/pkg/options"
+	"github.com/apenella/go-ansible/pkg/execute/configuration"
+	"github.com/apenella/go-ansible/pkg/execute/result/transformer"
 	"github.com/apenella/go-ansible/pkg/playbook"
 	"github.com/apenella/go-ansible/pkg/vault"
 	"github.com/apenella/go-ansible/pkg/vault/encrypt"
@@ -27,6 +28,9 @@ func main() {
 								file.WithFs(afero.NewOsFs()),
 								file.WithFile("./vault_password.cfg"),
 							),
+							//
+							// Uncomment this lines to use other password readers
+							//
 							// text.NewReadPasswordFromText(
 							// 	text.WithText("s3cr3t"),
 							// ),
@@ -40,12 +44,9 @@ func main() {
 		),
 	)
 
-	ansiblePlaybookConnectionOptions := &options.AnsibleConnectionOptions{
-		Connection: "local",
-	}
-
 	ansiblePlaybookOptions := &playbook.AnsiblePlaybookOptions{
-		Inventory: "127.0.0.1,",
+		Connection: "local",
+		Inventory:  "127.0.0.1,",
 	}
 
 	err = ansiblePlaybookOptions.AddVaultedExtraVar(vaulter, "vaulted_extra_var", "That is a secret")
@@ -53,20 +54,25 @@ func main() {
 		panic(err)
 	}
 
-	executor := execute.NewDefaultExecute(
-		execute.WithEnvVar("ANSIBLE_VAULT_PASSWORD_FILE", "./vault_password.cfg"),
-	)
-
 	playbook := &playbook.AnsiblePlaybookCmd{
-		Playbooks:         []string{"site.yml"},
-		ConnectionOptions: ansiblePlaybookConnectionOptions,
-		Options:           ansiblePlaybookOptions,
-		Exec:              executor,
+		Playbooks:       []string{"site.yml"},
+		PlaybookOptions: ansiblePlaybookOptions,
 	}
 
 	fmt.Printf("\n  Ansible playbook command:\n%s\n\n", playbook.String())
 
-	err = playbook.Run(context.TODO())
+	exec := configuration.NewAnsibleWithConfigurationSettingsExecute(
+		execute.NewDefaultExecute(
+			execute.WithCmd(playbook),
+			execute.WithTransformers(
+				transformer.Prepend("Go-ansible example with become"),
+			),
+		),
+		configuration.WithAnsibleVaultPasswordFile("./vault_password.cfg"),
+		configuration.WithAnsibleForceColor(),
+	)
+
+	err = exec.Execute(context.TODO())
 	if err != nil {
 		panic(err)
 	}

@@ -1,0 +1,8 @@
+---
+
+- hosts: all
+
+  tasks:
+    - name: Workflow Execute first playbook
+      debug:
+        msg: Your are running 'workflowexecute-simple' example
