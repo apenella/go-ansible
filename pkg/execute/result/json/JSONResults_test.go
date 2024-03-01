@@ -10,7 +10,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/apenella/go-ansible/pkg/execute/result/transformer"
+	"github.com/apenella/go-ansible/v2/pkg/execute/result/transformer"
 	errors "github.com/apenella/go-common-utils/error"
 	"github.com/stretchr/testify/assert"
 )

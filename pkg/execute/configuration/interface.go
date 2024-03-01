@@ -1,6 +1,6 @@
 package configuration
 
-import "github.com/apenella/go-ansible/pkg/execute"
+import "github.com/apenella/go-ansible/v2/pkg/execute"
 
 type ExecutorEnvVarSetter interface {
 	execute.Executor

@@ -5,8 +5,8 @@ import (
 	"errors"
 	"testing"
 
-	"github.com/apenella/go-ansible/pkg/execute"
-	"github.com/apenella/go-ansible/pkg/execute/configuration"
+	"github.com/apenella/go-ansible/v2/pkg/execute"
+	"github.com/apenella/go-ansible/v2/pkg/execute/configuration"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )

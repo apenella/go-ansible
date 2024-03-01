@@ -4,8 +4,8 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/apenella/go-ansible/pkg/execute/configuration"
-	defaultresult "github.com/apenella/go-ansible/pkg/execute/result/default"
+	"github.com/apenella/go-ansible/v2/pkg/execute/configuration"
+	defaultresult "github.com/apenella/go-ansible/v2/pkg/execute/result/default"
 )
 
 const (

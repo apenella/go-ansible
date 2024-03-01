@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/apenella/go-ansible/pkg/adhoc"
+	"github.com/apenella/go-ansible/v2/pkg/adhoc"
 )
 
 func main() {

@@ -7,10 +7,10 @@ import (
 	"fmt"
 	"io"
 
-	"github.com/apenella/go-ansible/pkg/execute"
-	results "github.com/apenella/go-ansible/pkg/execute/result/json"
-	"github.com/apenella/go-ansible/pkg/execute/stdoutcallback"
-	"github.com/apenella/go-ansible/pkg/playbook"
+	"github.com/apenella/go-ansible/v2/pkg/execute"
+	results "github.com/apenella/go-ansible/v2/pkg/execute/result/json"
+	"github.com/apenella/go-ansible/v2/pkg/execute/stdoutcallback"
+	"github.com/apenella/go-ansible/v2/pkg/playbook"
 )
 
 func main() {

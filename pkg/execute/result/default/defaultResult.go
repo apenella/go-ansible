@@ -7,8 +7,8 @@ import (
 	"io"
 	"os"
 
-	"github.com/apenella/go-ansible/pkg/execute/result"
-	"github.com/apenella/go-ansible/pkg/execute/result/transformer"
+	"github.com/apenella/go-ansible/v2/pkg/execute/result"
+	"github.com/apenella/go-ansible/v2/pkg/execute/result/transformer"
 	errors "github.com/apenella/go-common-utils/error"
 )
 

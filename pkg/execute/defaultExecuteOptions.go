@@ -3,8 +3,8 @@ package execute
 import (
 	"io"
 
-	"github.com/apenella/go-ansible/pkg/execute/result"
-	"github.com/apenella/go-ansible/pkg/execute/result/transformer"
+	"github.com/apenella/go-ansible/v2/pkg/execute/result"
+	"github.com/apenella/go-ansible/v2/pkg/execute/result/transformer"
 )
 
 // ExecuteOptions is a function to set executor options

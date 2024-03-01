@@ -4,8 +4,8 @@ import (
 	"errors"
 	"testing"
 
-	"github.com/apenella/go-ansible/pkg/vault/password/envvars"
-	"github.com/apenella/go-ansible/pkg/vault/password/file"
+	"github.com/apenella/go-ansible/v2/pkg/vault/password/envvars"
+	"github.com/apenella/go-ansible/v2/pkg/vault/password/file"
 	"github.com/spf13/afero"
 	"github.com/stretchr/testify/assert"
 )

@@ -11,7 +11,8 @@ Let's dive in and explore the capabilities of _go-ansible_ together.
 _**Important:** The master branch may contain unreleased or pre-released features. Be cautious when using that branch in your projects. It is recommended to use the stable releases available in the [releases](https://github.com/apenella/go-ansible/releases)._
 
 > **Note**
-> The latest major version of _go-ansible_, version _2.x_, introduced significant and breaking changes. If you are currently using a version prior to _2.x_, please refer to the [upgrade guide](https://github.com/apenella/go-ansible/blob/master/docs/upgrade_guide_to_2.x.md) for detailed information on how to migrate to version _2.x_.
+> The latest major version of _go-ansible_, version _2.x_, introduced significant and breaking changes. The first change is that the package name has been changed from `github.com/apenella/go-ansible` to `github.com/apenella/go-ansible/v2`. So, you need to update your import paths to use the new module name.
+> To migrate your code from prior version to _2.x_, please refer to the [upgrade guide](https://github.com/apenella/go-ansible/blob/master/docs/upgrade_guide_to_2.x.md) for detailed information on how to migrate to version _2.x_.
 > The most relevant change is that [command structs](#command-generator) no longer execute commands. So, [AnsiblePlaybookCmd](#ansibleplaybookcmd-struct), [AnsibleInventoryCmd](#ansibleinventorycmd-struct) and [AnsibleAdhocCmd](#ansibleadhoccmd-struct) do not require an [executor](#executor) anymore. Instead, the _executor_ is responsible for receiving the command to execute and executing it.
 
 - [go-ansible](#go-ansible)
@@ -75,10 +76,16 @@ _**Important:** The master branch may contain unreleased or pre-released feature
 
 ## Install
 
-Use this command to fetch and install the latest version of _go-ansible_, ensuring you have the most up-to-date and stable release.
+Use this command to fetch and install the _go-ansible_ module. You can install the release candidate version by executing the following command:
 
 ```sh
-go get github.com/apenella/go-ansible@v2.0.0-rc.1
+go get github.com/apenella/go-ansible/v2@v2.0.0-rc.2
+```
+
+You can also install the latest stable version by executing the following command:
+
+```sh
+go get github.com/apenella/go-ansible
 ```
 
 ### Upgrade to 1.x
@@ -193,7 +200,7 @@ For detailed information on the library's packages, structs, methods, and functi
 
 This section provides an overview of the `adhoc` package in the _go-ansible_ library, outlining its key components and functionalities.
 
-The `github.com/apenella/go-ansible/pkg/adhoc` package facilitates the generation of _Ansible_ ad-hoc commands. It does not execute the commands directly, but instead provides the necessary structs to generate the command to be executed by an executor. The `adhoc` package includes the following essential structs for executing ad-hoc commands:
+The `github.com/apenella/go-ansible/v2/pkg/adhoc` package facilitates the generation of _Ansible_ ad-hoc commands. It does not execute the commands directly, but instead provides the necessary structs to generate the command to be executed by an executor. The `adhoc` package includes the following essential structs for executing ad-hoc commands:
 
 #### AnsibleAdhocCmd struct
 
@@ -250,7 +257,7 @@ With `AnsibleAdhocOptions` struct, you can define parameters described in Ansibl
 
 ### Execute package
 
-The _execute_ package, available at `github.com/apenella/go-ansible/pkg/execute`, provides the [DefaultExecute](#defaultexecute-struct), a ready-to-use [executor](#executor). Additionally, the package defines some interfaces for managing the command execution and customizing the behavior of the _executor_.
+The _execute_ package, available at `github.com/apenella/go-ansible/v2/pkg/execute`, provides the [DefaultExecute](#defaultexecute-struct), a ready-to-use [executor](#executor). Additionally, the package defines some interfaces for managing the command execution and customizing the behavior of the _executor_.
 
 Find below the main resources available in the execute package:
 
@@ -298,7 +305,7 @@ Think of the `DefaultExecute` executor as a pipeline that handles command execut
 
 By default, the `DefaultExecute` executor uses the `OsExec` struct as the `Executabler` for executing commands, a wrapper around the `os/exec` package. It also uses the [DefaultResults](#defaultresults-struct) struct as the [ResultsOutputer](#resultsoutputer-interface) for managing the output of the command execution. However, you can customize these components to tailor the execution process to your needs.
 
-The following functions can be provided when creating a new instance of the `DefaultExecute` to customize its behavior. All of them are available in the `github.com/apenella/go-ansible/pkg/execute` package:
+The following functions can be provided when creating a new instance of the `DefaultExecute` to customize its behavior. All of them are available in the `github.com/apenella/go-ansible/v2/pkg/execute` package:
 
 - `WithCmd(cmd Commander) ExecuteOptions`: Set the component responsible for generating the command.
 - `WithCmdRunDir(cmdRunDir string) ExecuteOptions`: Define the directory where the command will be executed.
@@ -392,7 +399,7 @@ In the following sections, we will explore the components available for customiz
 
 ##### Configuration package
 
-The `github.com/apenella/go-ansible/pkg/execute/configuration` package provides components for configuring the _Ansible_ settings during command execution. In the following sections, we will explore the available elements for customizing the execution process.
+The `github.com/apenella/go-ansible/v2/pkg/execute/configuration` package provides components for configuring the _Ansible_ settings during command execution. In the following sections, we will explore the available elements for customizing the execution process.
 
 ###### ExecutorEnvVarSetter interface
 
@@ -407,7 +414,7 @@ type ExecutorEnvVarSetter interface {
 
 ###### Ansible Configuration functions
 
-The `github.com/apenella/go-ansible/pkg/execute/configuration` package provides a set of functions for configuring _Ansible_ settings during command execution. Each function corresponds to a configuration setting available in [Ansible's reference guide](https://docs.ansible.com/ansible/latest/reference_appendices/config.html). The functions follow a consistent naming convention: `With<setting name>` or `Without<setting name>`, where `<setting name>` is the name of the _Ansible_ setting to be configured.
+The `github.com/apenella/go-ansible/v2/pkg/execute/configuration` package provides a set of functions for configuring _Ansible_ settings during command execution. Each function corresponds to a configuration setting available in [Ansible's reference guide](https://docs.ansible.com/ansible/latest/reference_appendices/config.html). The functions follow a consistent naming convention: `With<setting name>` or `Without<setting name>`, where `<setting name>` is the name of the _Ansible_ setting to be configured.
 
 ###### AnsibleWithConfigurationSettingsExecute struct
 
@@ -444,7 +451,7 @@ if err != nil {
 
 ##### Measure package
 
-The _go-ansible_ library offers a convenient mechanism for measuring the execution time of _Ansible_ commands through the `github.com/apenella/go-ansible/pkg/execute/measure` package. This package includes the `ExecutorTimeMeasurement` struct, which acts as a decorator over an [Executor](#executor) to track the time taken for command execution.
+The _go-ansible_ library offers a convenient mechanism for measuring the execution time of _Ansible_ commands through the `github.com/apenella/go-ansible/v2/pkg/execute/measure` package. This package includes the `ExecutorTimeMeasurement` struct, which acts as a decorator over an [Executor](#executor) to track the time taken for command execution.
 
 To illustrate, consider the following code snippet, which demonstrates how to use the `ExecutorTimeMeasurement` struct to measure the time it takes to execute the `ansible-playbook` command:
 
@@ -477,11 +484,11 @@ For a complete example showcasing how to use measurement, refer to the [ansiblep
 
 ##### Result package
 
-The `github.com/apenella/go-ansible/pkg/execute/result` package provides a set of components and subpackages to manage the output of _Ansible_ commands. The following sections describe the available elements.
+The `github.com/apenella/go-ansible/v2/pkg/execute/result` package provides a set of components and subpackages to manage the output of _Ansible_ commands. The following sections describe the available elements.
 
 ###### ResultsOutputer interface
 
-The `ResultsOutputer` interface in the `github.com/apenella/go-ansible/pkg/execute/result` package defines a component responsible for managing the output of command execution within the _go-ansible_ library. Both the [DefaultResults](#defaultresults-struct) and [JSONStdoutCallbackResults](#jsonstdoutcallbackresults-struct) structs implement this interface. Below is the definition of the ResultsOutputer interface:
+The `ResultsOutputer` interface in the `github.com/apenella/go-ansible/v2/pkg/execute/result` package defines a component responsible for managing the output of command execution within the _go-ansible_ library. Both the [DefaultResults](#defaultresults-struct) and [JSONStdoutCallbackResults](#jsonstdoutcallbackresults-struct) structs implement this interface. Below is the definition of the ResultsOutputer interface:
 
 ```go
 type ResultsOutputer interface {
@@ -491,7 +498,7 @@ type ResultsOutputer interface {
 
 ###### DefaultResults struct
 
-The `DefaultResults` struct, located in the `github.com/apenella/go-ansible/pkg/execute/result/default` package, serves as the default output manager for command execution within the _go-ansible_ library. It implements the [ResultsOutputer](#resultsoutputer-interface) interface, providing functionality to handle command output as plain text.
+The `DefaultResults` struct, located in the `github.com/apenella/go-ansible/v2/pkg/execute/result/default` package, serves as the default output manager for command execution within the _go-ansible_ library. It implements the [ResultsOutputer](#resultsoutputer-interface) interface, providing functionality to handle command output as plain text.
 
 The `DefaultResults` struct reads the execution output line by line and applies a set of [transformers](#transformer-functions) to each line. A _transformer_ allows you to enrich or modify of the output according to your specific requirements. You can specify the _transformers_ during the instantiation of a new `DefaultResults` instance or when configuring the [DefaultExecute](#defaultexecute-struct) executor. Here you have an example of how to specify them when creating a new instance of [DefaultExecute](#defaultexecute-struct):
 
@@ -507,7 +514,7 @@ exec := execute.NewDefaultExecute(
 
 ###### JSONStdoutCallbackResults struct
 
-The `JSONStdoutCallbackResults` struct, located in the `github.com/apenella/go-ansible/pkg/execute/result/json` package, is designed to handle the output of command execution when using the `JSON` stdout callback method. It implements the [ResultsOutputer](#resultsoutputer-interface) interface, providing functionality to parse and manipulate _JSON-formatted_ output from _Ansible_ commands.
+The `JSONStdoutCallbackResults` struct, located in the `github.com/apenella/go-ansible/v2/pkg/execute/result/json` package, is designed to handle the output of command execution when using the `JSON` stdout callback method. It implements the [ResultsOutputer](#resultsoutputer-interface) interface, providing functionality to parse and manipulate _JSON-formatted_ output from _Ansible_ commands.
 
 The package also includes the `ParseJSONResultsStream` function, which decodes the `JSON` output into an `AnsiblePlaybookJSONResults` data structure. This structure can be further manipulated to format the `JSON` output according to specific requirements. The expected `JSON` schema from _Ansible_ output is defined in the [json.py](https://github.com/ansible/ansible/blob/v2.9.11/lib/ansible/plugins/callback/json.py) file within the _Ansible_ repository.
 
@@ -558,9 +565,9 @@ In _go-ansible_, transformer functions are essential components that enrich or u
 type TransformerFunc func(string) string
 ```
 
-When the output is received from the [executor](#executor), it undergoes processing line by line, with each line being passed through the available transformers. The `github.com/apenella/go-ansible/pkg/execute/result/transformer` package provides a set of ready-to-use transformers, and users can also create custom transformers as needed.
+When the output is received from the [executor](#executor), it undergoes processing line by line, with each line being passed through the available transformers. The `github.com/apenella/go-ansible/v2/pkg/execute/result/transformer` package provides a set of ready-to-use transformers, and users can also create custom transformers as needed.
 
-Here you have the transformer functions available in the `github.com/apenella/go-ansible/pkg/execute/result/transformer` package:
+Here you have the transformer functions available in the `github.com/apenella/go-ansible/v2/pkg/execute/result/transformer` package:
 
 - **Prepend**: Adds a specified prefix string to each output line.
 
@@ -589,7 +596,7 @@ transformer.IgnoreMessage(skipPatterns...)
 
 ##### Stdoutcallback package
 
-The `github.com/apenella/go-ansible/pkg/execute/stdoutcallback` package in the _go-ansible_ library facilitates the management of _Ansible_'s stdout callback method. Configuring the stdout callback method typically involves two steps:
+The `github.com/apenella/go-ansible/v2/pkg/execute/stdoutcallback` package in the _go-ansible_ library facilitates the management of _Ansible_'s stdout callback method. Configuring the stdout callback method typically involves two steps:
 
 - Setting the `ANSIBLE_STDOUT_CALLBACK` environment variable to specify the desired stdout callback plugin name.
 - Defining the method responsible for handling the results output from the command execution.
@@ -614,7 +621,7 @@ type ExecutorStdoutCallbackSetter interface {
 
 ###### Stdout Callback Execute structs
 
-The `github.com/apenella/go-ansible/pkg/execute/stdoutcallback` package provides a collection of structs designed to simplify the configuration of stdout callback methods for _Ansible_ command execution. These structs act as decorators over an [ExecutorStdoutCallbackSetter](#executorstdoutcallbacksetter-interface), allowing seamless integration of different stdout callback plugins with command execution.
+The `github.com/apenella/go-ansible/v2/pkg/execute/stdoutcallback` package provides a collection of structs designed to simplify the configuration of stdout callback methods for _Ansible_ command execution. These structs act as decorators over an [ExecutorStdoutCallbackSetter](#executorstdoutcallbacksetter-interface), allowing seamless integration of different stdout callback plugins with command execution.
 
 Each stdout callback method in _Ansible_ corresponds to a specific struct in _go-ansible_, making it easy to select and configure the desired method. Here are the available structs:
 
@@ -646,7 +653,7 @@ if err != nil {
 
 ##### Workflow package
 
-The `github.com/apenella/go-ansible/pkg/execute/workflow` package provides an executor that allows you to run a sequence of executors.
+The `github.com/apenella/go-ansible/v2/pkg/execute/workflow` package provides an executor that allows you to run a sequence of executors.
 
 ###### WorkflowExecute struct
 
@@ -682,7 +689,7 @@ if err != nil {
 
 The information provided in this section gives an overview of the `Inventory` package in `go-ansible`.
 
-The `github.com/apenella/go-ansible/pkg/inventory` package provides the functionality to execute `ansible-inventory`. To perform these tasks, you can use the following inventory structs:
+The `github.com/apenella/go-ansible/v2/pkg/inventory` package provides the functionality to execute `ansible-inventory`. To perform these tasks, you can use the following inventory structs:
 
 #### AnsibleInventoryCmd struct
 
@@ -699,7 +706,7 @@ The following methods are available to set attributes for the [AnsibleInventoryC
 
 - `WithBinary(binary string) *AnsibleInventoryExecute`: The method sets the `Binary` attribute.
 - `WithInventoryOptions(options *AnsibleAdhocOptions) *AnsibleInventoryExecute`: The method sets the `InventoryOptions`  attribute.
-- `WithPattern(pattern string) *AnsibleInventoryExecute`: The method sets the `Pattern`  attribute.
+- `WithPattern(pattern string) *AnsibleInventoryExecute`: The method sets the `Pattern` attribute.
 
 Here is an example of launching an `ansible-inventory` command using `AnsibleInventoryExecute`:
 
@@ -722,13 +729,13 @@ The `AnsibleInventoryOptions` struct includes parameters described in the `Optio
 
 This section provides an overview of the `playbook` package in the _go-ansible_ library. Here are described its main components and functionalities.
 
-The `github.com/apenella/go-ansible/pkg/playbook` package facilitates the generation of _ansible-playbook_ commands. It does not execute the commands directly, but instead provides the necessary structs to generate the command to be executed by an executor. The `playbook` package includes the following essential structs for executing ad-hoc commands:
+The `github.com/apenella/go-ansible/v2/pkg/playbook` package facilitates the generation of _ansible-playbook_ commands. It does not execute the commands directly, but instead provides the necessary structs to generate the command to be executed by an executor. The `playbook` package includes the following essential structs for executing ad-hoc commands:
 
 #### AnsiblePlaybookCmd struct
 
 The `AnsiblePlaybookCmd` struct enables the generation of _ansible-playbook_ commands. It implements the [Commander](#commander-interface) interface, so its method `Command` returns an array of strings that represents the command to be executed. An executor can use it to create the command to be executed.
 
-Next is an example of how to use the `AnsiblePlaybookCmd` struct to generate a _ansible-playbook_ command:
+Next is an example of how to use the `AnsiblePlaybookCmd` struct to generate an _ansible-playbook_ command:
 
 ```go
 ansiblePlaybookOptions := &playbook.AnsiblePlaybookOptions{
@@ -756,7 +763,7 @@ The `AnsiblePlaybookExecute` struct serves as a streamlined [executor](#executor
 The following methods are available to set attributes for the [AnsiblePlaybookCmd](#ansibleplaybookcmd-struct) struct:
 
 - `WithBinary(binary string) *AnsiblePlaybookExecute`: The method sets the `Binary` attribute.
-- `WithPlaybookOptions(options *AnsiblePlaybookOptions) *AnsiblePlaybookExecute`: The method sets the `PlaybookOptions`  attribute.
+- `WithPlaybookOptions(options *AnsiblePlaybookOptions) *AnsiblePlaybookExecute`: The method sets the `PlaybookOptions` attribute.
 
 Here is an example of launching an `ansible-playbook` command using `AnsiblePlaybookExecute`:
 
@@ -776,7 +783,7 @@ With `AnsiblePlaybookOptions` struct, you can define parameters described in Ans
 
 ### Vault package
 
-The `github.com/apenella/go-ansible/pkg/vault` package provides functionality to encrypt variables. It introduces the `VariableVaulter` struct, which is responsible for creating a `VaultVariableValue` from the value that you need to encrypt.
+The `github.com/apenella/go-ansible/v2/pkg/vault` package provides functionality to encrypt variables. It introduces the `VariableVaulter` struct, which is responsible for creating a `VaultVariableValue` from the value that you need to encrypt.
 
 The `VaultVariableValue` can return the instantiated variable in JSON format.
 
@@ -792,7 +799,7 @@ The encryption functionality is implemented in the `encrypt` package, which is d
 
 #### Encrypt
 
-The `github.com/apenella/go-ansible/pkg/vault/encrypt` package is responsible for encrypting variables. It implements the `Encrypter` interface defined in the `github.com/apenella/go-ansible/pkg/vault` package.
+The `github.com/apenella/go-ansible/v2/pkg/vault/encrypt` package is responsible for encrypting variables. It implements the `Encrypter` interface defined in the `github.com/apenella/go-ansible/v2/pkg/vault` package.
 
 Currently, the package provides the `EncryptString` struct, which supports the encryption of string variables. It utilizes the `github.com/sosedoff/ansible-vault-go` library for encryption.
 
@@ -824,7 +831,7 @@ The _go-ansible_ library provides a set of packages that can be used as `Passwor
 
 ##### Envvars
 
-The `github.com/apenella/go-ansible/pkg/vault/password/envvars` package allows you to read the password from an environment variable. To use this package, you need to use the `NewReadPasswordFromEnvVar` function and provide the name of the environment variable where the password is stored using the `WithEnvVar` option:
+The `github.com/apenella/go-ansible/v2/pkg/vault/password/envvars` package allows you to read the password from an environment variable. To use this package, you need to use the `NewReadPasswordFromEnvVar` function and provide the name of the environment variable where the password is stored using the `WithEnvVar` option:
 
 ```go
 reader := NewReadPasswordFromEnvVar(
@@ -838,7 +845,7 @@ Using the `envvars` package, you can conveniently read the password from an envi
 
 ##### File
 
-The `github.com/apenella/go-ansible/pkg/vault/password/file` package allows you to read the password from a file, using the [afero](https://github.com/spf13/afero/blob/master/README.md) file system abstraction.
+The `github.com/apenella/go-ansible/v2/pkg/vault/password/file` package allows you to read the password from a file, using the [afero](https://github.com/spf13/afero/blob/master/README.md) file system abstraction.
 
 To use this package, you need to instantiate the `NewReadPasswordFromFile` function and provide the necessary options. The `WithFs` option is used to specify the file system, and the `WithFile` option is used to specify the path to the password file.
 
@@ -858,7 +865,7 @@ In this case, the [OsFs](https://pkg.go.dev/github.com/spf13/afero#OsFs) will be
 
 ##### Resolve
 
-The `github.com/apenella/go-ansible/pkg/vault/password/resolve` package provides a mechanism to resolve the password by exploring multiple `PasswordReader` implementations. It returns the first password obtained from any of the `PasswordReader` instances.
+The `github.com/apenella/go-ansible/v2/pkg/vault/password/resolve` package provides a mechanism to resolve the password by exploring multiple `PasswordReader` implementations. It returns the first password obtained from any of the `PasswordReader` instances.
 
 To use this package, you need to create a `NewReadPasswordResolve` instance and provide a list of `PasswordReader` implementations as arguments to the `WithReader` option:
 
@@ -884,7 +891,7 @@ Using the `resolve` package, you can explore multiple `PasswordReader` implement
 
 ##### Text
 
-The `github.com/apenella/go-ansible/pkg/vault/password/text` package provides functionality to read the password from a text source.
+The `github.com/apenella/go-ansible/v2/pkg/vault/password/text` package provides functionality to read the password from a text source.
 
 To use this package, you need to instantiate the `NewReadPasswordFromText` function and provide the password as a text value using the `WithText` option:
 
