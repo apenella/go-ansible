@@ -5,9 +5,9 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/apenella/go-ansible/pkg/execute/measure"
-	"github.com/apenella/go-ansible/pkg/execute/workflow"
-	"github.com/apenella/go-ansible/pkg/playbook"
+	"github.com/apenella/go-ansible/v2/pkg/execute/measure"
+	"github.com/apenella/go-ansible/v2/pkg/execute/workflow"
+	"github.com/apenella/go-ansible/v2/pkg/playbook"
 )
 
 func main() {

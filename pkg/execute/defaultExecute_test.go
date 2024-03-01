@@ -7,10 +7,10 @@ import (
 	"os"
 	"testing"
 
-	"github.com/apenella/go-ansible/internal/executable/os/exec"
-	"github.com/apenella/go-ansible/mocks"
-	defaultresults "github.com/apenella/go-ansible/pkg/execute/result/default"
-	"github.com/apenella/go-ansible/pkg/execute/result/transformer"
+	"github.com/apenella/go-ansible/v2/internal/executable/os/exec"
+	"github.com/apenella/go-ansible/v2/mocks"
+	defaultresults "github.com/apenella/go-ansible/v2/pkg/execute/result/default"
+	"github.com/apenella/go-ansible/v2/pkg/execute/result/transformer"
 	errors "github.com/apenella/go-common-utils/error"
 	"github.com/stretchr/testify/assert"
 )

@@ -3,7 +3,7 @@ package execute
 import (
 	"context"
 
-	"github.com/apenella/go-ansible/internal/executable/os/exec"
+	"github.com/apenella/go-ansible/v2/internal/executable/os/exec"
 )
 
 // Executor interface to execute commands

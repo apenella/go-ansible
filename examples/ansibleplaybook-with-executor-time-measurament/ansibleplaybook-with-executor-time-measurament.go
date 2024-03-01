@@ -3,11 +3,11 @@ package main
 import (
 	"context"
 
-	"github.com/apenella/go-ansible/pkg/execute"
-	"github.com/apenella/go-ansible/pkg/execute/configuration"
-	"github.com/apenella/go-ansible/pkg/execute/measure"
-	"github.com/apenella/go-ansible/pkg/execute/result/transformer"
-	"github.com/apenella/go-ansible/pkg/playbook"
+	"github.com/apenella/go-ansible/v2/pkg/execute"
+	"github.com/apenella/go-ansible/v2/pkg/execute/configuration"
+	"github.com/apenella/go-ansible/v2/pkg/execute/measure"
+	"github.com/apenella/go-ansible/v2/pkg/execute/result/transformer"
+	"github.com/apenella/go-ansible/v2/pkg/playbook"
 	"github.com/fatih/color"
 )
 

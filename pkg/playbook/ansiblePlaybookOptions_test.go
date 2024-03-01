@@ -3,7 +3,7 @@ package playbook
 import (
 	"testing"
 
-	"github.com/apenella/go-ansible/pkg/vault"
+	"github.com/apenella/go-ansible/v2/pkg/vault"
 	errors "github.com/apenella/go-common-utils/error"
 	"github.com/stretchr/testify/assert"
 )

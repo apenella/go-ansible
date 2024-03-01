@@ -4,7 +4,7 @@ import (
 	"context"
 	"time"
 
-	"github.com/apenella/go-ansible/pkg/execute"
+	"github.com/apenella/go-ansible/v2/pkg/execute"
 	errors "github.com/apenella/go-common-utils/error"
 )
 

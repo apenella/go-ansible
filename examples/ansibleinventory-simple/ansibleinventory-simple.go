@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/apenella/go-ansible/pkg/inventory"
+	"github.com/apenella/go-ansible/v2/pkg/inventory"
 )
 
 func main() {

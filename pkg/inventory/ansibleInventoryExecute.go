@@ -3,7 +3,7 @@ package inventory
 import (
 	"context"
 
-	"github.com/apenella/go-ansible/pkg/execute"
+	"github.com/apenella/go-ansible/v2/pkg/execute"
 )
 
 // AnsibleInventoryExecute is an executor for ansible-inventory command that runs the command using a DefaultExecute with default options
