@@ -9,6 +9,7 @@ require (
 	github.com/fatih/color v1.13.0
 	github.com/go-errors/errors v1.4.2
 	github.com/iancoleman/strcase v0.3.0
+	github.com/kballard/go-shellquote v0.0.0-20180428030007-95032a82bc51
 	github.com/pkg/errors v0.9.1
 	github.com/sosedoff/ansible-vault-go v0.2.0
 	github.com/spf13/afero v1.9.5
