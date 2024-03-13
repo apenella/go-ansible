@@ -2,9 +2,11 @@ package playbook
 
 import (
 	"fmt"
+	"strings"
 
 	common "github.com/apenella/go-common-utils/data"
 	errors "github.com/apenella/go-common-utils/error"
+	"github.com/kballard/go-shellquote"
 )
 
 const (
@@ -412,22 +414,30 @@ func (o *AnsiblePlaybookOptions) GenerateCommandOptions() ([]string, error) {
 
 	if o.SCPExtraArgs != "" {
 		cmd = append(cmd, SCPExtraArgsFlag)
-		cmd = append(cmd, fmt.Sprintf("'%s'", o.SCPExtraArgs))
+
+		splitedSCPExtraArgs := strings.Split(o.SCPExtraArgs, " ")
+		cmd = append(cmd, shellquote.Join(splitedSCPExtraArgs...))
 	}
 
 	if o.SFTPExtraArgs != "" {
 		cmd = append(cmd, SFTPExtraArgsFlag)
-		cmd = append(cmd, fmt.Sprintf("'%s'", o.SFTPExtraArgs))
+
+		splitedSFTPExtraArgs := strings.Split(o.SFTPExtraArgs, " ")
+		cmd = append(cmd, shellquote.Join(splitedSFTPExtraArgs...))
 	}
 
 	if o.SSHCommonArgs != "" {
 		cmd = append(cmd, SSHCommonArgsFlag)
-		cmd = append(cmd, fmt.Sprintf("'%s'", o.SSHCommonArgs))
+
+		splitedSSHCommonArgs := strings.Split(o.SSHCommonArgs, " ")
+		cmd = append(cmd, shellquote.Join(splitedSSHCommonArgs...))
 	}
 
 	if o.SSHExtraArgs != "" {
 		cmd = append(cmd, SSHExtraArgsFlag)
-		cmd = append(cmd, fmt.Sprintf("'%s'", o.SSHExtraArgs))
+
+		splitedSSHExtraArgs := strings.Split(o.SSHExtraArgs, " ")
+		cmd = append(cmd, shellquote.Join(splitedSSHExtraArgs...))
 	}
 
 	if o.Timeout > 0 {
