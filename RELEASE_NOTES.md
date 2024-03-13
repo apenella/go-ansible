@@ -1,6 +1,6 @@
 # Release notes
 
-## v2.0.0-rc.2
+## v2.0.0-rc.3
 
 Version 2.0.0 of *go-ansible* introduces several disruptive changes. Read the upgrade guide carefully before proceeding with the upgrade.
 
@@ -22,6 +22,10 @@ Version 2.0.0 of *go-ansible* introduces several disruptive changes. Read the up
 - The constants `AnsibleForceColorEnv` and `AnsibleHostKeyCheckingEnv` have been removed from the `github.com/apenella/go-ansible/pkg/options` package.
 - The functions `AnsibleForceColor`, `AnsibleAvoidHostKeyChecking` and `AnsibleSetEnv` have been removed from the `github.com/apenella/go-ansible/pkg/options` package. Use the `ExecutorWithAnsibleConfigurationSettings` decorator instead defined in the `github.com/apenella/go-ansible/v2/pkg/execute/configuration` package.
 - The methods `WithWrite` and `WithShowduration` have been removed from the `ExecutorTimeMeasurement` decorator. Instead, a new method named `Duration` has been introduced for obtaining the duration of the execution.
+
+### Fixed
+
+- Quote properly the attributes `SCPExtraArgs`, `SFTPExtraArgs`, `SSHCommonArgs`, `SSHExtraArgs` in `AnsibleAdhocOptions` and `AnsiblePlaybookOptions` structs when generating the command to be executed. #140
 
 ### Added
 
