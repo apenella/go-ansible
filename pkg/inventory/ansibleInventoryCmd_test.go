@@ -7,6 +7,78 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+// TestNewAnsibleInventoryCmd tests
+func TestNewAnsibleInventoryCmd(t *testing.T) {
+
+	tests := []struct {
+		desc                        string
+		expectedAnsibleInventoryCmd *AnsibleInventoryCmd
+		binary                      string
+		pattern                     string
+		ansibleInventoryOptions     *AnsibleInventoryOptions
+	}{
+		{
+			desc:    "Testing create new AnsibleInventoryCmd",
+			binary:  "custom-binary",
+			pattern: "pattern",
+			ansibleInventoryOptions: &AnsibleInventoryOptions{
+				AskVaultPassword:  true,
+				Export:            true,
+				Graph:             true,
+				Host:              "localhost",
+				Inventory:         "test/ansible/inventory/all",
+				Limit:             "limit",
+				List:              true,
+				Output:            "/tmp/output.ini",
+				PlaybookDir:       "playbook-dir",
+				Toml:              true,
+				Vars:              true,
+				VaultID:           "vault-id",
+				VaultPasswordFile: "vault-password-file",
+				Verbose:           true,
+				Version:           true,
+				Yaml:              true,
+			},
+			expectedAnsibleInventoryCmd: &AnsibleInventoryCmd{
+				Binary:  "custom-binary",
+				Pattern: "pattern",
+				InventoryOptions: &AnsibleInventoryOptions{
+					AskVaultPassword:  true,
+					Export:            true,
+					Graph:             true,
+					Host:              "localhost",
+					Inventory:         "test/ansible/inventory/all",
+					Limit:             "limit",
+					List:              true,
+					Output:            "/tmp/output.ini",
+					PlaybookDir:       "playbook-dir",
+					Toml:              true,
+					Vars:              true,
+					VaultID:           "vault-id",
+					VaultPasswordFile: "vault-password-file",
+					Verbose:           true,
+					Version:           true,
+					Yaml:              true,
+				},
+			},
+		},
+	}
+
+	for _, test := range tests {
+		t.Run(test.desc, func(t *testing.T) {
+			t.Log(test.desc)
+
+			ansibleInventoryCmd := NewAnsibleInventoryCmd(
+				WithBinary(test.binary),
+				WithPattern(test.pattern),
+				WithInventoryOptions(test.ansibleInventoryOptions),
+			)
+
+			assert.Equal(t, test.expectedAnsibleInventoryCmd, ansibleInventoryCmd, "Unexpected value")
+		})
+	}
+}
+
 // TestGenerateCommandOptions tests
 func TestGenerateCommandOptions(t *testing.T) {
 	tests := []struct {
