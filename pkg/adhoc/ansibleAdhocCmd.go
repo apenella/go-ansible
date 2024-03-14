@@ -12,6 +12,9 @@ const (
 	DefaultAnsibleAdhocBinary = "ansible"
 )
 
+// AnsibleAdhocOptionsFunc is a function to set executor options
+type AnsibleAdhocOptionsFunc func(*AnsibleAdhocCmd)
+
 // AnsibleAdhocCmd object is the main object which defines the `ansible` adhoc command and how to execute it.
 type AnsibleAdhocCmd struct {
 	// Ansible binary file
@@ -20,6 +23,38 @@ type AnsibleAdhocCmd struct {
 	Pattern string
 	// AdhocOptions are the ansible's playbook options
 	AdhocOptions *AnsibleAdhocOptions
+}
+
+// NewAnsibleAdhocCmd creates a new AnsibleAdhocCmd instance
+func NewAnsibleAdhocCmd(options ...AnsibleAdhocOptionsFunc) *AnsibleAdhocCmd {
+	cmd := &AnsibleAdhocCmd{}
+
+	for _, option := range options {
+		option(cmd)
+	}
+
+	return cmd
+}
+
+// WithBinary set the ansible binary file
+func WithBinary(binary string) AnsibleAdhocOptionsFunc {
+	return func(a *AnsibleAdhocCmd) {
+		a.Binary = binary
+	}
+}
+
+// WithPattern set the adhoc pattern
+func WithPattern(pattern string) AnsibleAdhocOptionsFunc {
+	return func(a *AnsibleAdhocCmd) {
+		a.Pattern = pattern
+	}
+}
+
+// WithAdhocOptions set the adhoc options
+func WithAdhocOptions(options *AnsibleAdhocOptions) AnsibleAdhocOptionsFunc {
+	return func(a *AnsibleAdhocCmd) {
+		a.AdhocOptions = options
+	}
 }
 
 // Command generate the ansible command which will be executed
