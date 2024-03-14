@@ -2,11 +2,9 @@ package adhoc
 
 import (
 	"fmt"
-	"strings"
 
 	common "github.com/apenella/go-common-utils/data"
 	errors "github.com/apenella/go-common-utils/error"
-	"github.com/kballard/go-shellquote"
 )
 
 const (
@@ -431,30 +429,22 @@ func (o *AnsibleAdhocOptions) GenerateAnsibleAdhocOptions() ([]string, error) {
 
 	if o.SCPExtraArgs != "" {
 		cmd = append(cmd, SCPExtraArgsFlag)
-
-		splitedSCPExtraArgs := strings.Split(o.SCPExtraArgs, " ")
-		cmd = append(cmd, shellquote.Join(splitedSCPExtraArgs...))
+		cmd = append(cmd, o.SCPExtraArgs)
 	}
 
 	if o.SFTPExtraArgs != "" {
 		cmd = append(cmd, SFTPExtraArgsFlag)
-
-		splitedSFTPExtraArgs := strings.Split(o.SFTPExtraArgs, " ")
-		cmd = append(cmd, shellquote.Join(splitedSFTPExtraArgs...))
+		cmd = append(cmd, o.SFTPExtraArgs)
 	}
 
 	if o.SSHCommonArgs != "" {
 		cmd = append(cmd, SSHCommonArgsFlag)
-
-		splitedSSHCommonArgs := strings.Split(o.SSHCommonArgs, " ")
-		cmd = append(cmd, shellquote.Join(splitedSSHCommonArgs...))
+		cmd = append(cmd, o.SSHCommonArgs)
 	}
 
 	if o.SSHExtraArgs != "" {
 		cmd = append(cmd, SSHExtraArgsFlag)
-
-		splitedSSHExtraArgs := strings.Split(o.SSHExtraArgs, " ")
-		cmd = append(cmd, shellquote.Join(splitedSSHExtraArgs...))
+		cmd = append(cmd, o.SSHExtraArgs)
 	}
 
 	if o.Timeout > 0 {
