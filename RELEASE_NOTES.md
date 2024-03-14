@@ -34,16 +34,17 @@ Version 2.0.0 of *go-ansible* introduces several disruptive changes. Read the up
 - A new _executor_ `AnsiblePlaybookExecute` has been introduced. That _executor_ allows you to create an executor to run `ansible-playbook` commands using the default settings of `DefaultExecute`. This _executor_ is located in the `github.com/apenella/go-ansible/v2/pkg/execute/playbook` package.
 - A new interface `Commander` has been introduced in the `github.com/apenella/go-ansible/v2/pkg/execute` package. This interface defines the criteria for a struct to be compliant in generating execution commands.
 - A new interface `Executabler` has been introduced in the `github.com/apenella/go-ansible/v2/pkg/execute` package. This interface defines the criteria for a struct to be compliant in executing external commands.
-- A new interface `ExecutorEnvVarSetter` in `github.com/apenella/go-ansible/v2/pkg/execute/configuration` that defines the criteria for a struct to be compliant in setting Ansible configuration.
+- A new interface `ExecutorEnvVarSetter` in `github.com/apenella/go-ansible/v2/pkg/execute/configuration` defines the criteria for a struct to be compliant in setting Ansible configuration.
 - A new interface `ExecutorStdoutCallbackSetter` has been introduced in the `github.com/apenella/go-ansible/v2/pkg/execute/stdoutcallback` package. This interface defines the criteria for a struct to be compliant in setting an executor that accepts the stdout callback configuration for Ansible executions.
-- A new interface named `ResultsOutputer` has been introduced in the `github.com/apenella/go-ansible/v2/pkg/execute/result` pacakge.  This interface defines the criteria for a struct to be compliant in printing execution results.
+- A new interface named `ResultsOutputer` has been introduced in the `github.com/apenella/go-ansible/v2/pkg/execute/result` package.  This interface defines the criteria for a struct to be compliant in printing execution results.
 - A new package `github.com/apenella/go-ansible/v2/internal/executable/os/exec` has been introduced. This package serves as a wrapper for `os.exec`.
-- A new package `github.com/apenella/go-ansible/v2/pkg/execute/configuration` that incldues the `ExecutorWithAnsibleConfigurationSettings` struct, which acts as a decorator that facilitates the configuration of Ansible settings within the executor.
+- A new package `github.com/apenella/go-ansible/v2/pkg/execute/configuration`  includes the `ExecutorWithAnsibleConfigurationSettings` struct, which acts as a decorator that facilitates the configuration of Ansible settings within the executor.
 - A new package `github.com/apenella/go-ansible/v2/pkg/execute/result/default` has been introduced. This package offers the default component for printing execution results. It supersedes the `DefaultStdoutCallbackResults` function that was previously defined in the `github.com/apenella/go-ansible/v2/pkg/stdoutcallback` package.
 - A new package `github.com/apenella/go-ansible/v2/pkg/execute/result/json` has been introduced. This package offers the component for printing execution results from the JSON stdout callback. It supersedes the `JSONStdoutCallbackResults` function that was previously defined in the `github.com/apenella/go-ansible/v2/pkg/stdoutcallback` package.
 - A new package `github.com/apenella/go-ansible/v2/pkg/execute/stdoutcallback`. This package offers multiple decorators designed to set the stdout callback for Ansible executions.
 - A new package `github.com/apenella/go-ansible/v2/pkg/execute/workflow` has been introduced. This package allows you to define a workflow for executing multiple commands in a sequence.
-- An utility to generate the code for the configuration package has been introduced. This utility is located in the `utils/cmd/configGenerator.go`.
+- A utility to generate the code for the configuration package has been introduced. This utility is located in the `utils/cmd/configGenerator.go`.
+- New functions `NewAnsibleAdhocCmd`, `NewAnsibleInventoryCmd` and `NewAnsiblePlaybookCmd` have been introduced. These functions are responsible for creating the `AnsibleAdhocCmd`, `AnsibleInventoryCmd` and `AnsiblePlaybookCmd` structs, respectively.
 
 ### Changed
 
