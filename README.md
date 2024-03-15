@@ -111,7 +111,7 @@ A _command generator_ or a _commander_ is responsible for generating the command
 
 ### Results Handler
 
-A _results handler_ or an _results outputer_ is responsible for managing the output of the command execution. The library includes two output mechanisms: the [DefaultResults](#defaultexecute-struct) and the [JSONStdoutCallbackResults](#jsonstdoutcallbackresults-struct) structs.
+A _results handler_ or a _results outputer_ is responsible for managing the output of the command execution. The library includes two output mechanisms: the [DefaultResults](#defaultexecute-struct) and the [JSONStdoutCallbackResults](#jsonstdoutcallbackresults-struct) structs.
 
 ## Getting Started
 
@@ -122,7 +122,7 @@ This section will guide you through the step-by-step process of using the _go-an
 
 Before proceeding, ensure you have installed the latest version of the _go-ansible_ library. If not, please refer to the [Installation section](#install) for instructions.
 
-To create an application that launches the `ansible-playbook` command you need to create an [AnsiblePlaybookCmd](#ansibleplaybookcmd-struct) struct. This struct generates the _Ansible_ command to be run. Then, you need to execute the command usingng an [executor](#executor). In that guided example, you will use the [DefaultExecute](#defaultexecute-struct) executor, an _executor_ provided by the _go-ansible_ library.
+To create an application that launches the `ansible-playbook` command you need to create an [AnsiblePlaybookCmd](#ansibleplaybookcmd-struct) struct. This struct generates the _Ansible_ command to be run. Then, you need to execute the command using an [executor](#executor)](#executor). In that guided example, you will use the [DefaultExecute](#defaultexecute-struct) executor, an _executor_ provided by the _go-ansible_ library.
 
 ### Create the _AnsiblePlaybookCmd_ struct
 
@@ -141,10 +141,11 @@ ansiblePlaybookOptions := &playbook.AnsiblePlaybookOptions{
 Finally, create the [AnsiblePlaybookCmd](#ansibleplaybookcmd-struct) struct that generates the command to execute the playbook `site.yml` using the `ansible-playbook` command:
 
 ```go
-playbookCmd := &playbook.AnsiblePlaybookCmd{
-  Playbook:         "site.yml",
-  PlaybookOptions:  ansiblePlaybookOptions,
-}
+playbookCmd := playbook.NewAnsiblePlaybookCmd(
+  playbook.WithPlaybooks("site.yml", "site2.yml"),
+  playbook.WithPlaybookOptions(ansiblePlaybookOptions),
+)
+
 ```
 
 Once the `AnsiblePlaybookCmd` is defined, provide the command to an [executor](#executor) to run the command.
@@ -206,6 +207,12 @@ The `github.com/apenella/go-ansible/v2/pkg/adhoc` package facilitates the genera
 
 The `AnsibleAdhocCmd` struct enables the generation of _Ansible ad-hoc_ commands. It implements the [Commander](#commander-interface) interface, so its method `Command` returns an array of strings that represents the command to be executed. An executor can use it to create the command to be executed.
 
+The package provides the `NewAnsibleAdhocCmd` function to create a new instance of the `AnsibleAdhocCmd` struct. The function accepts a list of options to customize the ad-hoc command. The following functions are available:
+
+- `WithAdhocOptions(options *AnsibleAdhocOptions) AdhocOptionsFunc`: Set the ad-hoc options for the command.
+- `WithBinary(binary string) AdhocOptionsFunc`: Set the binary for the ad-hoc command.
+- `WithPattern(pattern string) AdhocOptionsFunc`: Set the pattern for the ad-hoc command.
+
 The following code snippet demonstrates how to use the `AnsibleAdhocCmd` struct to generate an ad-hoc command:
 
 ```go
@@ -218,10 +225,10 @@ ansibleAdhocOptions := &adhoc.AnsibleAdhocOptions{
   }
 }
 
-adhocCmd := &adhoc.AnsibleAdhocCmd{
-  Pattern:  "all",
-  Options:  ansibleAdhocOptions,
-}
+adhocCmd := adhoc.NewAnsibleAdhocCmd(
+  adhoc.WithPattern("all"),
+  adhoc.WithAdhocOptions(ansibleAdhocOptions),
+)
 
 // Generate the command to be executed
 cmd, err := adhocCmd.Command()
@@ -320,10 +327,10 @@ The snippet below shows how to customize the `DefaultExecute` executor using the
 
 ```go
 // PlaybookCmd is the Commander responsible for generating the command to execute
-playbookCmd := &playbook.AnsiblePlaybookCmd{
-  Playbook:          "site.yml",
-  PlaygookOptions:   ansiblePlaybookOptions,
-}
+playbookCmd := playbook.NewAnsiblePlaybookCmd(
+  playbook.WithPlaybooks("site.yml"),
+  playbook.WithPlaybookOptions(ansiblePlaybookOptions),
+)
 
 // MyExecutabler is an hypothetical implementation of the Executabler interface
 executabler := &myExecutabler{}
@@ -368,10 +375,10 @@ The next code snippet demonstrates how to execute the `ansible-playbook` command
 
 ```go
 // Define the command to execute
-playbookCmd := &ansibler.AnsiblePlaybookCmd{
-  Playbook:          []string{"site.yml"},
-  PlaybookOptions:   ansiblePlaybookOptions,
-}
+playbookCmd := playbook.NewAnsiblePlaybookCmd(
+  playbook.WithPlaybooks("site.yml"),
+  playbook.WithPlaybookOptions(ansiblePlaybookOptions),
+)
 
 // Define an instance for the new executor and set the options
 exec := &MyExecutor{
@@ -427,10 +434,10 @@ ansiblePlaybookOptions := &playbook.AnsiblePlaybookOptions{
   Inventory:  "127.0.0.1,",
 }
 
-playbookCmd := &playbook.AnsiblePlaybookCmd{
-  Playbooks:        []string{"site.yml"},
-  PlaybookOptions:  ansiblePlaybookOptions,
-}
+playbookCmd := playbook.NewAnsiblePlaybookCmd(
+  playbook.WithPlaybooks("site.yml"),
+  playbook.WithPlaybookOptions(ansiblePlaybookOptions),
+)
 
 exec := configuration.NewAnsibleWithConfigurationSettingsExecute(
   execute.NewDefaultExecute(
@@ -461,10 +468,10 @@ ansiblePlaybookOptions := &playbook.AnsiblePlaybookOptions{
   Inventory:  "127.0.0.1,",
 }
 
-playbookCmd := &playbook.AnsiblePlaybookCmd{
-  Playbooks:         []string{"site.yml"},
-  PlaybookOptions:   ansiblePlaybookOptions,
-}
+playbookCmd := playbook.NewAnsiblePlaybookCmd(
+  playbook.WithPlaybooks("site.yml"),
+  playbook.WithPlaybookOptions(ansiblePlaybookOptions),
+)
 
 executorTimeMeasurement := measure.NewExecutorTimeMeasurement(
   execute.NewDefaultExecute(
@@ -695,6 +702,12 @@ The `github.com/apenella/go-ansible/v2/pkg/inventory` package provides the funct
 
 The `AnsibleInventoryCmd` struct enables the generation of `ansible-inventory` commands. It implements the [Commander](#commander-interface) interface, so its method `Command` returns an array of strings that represents the command to be executed. An executor can use it to create the command to be executed.
 
+The package provides the `NewAnsibleInventoryCmd` function to create a new instance of the `AnsibleInventoryCmd` struct. The function accepts a list of options to customize the `ansible-inventory` command. The following functions are available:
+
+- `WithBinary(binary string) InventoryOptionsFunc`: Set the binary for the `ansible-inventory` command.
+- `WithInventoryOptions(options *AnsibleInventoryOptions) InventoryOptionsFunc`: Set the inventory options for the command.
+- `WithPattern(pattern string) InventoryOptionsFunc`: Set the pattern for the `ansible-inventory` command.
+
 > Note
 > Unlike other _Ansible_ commands, the `ansible-inventory` command does not provide privilege escalation or connection options, aligning with the functionality of the command itself.
 
@@ -735,6 +748,12 @@ The `github.com/apenella/go-ansible/v2/pkg/playbook` package facilitates the gen
 
 The `AnsiblePlaybookCmd` struct enables the generation of _ansible-playbook_ commands. It implements the [Commander](#commander-interface) interface, so its method `Command` returns an array of strings that represents the command to be executed. An executor can use it to create the command to be executed.
 
+The package provides the `NewAnsiblePlaybookCmd` function to create a new instance of the `AnsiblePlaybookCmd` struct. The function accepts a list of options to customize the _ansible-playbook_ command. The following functions are available:
+
+- `WithBinary(binary string) PlaybookOptionsFunc`: Set the binary for the _ansible-playbook_ command.
+- `WithPlaybookOptions(options *AnsiblePlaybookOptions) PlaybookOptionsFunc`: Set the playbook options for the command.
+- `WithPlaybooks(playbooks ...string) PlaybookOptionsFunc`: Set the playbooks for the _ansible-playbook_ command.
+
 Next is an example of how to use the `AnsiblePlaybookCmd` struct to generate an _ansible-playbook_ command:
 
 ```go
@@ -744,10 +763,10 @@ ansiblePlaybookOptions := &playbook.AnsiblePlaybookOptions{
   Inventory:  "127.0.0.1,",
 }
 
-playbookCmd := &playbook.AnsiblePlaybookCmd{
-  Playbook:         "site.yml",
-  PlaybookOptions:  ansiblePlaybookOptions,
-}
+playbookCmd := playbook.NewAnsiblePlaybookCmd(
+  playbook.WithPlaybooks("site.yml"),
+  playbook.WithPlaybookOptions(ansiblePlaybookOptions),
+)
 
 // Generate the command to be executed
 cmd, err := playbookCmd.Command()

@@ -6,7 +6,7 @@ This document offers guidance for upgrading from _go-ansible_ _v1.x_ to _v2.x_. 
 
 The most relevant change is that the package name has been changed from `github.com/apenella/go-ansible` to `github.com/apenella/go-ansible/v2`. So, you need to update your import paths to use the new module name.
 Another important change to highlight is that command structs no longer execute commands. So, `AnsiblePlaybookCmd` and `AnsibleAdhocCmd` do not require an `Executor` anymore. Instead, the `Executor` is responsible for the command execution. To achieve that, the `Executor` depends on the command structs to generate the commands to execute.
-That change is motivated by the need of segregating the command generation from the command execution. Having the `Executor` as the central component of the command execution process allows the `Executor` to be more flexible and customizable. The _go-ansible_ library provides a set of decorator structs to configure the `Executor` with different features, such as stdout callback management, and Ansible configuration settings.
+That change is motivated by the need to segregate the command generation from the command execution. Having the `Executor` as the central component of the command execution process allows the `Executor` to be more flexible and customizable. The _go-ansible_ library provides a set of decorator structs to configure the `Executor` with different features, such as stdout callback management, and Ansible configuration settings.
 
 Proceed through the following sections to understand the changes in version _2.x_ and learn how to adapt your code accordingly.
 
@@ -53,7 +53,7 @@ The version _v2.x_ introduces several changes in the interfaces used by the _go-
 
 ### Added _Cmder_ interface
 
-The `Cmder` interface defined in _github.com/apenella/go-ansible/v2/internal/executable/os/exec_ and it is used to run external commands. The `os/exec` package implements the `Cmder` interface. The [Executabler](#added-executabler-interface)'s `Command` and `CommandContext` methods return a `Cmder` interface.
+The `Cmder` interface is defined in _github.com/apenella/go-ansible/v2/internal/executable/os/exec__ and it is used to run external commands. The `os/exec` package implements the `Cmder` interface. The [Executabler](#added-executabler-interface)'s `Command` and `CommandContext` methods return a `Cmder` interface.
 You can find the definition of the `Cmder` interface below:
 
 ```go
@@ -101,7 +101,7 @@ type Executabler interface {
 
 ### Added _ExecutorEnvVarSetter_ interface
 
-The `ExecutorEnvVarSetter` interface defined in _github.com/apenella/go-ansible/v2/pkg/execute/configuration_ defines an executor interface that you can set environment variables to. It is required by `AnsibleWithConfigurationSettingsExecute` decorator struct.
+The `ExecutorEnvVarSetter` interface defined in _github.com/apenella/go-ansible/v2/pkg/execute/configuration_ defines an executor interface to which you can set environment variables. It is required by `AnsibleWithConfigurationSettingsExecute` decorator struct.
 
 ```go
 // ExecutorEnvVarSetter extends the executor interface by adding methods to configure environment variables
@@ -191,7 +191,7 @@ Select the appropriate mechanism based on the stdout callback plugin you are usi
 
 To replace the _resultsFunc_, introduce an attribute of type `ResultsOutputer` in your executor. Utilize this attribute to print the results output from command execution. For an example of how the `DefaultExecute` struct has been adapted to use a `ResultsOutputer` for printing execution results, refer [Here](#adding-output-attribute-for-printing-execution-results).
 
-You can also read the section [Managing Ansible Stdout Callback](#managing-ansible-stdout-callback) to learn how to benefit of the stdout callback management structs provided by the _go-ansible_ library.
+You can also read the section [Managing Ansible Stdout Callback](#managing-ansible-stdout-callback) to learn how to benefit from the stdout callback management structs provided by the _go-ansible_ library.
 
 ### Replacing the _options_ argument
 
@@ -208,13 +208,15 @@ In version _v2.x_ you need to instantiate the `DefaultExecute` struct to execute
 
 ```go
 // Define the AnsiblePlaybookCmd and the required options.
-playbookCmd := &playbook.AnsiblePlaybookCmd{
-  Playbooks:         []string{"site.yml", "site2.yml"},
-  PlaybookOptions:           &playbook.AnsiblePlaybookOptions{
-    Connection: "local",
-    Inventory: "all,",
-  },
+ansiblePlaybookOptions := &playbook.AnsiblePlaybookOptions{
+  Connection: "local",
+  Inventory: "all,",
 }
+
+playbookCmd := playbook.NewAnsiblePlaybookCmd(
+  playbook.WithPlaybooks("site.yml", "site2.yml"),
+  playbook.WithPlaybookOptions(ansiblePlaybookOptions),
+)
 
 // playbookCmd is the Commander responsible for generating the command to execute
 exec := execute.NewDefaultExecute(
@@ -240,13 +242,16 @@ When instantiating the `DefaultExecute` struct, provide the `Cmd` attribute with
 
 ```go
 // Define the AnsiblePlaybookCmd and the required options.
-playbookCmd := &playbook.AnsiblePlaybookCmd{
-  Playbooks:         []string{"site.yml", "site2.yml"},
-  PlaybookOptions:           &playbook.AnsiblePlaybookOptions{
-    Connection: "local",
-    Inventory: "all,",
-  },
+ansiblePlaybookOptions := &playbook.AnsiblePlaybookOptions{
+  Connection: "local",
+  Inventory: "all,",
 }
+
+playbookCmd := playbook.NewAnsiblePlaybookCmd(
+  playbook.WithPlaybooks("site.yml", "site2.yml"),
+  playbook.WithPlaybookOptions(ansiblePlaybookOptions),
+)
+
 // Instanciate a DefaultExecutoe by providing 'playbookCmd' as the Commander.
 exec := execute.NewDefaultExecute(
   execute.WithCmd(playbookCmd),
@@ -259,19 +264,21 @@ In the above example, `playbookCmd` is of type `Commander`. The `Cmd` value is s
 
 The `DefaultExecute` now includes the `Exec` attribute of type `Executabler`. The `Exec` component is responsible for executing external commands. If you do not define the `Exec` attribute, it defaults to using the `OsExec` struct, which wraps the `os/exec` package.
 
-If you need a custom executabler, it must implement the `Executabler` interface. Learn more about the `Executabler` interface [here](#added-executabler-interface).
+If you need a custom _executabler_, it must implement the `Executabler` interface. Learn more about the `Executabler` interface [here](#added-executabler-interface).
 
 The example below illustrates how to instantiate a `DefaultExecute` struct with a custom `Executabler`:
 
 ```go
 // Define the AnsiblePlaybookCmd and the required options.
-playbookCmd := &playbook.AnsiblePlaybookCmd{
-  Playbooks:         []string{"site.yml", "site2.yml"},
-  PlaybookOptions:           &playbook.AnsiblePlaybookOptions{
-    Connection: "local",
-    Inventory: "all,",
-  },
+ansiblePlaybookOptions := &playbook.AnsiblePlaybookOptions{
+  Connection: "local",
+  Inventory: "all,",
 }
+
+playbookCmd := playbook.NewAnsiblePlaybookCmd(
+  playbook.WithPlaybooks("site.yml", "site2.yml"),
+  playbook.WithPlaybookOptions(ansiblePlaybookOptions),
+)
 
 // Define a custom Executabler
 executable := &myCustomExecutabler{}
@@ -283,7 +290,7 @@ executor := execute.NewDefaultExecute(
 )
 ```
 
-In the example, `executable` implements the `Executabler` interface. When creating a new `DefaultExecute`, set the value of `Exec` through the `WithExecutable` function. The `DefaultExecute` will then use executable to execute the command.
+In the example, `executable` implements the `Executabler` interface. When creating a new `DefaultExecute`, set the value of `Exec` through the `WithExecutable` function. The `DefaultExecute` will then use the `executable` to execute the command.
 
 ### Adding _Output_ attribute for printing execution results
 
@@ -295,13 +302,16 @@ The example below demonstrates how to instantiate a `DefaultExecute` struct with
 
 ```go
 // Define the AnsiblePlaybookCmd and the required options.
-playbookCmd := &playbook.AnsiblePlaybookCmd{
-  Playbooks:         []string{"site.yml", "site2.yml"},
-  PlaybookOptions:           &playbook.AnsiblePlaybookOptions{
-    Connection: "local",
-    Inventory: "all,",
-  },
+ansiblePlaybookOptions := &playbook.AnsiblePlaybookOptions{
+  Connection: "local",
+  Inventory: "all,",
 }
+
+playbookCmd := playbook.NewAnsiblePlaybookCmd(
+  playbook.WithPlaybooks("site.yml", "site2.yml"),
+  playbook.WithPlaybookOptions(ansiblePlaybookOptions),
+)
+
 // Define a custom ResultsOutputer
 output := &myCustomResultsOutputer{}
 
@@ -339,11 +349,11 @@ fmt.Println("Duration: ", exec.Duration().String())
 
 If you configure transformers to modify the output of the execution's results, note that the _transformer_ package in the _go-ansible_ library has been relocated. It was moved from _github.com/apenella/go-ansible/pkg/stdoutcallback/results_ to _github.com/apenella/go-ansible/v2/pkg/execute/result/transformer_. Therefore, ensure that your code is adapted to this updated location.
 
-Refer to section [Changes on the _Transformer_ functions](#changes-on-the-transformer-functions) for more details on how to adapt your code to these changes.
+Refer to the section [Changes on](#changes-on-the-transformer-functions) the _Transformer_ functions](#changes-on-the-transformer-functions) for more details on how to adapt your code to these changes.
 
 ## Changes on the _AnsiblePlaybookCmd_ struct
 
-The `AnsiblePlaybookCmd` struct has undergone significant changes. It no longer executes commands, instead, it now implements the `Commander` interface, which is responsible for generating commands for execution. This section provides guidance on adapting your code to these changes.
+The `AnsiblePlaybookCmd` struct has undergone significant changes. It no longer executes commands, instead, it now implements the `Commander` interface, which is responsible for generating commands for execution. This section guides adapting your code to these changes.
 
 ### Renaming the _Options_ attribute
 
@@ -357,13 +367,15 @@ Here's a basic example of running an ansible-playbook command through the `Defau
 
 ```go
 // Define the AnsiblePlaybookCmd and the required options.
-playbookCmd := &playbook.AnsiblePlaybookCmd{
-  Playbooks:         []string{"site.yml", "site2.yml"},
-  Options:           &playbook.AnsiblePlaybookOptions{
-    Connection: "local",
-    Inventory: "127.0.0.1,",
-  },
+ansiblePlaybookOptions := &playbook.AnsiblePlaybookOptions{
+  Connection: "local",
+  Inventory: "127.0.0.1,",
 }
+
+playbookCmd := playbook.NewAnsiblePlaybookCmd(
+  playbook.WithPlaybooks("site.yml", "site2.yml"),
+  playbook.WithPlaybookOptions(ansiblePlaybookOptions),
+)
 
 // Instanciate a DefaultExecutoe by providing 'playbookCmd' as the Commander
 exec := execute.NewDefaultExecute(
@@ -387,14 +399,15 @@ Configuring the stdout callback involves setting the environment variable `ANSIB
 
 ```go
 // Define the AnsiblePlaybookCmd and the required options.
-playbookCmd := &playbook.AnsiblePlaybookCmd{
-  Playbooks:         []string{"site.yml", "site2.yml"},
-    Connection: "local",
-  },
-  PlaybookOptions:           &playbook.AnsiblePlaybookOptions{
-    Inventory: "127.0.0.1,",
-  },
+ansiblePlaybookOptions := &playbook.AnsiblePlaybookOptions{
+  Connection: "local",
+  Inventory: "127.0.0.1,",
 }
+
+playbookCmd := playbook.NewAnsiblePlaybookCmd(
+  playbook.WithPlaybooks("site.yml", "site2.yml"),
+  playbook.WithPlaybookOptions(ansiblePlaybookOptions),
+)
 
 // Use the DefaultExecute struct to execute the command
 exec := execute.NewDefaultExecute(
@@ -443,11 +456,11 @@ Similar to the changes made to the `AnsiblePlaybookCmd` struct, the `AnsibleAdho
 
 ## Changes on the _AnsibleInventoryCmd_ struct
 
-The `AnsibleInventoryCmd` have undergone significant changes. It no longer executes commands, instead, it now implements the `Commander` interface, which is responsible for generating commands for execution. To adapt your code to these changes, refer to the guidelines provided in the section [Changes on the _AnsiblePlaybookCmd_ struct](#changes-on-the-ansibleplaybookcmd-struct).
+The `AnsibleInventoryCmd` has undergone significant changes. It no longer executes commands, instead, it now implements the `Commander` interface, which is responsible for generating commands for execution. To adapt your code to these changes, refer to the guidelines provided in the section [Changes on the _AnsiblePlaybookCmd_ struct](#changes-on-the-ansibleplaybookcmd-struct).
 
 ## Changes on the _Transformer_ functions
 
-In version _v2.0.0_, the _github.com/apenella/go-ansible/pkg/stdoutcallback/results_ package has been removed. This package previously contained the transformer functions responsible for modifying the output lines of the execution's results. This section provides guidance on how to adapt your code to these changes.
+In version _v2.0.0_, the _github.com/apenella/go-ansible/pkg/stdoutcallback/results_ package has been removed. This package previously contained the transformer functions responsible for modifying the output lines of the execution's results. This section guides how to adapt your code to these changes.
 
 To adapt your code, you should update the imported package to _github.com/apenella/go-ansible/v2/pkg/execute/result/transformer_. This is the new location of the transformer functions.
 
@@ -467,7 +480,7 @@ Configuring the StdoutCallback method involves two steps:
 - Set the `ANSIBLE_STDOUT_CALLBACK` environment variable to the desired stdout callback plugin name.
 - Set the method responsible for handling the results output from command execution. The responsibility of setting the StdoutCallback method has shifted to the `Executor` struct, necessitating an adjustment in your code.
 
-To simplify stdout callback configuration, the _go-ansible_ library provides a set of structs dedicated to setting the stdout callback method and results output mechanism. Each struct corresponds to a stdout callback plugin and is available in the _github.com/apenella/go-ansible/v2/pkg/execute/stdoutcallback_ package. The following is a list of available structs:
+To simplify the stdout callback configuration, the _go-ansible_ library provides a set of structs dedicated to setting the stdout callback method and results output mechanism. Each struct corresponds to a stdout callback plugin and is available in the _github.com/apenella/go-ansible/v2/pkg/execute/stdoutcallback_ package. The following is a list of available structs:
 
 - DebugStdoutCallbackExecute
 - DefaultStdoutCallbackExecute
@@ -506,13 +519,15 @@ Here's an example illustrating how to prepare an executor to set Ansible configu
 
 ```go
 // Define the AnsiblePlaybookCmd and the required options.
-playbookCmd := &playbook.AnsiblePlaybookCmd{
-  Playbooks:         []string{"site.yml", "site2.yml"},
-  PlaybookOptions:           &playbook.AnsiblePlaybookOptions{
-    Connection: "local",
-    Inventory: "127.0.0.1,",
-  },
+ansiblePlaybookOptions := &playbook.AnsiblePlaybookOptions{
+  Connection: "local",
+  Inventory: "127.0.0.1,",
 }
+
+playbookCmd := playbook.NewAnsiblePlaybookCmd(
+  playbook.WithPlaybooks("site.yml", "site2.yml"),
+  playbook.WithPlaybookOptions(ansiblePlaybookOptions),
+)
 
 // Instanciate a DefaultExecutoe by providing 'playbookCmd' as the Commander and enabling the Ansible Force Color setting
 exec := measure.NewExecutorTimeMeasurement(
@@ -570,7 +585,7 @@ In case you need to enable the _AnsibleHostKeyChecking_ setting, you should use 
 #### Replacing the _AnsibleSetEnv_ function
 
 If you used the `AnsibleSetEnv` function to set environment variables for the _executor_, you should replace it by the `AddEnvVar` method.
-In case you were using the `AnsibleSetEnv` to set an _Ansible_ configuration setting, it is recommended to use the `AnsibleWithConfigurationSettingsExecute` _executor_ instead. The `AnsibleWithConfigurationSettingsExecute` struct is available in the _github.com/apenella/go-ansible/v2/pkg/execute/configuration_ package, and provides you with multiple functions to configure _Ansible_ settings.
+In case you were using the `AnsibleSetEnv` to set an _Ansible_ configuration setting, it is recommended to use the `AnsibleWithConfigurationSettingsExecute` _executor_ instead. The `AnsibleWithConfigurationSettingsExecute` struct is available in the _github.com/apenella/go-ansible/v2/pkg/execute/configuration_ package and provides you with multiple functions to configure _Ansible_ settings.
 
 If you were previously using the `AnsibleSetEnv` function to set environment variables for the _executor_, you should replace it with the `AddEnvVar` method.
 
