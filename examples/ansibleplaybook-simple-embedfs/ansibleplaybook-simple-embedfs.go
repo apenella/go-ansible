@@ -18,7 +18,6 @@ var playbooks embed.FS
 func main() {
 
 	// Create a temporary directory with a prefix "ansibleplaybook-simple-embedfs-"
-	// tempDir, err := ioutil.TempDir("", "ansibleplaybook-simple-embedfs-")
 	tempDir, err := os.MkdirTemp("", "ansibleplaybook-simple-embedfs-")
 	if err != nil {
 		panic(err)
@@ -37,13 +36,13 @@ func main() {
 		Inventory:  filepath.Join(tempDir, "inventory.ini"),
 	}
 
-	playbook := &playbook.AnsiblePlaybookCmd{
-		Playbooks:       []string{filepath.Join(tempDir, "site.yml"), filepath.Join(tempDir, "site2.yml")},
-		PlaybookOptions: ansiblePlaybookOptions,
-	}
+	playbookCmd := playbook.NewAnsiblePlaybookCmd(
+		playbook.WithPlaybooks(filepath.Join(tempDir, "site.yml"), filepath.Join(tempDir, "site2.yml")),
+		playbook.WithPlaybookOptions(ansiblePlaybookOptions),
+	)
 
 	exec := execute.NewDefaultExecute(
-		execute.WithCmd(playbook),
+		execute.WithCmd(playbookCmd),
 	)
 
 	err = exec.Execute(context.TODO())

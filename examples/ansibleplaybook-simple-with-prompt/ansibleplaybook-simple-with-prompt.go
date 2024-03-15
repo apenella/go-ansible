@@ -14,13 +14,13 @@ func main() {
 		Inventory:  "127.0.0.1,",
 	}
 
-	playbook := &playbook.AnsiblePlaybookCmd{
-		Playbooks:       []string{"input.yml"},
-		PlaybookOptions: ansiblePlaybookOptions,
-	}
+	playbookCmd := playbook.NewAnsiblePlaybookCmd(
+		playbook.WithPlaybooks("input.yml"),
+		playbook.WithPlaybookOptions(ansiblePlaybookOptions),
+	)
 
 	exec := execute.NewDefaultExecute(
-		execute.WithCmd(playbook),
+		execute.WithCmd(playbookCmd),
 	)
 
 	err := exec.Execute(context.TODO())
