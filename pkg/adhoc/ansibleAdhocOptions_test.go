@@ -116,7 +116,6 @@ func TestGenerateAnsibleAdhocOptions(t *testing.T) {
 	}
 
 	assert.Equal(t, expected, opts)
-
 }
 
 func TestGenerateExtraVarsCommand(t *testing.T) {
