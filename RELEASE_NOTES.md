@@ -11,7 +11,7 @@ Version 2.0.0 of *go-ansible* introduces several disruptive changes. Read the up
 
 - The Go module name has been changed from `github.com/apenella/go-ansible` to `github.com/apenella/go-ansible/v2`. So, you need to update your import paths to use the new module name.
 - The relationship between the executor and `AnsiblePlaybookCmd` / `AnsibleAdhocCmd` / `AnsibleInvetoryCmd` has undergone important changes.
-  - **Inversion of responsabilities**: The executor is now responsible for executing external commands, while `AnsiblePlaybookCmd`, `AnsibleInventoryCmd` and `AnsibleAdhocCmd` have cut down their responsibilities, primarily focusing on generating the command to be executed.
+  - **Inversion of responsibilities**: The executor is now responsible for executing external commands, while `AnsiblePlaybookCmd`, `AnsibleInventoryCmd` and `AnsibleAdhocCmd` have cut down their responsibilities, primarily focusing on generating the command to be executed.
   - **Method and Attribute Removal**: The following methods and attributes have been removed on `AnsiblePlaybookCmd`, `AnsibleInventoryCmd` and `AnsibleAdhocCmd`:
     - The `Run` method.
     - The `Exec` and `StdoutCallback` attributes.
