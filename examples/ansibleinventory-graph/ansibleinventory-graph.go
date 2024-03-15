@@ -16,10 +16,10 @@ func main() {
 		Yaml:      true,
 	}
 
-	inventoryCmd := &inventory.AnsibleInventoryCmd{
-		Pattern:          "all",
-		InventoryOptions: &ansibleInventoryOptions,
-	}
+	inventoryCmd := inventory.NewAnsibleInventoryCmd(
+		inventory.WithPattern("all"),
+		inventory.WithInventoryOptions(&ansibleInventoryOptions),
+	)
 
 	fmt.Println("Test strings:", inventoryCmd.String())
 

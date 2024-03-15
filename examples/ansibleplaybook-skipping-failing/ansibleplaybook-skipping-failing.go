@@ -27,16 +27,17 @@ func main() {
 	}
 
 	playbooksList := []string{"site1.yml"}
-	playbook := &playbook.AnsiblePlaybookCmd{
-		Playbooks:       playbooksList,
-		PlaybookOptions: ansiblePlaybookOptions,
-	}
 
-	log.Println("Command: ", playbook)
+	playbookCmd := playbook.NewAnsiblePlaybookCmd(
+		playbook.WithPlaybooks(playbooksList...),
+		playbook.WithPlaybookOptions(ansiblePlaybookOptions),
+	)
+
+	log.Println("Command: ", playbookCmd.String())
 
 	exec := stdoutcallback.NewJSONStdoutCallbackExecute(
 		execute.NewDefaultExecute(
-			execute.WithCmd(playbook),
+			execute.WithCmd(playbookCmd),
 			execute.WithWrite(io.Writer(buff)),
 		),
 	)

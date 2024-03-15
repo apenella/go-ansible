@@ -36,12 +36,12 @@ func main() {
 		Inventory:  "127.0.0.1,",
 	}
 
-	playbook := &playbook.AnsiblePlaybookCmd{
-		Playbooks:       []string{"site.yml"},
-		PlaybookOptions: ansiblePlaybookOptions,
-	}
+	playbookCmd := playbook.NewAnsiblePlaybookCmd(
+		playbook.WithPlaybooks("site.yml"),
+		playbook.WithPlaybookOptions(ansiblePlaybookOptions),
+	)
 
-	exec := NewMyExecutor(playbook)
+	exec := NewMyExecutor(playbookCmd)
 	exec.WithPrefix("[Go ansible example]")
 
 	err := exec.Execute(context.TODO())
