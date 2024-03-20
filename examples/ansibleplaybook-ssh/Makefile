@@ -33,7 +33,7 @@ ps: ## List containers
 	@$(DOCKER_COMPOSE_BINARY) --project-name $(PROJECT_NAME) ps
 
 attach-ansible: ## Attach to the ansible container
-	@$(DOCKER_COMPOSE_BINARY) --project-name $(PROJECT_NAME) exec --workdir  /code/examples/$$(basename $$(pwd)) ansible /bin/sh
+	@$(DOCKER_COMPOSE_BINARY) --project-name $(PROJECT_NAME) exec --workdir /code/examples/$$(basename $$(pwd)) ansible /bin/sh
 
 attach-server: ## Attach to the server container
 	@$(DOCKER_COMPOSE_BINARY) --project-name $(PROJECT_NAME) exec server /bin/sh
@@ -42,4 +42,4 @@ project-name: ## Show the project name
 	@echo $(PROJECT_NAME)
 
 run: ## Run the playbook
-	@$(DOCKER_COMPOSE_BINARY) --project-name $(PROJECT_NAME) exec --workdir  /code/examples/$$(basename $$(pwd)) ansible go run ansibleplaybook-ssh.go
+	@$(DOCKER_COMPOSE_BINARY) --project-name $(PROJECT_NAME) exec --workdir /code/examples/$$(basename $$(pwd)) ansible go run ansibleplaybook-ssh.go

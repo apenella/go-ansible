@@ -10,6 +10,8 @@ services:
       - ssh:/ssh
       - ../..:/code
     working_dir: /code
+    ## Set the init flag to true lets the process 1 to reap all the zombie processes
+    init: true
     depends_on:
       - server
 
