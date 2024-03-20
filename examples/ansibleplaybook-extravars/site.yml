@@ -1,0 +1,14 @@
+---
+
+- hosts: all
+  connection: local
+  vars:
+    extravar1: na
+    extravar2: na
+
+  tasks:
+    - name: show values
+      debug:
+        msg: |
+          {{ extravar1 }}
+          {{ extravar2 }}
