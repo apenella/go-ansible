@@ -1,0 +1,43 @@
+name: ansibleplaybook-ssh
+
+services:
+  ansible:
+    build: 
+      context: docker/ansible
+    command: ["tail", "-f", "/dev/null"]
+    # command: ["ansible-playbook", "--help"]
+    volumes:
+      - ssh:/ssh
+      - ../..:/code
+    working_dir: /code
+    ## Set the init flag to true lets the process 1 to reap all the zombie processes
+    init: true
+    depends_on:
+      - server
+
+  server:
+    build: 
+      context: docker/server
+      args:
+        - sshd_port=${SSHD_PORT:-22225}
+    # command: ["cat", "/etc/ssh/sshd_config"]
+    volumes:
+      - ssh:/ssh
+    depends_on:
+      - openssh-client
+    ports:
+      - "22220:${SSHD_PORT:-22225}"
+
+  openssh-client:
+    build: 
+      context: docker/openssh-client
+    working_dir: /ssh
+    volumes:
+      - ssh:/ssh
+    deploy:
+      resources:
+        limits:
+          memory: 10M
+
+volumes:
+  ssh:

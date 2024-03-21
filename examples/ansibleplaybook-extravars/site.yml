@@ -1,7 +1,6 @@
 ---
 
-- hosts: all
-  connection: local
+- hosts: server
   vars:
     extravar1: na
     extravar2: na
