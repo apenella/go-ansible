@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/apenella/go-ansible/v2/pkg/execute"
 	"github.com/apenella/go-ansible/v2/pkg/playbook"
@@ -10,13 +11,13 @@ import (
 func main() {
 
 	ansiblePlaybookOptions := &playbook.AnsiblePlaybookOptions{
-		Connection: "local",
-		User:       "apenella",
-		Inventory:  "127.0.0.1,",
 		ExtraVars: map[string]interface{}{
-			"extravar1": "value11",
-			"extravar2": "value12",
+			"extravar1":    "value11",
+			"extravar2":    "value12",
+			"ansible_port": "22225",
 		},
+		Inventory:     "inventory.yml",
+		SSHCommonArgs: "-o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null",
 	}
 
 	playbookCmd := playbook.NewAnsiblePlaybookCmd(
@@ -27,6 +28,8 @@ func main() {
 	exec := execute.NewDefaultExecute(
 		execute.WithCmd(playbookCmd),
 	)
+
+	fmt.Println("Command: ", playbookCmd.String())
 
 	err := exec.Execute(context.TODO())
 	if err != nil {
