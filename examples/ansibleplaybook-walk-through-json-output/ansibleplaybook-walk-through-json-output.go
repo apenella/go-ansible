@@ -26,14 +26,14 @@ func main() {
 		Inventory:  "127.0.0.1,",
 	}
 
-	playbook := &playbook.AnsiblePlaybookCmd{
-		Playbooks:       []string{"site1.yml", "site2.yml"},
-		PlaybookOptions: ansiblePlaybookOptions,
-	}
+	playbookCmd := playbook.NewAnsiblePlaybookCmd(
+		playbook.WithPlaybooks("site1.yml", "site2.yml"),
+		playbook.WithPlaybookOptions(ansiblePlaybookOptions),
+	)
 
 	exec := stdoutcallback.NewJSONStdoutCallbackExecute(
 		execute.NewDefaultExecute(
-			execute.WithCmd(playbook),
+			execute.WithCmd(playbookCmd),
 			execute.WithWrite(io.Writer(buff)),
 		),
 	)

@@ -69,17 +69,17 @@ func commandHandler(cmd *cobra.Command, args []string) error {
 	}
 
 	for keyVar, valueVar := range vars {
-		ansiblePlaybookOptions.AddExtraVar(keyVar, valueVar)
+		_ = ansiblePlaybookOptions.AddExtraVar(keyVar, valueVar)
 	}
 
-	playbook := &playbook.AnsiblePlaybookCmd{
-		Playbooks:       playbookFiles,
-		PlaybookOptions: ansiblePlaybookOptions,
-	}
+	playbookCmd := playbook.NewAnsiblePlaybookCmd(
+		playbook.WithPlaybooks(playbookFiles...),
+		playbook.WithPlaybookOptions(ansiblePlaybookOptions),
+	)
 
 	exec := configuration.NewAnsibleWithConfigurationSettingsExecute(
 		execute.NewDefaultExecute(
-			execute.WithCmd(playbook),
+			execute.WithCmd(playbookCmd),
 			execute.WithTransformers(
 				transformer.Prepend("Go-ansible example with become"),
 			),

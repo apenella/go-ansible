@@ -31,14 +31,14 @@ func main() {
 		Inventory:  "127.0.0.1,",
 	}
 
-	playbook := &playbook.AnsiblePlaybookCmd{
-		Playbooks:       []string{"site.yml"},
-		PlaybookOptions: ansiblePlaybookOptions,
-	}
+	playbookCmd := playbook.NewAnsiblePlaybookCmd(
+		playbook.WithPlaybooks("site.yml"),
+		playbook.WithPlaybookOptions(ansiblePlaybookOptions),
+	)
 
 	exec := configuration.NewAnsibleWithConfigurationSettingsExecute(
 		execute.NewDefaultExecute(
-			execute.WithCmd(playbook),
+			execute.WithCmd(playbookCmd),
 			execute.WithTransformers(
 				outputColored(),
 				transformer.Prepend("Go-ansible example"),

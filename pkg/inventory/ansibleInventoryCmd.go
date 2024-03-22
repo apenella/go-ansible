@@ -84,6 +84,38 @@ type AnsibleInventoryCmd struct {
 	InventoryOptions *AnsibleInventoryOptions
 }
 
+// NewAnsibleInventoryCmd creates a new AnsibleInventoryCmd instance
+func NewAnsibleInventoryCmd(options ...AnsibleInventoryOptionFunc) *AnsibleInventoryCmd {
+	cmd := &AnsibleInventoryCmd{}
+
+	for _, option := range options {
+		option(cmd)
+	}
+
+	return cmd
+}
+
+// WithBinary set the ansible-inventory binary file
+func WithBinary(binary string) AnsibleInventoryOptionFunc {
+	return func(p *AnsibleInventoryCmd) {
+		p.Binary = binary
+	}
+}
+
+// WithPattern set the adhoc pattern
+func WithPattern(pattern string) AnsibleInventoryOptionFunc {
+	return func(p *AnsibleInventoryCmd) {
+		p.Pattern = pattern
+	}
+}
+
+// WithInventoryOptions set the ansible-inventory options
+func WithInventoryOptions(options *AnsibleInventoryOptions) AnsibleInventoryOptionFunc {
+	return func(p *AnsibleInventoryCmd) {
+		p.InventoryOptions = options
+	}
+}
+
 // Command generate the ansible command which will be executed
 func (p *AnsibleInventoryCmd) Command() ([]string, error) {
 	cmd := []string{}

@@ -55,9 +55,45 @@ type AnsiblePlaybookCmd struct {
 	PlaybookOptions *AnsiblePlaybookOptions
 }
 
+// NewAnsiblePlaybookCmd creates a new AnsiblePlaybookCmd instance
+func NewAnsiblePlaybookCmd(options ...AnsiblePlaybookOptionsFunc) *AnsiblePlaybookCmd {
+	cmd := &AnsiblePlaybookCmd{}
+
+	for _, option := range options {
+		option(cmd)
+	}
+
+	return cmd
+}
+
+// WithBinary set the ansible-playbook binary file
+func WithBinary(binary string) AnsiblePlaybookOptionsFunc {
+	return func(p *AnsiblePlaybookCmd) {
+		p.Binary = binary
+	}
+}
+
+// WithPlaybookOptions set the ansible-playbook options
+func WithPlaybookOptions(options *AnsiblePlaybookOptions) AnsiblePlaybookOptionsFunc {
+	return func(p *AnsiblePlaybookCmd) {
+		p.PlaybookOptions = options
+	}
+}
+
+// WithPlaybooks set the ansible-playbook playbooks
+func WithPlaybooks(playbooks ...string) AnsiblePlaybookOptionsFunc {
+	return func(p *AnsiblePlaybookCmd) {
+		p.Playbooks = append([]string{}, playbooks...)
+	}
+}
+
 // Command generate the ansible-playbook command which will be executed
 func (p *AnsiblePlaybookCmd) Command() ([]string, error) {
 	cmd := []string{}
+
+	if len(p.Playbooks) == 0 {
+		return nil, errors.New("(playbook::Command)", "No playbooks defined")
+	}
 
 	// Use default binary when it is not already defined
 	if p.Binary == "" {

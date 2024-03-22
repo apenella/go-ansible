@@ -1,0 +1,9 @@
+---
+
+- hosts: server
+
+  tasks:
+    - name: ansibleplaybook-ssh
+      ansible.builtin.debug:
+        msg: Your are running 'ansibleplaybook-ssh' example
+

@@ -19,13 +19,13 @@ func main() {
 		},
 	}
 
-	playbook := &playbook.AnsiblePlaybookCmd{
-		Playbooks:       []string{"site.yml"},
-		PlaybookOptions: ansiblePlaybookOptions,
-	}
+	playbookCmd := playbook.NewAnsiblePlaybookCmd(
+		playbook.WithPlaybooks("site.yml"),
+		playbook.WithPlaybookOptions(ansiblePlaybookOptions),
+	)
 
 	exec := execute.NewDefaultExecute(
-		execute.WithCmd(playbook),
+		execute.WithCmd(playbookCmd),
 	)
 
 	err := exec.Execute(context.TODO())

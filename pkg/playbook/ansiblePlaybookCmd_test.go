@@ -6,6 +6,53 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+// TestNewAnsiblePlaybookCmd tests
+func TestNewAnsiblePlaybookCmd(t *testing.T) {
+	tests := []struct {
+		desc                       string
+		expectedAnsiblePlaybookCmd *AnsiblePlaybookCmd
+		binary                     string
+		playbooks                  []string
+		playbookOptions            *AnsiblePlaybookOptions
+	}{
+		{
+			desc:      "Testing create new AnsiblePlaybookCmd",
+			binary:    "custom-ansible-playbook",
+			playbooks: []string{"test/ansible/site.yml", "test/ansible/site2.yml"},
+			playbookOptions: &AnsiblePlaybookOptions{
+				AskBecomePass:    true,
+				AskPass:          true,
+				AskVaultPassword: true,
+				Become:           true,
+			},
+			expectedAnsiblePlaybookCmd: &AnsiblePlaybookCmd{
+				Binary:    "custom-ansible-playbook",
+				Playbooks: []string{"test/ansible/site.yml", "test/ansible/site2.yml"},
+				PlaybookOptions: &AnsiblePlaybookOptions{
+					AskBecomePass:    true,
+					AskPass:          true,
+					AskVaultPassword: true,
+					Become:           true,
+				},
+			},
+		},
+	}
+
+	for _, test := range tests {
+		t.Run(test.desc, func(t *testing.T) {
+			t.Log(test.desc)
+
+			ansiblePlaybookCmd := NewAnsiblePlaybookCmd(
+				WithBinary(test.binary),
+				WithPlaybooks(test.playbooks...),
+				WithPlaybookOptions(test.playbookOptions),
+			)
+
+			assert.Equal(t, test.expectedAnsiblePlaybookCmd, ansiblePlaybookCmd, "Unexpected value")
+		})
+	}
+}
+
 // TestCommand tests
 func TestCommand(t *testing.T) {
 	tests := []struct {

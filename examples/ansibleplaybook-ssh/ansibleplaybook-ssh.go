@@ -2,29 +2,33 @@ package main
 
 import (
 	"context"
+	"fmt"
+	"os"
 
 	"github.com/apenella/go-ansible/v2/pkg/execute"
 	"github.com/apenella/go-ansible/v2/pkg/playbook"
 )
 
 func main() {
-
 	ansiblePlaybookOptions := &playbook.AnsiblePlaybookOptions{
-		Connection: "local",
-		Inventory:  "127.0.0.1,",
+		Inventory:     "inventory.yml",
+		SSHCommonArgs: "-o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null",
 	}
 
-	playbookCmd := playbook.NewAnsiblePlaybookCmd(
-		playbook.WithPlaybooks("input.yml"),
+	cmd := playbook.NewAnsiblePlaybookCmd(
+		playbook.WithPlaybooks("site.yml"),
 		playbook.WithPlaybookOptions(ansiblePlaybookOptions),
 	)
 
 	exec := execute.NewDefaultExecute(
-		execute.WithCmd(playbookCmd),
+		execute.WithCmd(cmd),
 	)
 
 	err := exec.Execute(context.TODO())
 	if err != nil {
-		panic(err)
+		os.Exit(1)
 	}
+
+	fmt.Println(cmd.String())
+
 }

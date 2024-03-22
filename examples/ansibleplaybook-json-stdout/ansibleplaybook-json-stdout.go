@@ -26,15 +26,16 @@ func main() {
 	}
 
 	playbooksList := []string{"site1.yml", "site2.yml", "site3.yml"}
-	playbook := &playbook.AnsiblePlaybookCmd{
-		Playbooks:       playbooksList,
-		PlaybookOptions: ansiblePlaybookOptions,
-	}
+
+	playbookCmd := playbook.NewAnsiblePlaybookCmd(
+		playbook.WithPlaybooks(playbooksList...),
+		playbook.WithPlaybookOptions(ansiblePlaybookOptions),
+	)
 
 	exec := measure.NewExecutorTimeMeasurement(
 		stdoutcallback.NewJSONStdoutCallbackExecute(
 			execute.NewDefaultExecute(
-				execute.WithCmd(playbook),
+				execute.WithCmd(playbookCmd),
 				execute.WithWrite(io.Writer(buff)),
 			),
 		),

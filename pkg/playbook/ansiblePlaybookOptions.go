@@ -412,22 +412,22 @@ func (o *AnsiblePlaybookOptions) GenerateCommandOptions() ([]string, error) {
 
 	if o.SCPExtraArgs != "" {
 		cmd = append(cmd, SCPExtraArgsFlag)
-		cmd = append(cmd, fmt.Sprintf("'%s'", o.SCPExtraArgs))
+		cmd = append(cmd, o.SCPExtraArgs)
 	}
 
 	if o.SFTPExtraArgs != "" {
 		cmd = append(cmd, SFTPExtraArgsFlag)
-		cmd = append(cmd, fmt.Sprintf("'%s'", o.SFTPExtraArgs))
+		cmd = append(cmd, o.SFTPExtraArgs)
 	}
 
 	if o.SSHCommonArgs != "" {
 		cmd = append(cmd, SSHCommonArgsFlag)
-		cmd = append(cmd, fmt.Sprintf("'%s'", o.SSHCommonArgs))
+		cmd = append(cmd, o.SSHCommonArgs)
 	}
 
 	if o.SSHExtraArgs != "" {
 		cmd = append(cmd, SSHExtraArgsFlag)
-		cmd = append(cmd, fmt.Sprintf("'%s'", o.SSHExtraArgs))
+		cmd = append(cmd, o.SSHExtraArgs)
 	}
 
 	if o.Timeout > 0 {

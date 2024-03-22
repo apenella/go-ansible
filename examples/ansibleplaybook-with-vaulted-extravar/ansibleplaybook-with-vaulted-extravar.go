@@ -54,16 +54,16 @@ func main() {
 		panic(err)
 	}
 
-	playbook := &playbook.AnsiblePlaybookCmd{
-		Playbooks:       []string{"site.yml"},
-		PlaybookOptions: ansiblePlaybookOptions,
-	}
+	playbookCmd := playbook.NewAnsiblePlaybookCmd(
+		playbook.WithPlaybooks("site.yml"),
+		playbook.WithPlaybookOptions(ansiblePlaybookOptions),
+	)
 
-	fmt.Printf("\n  Ansible playbook command:\n%s\n\n", playbook.String())
+	fmt.Printf("\n  Ansible playbook command:\n%s\n\n", playbookCmd.String())
 
 	exec := configuration.NewAnsibleWithConfigurationSettingsExecute(
 		execute.NewDefaultExecute(
-			execute.WithCmd(playbook),
+			execute.WithCmd(playbookCmd),
 			execute.WithTransformers(
 				transformer.Prepend("Go-ansible example with become"),
 			),

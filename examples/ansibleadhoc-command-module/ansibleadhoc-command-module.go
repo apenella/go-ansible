@@ -18,16 +18,16 @@ func main() {
 		ModuleName: "command",
 	}
 
-	adhoc := &adhoc.AnsibleAdhocCmd{
-		Pattern:      "all",
-		AdhocOptions: ansibleAdhocOptions,
-	}
+	adhocCmd := adhoc.NewAnsibleAdhocCmd(
+		adhoc.WithPattern("all"),
+		adhoc.WithAdhocOptions(ansibleAdhocOptions),
+	)
 
-	fmt.Println("Command: ", adhoc.String())
+	fmt.Println("Command: ", adhocCmd.String())
 
 	onelineExecute := stdoutcallback.NewOnelineStdoutCallbackExecute(
 		execute.NewDefaultExecute(
-			execute.WithCmd(adhoc),
+			execute.WithCmd(adhocCmd),
 		),
 	)
 
