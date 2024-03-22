@@ -23,6 +23,9 @@ _**Important:** The master branch may contain unreleased or pre-released feature
     - [Executor](#executor)
     - [Command Generator](#command-generator)
     - [Results Handler](#results-handler)
+  - [Considerations](#considerations)
+    - [Execute go-ansible inside a container](#execute-go-ansible-inside-a-container)
+    - [Disable pseudo-terminal allocation](#disable-pseudo-terminal-allocation)
   - [Getting Started](#getting-started)
     - [Create the _AnsiblePlaybookCmd_ struct](#create-the-ansibleplaybookcmd-struct)
     - [Create the _DefaultExecute_ executor](#create-the-defaultexecute-executor)
@@ -112,6 +115,22 @@ A _command generator_ or a _commander_ is responsible for generating the command
 ### Results Handler
 
 A _results handler_ or a _results outputer_ is responsible for managing the output of the command execution. The library includes two output mechanisms: the [DefaultResults](#defaultexecute-struct) and the [JSONStdoutCallbackResults](#jsonstdoutcallbackresults-struct) structs.
+
+## Considerations
+
+Before you proceed further, please take note of the following considerations to ensure optimal usage of the go-ansible library.
+
+### Execute go-ansible inside a container
+
+When executing _Ansible_ commands using the _go-ansible_ library inside a container, ensure that the container has configured an init system. The init system is necessary to manage the child processes created by the _Ansible_ commands. If the container does not have an init system, the child processes may not be correctly managed, leading to unexpected behavior such as zombie processes.
+
+You can read more about that in the issue [139](https://github.com/apenella/go-ansible/issues/139).
+
+### Disable pseudo-terminal allocation
+
+_Ansible_ commands forces the pseudo-terminal allocation when executed in a terminal. That configuration can cause that the SSH connection leaves zombie processes when the command finished. If you are experiencing this issue, you can disable the pseudo-terminal allocation by setting the `-T` to the SSH extra arguments, that will disable the pseudo-terminal allocation.
+
+You can read more about that in the issue [139](https://github.com/apenella/go-ansible/issues/139) and [here](https://groups.google.com/g/ansible-project/c/IQoTNwDBIiA/m/qiHUTgg31lkJ).
 
 ## Getting Started
 
