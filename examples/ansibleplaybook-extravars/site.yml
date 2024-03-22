@@ -6,8 +6,14 @@
     extravar2: na
 
   tasks:
+    - name: Gather facts
+      ansible.builtin.setup:
+        gather_subset:
+          - all_ipv4_addresses
+
     - name: show values
       debug:
         msg: |
-          {{ extravar1 }}
-          {{ extravar2 }}
+          {{ hostvars['server']['ansible_hostname'] }}[{{ hostvars['server']['ansible_default_ipv4']['address'] }}] (port: {{ hostvars['server']['ansible_port'] }})
+          - {{ extravar1 }}
+          - {{ extravar2 }}

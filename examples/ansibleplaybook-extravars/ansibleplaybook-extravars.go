@@ -5,6 +5,7 @@ import (
 	"fmt"
 
 	"github.com/apenella/go-ansible/v2/pkg/execute"
+	"github.com/apenella/go-ansible/v2/pkg/execute/stdoutcallback"
 	"github.com/apenella/go-ansible/v2/pkg/playbook"
 )
 
@@ -25,13 +26,15 @@ func main() {
 		playbook.WithPlaybookOptions(ansiblePlaybookOptions),
 	)
 
-	exec := execute.NewDefaultExecute(
-		execute.WithCmd(playbookCmd),
-	)
-
 	fmt.Println("Command: ", playbookCmd.String())
 
-	err := exec.Execute(context.TODO())
+	yamlexec := stdoutcallback.NewYAMLStdoutCallbackExecute(
+		execute.NewDefaultExecute(
+			execute.WithCmd(playbookCmd),
+		),
+	)
+
+	err := yamlexec.Execute(context.TODO())
 	if err != nil {
 		panic(err)
 	}
