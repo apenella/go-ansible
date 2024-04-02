@@ -1,0 +1,8 @@
+---
+
+- hosts: server
+  
+  tasks:
+    - name: Install nginx
+      ansible.builtin.import_role:
+        name: geerlingguy.go

@@ -124,7 +124,7 @@ Before you proceed further, please take note of the following considerations to 
 
 When executing _Ansible_ commands using the _go-ansible_ library inside a container, ensure that the container has configured an init system. The init system is necessary to manage the child processes created by the _Ansible_ commands. If the container does not have an init system, the child processes may not be correctly managed, leading to unexpected behavior such as zombie processes.
 
-You can read more about that in the issue [139](https://github.com/apenella/go-ansible/issues/139).
+You can read more about that in the issue [139](https://github.com/apenella/go-ansible/issues/139) and [here](https://github.com/ansible/ansible/issues/49270#issuecomment-462306244).
 
 ### Disable pseudo-terminal allocation
 

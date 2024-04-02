@@ -44,6 +44,7 @@ Version 2.0.0 of *go-ansible* introduces several disruptive changes. Read the up
 - `github.com/apenella/go-ansible/v2/pkg/execute/result/json` package has been introduced. This package offers the component for printing execution results from the JSON stdout callback. It supersedes the `JSONStdoutCallbackResults` function that was previously defined in the `github.com/apenella/go-ansible/v2/pkg/stdoutcallback` package.
 - `github.com/apenella/go-ansible/v2/pkg/execute/stdoutcallback`. package has been introduced and offers multiple decorators designed to set the stdout callback for Ansible executions.
 - `github.com/apenella/go-ansible/v2/pkg/execute/workflow` package has been introduced and allows you to define a workflow for executing multiple commands in a sequence.
+- `github.com/apenella/go-ansible/v2/pkg/galaxy/role/install` package has been introduced. This package allows you to install Ansible roles from the Ansible Galaxy.
 - `NewAnsibleAdhocCmd`, `NewAnsibleInventoryCmd` and `NewAnsiblePlaybookCmd` functions have been introduced. These functions are responsible for creating the `AnsibleAdhocCmd`, `AnsibleInventoryCmd` and `AnsiblePlaybookCmd` structs, respectively.
 - `ResultsOutputer` interface has been introduced in the `github.com/apenella/go-ansible/v2/pkg/execute/result` package.  This interface defines the criteria for a struct to be compliant in printing execution results.
 - A utility to generate the code for the configuration package has been introduced. This utility is located in the `utils/cmd/configGenerator.go`.
