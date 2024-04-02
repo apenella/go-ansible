@@ -5,6 +5,7 @@ import (
 	"fmt"
 
 	"github.com/apenella/go-ansible/v2/pkg/execute"
+	"github.com/fatih/color"
 )
 
 type WorkflowExecute struct {
@@ -12,6 +13,8 @@ type WorkflowExecute struct {
 	ExecutorList []execute.Executor
 	// ContinueOnError is a flag to continue on error
 	ContinueOnError bool
+	// Trace is a flag to trace the execution
+	Trace bool
 }
 
 // NewWorkflowExecute creates a new WorkflowExecute
@@ -33,11 +36,22 @@ func (e *WorkflowExecute) WithContinueOnError() *WorkflowExecute {
 	return e
 }
 
+// WithTrace sets the trace flag to true
+func (e *WorkflowExecute) WithTrace() *WorkflowExecute {
+	e.Trace = true
+	return e
+}
+
 // Execute runs the executors
 func (e *WorkflowExecute) Execute(ctx context.Context) error {
 	var errList []error = make([]error, 0)
 
-	for _, executor := range e.ExecutorList {
+	for executionNum, executor := range e.ExecutorList {
+
+		if e.Trace {
+			color.Blue(fmt.Sprintf("\n\u2022 executing task %d out of %d\n", executionNum+1, len(e.ExecutorList)))
+		}
+
 		err := executor.Execute(ctx)
 		if err != nil {
 			errList = append(errList, err)
