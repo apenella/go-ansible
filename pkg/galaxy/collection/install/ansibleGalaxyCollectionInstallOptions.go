@@ -254,11 +254,6 @@ func (o *AnsibleGalaxyCollectionInstallOptions) GenerateCommandOptions() ([]stri
 		options = append(options, ServerFlag, o.Server)
 	}
 
-	// verboseFlag, err := o.generateVerbosityFlag()
-	// if err != nil {
-	// 	return nil, errors.New(errContext, "", err)
-	// }
-
 	if o.Verbose {
 		options = append(options, VerboseFlag)
 	}
@@ -269,31 +264,6 @@ func (o *AnsibleGalaxyCollectionInstallOptions) GenerateCommandOptions() ([]stri
 
 	return options, nil
 }
-
-// // generateVerbosityFlag return a string with the verbose flag. Higher verbosity (more v's) has precedence over lower
-// func (o *AnsibleGalaxyCollectionInstallOptions) generateVerbosityFlag() (string, error) {
-// 	if o.Verbose {
-// 		return VerboseFlag, nil
-// 	}
-
-// 	if o.VerboseVVVV {
-// 		return VerboseVVVVFlag, nil
-// 	}
-
-// 	if o.VerboseVVV {
-// 		return VerboseVVVFlag, nil
-// 	}
-
-// 	if o.VerboseVV {
-// 		return VerboseVVFlag, nil
-// 	}
-
-// 	if o.VerboseV {
-// 		return VerboseVFlag, nil
-// 	}
-
-// 	return "", nil
-// }
 
 // String return a string representation of the AnsibleGalaxyCollectionInstallOptions
 func (o *AnsibleGalaxyCollectionInstallOptions) String() string {
@@ -390,22 +360,6 @@ func (o *AnsibleGalaxyCollectionInstallOptions) String() string {
 	if o.Verbose {
 		str = fmt.Sprintf("%s %s", str, VerboseFlag)
 	}
-
-	// if o.VerboseV {
-	// 	str = fmt.Sprintf("%s %s", str, VerboseVFlag)
-	// }
-
-	// if o.VerboseVV {
-	// 	str = fmt.Sprintf("%s %s", str, VerboseVVFlag)
-	// }
-
-	// if o.VerboseVVV {
-	// 	str = fmt.Sprintf("%s %s", str, VerboseVVVFlag)
-	// }
-
-	// if o.VerboseVVVV {
-	// 	str = fmt.Sprintf("%s %s", str, VerboseVVVVFlag)
-	// }
 
 	if o.Version {
 		str = fmt.Sprintf("%s %s", str, VersionFlag)
