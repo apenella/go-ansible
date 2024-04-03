@@ -53,7 +53,7 @@ func TestAnsibleGalaxyRoleInstallOptionsGenerateCommandOptions(t *testing.T) {
 			},
 			err: nil,
 			expect: []string{
-				ApiKeyFlag, "apikey",
+				APIKeyFlag, "apikey",
 				ForceFlag,
 				ForceWithDepsFlag,
 				IgnoreCertsFlag,
