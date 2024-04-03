@@ -1,0 +1,9 @@
+---
+
+- hosts: server
+  
+  tasks:
+
+  - name: Check version of community.general
+    ansible.builtin.debug:
+      msg: "community.general version {{ lookup('community.general.collection_version', 'community.general') }}"
