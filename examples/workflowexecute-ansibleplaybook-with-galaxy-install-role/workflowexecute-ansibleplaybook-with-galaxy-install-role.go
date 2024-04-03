@@ -19,9 +19,10 @@ func main() {
 	}
 
 	galaxyInstallRolesCmd := galaxy.NewAnsibleGalaxyRoleInstallCmd(
-		galaxy.WithRoleNames("geerlingguy.go"),
+		// galaxy.WithRoleNames("geerlingguy.go"),
 		galaxy.WithGalaxyRoleInstallOptions(&galaxy.AnsibleGalaxyRoleInstallOptions{
-			Force: true,
+			Force:    true,
+			RoleFile: "requirements.yml",
 		}),
 	)
 
@@ -32,7 +33,9 @@ func main() {
 	playbookCmd := playbook.NewAnsiblePlaybookExecute("site.yml").
 		WithPlaybookOptions(ansiblePlaybookOptions)
 
-	err := workflow.NewWorkflowExecute(galaxyInstallRolesExec, playbookCmd).WithTrace().Execute(context.TODO())
+	err := workflow.NewWorkflowExecute(galaxyInstallRolesExec, playbookCmd).
+		WithTrace().
+		Execute(context.TODO())
 	if err != nil {
 		fmt.Println(err.Error())
 		os.Exit(1)
