@@ -8,8 +8,8 @@ import (
 
 const (
 
-	// ApiKeyFlag represent the API key to use to authenticate against the galaxy server. Same as --token
-	ApiKeyFlag = "--api-key"
+	// APIKeyFlag represent the API key to use to authenticate against the galaxy server. Same as --token
+	APIKeyFlag = "--api-key"
 
 	// ForceFlag represents the command line flag for forcing overwriting an existing role or role file.
 	ForceFlag = "--force"
@@ -132,7 +132,7 @@ func (o *AnsibleGalaxyRoleInstallOptions) GenerateCommandOptions() ([]string, er
 	}
 
 	if o.ApiKey != "" {
-		options = append(options, ApiKeyFlag, o.ApiKey)
+		options = append(options, APIKeyFlag, o.ApiKey)
 	}
 
 	if o.Force {
@@ -225,7 +225,7 @@ func (o *AnsibleGalaxyRoleInstallOptions) String() string {
 	str := ""
 
 	if o.ApiKey != "" {
-		str = fmt.Sprintf("%s %s %s", str, ApiKeyFlag, o.ApiKey)
+		str = fmt.Sprintf("%s %s %s", str, APIKeyFlag, o.ApiKey)
 	}
 
 	if o.Force {
