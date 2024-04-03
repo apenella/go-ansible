@@ -57,6 +57,10 @@ _**Important:** The master branch may contain unreleased or pre-released feature
           - [Stdout Callback Execute structs](#stdout-callback-execute-structs)
         - [Workflow package](#workflow-package)
           - [WorkflowExecute struct](#workflowexecute-struct)
+    - [Galaxy package](#galaxy-package)
+      - [Galaxy Role Install package](#galaxy-role-install-package)
+        - [AnsibleGalaxyRoleInstallCmd struct](#ansiblegalaxyroleinstallcmd-struct)
+        - [AnsibleGalaxyRoleInstallOptions struct](#ansiblegalaxyroleinstalloptions-struct)
     - [Inventory package](#inventory-package)
       - [AnsibleInventoryCmd struct](#ansibleinventorycmd-struct)
       - [AnsibleInventoryExecute struct](#ansibleinventoryexecute-struct)
@@ -710,6 +714,30 @@ if err != nil {
   // Manage the error
 }
 ```
+
+### Galaxy package
+
+The `go-ansible` library provides you with the ability to interact with the _Ansible Galaxy_ command-line tool. To do that it includes the following package:
+
+- `github.com/apenella/go-ansible/v2/pkg/galaxy/role/install`: Provides the functionality to install roles from the _Ansible Galaxy_.
+
+#### Galaxy Role Install package
+
+The `github.com/apenella/go-ansible/v2/pkg/galaxy/role/install` package allows you to install roles from the _Ansible Galaxy_ using the `ansible-galaxy` command. The package provides the following structs and functions:
+
+##### AnsibleGalaxyRoleInstallCmd struct
+
+The `AnsibleGalaxyRoleInstallCmd` struct enables the generation of `ansible-galaxy` commands to install roles. It implements the [Commander](#commander-interface) interface, so its method `Command` returns an array of strings that represents the command to be executed. An executor can use it to create the command to be executed.
+
+The package provides the `NewAnsibleGalaxyRoleInstallCmd` function to create a new instance of the `AnsibleGalaxyRoleInstallCmd` struct. The function accepts a list of options to customize the `ansible-galaxy` command. The following functions are available:
+
+- `WithBinary(binary string) AnsibleGalaxyRoleInstallOptionsFunc`: Set the binary for the `ansible-galaxy` command.
+- `WithGalaxyRoleInstallOptions(options *AnsibleGalaxyRoleInstallOptions) AnsibleGalaxyRoleInstallOptionsFunc`: Set the role install options for the command.
+- `WithRoleNames(roleNames ...string) AnsibleGalaxyRoleInstallOptionsFunc`: Set the role names for the `ansible-galaxy` command.
+
+##### AnsibleGalaxyRoleInstallOptions struct
+
+The `AnsibleGalaxyRoleInstallOptions` struct includes parameters described in the `Options` section of the _Ansible Galaxy_ manual page. It defines the behavior of the _Ansible Galaxy_ role installation operations and specifies where to find the configuration settings.
 
 ### Inventory package
 
