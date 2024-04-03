@@ -3,6 +3,8 @@ package galaxyroleinstall
 import (
 	"testing"
 
+	"github.com/apenella/go-ansible/v2/pkg/galaxy"
+	galaxyrole "github.com/apenella/go-ansible/v2/pkg/galaxy/role"
 	errors "github.com/apenella/go-common-utils/error"
 	"github.com/stretchr/testify/assert"
 )
@@ -61,7 +63,10 @@ func TestAnsibleGalaxyRoleInstallCmdCommand(t *testing.T) {
 				}),
 			),
 			err: &errors.Error{},
-			command: []string{"ansible-galaxy", "role", "install",
+			command: []string{
+				galaxy.DefaultAnsibleGalaxyBinary,
+				galaxyrole.AnsibleGalaxyRoleSubCommand,
+				AnsibleGalaxyRoleInstallSubCommand,
 				APIKeyFlag, "apikey",
 				ForceFlag,
 				ForceWithDepsFlag,
@@ -106,7 +111,10 @@ func TestAnsibleGalaxyRoleInstallCmdCommand(t *testing.T) {
 				}),
 			),
 			err: &errors.Error{},
-			command: []string{"ansible-galaxy-binary", "role", "install",
+			command: []string{
+				"ansible-galaxy-binary",
+				galaxyrole.AnsibleGalaxyRoleSubCommand,
+				AnsibleGalaxyRoleInstallSubCommand,
 				APIKeyFlag, "apikey",
 				ForceFlag,
 				ForceWithDepsFlag,
