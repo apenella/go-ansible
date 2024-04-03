@@ -9,7 +9,7 @@ import (
 
 func TestAnsibleGalaxyRoleInstallOptionsGenerateCommandOptions(t *testing.T) {
 
-	errContext := "(galaxy::GenerateCommandOptions)"
+	errContext := "(galaxy::AnsibleGalaxyRoleInstallOptions::GenerateCommandOptions)"
 
 	tests := []struct {
 		desc    string
