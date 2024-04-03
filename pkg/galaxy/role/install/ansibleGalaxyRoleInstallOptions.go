@@ -124,7 +124,7 @@ type AnsibleGalaxyRoleInstallOptions struct {
 // GenerateCommandOptions generates the command line options for the ansible-galaxy role install command.
 func (o *AnsibleGalaxyRoleInstallOptions) GenerateCommandOptions() ([]string, error) {
 
-	errContext := "(galaxy::GenerateCommandOptions)"
+	errContext := "(galaxy::AnsibleGalaxyRoleInstallOptions::GenerateCommandOptions)"
 	options := []string{}
 
 	if o == nil {
