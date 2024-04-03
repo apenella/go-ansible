@@ -8,8 +8,11 @@ const (
 	// DefaultAnsibleGalaxyRoleInstallBinary is the ansible-galaxy binary file default value
 	DefaultAnsibleGalaxyRoleInstallBinary = "ansible-galaxy"
 
-	//AnsibleGalaxyRoleInstallCommand is the ansible-galaxy command to install roles
-	AnsibleGalaxyRoleInstallCommand = "role install"
+	// AnsibleGalaxyRoleSubCommand is the ansible-galaxy role subcommand
+	AnsibleGalaxyRoleSubCommand = "role"
+
+	// AnsibleGalaxyRoleInstallSubCommand is the ansible-galaxy role install subcommand
+	AnsibleGalaxyRoleInstallSubCommand = "install"
 )
 
 // AnsibleGalaxyRoleInstallOptionsFunc is a function to set executor options
@@ -68,7 +71,7 @@ func (p *AnsibleGalaxyRoleInstallCmd) Command() ([]string, error) {
 		p.Binary = DefaultAnsibleGalaxyRoleInstallBinary
 	}
 
-	cmd = append(cmd, p.Binary, "role", "install")
+	cmd = append(cmd, p.Binary, AnsibleGalaxyRoleSubCommand, AnsibleGalaxyRoleInstallSubCommand)
 
 	// Add the options
 	if p.GalaxyRoleInstallOptions != nil {
@@ -93,7 +96,7 @@ func (p *AnsibleGalaxyRoleInstallCmd) String() string {
 		p.Binary = DefaultAnsibleGalaxyRoleInstallBinary
 	}
 
-	str := fmt.Sprintf("%s %s", p.Binary, AnsibleGalaxyRoleInstallCommand)
+	str := fmt.Sprintf("%s %s %s", p.Binary, AnsibleGalaxyRoleSubCommand, AnsibleGalaxyRoleInstallSubCommand)
 
 	if p.GalaxyRoleInstallOptions != nil {
 		str = fmt.Sprintf("%s %s", str, p.GalaxyRoleInstallOptions.String())
