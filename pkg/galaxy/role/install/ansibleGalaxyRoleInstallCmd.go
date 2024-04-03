@@ -2,14 +2,17 @@ package galaxyroleinstall
 
 import (
 	"fmt"
+
+	galaxy "github.com/apenella/go-ansible/v2/pkg/galaxy"
+	galaxyrole "github.com/apenella/go-ansible/v2/pkg/galaxy/role"
 )
 
 const (
-	// DefaultAnsibleGalaxyRoleInstallBinary is the ansible-galaxy binary file default value
-	DefaultAnsibleGalaxyRoleInstallBinary = "ansible-galaxy"
+	// // DefaultAnsibleGalaxyRoleInstallBinary is the ansible-galaxy binary file default value
+	// DefaultAnsibleGalaxyRoleInstallBinary = "ansible-galaxy"
 
-	// AnsibleGalaxyRoleSubCommand is the ansible-galaxy role subcommand
-	AnsibleGalaxyRoleSubCommand = "role"
+	// // AnsibleGalaxyRoleSubCommand is the ansible-galaxy role subcommand
+	// AnsibleGalaxyRoleSubCommand = "role"
 
 	// AnsibleGalaxyRoleInstallSubCommand is the ansible-galaxy role install subcommand
 	AnsibleGalaxyRoleInstallSubCommand = "install"
@@ -68,10 +71,10 @@ func (p *AnsibleGalaxyRoleInstallCmd) Command() ([]string, error) {
 
 	// Use default binary when it is not already defined
 	if p.Binary == "" {
-		p.Binary = DefaultAnsibleGalaxyRoleInstallBinary
+		p.Binary = galaxy.DefaultAnsibleGalaxyBinary
 	}
 
-	cmd = append(cmd, p.Binary, AnsibleGalaxyRoleSubCommand, AnsibleGalaxyRoleInstallSubCommand)
+	cmd = append(cmd, p.Binary, galaxyrole.AnsibleGalaxyRoleSubCommand, AnsibleGalaxyRoleInstallSubCommand)
 
 	// Add the options
 	if p.GalaxyRoleInstallOptions != nil {
@@ -93,10 +96,10 @@ func (p *AnsibleGalaxyRoleInstallCmd) String() string {
 
 	// Use default binary when it is not already defined
 	if p.Binary == "" {
-		p.Binary = DefaultAnsibleGalaxyRoleInstallBinary
+		p.Binary = galaxy.DefaultAnsibleGalaxyBinary
 	}
 
-	str := fmt.Sprintf("%s %s %s", p.Binary, AnsibleGalaxyRoleSubCommand, AnsibleGalaxyRoleInstallSubCommand)
+	str := fmt.Sprintf("%s %s %s", p.Binary, galaxyrole.AnsibleGalaxyRoleSubCommand, AnsibleGalaxyRoleInstallSubCommand)
 
 	if p.GalaxyRoleInstallOptions != nil {
 		str = fmt.Sprintf("%s %s", str, p.GalaxyRoleInstallOptions.String())
