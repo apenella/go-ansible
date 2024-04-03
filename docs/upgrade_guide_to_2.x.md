@@ -53,7 +53,7 @@ The version _v2.x_ introduces several changes in the interfaces used by the _go-
 
 ### Added _Cmder_ interface
 
-The `Cmder` interface is defined in _github.com/apenella/go-ansible/v2/internal/executable/os/exec__ and it is used to run external commands. The `os/exec` package implements the `Cmder` interface. The [Executabler](#added-executabler-interface)'s `Command` and `CommandContext` methods return a `Cmder` interface.
+The `Cmder` interface is defined in _github.com/apenella/go-ansible/v2/internal/executable/os/exec_ and it is used to run external commands. The `os/exec` package implements the `Cmder` interface. The [Executabler](#added-executabler-interface)'s `Command` and `CommandContext` methods return a `Cmder` interface.
 You can find the definition of the `Cmder` interface below:
 
 ```go
@@ -349,7 +349,7 @@ fmt.Println("Duration: ", exec.Duration().String())
 
 If you configure transformers to modify the output of the execution's results, note that the _transformer_ package in the _go-ansible_ library has been relocated. It was moved from _github.com/apenella/go-ansible/pkg/stdoutcallback/results_ to _github.com/apenella/go-ansible/v2/pkg/execute/result/transformer_. Therefore, ensure that your code is adapted to this updated location.
 
-Refer to the section [Changes on](#changes-on-the-transformer-functions) the _Transformer_ functions](#changes-on-the-transformer-functions) for more details on how to adapt your code to these changes.
+Refer to the section [Changes on the _Transformer_ functions](#changes-on-the-transformer-functions) for more details on how to adapt your code to these changes.
 
 ## Changes on the _AnsiblePlaybookCmd_ struct
 
