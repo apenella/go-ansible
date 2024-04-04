@@ -89,7 +89,7 @@ _**Important:** The master branch may contain unreleased or pre-released feature
 Use this command to fetch and install the _go-ansible_ module. You can install the release candidate version by executing the following command:
 
 ```sh
-go get github.com/apenella/go-ansible/v2@v2.0.0-rc.2
+go get github.com/apenella/go-ansible/v2@v2.0.0-rc.3
 ```
 
 You can also install the latest stable version by executing the following command:
@@ -121,7 +121,7 @@ A _command generator_ or a _commander_ is responsible for generating the command
 
 ### Results Handler
 
-A _results handler_ or a _results outputer_ is responsible for managing the output of the command execution. The library includes two output mechanisms: the [DefaultResults](#defaultexecute-struct) and the [JSONStdoutCallbackResults](#jsonstdoutcallbackresults-struct) structs.
+A _results handler_ or a _results outputer_ is responsible for managing the output of the command execution. The library includes two output mechanisms: the [DefaultResults](#defaultresults-struct) and the [JSONStdoutCallbackResults](#jsonstdoutcallbackresults-struct) structs.
 
 ## Considerations
 
@@ -722,7 +722,8 @@ if err != nil {
 
 The `go-ansible` library provides you with the ability to interact with the _Ansible Galaxy_ command-line tool. To do that it includes the following package:
 
-- `github.com/apenella/go-ansible/v2/pkg/galaxy/role/install`: Provides the functionality to install roles from the _Ansible Galaxy_.
+- [github.com/apenella/go-ansible/v2/pkg/galaxy/collection/install](#galaxy-collection-install-package): Provides the functionality to install collections from the _Ansible Galaxy_.
+- [github.com/apenella/go-ansible/v2/pkg/galaxy/role/install](#galaxy-role-install-package): Provides the functionality to install roles from the _Ansible Galaxy_.
 
 #### Galaxy Collection Install package
 
