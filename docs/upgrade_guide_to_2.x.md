@@ -5,6 +5,7 @@
 This document offers guidance for upgrading from _go-ansible_ _v1.x_ to _v2.x_. It also presents the changes introduced in _go-ansible v2.0.0_ since the major version _1.x_. Some of these are breaking changes.
 
 The most relevant change is that the package name has been changed from `github.com/apenella/go-ansible` to `github.com/apenella/go-ansible/v2`. So, you need to update your import paths to use the new module name.
+
 Another important change to highlight is that command structs no longer execute commands. So, `AnsiblePlaybookCmd` and `AnsibleAdhocCmd` do not require an `Executor` anymore. Instead, the `Executor` is responsible for the command execution. To achieve that, the `Executor` depends on the command structs to generate the commands to execute.
 That change is motivated by the need to segregate the command generation from the command execution. Having the `Executor` as the central component of the command execution process allows the `Executor` to be more flexible and customizable. The _go-ansible_ library provides a set of decorator structs to configure the `Executor` with different features, such as stdout callback management, and Ansible configuration settings.
 
