@@ -773,9 +773,9 @@ func TestParseJSONResultsStream(t *testing.T) {
 										Action:           "command",
 										Changed:          true,
 										Stdout:           "",
-										StdoutLines:      []string{},
+										StdoutLines:      []interface{}{},
 										Stderr:           "",
-										StderrLines:      []string{},
+										StderrLines:      []interface{}{},
 										Cmd:              "/usr/bin/true",
 										Failed:           false,
 										FailedWhenResult: false,
@@ -821,9 +821,9 @@ func TestParseJSONResultsStream(t *testing.T) {
 										Changed:          true,
 										Msg:              "non-zero return code",
 										Stdout:           "",
-										StdoutLines:      []string{},
+										StdoutLines:      []interface{}{},
 										Stderr:           "",
-										StderrLines:      []string{},
+										StderrLines:      []interface{}{},
 										Cmd:              "exit -1",
 										Failed:           true,
 										FailedWhenResult: false,
@@ -848,9 +848,9 @@ func TestParseJSONResultsStream(t *testing.T) {
 										Changed:          true,
 										Msg:              "non-zero return code",
 										Stdout:           "",
-										StdoutLines:      []string{},
+										StdoutLines:      []interface{}{},
 										Stderr:           "/usr/bin/ls: cannot access '/tmp/foobar.baz': No such file or directory",
-										StderrLines:      []string{"/usr/bin/ls: cannot access '/tmp/foobar.baz': No such file or directory"},
+										StderrLines:      []interface{}{"/usr/bin/ls: cannot access '/tmp/foobar.baz': No such file or directory"},
 										Cmd:              []interface{}{"/usr/bin/ls", "/tmp/foobar.baz"},
 										Failed:           true,
 										FailedWhenResult: true,
@@ -870,6 +870,141 @@ func TestParseJSONResultsStream(t *testing.T) {
 						Ok:          2,
 						Rescued:     0,
 						Skipped:     1,
+						Unreachable: 0,
+					},
+				},
+			},
+		},
+
+		{
+			desc: "Testing json parse using and slice of slices in the stdout_lines",
+			inputResult: `{
+				"custom_stats": {},
+				"global_custom_stats": {},
+				"plays": [
+					{
+						"play": {
+							"duration": {
+								"end": "2024-04-01T03:08:28.359220Z",
+								"start": "2024-04-01T03:08:25.115857Z"
+							},
+							"id": "ff523e0a-84a7-e3d6-229a-000000000006",
+							"name": "Slice of slices test"
+						},
+						"tasks": [
+							{
+								"hosts": {
+									"192.168.0.1": {
+										"_ansible_no_log": false,
+										"action": "ios_command",
+										"ansible_facts": {
+											"discovered_interpreter_python": "/usr/bin/python3"
+										},
+										"changed": false,
+										"invocation": {
+											"module_args": {
+												"commands": [
+													"show version | incl Version"
+												],
+												"interval": 1,
+												"match": "all",
+												"provider": null,
+												"retries": 10,
+												"wait_for": null
+											}
+										},
+										"stdout": [
+											"One line\nAnother line\nEven another line\nLast line"
+										],
+										"stdout_lines": [
+											[
+												"One line",
+												"Another line",
+												"Even another line",
+												"Last line"
+											]
+										]
+									}
+								},
+								"task": {
+									"duration": {
+										"end": "2024-04-01T03:08:27.896416Z",
+										"start": "2024-04-01T03:08:25.148062Z"
+									},
+									"id": "ff523e0a-84a7-e3d6-229a-000000000008",
+									"name": "run show version on the routers"
+								}
+							}
+						]
+					}
+				],
+				"stats": {
+					"192.168.0.1": {
+						"changed": 0,
+						"failures": 0,
+						"ignored": 0,
+						"ok": 2,
+						"rescued": 0,
+						"skipped": 0,
+						"unreachable": 0
+					}
+				}
+			}`,
+			res: &AnsiblePlaybookJSONResults{
+
+				CustomStats:       map[string]interface{}{},
+				GlobalCustomStats: map[string]interface{}{},
+				Plays: []AnsiblePlaybookJSONResultsPlay{
+					{
+						Play: &AnsiblePlaybookJSONResultsPlaysPlay{
+							Name: "Slice of slices test",
+							Id:   "ff523e0a-84a7-e3d6-229a-000000000006",
+							Duration: &AnsiblePlaybookJSONResultsPlayDuration{
+								End:   "2024-04-01T03:08:28.359220Z",
+								Start: "2024-04-01T03:08:25.115857Z",
+							},
+						},
+						Tasks: []AnsiblePlaybookJSONResultsPlayTask{
+							{
+								Hosts: map[string]*AnsiblePlaybookJSONResultsPlayTaskHostsItem{
+									"192.168.0.1": {
+										// "_ansible_no_log": false, "_ansible_verbose_always": true,
+										Action: "ios_command",
+										AnsibleFacts: map[string]interface{}{
+											"discovered_interpreter_python": "/usr/bin/python3",
+										},
+										Changed: false,
+										Stdout:  []interface{}{"One line\nAnother line\nEven another line\nLast line"},
+										StdoutLines: []interface{}{
+											[]interface{}{
+												"One line",
+												"Another line",
+												"Even another line",
+												"Last line",
+											},
+										},
+									},
+								},
+								Task: &AnsiblePlaybookJSONResultsPlayTaskItem{
+									Id:   "ff523e0a-84a7-e3d6-229a-000000000008",
+									Name: "run show version on the routers",
+									Duration: &AnsiblePlaybookJSONResultsPlayTaskItemDuration{
+										End:   "2024-04-01T03:08:27.896416Z",
+										Start: "2024-04-01T03:08:25.148062Z",
+									},
+								},
+							},
+						},
+					},
+				},
+				Stats: map[string]*AnsiblePlaybookJSONResultsStats{
+					"192.168.0.1": {
+						Changed:     0,
+						Failures:    0,
+						Ignored:     0,
+						Ok:          2,
+						Rescued:     0,
+						Skipped:     0,
 						Unreachable: 0,
 					},
 				},
