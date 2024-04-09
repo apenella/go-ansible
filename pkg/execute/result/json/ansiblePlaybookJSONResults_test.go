@@ -101,7 +101,8 @@ func TestJSONParser(t *testing.T) {
 								"start": "2020-08-07T20:51:30.607525Z"
 							},
 							"id": "a0a4c5d1-62fd-b6f1-98ea-000000000006",
-							"name": "local"
+							"name": "local",
+							"path": "path"
 						},
 						"tasks": [
 							{
@@ -120,7 +121,8 @@ func TestJSONParser(t *testing.T) {
 										"start": "2020-08-07T20:51:30.908539Z"
 									},
 									"id": "a0a4c5d1-62fd-b6f1-98ea-000000000008",
-									"name": "Print line"
+									"name": "Print line",
+									"path": "path"
 								}
 							}
 						]
@@ -150,6 +152,7 @@ func TestJSONParser(t *testing.T) {
 								End:   "2020-08-07T20:51:30.942955Z",
 								Start: "2020-08-07T20:51:30.607525Z",
 							},
+							Path: "path",
 						},
 						Tasks: []AnsiblePlaybookJSONResultsPlayTask{
 							{
@@ -160,8 +163,8 @@ func TestJSONParser(t *testing.T) {
 										End:   "2020-08-07T20:51:30.942955Z",
 										Start: "2020-08-07T20:51:30.908539Z",
 									},
+									Path: "path",
 								},
-								// TODOx
 								Hosts: map[string]*AnsiblePlaybookJSONResultsPlayTaskHostsItem{
 									"127.0.0.1": {
 										//"_ansible_no_log": false, "_ansible_verbose_always": true,
@@ -219,7 +222,8 @@ func TestParseJSONResultsStream(t *testing.T) {
 								"start": "2021-12-21T06:55:29.881536Z"
 							},
 							"id": "3982ba1a-4acb-67e8-84e1-000000000006",
-							"name": "all"
+							"name": "all",
+							"path": "path"
 						},
 						"tasks": [
 							{
@@ -238,7 +242,8 @@ func TestParseJSONResultsStream(t *testing.T) {
 										"start": "2021-12-21T06:55:29.886253Z"
 									},
 									"id": "3982ba1a-4acb-67e8-84e1-000000000008",
-									"name": "json-stdout-ansibleplaybook"
+									"name": "json-stdout-ansibleplaybook",
+									"path": "path"
 								}
 							}
 						]
@@ -458,6 +463,7 @@ func TestParseJSONResultsStream(t *testing.T) {
 								End:   "2021-12-21T06:55:29.890926Z",
 								Start: "2021-12-21T06:55:29.881536Z",
 							},
+							Path: "path",
 						},
 						Tasks: []AnsiblePlaybookJSONResultsPlayTask{
 							{
@@ -468,6 +474,7 @@ func TestParseJSONResultsStream(t *testing.T) {
 										End:   "2021-12-21T06:55:29.890926Z",
 										Start: "2021-12-21T06:55:29.886253Z",
 									},
+									Path: "path",
 								},
 								Hosts: map[string]*AnsiblePlaybookJSONResultsPlayTaskHostsItem{
 									"127.0.0.1": {
@@ -875,7 +882,6 @@ func TestParseJSONResultsStream(t *testing.T) {
 				},
 			},
 		},
-
 		{
 			desc: "Testing json parse using and slice of slices in the stdout_lines",
 			inputResult: `{
