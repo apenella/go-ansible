@@ -58,7 +58,23 @@ func (r *AnsiblePlaybookJSONResults) CheckStats() error {
 	return nil
 }
 
-// AnsiblePlaybookJSONResultsPlay
+/*
+https://github.com/ansible-collections/ansible.posix/blob/main/plugins/callback/json.py#L80
+
+	{
+		'play': {
+			'name': play.get_name(),
+			'id': to_text(play._uuid),
+			'path': to_text(play.get_path()),
+			'duration': {
+				'start': current_time()
+			}
+		},
+		'tasks': []
+	}
+
+	AnsiblePlaybookJSONResultsPlay
+*/
 type AnsiblePlaybookJSONResultsPlay struct {
 	Play  *AnsiblePlaybookJSONResultsPlaysPlay `json:"play"`
 	Tasks []AnsiblePlaybookJSONResultsPlayTask `json:"tasks"`
@@ -66,27 +82,33 @@ type AnsiblePlaybookJSONResultsPlay struct {
 
 // AnsiblePlaybookJSONResultsPlaysPlay
 type AnsiblePlaybookJSONResultsPlaysPlay struct {
-	Name     string                                  `json:"name"`
-	Id       string                                  `json:"id"`
 	Duration *AnsiblePlaybookJSONResultsPlayDuration `json:"duration"`
+	Id       string                                  `json:"id"`
+	Name     string                                  `json:"name"`
+	Path     string                                  `json:"path"`
 }
 
 /*
+https://github.com/ansible-collections/ansible.posix/blob/main/plugins/callback/json.py#L94
+
+	{
+		'task': {
+			'name': task.get_name(),
+			'id': to_text(task._uuid),
+			'path': to_text(task.get_path()),
+			'duration': {
+				'start': current_time()
+			}
+		},
+
+		'hosts': {}
+	}
+
 	AnsiblePlaybookJSONResultsPlayTask
-
-	'task': {
-		'name': task.get_name(),
-		'id': to_text(task._uuid),
-		'duration': {
-			'start': current_time()
-		}
-	},
-
-'hosts': {}
 */
 type AnsiblePlaybookJSONResultsPlayTask struct {
-	Task  *AnsiblePlaybookJSONResultsPlayTaskItem                 `json:"task"`
 	Hosts map[string]*AnsiblePlaybookJSONResultsPlayTaskHostsItem `json:"hosts"`
+	Task  *AnsiblePlaybookJSONResultsPlayTaskItem                 `json:"task"`
 }
 
 type AnsiblePlaybookJSONResultsPlayTaskHostsItem struct {
@@ -107,9 +129,10 @@ type AnsiblePlaybookJSONResultsPlayTaskHostsItem struct {
 }
 
 type AnsiblePlaybookJSONResultsPlayTaskItem struct {
-	Name     string                                          `json:"name"`
-	Id       string                                          `json:"id"`
 	Duration *AnsiblePlaybookJSONResultsPlayTaskItemDuration `json:"duration"`
+	Id       string                                          `json:"id"`
+	Name     string                                          `json:"name"`
+	Path     string                                          `json:"path"`
 }
 
 type AnsiblePlaybookJSONResultsPlayTaskItemDuration struct {
