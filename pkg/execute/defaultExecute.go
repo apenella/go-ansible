@@ -79,6 +79,8 @@ type DefaultExecute struct {
 	Exec Executabler
 	// Cmd is the command generator
 	Cmd Commander
+	// quiet is a flag to set the executor in quiet mode
+	quiet bool
 }
 
 // NewDefaultExecute return a new DefaultExecute instance with all options
@@ -126,12 +128,39 @@ func (e *DefaultExecute) AddEnvVarSafe(key, value string) error {
 	return nil
 }
 
+func (e *DefaultExecute) Quiet() {
+	e.quiet = true
+}
+
+// quietCommand returns the command without the verbose flags -v, -vv, -vvv and -vvvv
+func (e *DefaultExecute) quietCommand() ([]string, error) {
+
+	errContext := "(execute::DefaultExecute:quietCommand)"
+
+	command, err := e.Cmd.Command()
+	if err != nil {
+		return nil, errors.New(errContext, "Error creating command", err)
+	}
+
+	quietCommand := make([]string, 0)
+	for _, cmd := range command {
+		if cmd == "-v" || cmd == "-vv" || cmd == "-vvv" || cmd == "-vvvv" || cmd == "--verbose" {
+			continue
+		}
+		quietCommand = append(quietCommand, cmd)
+	}
+
+	return quietCommand, nil
+}
+
 // Execute takes a command and args and runs it, streaming output to stdout
 func (e *DefaultExecute) Execute(ctx context.Context) error {
 
 	var err error
 	var cmdStderr, cmdStdout io.ReadCloser
 	var wg sync.WaitGroup
+
+	errContext := "(execute::DefaultExecute::Execute)"
 
 	defer e.checkCompatibility()
 
@@ -151,12 +180,19 @@ func (e *DefaultExecute) Execute(ctx context.Context) error {
 	}
 
 	if e.Cmd == nil {
-		return errors.New("(DefaultExecute::Execute)", "Command is not defined")
+		return errors.New(errContext, "Command is not defined")
 	}
 
 	command, err := e.Cmd.Command()
 	if err != nil {
-		return errors.New("(DefaultExecute::Execute)", "Error creating command", err)
+		return errors.New(errContext, "Error creating command", err)
+	}
+
+	if e.quiet {
+		command, err = e.quietCommand()
+		if err != nil {
+			return errors.New(errContext, "Error creating quiet command", err)
+		}
 	}
 
 	cmd := e.Exec.CommandContext(ctx, command[0], command[1:]...)
@@ -182,13 +218,13 @@ func (e *DefaultExecute) Execute(ctx context.Context) error {
 	cmdStdout, err = cmd.StdoutPipe()
 	defer cmdStdout.Close()
 	if err != nil {
-		return errors.New("(DefaultExecute::Execute)", "Error creating stdout pipe", err)
+		return errors.New(errContext, "Error creating stdout pipe", err)
 	}
 
 	cmdStderr, err = cmd.StderrPipe()
 	defer cmdStderr.Close()
 	if err != nil {
-		return errors.New("(DefaultExecute::Execute)", "Error creating stderr pipe", err)
+		return errors.New(errContext, "Error creating stderr pipe", err)
 	}
 
 	if e.Output == nil {
@@ -200,7 +236,7 @@ func (e *DefaultExecute) Execute(ctx context.Context) error {
 
 	err = cmd.Start()
 	if err != nil {
-		return errors.New("(DefaultExecute::Execute)", "Error starting command", err)
+		return errors.New(errContext, "Error starting command", err)
 	}
 
 	// Waig for stdout and stderr
@@ -228,7 +264,7 @@ func (e *DefaultExecute) Execute(ctx context.Context) error {
 	wg.Wait()
 
 	if err := <-execErrChan; err != nil {
-		return errors.New("(DefaultExecute::Execute)", "Error managing results output", err)
+		return errors.New(errContext, "Error managing results output", err)
 	}
 
 	err = cmd.Wait()
@@ -267,7 +303,7 @@ func (e *DefaultExecute) Execute(ctx context.Context) error {
 					errorMessage = fmt.Sprintf("%s\n\n%s", AnsiblePlaybookErrorMessageUnexpectedError, errorMessage)
 				}
 			}
-			return errors.New("(DefaultExecute::Execute)", fmt.Sprintf("Error during command execution: %s", errorMessage))
+			return errors.New(errContext, fmt.Sprintf("Error during command execution: %s", errorMessage))
 		}
 	}
 

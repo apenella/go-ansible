@@ -61,7 +61,7 @@ func WithEnvVars(vars map[string]string) ExecuteOptions {
 	}
 }
 
-// WithOutput add
+// WithOutput sets the output mechanism to DefaultExecutor
 func WithOutput(output result.ResultsOutputer) ExecuteOptions {
 	return func(e *DefaultExecute) {
 		e.WithOutput(output)

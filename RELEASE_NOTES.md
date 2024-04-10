@@ -27,6 +27,7 @@ Version 2.0.0 of *go-ansible* introduces several disruptive changes. Read the up
 ### Fixed
 
 - Quote properly the attributes `SCPExtraArgs`, `SFTPExtraArgs`, `SSHCommonArgs`, `SSHExtraArgs` in `AnsibleAdhocOptions` and `AnsiblePlaybookOptions` structs when generating the command to be executed. #140
+- When using the JSON Stdout Callback method combined with enabled verbosity in the command, it causes an error during JSON parsing. To resolve this issue, the `DefaultExecute` struct includes the `Quiet` method, which removes verbosity from the executed command. #110
 
 ### Added
 
@@ -48,8 +49,10 @@ Version 2.0.0 of *go-ansible* introduces several disruptive changes. Read the up
 - `github.com/apenella/go-ansible/v2/pkg/galaxy/collection/install` package has been introduced. This package allows you to install Ansible collections from the Ansible Galaxy. Along with this package, the example `workflowexecute-ansibleplaybook-with-galaxy-install-collection` has been added to demonstrate how to install an Ansible collection and execute an Ansible playbook in a sequence.
 - `github.com/apenella/go-ansible/v2/pkg/galaxy/role/install` package has been introduced. This package allows you to install Ansible roles from the Ansible Galaxy. Along with this package, the example `workflowexecute-ansibleplaybook-with-galaxy-install-role` has been added to demonstrate how to install an Ansible role and execute an Ansible playbook in a sequence.
 - `NewAnsibleAdhocCmd`, `NewAnsibleInventoryCmd` and `NewAnsiblePlaybookCmd` functions have been introduced. These functions are responsible for creating the `AnsibleAdhocCmd`, `AnsibleInventoryCmd` and `AnsiblePlaybookCmd` structs, respectively.
+- `Path` attribute has been added to the `AnsiblePlaybookJSONResultsPlayTaskHostsItem` struct.
 - `ResultsOutputer` interface has been introduced in the `github.com/apenella/go-ansible/v2/pkg/execute/result` package.  This interface defines the criteria for a struct to be compliant in printing execution results.
 - A utility to generate the code for the configuration package has been introduced. This utility is located in the `utils/cmd/configGenerator.go`.
+- The `Quiet` method has been added to the `DefaultExecute` struct. This method forces to remove verbosity from the executed command.
 
 ### Changed
 

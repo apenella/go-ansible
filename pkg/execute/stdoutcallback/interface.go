@@ -11,3 +11,9 @@ type ExecutorStdoutCallbackSetter interface {
 	AddEnvVar(key, value string)
 	WithOutput(output result.ResultsOutputer)
 }
+
+// ExecutorQuietStdoutCallbackSetter extends the ExecutorStdoutCallbackSetter interface by adding a method to force the non-verbose mode in the Stdout Callback configuration
+type ExecutorQuietStdoutCallbackSetter interface {
+	ExecutorStdoutCallbackSetter
+	Quiet()
+}
