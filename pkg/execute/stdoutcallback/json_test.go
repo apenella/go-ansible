@@ -16,6 +16,7 @@ func TestJSONStdoutCallbackExecute(t *testing.T) {
 	t.Run("Testing JSON stdout callback execution", func(t *testing.T) {
 		exec := execute.NewMockExecute()
 
+		exec.On("Quiet")
 		exec.On("WithOutput", mock.Anything).Return(exec)
 		exec.On("AddEnvVar", configuration.AnsibleStdoutCallback, JSONStdoutCallback)
 		exec.On("Execute", mock.Anything).Return(nil)
@@ -30,6 +31,7 @@ func TestJSONStdoutCallbackExecute(t *testing.T) {
 	t.Run("Testing error on JSON stdout callback when execute function returns an error", func(t *testing.T) {
 		exec := execute.NewMockExecute()
 
+		exec.On("Quiet")
 		exec.On("WithOutput", mock.Anything).Return(exec)
 		exec.On("AddEnvVar", configuration.AnsibleStdoutCallback, JSONStdoutCallback)
 		exec.On("Execute", mock.Anything).Return(errors.New("some error"))

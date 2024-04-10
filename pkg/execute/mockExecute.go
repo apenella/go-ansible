@@ -17,6 +17,11 @@ func NewMockExecute() *MockExecute {
 	return &MockExecute{}
 }
 
+// Quiet is a mock
+func (e *MockExecute) Quiet() {
+	e.Called()
+}
+
 // Execute is a mock
 func (e *MockExecute) Execute(ctx context.Context) error {
 	args := e.Called(ctx)

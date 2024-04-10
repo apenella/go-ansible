@@ -14,14 +14,14 @@ const (
 )
 
 type JSONStdoutCallbackExecute struct {
-	executor ExecutorStdoutCallbackSetter
+	executor ExecutorQuietStdoutCallbackSetter
 }
 
-func NewJSONStdoutCallbackExecute(executor ExecutorStdoutCallbackSetter) *JSONStdoutCallbackExecute {
+func NewJSONStdoutCallbackExecute(executor ExecutorQuietStdoutCallbackSetter) *JSONStdoutCallbackExecute {
 	return &JSONStdoutCallbackExecute{executor: executor}
 }
 
-func (e *JSONStdoutCallbackExecute) WithExecutor(exec ExecutorStdoutCallbackSetter) *JSONStdoutCallbackExecute {
+func (e *JSONStdoutCallbackExecute) WithExecutor(exec ExecutorQuietStdoutCallbackSetter) *JSONStdoutCallbackExecute {
 	e.executor = exec
 	return e
 }
@@ -33,6 +33,7 @@ func (e *JSONStdoutCallbackExecute) Execute(ctx context.Context) error {
 		return fmt.Errorf("JSONStdoutCallbackExecute executor requires an executor")
 	}
 
+	e.executor.Quiet()
 	e.executor.WithOutput(jsonresults.NewJSONStdoutCallbackResults())
 
 	return configuration.NewAnsibleWithConfigurationSettingsExecute(e.executor,

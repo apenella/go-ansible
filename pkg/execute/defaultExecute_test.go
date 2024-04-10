@@ -43,6 +43,8 @@ func TestExecute(t *testing.T) {
 	var stdout, stderr bytes.Buffer
 	var cmdRead bytes.Buffer
 
+	errContext := "(execute::DefaultExecute::Execute)"
+
 	tests := []struct {
 		desc              string
 		err               error
@@ -53,7 +55,7 @@ func TestExecute(t *testing.T) {
 	}{
 		{
 			desc: "Testing error executing a command when Command is not defiend",
-			err:  errors.New("(DefaultExecute::Execute)", "Command is not defined"),
+			err:  errors.New(errContext, "Command is not defined"),
 			execute: NewDefaultExecute(
 				WithWrite(io.Writer(&stdout)),
 				WithWriteError(io.Writer(&stderr)),
@@ -71,6 +73,39 @@ func TestExecute(t *testing.T) {
 					mocks.NewMockAnsibleCmd([]string{"ansible-playbook", "--connection", "local", "../../test/test_site.yml"}, nil),
 				),
 			),
+			prepareAssertFunc: func(e *exec.MockExec, cmd *exec.MockCmd) {
+				if e == nil {
+					t.Fatal("prepareAssertFunc requires a *exec.MockExec")
+				}
+
+				if cmd == nil {
+					t.Fatal("prepareAssertFunc requires a *exec.MockCmd")
+				}
+
+				cmd.On("StdoutPipe").Return(io.NopCloser(io.Reader(&cmdRead)), nil)
+				cmd.On("StderrPipe").Return(io.NopCloser(io.Reader(&cmdRead)), nil)
+				cmd.On("Start").Return(nil)
+				cmd.On("Wait").Return(nil)
+
+				e.On("CommandContext", context.TODO(), "ansible-playbook", []string{"--connection", "local", "../../test/test_site.yml"}).Return(cmd)
+			},
+			assertFunc: func(e *exec.MockExec, cmd *exec.MockCmd) {
+				cmd.AssertExpectations(t)
+				e.AssertExpectations(t)
+			},
+		},
+		{
+			desc: "Testing execute a command in a quiet mode",
+			err:  &errors.Error{},
+			exec: exec.NewMockCmd(),
+			execute: &DefaultExecute{
+				Exec:        exec.NewMockExec(),
+				Cmd:         mocks.NewMockAnsibleCmd([]string{"ansible-playbook", "--connection", "local", "../../test/test_site.yml"}, nil),
+				Write:       io.Writer(&stdout),
+				WriterError: io.Writer(&stderr),
+				quiet:       true,
+			},
+
 			prepareAssertFunc: func(e *exec.MockExec, cmd *exec.MockCmd) {
 				if e == nil {
 					t.Fatal("prepareAssertFunc requires a *exec.MockExec")
@@ -191,6 +226,66 @@ func TestExecute(t *testing.T) {
 // 		})
 // 	}
 // }
+
+// TestQuiet tests the function WithQuiet
+func TestQuiet(t *testing.T) {
+	execute := &DefaultExecute{}
+	execute.Quiet()
+
+	assert.Equal(t, execute.quiet, true)
+}
+
+func TestQuietCommand(t *testing.T) {
+	tests := []struct {
+		desc     string
+		execute  *DefaultExecute
+		expected []string
+		err      error
+	}{
+		{
+			desc: "Testing execute a command with verbose flags",
+			err:  &errors.Error{},
+			execute: &DefaultExecute{
+				Exec: exec.NewMockExec(),
+				Cmd: mocks.NewMockAnsibleCmd(
+					[]string{
+						"ansible-playbook",
+						"--connection",
+						"local",
+						"site.yml",
+						"-v",
+						"-vv",
+						"-vvv",
+						"-vvvv",
+						"--verbose",
+					},
+					nil),
+				// The test executes the quietCommand method so it is not necessary to set the quiet flag
+				// quiet: true,
+			},
+
+			expected: []string{
+				"ansible-playbook",
+				"--connection",
+				"local",
+				"site.yml",
+			},
+		},
+	}
+
+	for _, test := range tests {
+		t.Run(test.desc, func(t *testing.T) {
+			t.Log(test.desc)
+
+			command, err := test.execute.quietCommand()
+			if err != nil {
+				assert.Equal(t, test.err, err)
+			} else {
+				assert.Equal(t, test.expected, command)
+			}
+		})
+	}
+}
 
 func TestEnviron(t *testing.T) {
 	tests := []struct {
