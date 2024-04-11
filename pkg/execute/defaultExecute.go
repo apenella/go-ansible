@@ -128,11 +128,12 @@ func (e *DefaultExecute) AddEnvVarSafe(key, value string) error {
 	return nil
 }
 
+// Quiet sets the executor in quiet mode
 func (e *DefaultExecute) Quiet() {
 	e.quiet = true
 }
 
-// quietCommand returns the command without the verbose flags -v, -vv, -vvv and -vvvv
+// quietCommand returns the command without the verbose flags -v, -vv, -vvv, -vvvv and --verbose
 func (e *DefaultExecute) quietCommand() ([]string, error) {
 
 	errContext := "(execute::DefaultExecute:quietCommand)"

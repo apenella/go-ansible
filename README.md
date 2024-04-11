@@ -54,6 +54,7 @@ _**Important:** The master branch may contain unreleased or pre-released feature
           - [Transformer functions](#transformer-functions)
         - [Stdoutcallback package](#stdoutcallback-package)
           - [ExecutorStdoutCallbackSetter interface](#executorstdoutcallbacksetter-interface)
+          - [ExecutorQuietStdoutCallbackSetter interface](#executorquietstdoutcallbacksetter-interface)
           - [Stdout Callback Execute structs](#stdout-callback-execute-structs)
         - [Workflow package](#workflow-package)
           - [WorkflowExecute struct](#workflowexecute-struct)
@@ -649,6 +650,21 @@ type ExecutorStdoutCallbackSetter interface {
   execute.Executor
   AddEnvVar(key, value string)
   WithOutput(output result.ResultsOutputer)
+}
+```
+
+###### ExecutorQuietStdoutCallbackSetter interface
+
+The `ExecutorQuietStdoutCallbackSetter` interface in the `github.com/apenella/go-ansible/v2/pkg/execute/stdoutcallback` package extends the [ExecutorStdoutCallbackSetter](#executorstdoutcallbacksetter-interface) interface with the capability to remove the verbosity of the command execution output. The [DefaultExecute](#defaultexecute-struct) struct implements this interface, allowing you to silence the output of the command execution.
+
+That interface is required by the [JSONStdoutCallbackExecute](#stdout-callback-execute-structs) struct to remove the verbosity of the command execution output.
+
+The next code snippet shows the definition of the `ExecutorQuietStdoutCallbackSetter` interface:
+
+```go
+type ExecutorQuietStdoutCallbackSetter interface {
+  ExecutorStdoutCallbackSetter
+  Quiet()
 }
 ```
 

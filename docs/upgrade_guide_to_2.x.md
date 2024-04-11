@@ -18,6 +18,7 @@ Proceed through the following sections to understand the changes in version _2.x
     - [Added _Commander_ interface](#added-commander-interface)
     - [Added _Executabler_ interface](#added-executabler-interface)
     - [Added _ExecutorEnvVarSetter_ interface](#added-executorenvvarsetter-interface)
+    - [Added _ExecutorQuietStdoutCallbackSetter_ interface](#added-executorquietstdoutcallbacksetter-interface)
     - [Added _ExecutorStdoutCallbackSetter_ interface](#added-executorstdoutcallbacksetter-interface)
     - [Added _ResultsOutputer_ interface](#added-resultsoutputer-interface)
     - [Updated _Executor_ interface](#updated-executor-interface)
@@ -111,6 +112,20 @@ type ExecutorEnvVarSetter interface {
   execute.Executor
   // AddEnvVar adds an environment variable to the executor
   AddEnvVar(key, value string)
+}
+```
+
+### Added _ExecutorQuietStdoutCallbackSetter_ interface
+
+The `ExecutorQuietStdoutCallbackSetter` interface defined in _github.com/apenella/go-ansible/v2/pkg/execute/stdoutcallback_ extends the [ExecutorStdoutCallbackSetter](#added-executorstdoutcallbacksetter-interface) interface by adding the `Quiet` method to remove the verbosity of the command execution.
+
+```go
+// ExecutorQuietStdoutCallbackSetter extends the ExecutorStdoutCallbackSetter interface by adding a method to force the non-verbose mode in the Stdout Callback configuration
+type ExecutorQuietStdoutCallbackSetter interface {
+  // ExecutorStdoutCallbackSetter interface defined in github.com/apenella/go-ansible/v2/pkg/execute/stdoutcallback
+  ExecutorStdoutCallbackSetter
+  // Quiet removes the verbosity of the command execution
+  Quiet()
 }
 ```
 
