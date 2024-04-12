@@ -33,6 +33,7 @@ Version 2.0.0 of *go-ansible* introduces several disruptive changes. Read the up
 
 - `AnsibleAdhocExecute` _executor_ has been introduced. That _executor_ allows you to create an executor to run `ansible` commands using the default settings of `DefaultExecute`. This _executor_ is located in the `github.com/apenella/go-ansible/v2/pkg/execute/adhoc` package.
 - `AnsibleInventoryExecute` _executor_ has been introduced. That _executor_ allows you to create an executor to run `ansible-inventory` commands using the default settings of `DefaultExecute`. This _executor_ is located in the `github.com/apenella/go-ansible/v2/pkg/execute/inventory` package.
+- `ansibleplaybook-embed-python` example to demonstrate how to use `go-ansible` library along with the `go-embed-python` package.
 - `ansibleplaybook-extravars` example to show how to configure extra vars when running an Ansible playbook command.
 - `ansibleplaybook-ssh` example to show how to execute an Ansible playbook using SSH as the connection method.
 - `AnsiblePlaybookExecute` _executor_ has been introduced. That _executor_ allows you to create an executor to run `ansible-playbook` commands using the default settings of `DefaultExecute`. This _executor_ is located in the `github.com/apenella/go-ansible/v2/pkg/execute/playbook` package.

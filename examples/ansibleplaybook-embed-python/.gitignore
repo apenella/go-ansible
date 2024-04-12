@@ -1,0 +1,3 @@
+# 
+# The repository does not contains the data directory content, so you need to generate it by running the command: go generate ./...
+internal/ansibleplaybook-embed-python/data
