@@ -1,0 +1,10 @@
+---
+
+- hosts: all
+  gather_facts: no
+
+  tasks:
+    - name: ansibleplaybook-simple
+      ansible.builtin.debug:
+        msg: Your are running 'ansibleplaybook-embed-python' example
+
