@@ -1,0 +1,7 @@
+services:
+  golang-ci:
+    image: golang:${GOLANG_VERSION:-1.19}-alpine
+    volumes:
+      - .:/app
+    working_dir: /app
+    command: ["go", "version"]
