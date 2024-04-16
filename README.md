@@ -81,7 +81,11 @@ _**Important:** The master branch may contain unreleased or pre-released feature
         - [Resolve](#resolve)
         - [Text](#text)
   - [Examples](#examples)
-  - [Contributing](#contributing)
+  - [Development Reference](#development-reference)
+    - [Development Environment](#development-environment)
+      - [Testing](#testing)
+      - [Static Analysis](#static-analysis)
+    - [Contributing](#contributing)
     - [Code Of Conduct](#code-of-conduct)
   - [License](#license)
 
@@ -1043,7 +1047,36 @@ Here you have a list of examples:
 - [workflowexecute-simple](https://github.com/apenella/go-ansible/tree/master/examples/workflowexecute-simple)
 - [workflowexecute-time-measurament](https://github.com/apenella/go-ansible/tree/master/examples/workflowexecute-time-measurament)
 
-## Contributing
+## Development Reference
+
+This section provides a reference guide for developing and contributing to the _go-ansible_ library.
+
+### Development Environment
+
+To set up a development environment for the _go-ansible_ library, you need to have the following tools installed on your system:
+
+- [Docker Compose](https://docs.docker.com/compose/). The version used for development is `docker-compose version v2.26.1`.
+- [Docker](https://docs.docker.com/engine/reference/commandline/cli/). The version used for development is `Docker version 26.0.1`.
+- [Go](https://golang.org/). The version used for development is `1.22`.
+- [make](https://www.gnu.org/software/make/) utility. The version used for development is `GNU Make 4.3`. It is used to wrap the continuous integration and development processes, such us testing or linting.
+
+#### Testing
+
+To run the tests, you can use the following command:
+
+```bash
+make test
+```
+
+#### Static Analysis
+
+To run the static analysis tools, you can use the following command:
+
+```bash
+make static-analysis
+```
+
+### Contributing
 
 Thank you for your interest in contributing to go-ansible! All contributions are welcome, whether they are bug reports, feature requests, or code contributions. Please read the contributor's guide [here](https://github.com/apenella/go-ansible/blob/master/CONTRIBUTING.md) to learn more about how to contribute.
 
