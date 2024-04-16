@@ -73,6 +73,7 @@ Version 2.0.0 of *go-ansible* introduces several disruptive changes. Read the up
 - The `Options` attribute in `AnsiblePlaybookCmd` struct has been renamed to `PlaybookOptions`.
 - The examples has been adapted to use executor as the component to execute Ansible commands.
 - The package `github.com/apenella/go-ansible/pkg/stdoutcallback/result/transformer` has been moved to `github.com/apenella/go-ansible/v2/pkg/execute/result/transformer`.
+- Upgrade the Go version from `1.19` to `1.22`.
 
 ### Removed
 
