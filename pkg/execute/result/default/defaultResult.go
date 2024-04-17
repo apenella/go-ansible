@@ -29,7 +29,7 @@ func NewDefaultResults(options ...result.OptionsFunc) *DefaultResults {
 	return results
 }
 
-// WithTransformers sets a transformes list to DefaultResults
+// WithTransformers sets a transformers list to DefaultResults
 func WithTransformers(trans ...transformer.TransformerFunc) result.OptionsFunc {
 	return func(r result.ResultsOutputer) {
 		r.(*DefaultResults).trans = append(r.(*DefaultResults).trans, trans...)
