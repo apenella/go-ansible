@@ -1,4 +1,4 @@
-ARG golang_version=1.19
+ARG golang_version=1.22
 
 FROM golang:${golang_version}-bookworm as golang
 
