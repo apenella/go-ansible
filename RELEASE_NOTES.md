@@ -68,13 +68,14 @@ Version 2.0.0 of *go-ansible* introduces several disruptive changes. Read the up
 - The `DefaultExecute` struct has been updated to implement the `Executor` interface.
 - The `DefaultExecute` struct has been updated to implement the `ExecutorEnvVarSetter` interface.
 - The `DefaultExecute` struct has been updated to implement the `ExecutorStdoutCallbackSetter` interface.
+- The `Execute` method in the `DefaultExecute` struct has been updated to return an error on the deferred function when the command execution fails.
 - The `Options` attribute in `AnsibleAdhocCmd` struct has been renamed to `AdhocOptions`.
 - The `Options` attribute in `AnsibleInventoryCmd` struct has been renamed to `InventoryOptions`.
 - The `Options` attribute in `AnsiblePlaybookCmd` struct has been renamed to `PlaybookOptions`.
+- The `Read` method in the `ReadPasswordFromEnvVar` struct from the `github.com/apenella/go-ansible/v2/vault/password/envvars` package has been updated to log a warning message when the environment variable is not set.
 - The examples has been adapted to use executor as the component to execute Ansible commands.
 - The package `github.com/apenella/go-ansible/pkg/stdoutcallback/result/transformer` has been moved to `github.com/apenella/go-ansible/v2/pkg/execute/result/transformer`.
 - Upgrade the Go version from `1.19` to `1.22`.
-- The `Read` method in the `ReadPasswordFromEnvVar` struct from the `github.com/apenella/go-ansible/v2/vault/password/envvars` package has been updated to log a warning message when the environment variable is not set.
 
 ### Removed
 
