@@ -4,6 +4,7 @@
 DOCKER_COMPOSE_BINARY := $(shell docker compose version > /dev/null 2>&1 && echo "docker compose" || (which docker-compose > /dev/null 2>&1 && echo "docker-compose" || (echo "docker compose not found. Aborting." >&2; exit 1)))
 
 GOLANG_BINARY := $(DOCKER_COMPOSE_BINARY) run --rm golang-ci go
+GOLANGCI_LINT_BINARY := $(DOCKER_COMPOSE_BINARY) run --rm golangci-lint
 
 ## Colors
 COLOR_GREEN=\033[0;32m
@@ -31,7 +32,7 @@ golangci-lint: ## Executes golangci-lint
 	@echo
 	@echo "$(COLOR_GREEN) Executing golangci-lint $(COLOR_END)"
 	@echo
-	@golangci-lint run
+	@$(GOLANGCI_LINT_BINARY) run
 
 unit-test: ## Run unit tests
 	@echo

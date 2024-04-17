@@ -5,3 +5,11 @@ services:
       - .:/app
     working_dir: /app
     command: ["go", "version"]
+
+  golangci-lint:
+    image: golangci/golangci-lint:${GOLANGCI_LINT_VERSION:-v1.57.2}-alpine
+    volumes:
+      - .:/app
+    working_dir: /app
+    entrypoint: ["golangci-lint"]
+    command: ["--version"]
