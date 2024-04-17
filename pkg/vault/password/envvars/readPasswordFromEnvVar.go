@@ -1,7 +1,7 @@
 package envvars
 
 import (
-	"fmt"
+	"log"
 	"os"
 
 	"github.com/pkg/errors"
@@ -45,7 +45,7 @@ func (s *ReadPasswordFromEnvVar) Read() (string, error) {
 
 	secret := os.Getenv(s.envvar)
 	if len(secret) <= 0 {
-		errors.New(fmt.Sprintf("The environment variable '%s' is not set.", s.envvar))
+		log.Printf("The environment variable '%s' is not set.", s.envvar)
 	}
 
 	return secret, nil

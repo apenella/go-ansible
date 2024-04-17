@@ -74,6 +74,7 @@ Version 2.0.0 of *go-ansible* introduces several disruptive changes. Read the up
 - The examples has been adapted to use executor as the component to execute Ansible commands.
 - The package `github.com/apenella/go-ansible/pkg/stdoutcallback/result/transformer` has been moved to `github.com/apenella/go-ansible/v2/pkg/execute/result/transformer`.
 - Upgrade the Go version from `1.19` to `1.22`.
+- The `Read` method in the `ReadPasswordFromEnvVar` struct from the `github.com/apenella/go-ansible/v2/vault/password/envvars` package has been updated to log a warning message when the environment variable is not set.
 
 ### Removed
 
