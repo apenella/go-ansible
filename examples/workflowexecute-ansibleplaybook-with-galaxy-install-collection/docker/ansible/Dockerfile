@@ -1,3 +1,7 @@
+ARG golang_version=1.22
+
+FROM golang:${golang_version}-bookworm as golang
+
 FROM python:3.12-alpine3.19
 
 RUN apk add --update --no-cache \
@@ -14,12 +18,10 @@ RUN pip3 install -U pip setuptools \
         ansible \
     && ln /usr/local/bin/ansible-playbook /usr/bin/ansible-playbook
 
-RUN apk add --update --no-cache \
-        go
+COPY --from=golang /usr/local/go /usr/local/go
 
 # Configure Go
-ENV GOROOT /usr/lib/go
-ENV GOPATH /go
-ENV PATH /go/bin:$PATH
+ENV GOROOT /usr/local/go
+ENV PATH /usr/local/go/bin:/go/bin:$PATH
 
 RUN mkdir -p ${GOPATH}/src ${GOPATH}/bin

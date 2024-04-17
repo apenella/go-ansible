@@ -41,5 +41,7 @@ attach-server: ## Attach to the server container
 project-name: ## Show the project name
 	@echo $(PROJECT_NAME)
 
-run: ## Run the playbook
+_run:
 	@$(DOCKER_COMPOSE_BINARY) --project-name $(PROJECT_NAME) exec --workdir /code/examples/$$(basename $$(pwd)) ansible go run $$(basename $$(pwd)).go
+
+run: up _run down ## Run the playbook
