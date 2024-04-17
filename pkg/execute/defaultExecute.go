@@ -155,9 +155,8 @@ func (e *DefaultExecute) quietCommand() ([]string, error) {
 }
 
 // Execute takes a command and args and runs it, streaming output to stdout
-func (e *DefaultExecute) Execute(ctx context.Context) error {
+func (e *DefaultExecute) Execute(ctx context.Context) (err error) {
 
-	var err error
 	var cmdStderr, cmdStdout io.ReadCloser
 	var wg sync.WaitGroup
 
@@ -217,13 +216,17 @@ func (e *DefaultExecute) Execute(ctx context.Context) error {
 	trans = append(trans, e.Transformers...)
 
 	cmdStdout, err = cmd.StdoutPipe()
-	defer cmdStdout.Close()
+	defer func() {
+		err = cmdStdout.Close()
+	}()
 	if err != nil {
 		return errors.New(errContext, "Error creating stdout pipe", err)
 	}
 
 	cmdStderr, err = cmd.StderrPipe()
-	defer cmdStderr.Close()
+	defer func() {
+		err = cmdStderr.Close()
+	}()
 	if err != nil {
 		return errors.New(errContext, "Error creating stderr pipe", err)
 	}
