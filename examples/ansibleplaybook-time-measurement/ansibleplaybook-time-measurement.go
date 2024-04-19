@@ -26,6 +26,7 @@ func main() {
 		configuration.NewAnsibleWithConfigurationSettingsExecute(
 			execute.NewDefaultExecute(
 				execute.WithCmd(playbookCmd),
+				execute.WithErrorEnrich(playbook.NewAnsiblePlaybookErrorEnrich()),
 			),
 			configuration.WithAnsibleForceColor(),
 		),

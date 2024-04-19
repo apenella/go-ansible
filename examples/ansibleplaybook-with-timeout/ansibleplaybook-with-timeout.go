@@ -35,6 +35,7 @@ func main() {
 
 	exec := execute.NewDefaultExecute(
 		execute.WithCmd(playbookCmd),
+		execute.WithErrorEnrich(playbook.NewAnsiblePlaybookErrorEnrich()),
 		execute.WithTransformers(
 			transformer.Prepend("Go-ansible example"),
 		),

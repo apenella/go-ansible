@@ -45,6 +45,6 @@ project-name: ## Show the project name
 # 	@$(DOCKER_COMPOSE_BINARY) --project-name $(PROJECT_NAME) exec --workdir /code/examples/$$(basename $$(pwd)) ansible go run ansibleplaybook-ssh.go
 
 _run:
-	@$(DOCKER_COMPOSE_BINARY) --project-name $(PROJECT_NAME) exec --workdir /code/examples/$$(basename $$(pwd)) ansible go run $$(basename $$(pwd)).go
+	@$(DOCKER_COMPOSE_BINARY) --project-name $(PROJECT_NAME) exec --workdir /code/examples/$$(basename $$(pwd)) ansible go run $$(basename $$(pwd)).go || true
 
 run: up _run down ## Run the playbook

@@ -36,6 +36,7 @@ func main() {
 		stdoutcallback.NewJSONStdoutCallbackExecute(
 			execute.NewDefaultExecute(
 				execute.WithCmd(playbookCmd),
+				execute.WithErrorEnrich(playbook.NewAnsiblePlaybookErrorEnrich()),
 				execute.WithWrite(io.Writer(buff)),
 			),
 		),

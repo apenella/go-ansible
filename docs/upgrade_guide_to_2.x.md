@@ -16,6 +16,7 @@ Proceed through the following sections to understand the changes in version _2.x
   - [Changes on the interfaces](#changes-on-the-interfaces)
     - [Added _Cmder_ interface](#added-cmder-interface)
     - [Added _Commander_ interface](#added-commander-interface)
+    - [Added _ErrorEnricher_ interface](#added-errorenricher-interface)
     - [Added _Executabler_ interface](#added-executabler-interface)
     - [Added _ExecutorEnvVarSetter_ interface](#added-executorenvvarsetter-interface)
     - [Added _ExecutorQuietStdoutCallbackSetter_ interface](#added-executorquietstdoutcallbacksetter-interface)
@@ -30,9 +31,11 @@ Proceed through the following sections to understand the changes in version _2.x
     - [Replacing the _options_ argument](#replacing-the-options-argument)
   - [Changes on the _DefaultExecute_ struct](#changes-on-the-defaultexecute-struct)
     - [Adding _Cmd_ attribute to generate commands](#adding-cmd-attribute-to-generate-commands)
+    - [Adding _ErrorEnrich_ attribute to enrich error messages](#adding-errorenrich-attribute-to-enrich-error-messages)
     - [Adding _Exec_ attribute for running external commands](#adding-exec-attribute-for-running-external-commands)
     - [Adding _Output_ attribute for printing execution results](#adding-output-attribute-for-printing-execution-results)
     - [Removing the _ShowDuration_ attribute](#removing-the-showduration-attribute)
+    - [Removing the error enrichment for ansible-playbook commands](#removing-the-error-enrichment-for-ansible-playbook-commands)
     - [Changing the _Transformer_ location](#changing-the-transformer-location)
   - [Changes on the _AnsiblePlaybookCmd_ struct](#changes-on-the-ansibleplaybookcmd-struct)
     - [Renaming the _Options_ attribute](#renaming-the-options-attribute)
@@ -85,6 +88,17 @@ The `AnsiblePlaybookCmd` and `AnsibleAdhocCmd` structs implement the `Commander`
 type Commander interface {
   Command() ([]string, error)
   String() string
+}
+```
+
+### Added _ErrorEnricher_ interface
+
+The `ErrorEnricher` interface defined in _github.com/apenella/go-ansible/v2/pkg/execute_ is used to enrich the error message. The `DefaultExecute` struct uses that enable you to append additional information to the error message when an error occurs.
+
+```go
+// ErrorEnricher interface to enrich and customize errors
+type ErrorEnricher interface {
+  Enrich(err error) error
 }
 ```
 
@@ -277,6 +291,21 @@ exec := execute.NewDefaultExecute(
 
 In the above example, `playbookCmd` is of type `Commander`. The `Cmd` value is set to `playbookCmd` using the `WithCmd` function when instantiating a new `DefaultExecute`. The `DefaultExecute` will then use `playbookCmd` to generate the command for execution.
 
+### Adding _ErrorEnrich_ attribute to enrich error messages
+
+The `ErrorEnrich` attribute provides the component responsible for enriching error messages. The `DefaultExecute` struct uses the `ErrorEnricher` interface to append additional information to the error message when an error occurs.
+
+You can set that attribute when you instantiate the `DefaultExecute` struct. The following code snippet demonstrates how to instantiate a `DefaultExecute` struct with a custom `ErrorEnricher`:
+
+```go
+exec := execute.NewDefaultExecute(
+  execute.WithCmd(cmd),
+  execute.WithErrorEnrich(playbook.NewAnsiblePlaybookErrorEnrich()),
+)
+```
+
+That is related to the [Removing the error enrichment for ansible-playbook commands](#removing-the-error-enrichment-for-ansible-playbook-commands).
+
 ### Adding _Exec_ attribute for running external commands
 
 The `DefaultExecute` now includes the `Exec` attribute of type `Executabler`. The `Exec` component is responsible for executing external commands. If you do not define the `Exec` attribute, it defaults to using the `OsExec` struct, which wraps the `os/exec` package.
@@ -361,6 +390,12 @@ if err != nil {
 
 fmt.Println("Duration: ", exec.Duration().String())
 ```
+
+### Removing the error enrichment for ansible-playbook commands
+
+The `DefaultExecute` struct used to enrich the error message based on the exit code. Those enrichments are no longer available by default. The main reason is because those enrichments were based on the _ansible-playbook_ command exit code. However, the `DefaultExecute` is provided by the attribute `ErrorEnrich` to allow you to enrich the error messages.
+
+That is related to [Adding _ErrorEnrich_ attribute to enrich error messages](#adding-errorenrich-attribute-to-enrich-error-messages).
 
 ### Changing the _Transformer_ location
 

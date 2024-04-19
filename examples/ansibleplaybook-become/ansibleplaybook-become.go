@@ -24,13 +24,14 @@ func main() {
 
 	exec := execute.NewDefaultExecute(
 		execute.WithCmd(playbookCmd),
-		execute.WithTransformers(
-			transformer.Prepend("Go-ansible example with become"),
-		),
+		execute.WithErrorEnrich(playbook.NewAnsiblePlaybookErrorEnrich()),
 		execute.WithEnvVars(
 			map[string]string{
 				"ANSIBLE_FORCE_COLOR": "true",
 			},
+		),
+		execute.WithTransformers(
+			transformer.Prepend("Go-ansible example with become"),
 		),
 	)
 

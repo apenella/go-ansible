@@ -27,6 +27,7 @@ func main() {
 		configuration.NewAnsibleWithConfigurationSettingsExecute(
 			execute.NewDefaultExecute(
 				execute.WithCmd(playbookCmd),
+				execute.WithErrorEnrich(playbook.NewAnsiblePlaybookErrorEnrich()),
 				execute.WithTransformers(
 					transformer.Prepend("Go-ansible example"),
 					transformer.LogFormat(transformer.DefaultLogFormatLayout, transformer.Now),

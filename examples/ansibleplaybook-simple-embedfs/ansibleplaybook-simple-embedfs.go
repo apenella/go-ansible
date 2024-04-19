@@ -43,6 +43,7 @@ func main() {
 
 	exec := execute.NewDefaultExecute(
 		execute.WithCmd(playbookCmd),
+		execute.WithErrorEnrich(playbook.NewAnsiblePlaybookErrorEnrich()),
 	)
 
 	err = exec.Execute(context.TODO())
