@@ -80,6 +80,7 @@ Version 2.0.0 of *go-ansible* introduces several disruptive changes. Read the up
 
 ### Removed
 
+- Remove from `DefaultExecute` ansible-playbook error enrichment.
 - The `Exec` attribute has been removed from `AnsiblePlaybookCmd` and `AdhocPlaybookCmd`.
 - The `github.com/apenella/go-ansible/pkg/options` package has been removed. After the `AnsibleConnectionOptions` and `AnsiblePrivilegeEscalationOptions` structs are not available anymore.
 - The `github.com/apenella/go-ansible/pkg/stdoutcallback` package has been removed.
