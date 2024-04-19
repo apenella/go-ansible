@@ -84,6 +84,7 @@ The `AnsiblePlaybookCmd` and `AnsibleAdhocCmd` structs implement the `Commander`
 // Commander generates commands to be executed
 type Commander interface {
   Command() ([]string, error)
+  String() string
 }
 ```
 

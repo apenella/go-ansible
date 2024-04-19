@@ -316,6 +316,7 @@ The `Commander` interface defines components responsible for generating the comm
 ```go
 type Commander interface {
   Command() ([]string, error)
+  String() string
 }
 ```
 

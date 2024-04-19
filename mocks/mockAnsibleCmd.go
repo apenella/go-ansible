@@ -14,3 +14,7 @@ func NewMockAnsibleCmd(cmd []string, err error) *MockAnsibleCmd {
 func (c *MockAnsibleCmd) Command() ([]string, error) {
 	return c.cmd, c.err
 }
+
+func (c *MockAnsibleCmd) String() string {
+	return ""
+}
