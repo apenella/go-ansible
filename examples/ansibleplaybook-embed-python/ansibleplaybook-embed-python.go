@@ -95,6 +95,7 @@ func main() {
 
 	ansiblePlaybookExecutor := execute.NewDefaultExecute(
 		execute.WithCmd(playbookCmd),
+		execute.WithErrorEnrich(playbook.NewAnsiblePlaybookErrorEnrich()),
 		execute.WithExecutable(epExec),
 	)
 

@@ -22,13 +22,14 @@ func main() {
 
 	exec := execute.NewDefaultExecute(
 		execute.WithCmd(cmd),
+		execute.WithErrorEnrich(playbook.NewAnsiblePlaybookErrorEnrich()),
 	)
+
+	fmt.Println("Executing command: ", cmd.String())
 
 	err := exec.Execute(context.TODO())
 	if err != nil {
+		fmt.Println(err)
 		os.Exit(1)
 	}
-
-	fmt.Println(cmd.String())
-
 }

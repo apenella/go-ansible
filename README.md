@@ -38,6 +38,7 @@ _**Important:** The master branch may contain unreleased or pre-released feature
     - [Execute package](#execute-package)
       - [Executor interface](#executor-interface)
       - [Commander interface](#commander-interface)
+      - [ErrorEnricher interface](#errorenricher-interface)
       - [Executabler interface](#executabler-interface)
       - [DefaultExecute struct](#defaultexecute-struct)
       - [Defining a Custom Executor](#defining-a-custom-executor)
@@ -71,6 +72,7 @@ _**Important:** The master branch may contain unreleased or pre-released feature
       - [AnsibleInventoryOptions struct](#ansibleinventoryoptions-struct)
     - [Playbook package](#playbook-package)
       - [AnsiblePlaybookCmd struct](#ansibleplaybookcmd-struct)
+      - [AnsiblePlaybookErrorEnrich struct](#ansibleplaybookerrorenrich-struct)
       - [AnsiblePlaybookExecute struct](#ansibleplaybookexecute-struct)
       - [AnsiblePlaybookOptions struct](#ansibleplaybookoptions-struct)
     - [Vault package](#vault-package)
@@ -320,6 +322,17 @@ type Commander interface {
 }
 ```
 
+#### ErrorEnricher interface
+
+The `ErrorEnricher` interface defines components responsible for enriching the error message. The [AnsiblePlaybookErrorEnrich](#ansibleplaybookerrorenrich-struct) struct implements this interface.
+The [DefaultExecute](#defaultexecute-struct) struct uses this interface to enrich the error message. Below is the definition of the `ErrorEnricher` interface:
+
+```go
+type ErrorEnricher interface {
+  Enrich(err error) error
+}
+```
+
 #### Executabler interface
 
 The `Executabler` interface defines a component required by [DefaultExecute](#defaultexecute-struct) to execute commands. Through the `Executabler` interface, you can customize the execution of commands according to your requirements.
@@ -349,6 +362,7 @@ The following functions can be provided when creating a new instance of the `Def
 - `WithCmd(cmd Commander) ExecuteOptions`: Set the component responsible for generating the command.
 - `WithCmdRunDir(cmdRunDir string) ExecuteOptions`: Define the directory where the command will be executed.
 - `WithEnvVars(vars map[string]string) ExecuteOptions`: Set environment variables for command execution.
+- `WithErrorEnricher(errEnricher ErrorEnricher) ExecuteOptions`: Define the component responsible for enriching the error message.
 - `WithExecutable(executable Executabler) ExecuteOptions`: Define the component responsible for executing the command.
 - `WithOutput(output result.ResultsOutputer) ExecuteOptions`: Specify the component responsible for managing command output.
 - `WithTransformers(trans ...transformer.TransformerFunc) ExecuteOptions`: Add transformers to modify command output.
@@ -865,9 +879,14 @@ if err != nil {
 }
 ```
 
+#### AnsiblePlaybookErrorEnrich struct
+
+The `AnsiblePlaybookErrorEnrich` struct, that implements the [ErrorEnricher](#errorenricher-interface) interface, is responsible for enriching the error message when executing an _ansible-playbook_ command. Based on the exit code of the command execution, the `AnsiblePlaybookErrorEnrich` struct appends additional information to the error message. This additional information includes the exit code, the command that was executed, and the error message.
+
 #### AnsiblePlaybookExecute struct
 
-The `AnsiblePlaybookExecute` struct serves as a streamlined [executor](#executor) for running `ansible-playbook` command. It encapsulates the setup process for both the [command generator](#command-generator) and _executor_. This _executor_ is particularly useful when no additional configuration or customization is required.
+The `AnsiblePlaybookExecute` struct serves as a streamlined [executor](#executor) for running `ansible-playbook` command. It encapsulates the setup process for both the [command generator](#command-generator) and _executor_. Additionally, it provides the ability to enrich the error message when an error occurs during command execution.
+This _executor_ is particularly useful when no additional configuration or customization is required.
 
 The following methods are available to set attributes for the [AnsiblePlaybookCmd](#ansibleplaybookcmd-struct) struct:
 

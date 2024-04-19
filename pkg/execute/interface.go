@@ -23,6 +23,7 @@ type Commander interface {
 	String() string
 }
 
+// ErrorEnricher interface to enrich and customize errors
 type ErrorEnricher interface {
 	Enrich(err error) error
 }

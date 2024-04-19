@@ -44,6 +44,7 @@ func (e *AnsiblePlaybookExecute) Execute(ctx context.Context) error {
 
 	exec := execute.NewDefaultExecute(
 		execute.WithCmd(e.cmd),
+		execute.WithErrorEnrich(NewAnsiblePlaybookErrorEnrich()),
 	)
 
 	err := exec.Execute(ctx)

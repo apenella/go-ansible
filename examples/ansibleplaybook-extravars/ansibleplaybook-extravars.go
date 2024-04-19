@@ -31,6 +31,7 @@ func main() {
 	yamlexec := stdoutcallback.NewYAMLStdoutCallbackExecute(
 		execute.NewDefaultExecute(
 			execute.WithCmd(playbookCmd),
+			execute.WithErrorEnrich(playbook.NewAnsiblePlaybookErrorEnrich()),
 		),
 	)
 

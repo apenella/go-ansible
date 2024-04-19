@@ -31,6 +31,7 @@ func main() {
 	exec := configuration.NewAnsibleWithConfigurationSettingsExecute(
 		execute.NewDefaultExecute(
 			execute.WithCmd(playbookCmd),
+			execute.WithErrorEnrich(playbook.NewAnsiblePlaybookErrorEnrich()),
 			execute.WithTransformers(
 				transformer.Prepend("[ansibleplaybook-signals-and-cancellation]"),
 			),

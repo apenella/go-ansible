@@ -39,6 +39,7 @@ func main() {
 	exec := configuration.NewAnsibleWithConfigurationSettingsExecute(
 		execute.NewDefaultExecute(
 			execute.WithCmd(playbookCmd),
+			execute.WithErrorEnrich(playbook.NewAnsiblePlaybookErrorEnrich()),
 			execute.WithTransformers(
 				outputColored(),
 				transformer.Prepend("Go-ansible example"),

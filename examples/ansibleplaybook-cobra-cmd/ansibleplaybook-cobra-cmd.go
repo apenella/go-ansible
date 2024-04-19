@@ -80,6 +80,7 @@ func commandHandler(cmd *cobra.Command, args []string) error {
 	exec := configuration.NewAnsibleWithConfigurationSettingsExecute(
 		execute.NewDefaultExecute(
 			execute.WithCmd(playbookCmd),
+			execute.WithErrorEnrich(playbook.NewAnsiblePlaybookErrorEnrich()),
 			execute.WithTransformers(
 				transformer.Prepend("Go-ansible example with become"),
 			),
