@@ -8,7 +8,6 @@ import (
 	osexec "os/exec"
 	"strings"
 	"sync"
-	"syscall"
 
 	"github.com/apenella/go-ansible/v2/internal/executable/os/exec"
 	"github.com/apenella/go-ansible/v2/pkg/execute/result"
@@ -63,24 +62,26 @@ func (e EnvVars) Environ() []string {
 
 // DefaultExecute is a simple definition of an executor
 type DefaultExecute struct {
-	// Writer is where is written the command stdout
-	Write io.Writer
-	// WriterError is where is written the command stderr
-	WriterError io.Writer
+	// Cmd is the command generator
+	Cmd Commander
 	// CmdRunDir specifies the working directory of the command.
 	CmdRunDir string
 	// EnvVars specifies env vars of the command.
 	EnvVars EnvVars
-	// Transformers is the list of transformers func for the output
-	Transformers []transformer.TransformerFunc
-	// Output manages the output of the command
-	Output result.ResultsOutputer
+	// ErrContext is the error context
+	ErrorEnrich ErrorEnricher
 	// Exec is the executor
 	Exec Executabler
-	// Cmd is the command generator
-	Cmd Commander
+	// Output manages the output of the command
+	Output result.ResultsOutputer
 	// quiet is a flag to set the executor in quiet mode
 	quiet bool
+	// Transformers is the list of transformers func for the output
+	Transformers []transformer.TransformerFunc
+	// Writer is where is written the command stdout
+	Write io.Writer
+	// WriterError is where is written the command stderr
+	WriterError io.Writer
 }
 
 // NewDefaultExecute return a new DefaultExecute instance with all options
@@ -157,6 +158,7 @@ func (e *DefaultExecute) quietCommand() ([]string, error) {
 // Execute takes a command and args and runs it, streaming output to stdout
 func (e *DefaultExecute) Execute(ctx context.Context) (err error) {
 
+	var errCmd error
 	var cmdStderr, cmdStdout io.ReadCloser
 	var wg sync.WaitGroup
 
@@ -217,7 +219,7 @@ func (e *DefaultExecute) Execute(ctx context.Context) (err error) {
 
 	cmdStdout, err = cmd.StdoutPipe()
 	defer func() {
-		err = cmdStdout.Close()
+		_ = cmdStdout.Close()
 	}()
 	if err != nil {
 		return errors.New(errContext, "Error creating stdout pipe", err)
@@ -225,7 +227,7 @@ func (e *DefaultExecute) Execute(ctx context.Context) (err error) {
 
 	cmdStderr, err = cmd.StderrPipe()
 	defer func() {
-		err = cmdStderr.Close()
+		_ = cmdStderr.Close()
 	}()
 	if err != nil {
 		return errors.New(errContext, "Error creating stderr pipe", err)
@@ -277,37 +279,24 @@ func (e *DefaultExecute) Execute(ctx context.Context) (err error) {
 		if ctx.Err() != nil {
 			fmt.Fprintf(e.Write, "%s\n", fmt.Sprintf("\nWhoops! %s\n", ctx.Err()))
 		} else {
-			errorMessage := fmt.Sprintf("Command executed:\n%s\n", cmd.String())
-			if len(e.EnvVars) > 0 {
-				errorMessage = fmt.Sprintf("%s\nEnvironment variables:\n%s\n", errorMessage, strings.Join(e.EnvVars.Environ(), "\n"))
+
+			if e.ErrorEnrich != nil {
+				errCmd = e.ErrorEnrich.Enrich(err)
+			} else {
+				errCmd = err
 			}
-			errorMessage = fmt.Sprintf("%s\nError:\n%s\n", errorMessage, err.Error())
+
+			errorMessage := fmt.Sprintf(" Command executed: %s\n", e.Cmd.String())
+			if len(e.EnvVars) > 0 {
+				errorMessage = fmt.Sprintf("%s\n Environment variables:\n%s\n", errorMessage, strings.Join(e.EnvVars.Environ(), "\n"))
+			}
+
 			stderrErrorMessage := string(err.(*osexec.ExitError).Stderr)
 			if len(stderrErrorMessage) > 0 {
 				errorMessage = fmt.Sprintf("%s\n'%s'\n", errorMessage, stderrErrorMessage)
 			}
 
-			exitError, exists := err.(*osexec.ExitError)
-			if exists {
-				ws := exitError.Sys().(syscall.WaitStatus)
-				switch ws.ExitStatus() {
-				case AnsiblePlaybookErrorCodeGeneralError:
-					errorMessage = fmt.Sprintf("%s\n\n%s", AnsiblePlaybookErrorMessageGeneralError, errorMessage)
-				case AnsiblePlaybookErrorCodeOneOrMoreHostFailed:
-					errorMessage = fmt.Sprintf("%s\n\n%s", AnsiblePlaybookErrorMessageOneOrMoreHostFailed, errorMessage)
-				case AnsiblePlaybookErrorCodeOneOrMoreHostUnreachable:
-					errorMessage = fmt.Sprintf("%s\n\n%s", AnsiblePlaybookErrorMessageOneOrMoreHostUnreachable, errorMessage)
-				case AnsiblePlaybookErrorCodeParserError:
-					errorMessage = fmt.Sprintf("%s\n\n%s", AnsiblePlaybookErrorMessageParserError, errorMessage)
-				case AnsiblePlaybookErrorCodeBadOrIncompleteOptions:
-					errorMessage = fmt.Sprintf("%s\n\n%s", AnsiblePlaybookErrorMessageBadOrIncompleteOptions, errorMessage)
-				case AnsiblePlaybookErrorCodeUserInterruptedExecution:
-					errorMessage = fmt.Sprintf("%s\n\n%s", AnsiblePlaybookErrorMessageUserInterruptedExecution, errorMessage)
-				case AnsiblePlaybookErrorCodeUnexpectedError:
-					errorMessage = fmt.Sprintf("%s\n\n%s", AnsiblePlaybookErrorMessageUnexpectedError, errorMessage)
-				}
-			}
-			return errors.New(errContext, fmt.Sprintf("Error during command execution: %s", errorMessage))
+			return errors.New(errContext, fmt.Sprintf("Error during command execution.\n%s", errorMessage), errCmd)
 		}
 	}
 

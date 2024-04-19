@@ -67,3 +67,10 @@ func WithOutput(output result.ResultsOutputer) ExecuteOptions {
 		e.WithOutput(output)
 	}
 }
+
+// WithErrorEnrich sets the error context mechanism to DefaultExecutor
+func WithErrorEnrich(enricher ErrorEnricher) ExecuteOptions {
+	return func(e *DefaultExecute) {
+		e.ErrorEnrich = enricher
+	}
+}
