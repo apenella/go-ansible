@@ -20,4 +20,9 @@ type Executabler interface {
 // Commander generates commands to be executed
 type Commander interface {
 	Command() ([]string, error)
+	String() string
+}
+
+type ErrorEnricher interface {
+	Enrich(err error) error
 }
