@@ -1,6 +1,6 @@
 # Release notes
 
-## v2.0.0-rc.4
+## v2.0.0 (2024-04-20)
 
 Version 2.0.0 of *go-ansible* introduces several disruptive changes. Read the upgrade guide carefully before proceeding with the upgrade.
 
@@ -60,6 +60,7 @@ Version 2.0.0 of *go-ansible* introduces several disruptive changes. Read the up
 
 ### Changed
 
+- `DefaultExecute` used the `String` method from the `Commander` to include the command in the error message when the execution fails, instead of using the the `String` method from the `os/exec.Cmd` struct.
 - In the `AnsiblePlaybookJSONResultsPlayTaskHostsItem` struct, the attributes `StdoutLines` and `StderrLines` have chnage their type from `[]string` to `[]interface{}`.
 - The `AnsibleAdhocCmd` struct has been updated to implement the `Commander` interface.
 - The `AnsibleInventoryCmd` struct has been updated to implement the `Commander` interface.
