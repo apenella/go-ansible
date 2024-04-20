@@ -18,7 +18,7 @@ help: ## Lists available targets
 	@grep -E '^[a-zA-Z1-9_-]+:.*?## .*$$' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*?## "}; {printf "  \033[1;32m%-20s\033[0m %s\n", $$1, $$2}'
 	@echo
 
-static-analysis: vet ## Executes all static analysis tools
+static-analysis: vet golangci-lint ## Executes all static analysis tools
 test: unit-test
 
 vet: ## Executes the go vet

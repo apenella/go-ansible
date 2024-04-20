@@ -1,7 +1,7 @@
 package mocks
 
 type MockExitCodeErr struct {
-	error
+	error   //nolint:golint,unused
 	Code    int
 	Message string
 }
