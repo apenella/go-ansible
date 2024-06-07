@@ -191,6 +191,7 @@ We will use the [DefaultExecute](#defaultexecute-struct) struct, provided by the
 // PlaybookCmd is the Commander responsible for generating the command to execute
 exec := execute.NewDefaultExecute(
   execute.WithCmd(playbookCmd),
+  execute.WithErrorEnrich(playbook.NewAnsiblePlaybookErrorEnrich()),
 )
 ```
 
@@ -228,7 +229,7 @@ By default, the [DefaultExecute](#defaultexecute-struct) uses the [DefaultResult
 ## Usage Reference
 
 The Usage Reference section provides an overview of the different packages and their main resources available in the _go-ansible_ library. Here you will find the details to effectively use the library to execute _Ansible_ commands, such as `ansible-playbook` and `ansible`.
-For detailed information on the library's packages, structs, methods, and functions, please refer to the complete reference available [here](https://pkg.go.dev/github.com/apenella/go-ansible).
+For detailed information on the library's packages, structs, methods, and functions, please refer to the complete reference available [here](https://pkg.go.dev/github.com/apenella/go-ansible/v2).
 
 ### Adhoc package
 
@@ -387,6 +388,7 @@ output := &myOutputer{}
 // Exec is an instance of the DefaultExecute executor
 exec := execute.NewDefaultExecute(
   execute.WithCmd(playbookCmd),
+  execute.WithErrorEnrich(playbook.NewAnsiblePlaybookErrorEnrich()),
   execute.WithExecutable(executabler),
   execute.WithOutput(output),
 )
