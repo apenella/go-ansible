@@ -2,8 +2,10 @@ package main
 
 import (
 	"context"
+	"os"
 
 	"github.com/apenella/go-ansible/v2/pkg/execute"
+	"github.com/apenella/go-ansible/v2/pkg/execute/configuration"
 	"github.com/apenella/go-ansible/v2/pkg/playbook"
 )
 
@@ -12,6 +14,7 @@ func main() {
 	ansiblePlaybookOptions := &playbook.AnsiblePlaybookOptions{
 		Connection: "local",
 		Inventory:  "127.0.0.1,",
+		// Verbose:    true,
 	}
 
 	playbookCmd := playbook.NewAnsiblePlaybookCmd(
@@ -19,9 +22,13 @@ func main() {
 		playbook.WithPlaybookOptions(ansiblePlaybookOptions),
 	)
 
-	exec := execute.NewDefaultExecute(
-		execute.WithCmd(playbookCmd),
-		execute.WithErrorEnrich(playbook.NewAnsiblePlaybookErrorEnrich()),
+	exec := configuration.NewAnsibleWithConfigurationSettingsExecute(
+		execute.NewDefaultExecute(
+			execute.WithCmd(playbookCmd),
+			execute.WithErrorEnrich(playbook.NewAnsiblePlaybookErrorEnrich()),
+			execute.WithWriteError(os.Stdout),
+		),
+		configuration.WithAnsibleForceColor(),
 	)
 
 	err := exec.Execute(context.TODO())
