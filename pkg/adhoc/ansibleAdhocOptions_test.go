@@ -197,54 +197,92 @@ func TestGenerateExtraVarsCommand(t *testing.T) {
 
 func TestAnsibleAdhocOptionsString(t *testing.T) {
 
-	t.Log("Testing generate ansible adhoc options string")
-
-	options := &AnsibleAdhocOptions{
-		Args:             "args",
-		AskBecomePass:    true,
-		AskPass:          true,
-		AskVaultPassword: true,
-		Background:       11,
-		Become:           true,
-		BecomeMethod:     "become-method",
-		BecomeUser:       "become-user",
-		Check:            true,
-		Connection:       "local",
-		Diff:             true,
-		ExtraVars: map[string]interface{}{
-			"var1": "value1",
-			"var2": false,
+	tests := []struct {
+		desc    string
+		options *AnsibleAdhocOptions
+		res     string
+	}{
+		{
+			desc: "Testing generate ansible adhoc options string",
+			options: &AnsibleAdhocOptions{
+				Args:             "args",
+				AskBecomePass:    true,
+				AskPass:          true,
+				AskVaultPassword: true,
+				Background:       11,
+				Become:           true,
+				BecomeMethod:     "become-method",
+				BecomeUser:       "become-user",
+				Check:            true,
+				Connection:       "local",
+				Diff:             true,
+				ExtraVars: map[string]interface{}{
+					"var1": "value1",
+					"var2": false,
+				},
+				ExtraVarsFile:     []string{"@test/ansible/extra_vars.yml"},
+				Forks:             "10",
+				Inventory:         "127.0.0.1,",
+				Limit:             "myhost",
+				ListHosts:         true,
+				ModuleName:        "module-name",
+				ModulePath:        "/dev/null",
+				OneLine:           true,
+				PlaybookDir:       "playbook-dir",
+				Poll:              12,
+				PrivateKey:        "pk",
+				SCPExtraArgs:      "scp-extra-args",
+				SFTPExtraArgs:     "sftp-extra-args",
+				SSHCommonArgs:     "ssh-common-args",
+				SSHExtraArgs:      "ssh-extra-args",
+				SyntaxCheck:       true,
+				Timeout:           10,
+				Tree:              "tree",
+				User:              "user",
+				VaultID:           "asdf",
+				VaultPasswordFile: "/dev/null",
+				Verbose:           true,
+				Version:           true,
+			},
+			res: " --args 'args' --ask-vault-password --background 11 --check --diff --extra-vars '{\"var1\":\"value1\",\"var2\":false}' --extra-vars @test/ansible/extra_vars.yml --forks 10 --inventory 127.0.0.1, --limit myhost --list-hosts --module-name module-name --module-path /dev/null --one-line --playbook-dir playbook-dir --poll 12 --syntax-check --tree tree --vault-id asdf --vault-password-file /dev/null -vvvv --version --ask-pass --connection local --private-key pk --scp-extra-args 'scp-extra-args' --sftp-extra-args 'sftp-extra-args' --ssh-common-args 'ssh-common-args' --ssh-extra-args 'ssh-extra-args' --timeout 10 --user user --ask-become-pass --become --become-method become-method --become-user become-user",
 		},
-		ExtraVarsFile:     []string{"@test/ansible/extra_vars.yml"},
-		Forks:             "10",
-		Inventory:         "127.0.0.1,",
-		Limit:             "myhost",
-		ListHosts:         true,
-		ModuleName:        "module-name",
-		ModulePath:        "/dev/null",
-		OneLine:           true,
-		PlaybookDir:       "playbook-dir",
-		Poll:              12,
-		PrivateKey:        "pk",
-		SCPExtraArgs:      "scp-extra-args",
-		SFTPExtraArgs:     "sftp-extra-args",
-		SSHCommonArgs:     "ssh-common-args",
-		SSHExtraArgs:      "ssh-extra-args",
-		SyntaxCheck:       true,
-		Timeout:           10,
-		Tree:              "tree",
-		User:              "user",
-		VaultID:           "asdf",
-		VaultPasswordFile: "/dev/null",
-		Verbose:           true,
-		Version:           true,
+		{
+			desc: "Testing AnsibleAdhocOptions setting the VerboseV flag as true",
+			options: &AnsibleAdhocOptions{
+				VerboseV: true,
+			},
+			res: " -v",
+		},
+		{
+			desc: "Testing AnsibleAdhocOptions setting the VerboseVV flag as true",
+			options: &AnsibleAdhocOptions{
+				VerboseVV: true,
+			},
+			res: " -vv",
+		},
+		{
+			desc: "Testing AnsibleAdhocOptions setting the VerboseVVV flag as true",
+			options: &AnsibleAdhocOptions{
+				VerboseVVV: true,
+			},
+			res: " -vvv",
+		},
+		{
+			desc: "Testing AnsibleAdhocOptions setting the VerboseVVVV flag as true",
+			options: &AnsibleAdhocOptions{
+				VerboseVVVV: true,
+			},
+			res: " -vvvv",
+		},
 	}
 
-	cmd := options.String()
+	for _, test := range tests {
+		t.Run(test.desc, func(t *testing.T) {
+			res := test.options.String()
+			assert.Equal(t, test.res, res)
+		})
+	}
 
-	expected := " --args 'args' --ask-vault-password --background 11 --check --diff --extra-vars '{\"var1\":\"value1\",\"var2\":false}' --extra-vars @test/ansible/extra_vars.yml --forks 10 --inventory 127.0.0.1, --limit myhost --list-hosts --module-name module-name --module-path /dev/null --one-line --playbook-dir playbook-dir --poll 12 --syntax-check --tree tree --vault-id asdf --vault-password-file /dev/null -vvvv --version --ask-pass --connection local --private-key pk --scp-extra-args 'scp-extra-args' --sftp-extra-args 'sftp-extra-args' --ssh-common-args 'ssh-common-args' --ssh-extra-args 'ssh-extra-args' --timeout 10 --user user --ask-become-pass --become --become-method become-method --become-user become-user"
-
-	assert.Equal(t, expected, cmd)
 }
 
 func TestAddExtraVar(t *testing.T) {
