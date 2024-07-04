@@ -600,8 +600,9 @@ func (o *AnsibleAdhocOptions) String() string {
 		str = fmt.Sprintf("%s %s %s", str, VaultPasswordFileFlag, o.VaultPasswordFile)
 	}
 
-	if o.Verbose {
-		str = fmt.Sprintf("%s %s", str, VerboseFlag)
+	verbosityString, _ := o.generateVerbosityFlag()
+	if verbosityString != "" {
+		str = fmt.Sprintf("%s %s", str, verbosityString)
 	}
 
 	if o.Version {
