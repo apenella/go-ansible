@@ -9,7 +9,7 @@ import (
 	"strings"
 	"sync"
 
-	"github.com/apenella/go-ansible/v2/internal/executable/os/exec"
+	"github.com/apenella/go-ansible/v2/pkg/execute/exec"
 	"github.com/apenella/go-ansible/v2/pkg/execute/result"
 	defaultresults "github.com/apenella/go-ansible/v2/pkg/execute/result/default"
 	"github.com/apenella/go-ansible/v2/pkg/execute/result/transformer"
