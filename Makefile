@@ -26,7 +26,6 @@ vet: ## Executes the go vet
 	@echo "$(COLOR_GREEN) Executing go vet $(COLOR_END)"
 	@echo
 	@$(GOLANG_BINARY) vet ./pkg/...
-	@$(GOLANG_BINARY) vet ./internal/...
 
 golangci-lint: ## Executes golangci-lint
 	@echo
@@ -39,7 +38,6 @@ unit-test: ## Run unit tests
 	@echo "$(COLOR_GREEN) Running unit tests...$(COLOR_END)"
 	@echo
 	@$(GOLANG_BINARY) test ./pkg/... -cover -count=1
-	@$(GOLANG_BINARY) test ./internal/... -cover -count=1
 
 list-examples: ## List all examples
 	@echo

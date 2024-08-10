@@ -7,8 +7,8 @@ import (
 	"path/filepath"
 
 	"github.com/apenella/go-ansible/v2/examples/ansibleplaybook-embed-python/internal/ansibleplaybook-embed-python/data"
-	executable "github.com/apenella/go-ansible/v2/internal/executable/os/exec"
 	"github.com/apenella/go-ansible/v2/pkg/execute"
+	executable "github.com/apenella/go-ansible/v2/pkg/execute/exec"
 	"github.com/apenella/go-ansible/v2/pkg/playbook"
 	"github.com/kluctl/go-embed-python/embed_util"
 	"github.com/kluctl/go-embed-python/python"
