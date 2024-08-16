@@ -8,7 +8,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ### Changed
 
-- The internal package `internal/executable/os/exec` has been moved to `pkg/execute/exec`, making it public.
+- The internal package `internal/executable/os/exec` has been moved to `pkg/execute/exec`, making it public. Along with this change, the `Exec` struct has been renamed to `OsExec`.
 
 ## v2.0.1 (2024-07-10)
 
