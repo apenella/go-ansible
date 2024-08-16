@@ -1,7 +1,7 @@
 # Release notes
 
-## v2.0.1 (2024-07-10)
+## [unreleased]
 
-### Fixed
+### Changed
 
-- Fixed the String method on the AnsiblePlaybookOptions and AnsibleAdhocOptions structs that does not return the verbose flags correctly.
+- The internal package `internal/executable/os/exec` has been moved to `pkg/execute/exec`, making it public. Along with this change, the `Exec` struct has been renamed to `OsExec`.
