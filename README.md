@@ -47,6 +47,10 @@ _**Important:** The master branch may contain unreleased or pre-released feature
           - [ExecutorEnvVarSetter interface](#executorenvvarsetter-interface)
           - [Ansible Configuration functions](#ansible-configuration-functions)
           - [AnsibleWithConfigurationSettingsExecute struct](#ansiblewithconfigurationsettingsexecute-struct)
+        - [Exec package](#exec-package)
+          - [Cmder interface](#cmder-interface)
+          - [Cmd struct](#cmd-struct)
+          - [OsExec struct](#osexec-struct)
         - [Measure package](#measure-package)
         - [Result package](#result-package)
           - [ResultsOutputer interface](#resultsoutputer-interface)
@@ -142,7 +146,7 @@ You can read more about that in the issue [139](https://github.com/apenella/go-a
 
 ### Disable pseudo-terminal allocation
 
-_Ansible_ commands forces the pseudo-terminal allocation when executed in a terminal. That configuration can cause that the SSH connection leaves zombie processes when the command finished. If you are experiencing this issue, you can disable the pseudo-terminal allocation by setting the `-T` to the SSH extra arguments, that will disable the pseudo-terminal allocation.
+_Ansible_ commands force the pseudo-terminal allocation when executed in a terminal. That configuration can cause the SSH connection leave zombie processes when the command finished. If you are experiencing this issue, you can disable the pseudo-terminal allocation by setting the `-T` to the SSH extra arguments, which will disable the pseudo-terminal allocation.
 
 You can read more about that in the issue [139](https://github.com/apenella/go-ansible/issues/139) and [here](https://groups.google.com/g/ansible-project/c/IQoTNwDBIiA/m/qiHUTgg31lkJ).
 
@@ -349,7 +353,7 @@ type Executabler interface {
 
 #### DefaultExecute struct
 
-The `DefaultExecute` executor is a component provided by the _go-ansible_ library for managing the commands execution. It offers flexibility and customization options to suit various use cases.
+The `DefaultExecute` executor is a component provided by the _go-ansible_ library for managing the execution of the commands. It offers flexibility and customization options to suit various use cases.
 Think of the `DefaultExecute` executor as a pipeline that handles command execution. It consists of three main stages, each managed by a different component:
 
 - **Commander**: Generates the command to be executed.
@@ -503,6 +507,39 @@ if err != nil {
   // Manage the error
 }
 ```
+
+##### Exec package
+
+The `github.com/apenella/go-ansible/v2/pkg/execute/exec` package abstracts the execution of external commands and serves as a wrapper around the `os/exec` package. It includes the following components:
+
+###### Cmder interface
+
+The `Cmder` interface defines the methods available in the [Cmd](#cmd-struct) struct, which replicate those in the `os/exec.Cmd` struct. The `Cmder` interface abstracts the execution of external commands, enabling the use of additional components to customize the execution process and manage command output. Below is the definition of the `Cmder` interface:
+
+```go
+type Cmder interface {
+  CombinedOutput() ([]byte, error)
+  Environ() []string
+  Output() ([]byte, error)
+  Run() error
+  Start() error
+  StderrPipe() (io.ReadCloser, error)
+  StdinPipe() (io.WriteCloser, error)
+  StdoutPipe() (io.ReadCloser, error)
+  String() string
+  Wait() error
+}
+```
+
+###### Cmd struct
+
+The `Cmd` struct acts as a wrapper for the `os/exec.Cmd` struct. It is utilized by the [OsExec](#osexec-struct) struct to execute external commands.
+
+###### OsExec struct
+
+The `OsExec` struct replicates the behaviour of the `Command` and `CommandContext` functions from the `os/exec` package. However, instead of returning the `*os/exec.Cmd` struct, these functions return a [Cmder](#cmder-interface) interface.
+
+This abstraction facilitates the use of additional components for executing external commands, customizing the execution process, and managing command output. Another benefit of this abstraction is that it allows for mocking command execution in tests.
 
 ##### Measure package
 

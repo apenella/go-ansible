@@ -58,7 +58,7 @@ The version _v2.x_ introduces several changes in the interfaces used by the _go-
 
 ### Added _Cmder_ interface
 
-The `Cmder` interface is defined in _github.com/apenella/go-ansible/v2/internal/executable/os/exec_ and it is used to run external commands. The `os/exec` package implements the `Cmder` interface. The [Executabler](#added-executabler-interface)'s `Command` and `CommandContext` methods return a `Cmder` interface.
+The `Cmder` interface is defined in _github.com/apenella/go-ansible/v2/pkg/execute/exec_ and it is used to run external commands. The `os/exec` package implements the `Cmder` interface. The [Executabler](#added-executabler-interface)'s `Command` and `CommandContext` methods return a `Cmder` interface.
 You can find the definition of the `Cmder` interface below:
 
 ```go
