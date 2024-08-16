@@ -5,19 +5,19 @@ import (
 	"os/exec"
 )
 
-// Exec struct wrapps the OS Exec package
-type Exec struct{}
+// OsExec struct wrapps the OS Exec package
+type OsExec struct{}
 
-func NewExec() *Exec {
-	return &Exec{}
+func NewOsExec() *OsExec {
+	return &OsExec{}
 }
 
 // Command is a wrapper of exec.Command
-func (e *Exec) Command(name string, arg ...string) Cmder {
+func (e *OsExec) Command(name string, arg ...string) Cmder {
 	return exec.Command(name, arg...)
 }
 
 // CommandContext is a wrapper of exec.CommandContext
-func (e *Exec) CommandContext(ctx context.Context, name string, arg ...string) Cmder {
+func (e *OsExec) CommandContext(ctx context.Context, name string, arg ...string) Cmder {
 	return exec.CommandContext(ctx, name, arg...)
 }

@@ -178,7 +178,7 @@ func (e *DefaultExecute) Execute(ctx context.Context) (err error) {
 	}
 
 	if e.Exec == nil {
-		e.Exec = exec.NewExec()
+		e.Exec = exec.NewOsExec()
 	}
 
 	if e.Cmd == nil {

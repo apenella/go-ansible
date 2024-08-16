@@ -24,7 +24,7 @@ func TestOptionsWithCmd(t *testing.T) {
 
 // TestOptionsWithExecutable tests the function WithExecutable
 func TestOptionsWithExecutable(t *testing.T) {
-	e := exec.NewExec()
+	e := exec.NewOsExec()
 
 	execute := NewDefaultExecute(
 		WithExecutable(e),
