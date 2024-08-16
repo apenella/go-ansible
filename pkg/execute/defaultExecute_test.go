@@ -413,7 +413,7 @@ func TestWithCmd(t *testing.T) {
 
 // TestWithExecutable tests the function WithExecutable
 func TestWithExecutable(t *testing.T) {
-	e := exec.NewExec()
+	e := exec.NewOsExec()
 
 	execute := NewDefaultExecute(
 		WithExecutable(e),
