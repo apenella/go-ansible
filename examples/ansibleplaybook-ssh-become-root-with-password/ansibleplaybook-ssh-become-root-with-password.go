@@ -11,8 +11,6 @@ import (
 	"github.com/apenella/go-ansible/v2/pkg/playbook"
 )
 
-// ansible-playbook -i inventory.yml site.yml --extra-vars '{"ansible_ssh_private_key_file":"/ssh/id_rsa","ansible_sudo_pass":"12345"}'  --ssh-common-args '-o UserKnownHostsFile=/dev/null' --ssh-extra-args '-o StrictHostKeyChecking=accept-new' --timeout 300 --user aleix --become-method sudo --become-user root
-
 func main() {
 	ansiblePlaybookOptions := &playbook.AnsiblePlaybookOptions{
 		Become:       true,
@@ -32,18 +30,6 @@ func main() {
 		playbook.WithPlaybooks("site.yml"),
 		playbook.WithPlaybookOptions(ansiblePlaybookOptions),
 	)
-
-	// exec := stdoutcallback.NewYAMLStdoutCallbackExecute(
-
-	// )
-
-	// exec := configuration.NewAnsibleWithConfigurationSettingsExecute(
-	// 	execute.NewDefaultExecute(
-	// 		execute.WithCmd(cmd),
-	// 		execute.WithErrorEnrich(playbook.NewAnsiblePlaybookErrorEnrich()),
-	// 	),
-	// 	configuration.WithAnsibleForceColor(),
-	// ),
 
 	exec := configuration.NewAnsibleWithConfigurationSettingsExecute(
 		execute.NewDefaultExecute(

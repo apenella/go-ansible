@@ -23,4 +23,3 @@ echo "aleix ALL=(ALL:ALL) ALL" >> /etc/sudoers
 
 ## -e option will print the logs to the console
 /usr/sbin/sshd -D -e
-# /usr/sbin/sshd -D

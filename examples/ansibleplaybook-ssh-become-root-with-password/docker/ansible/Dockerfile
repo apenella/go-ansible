@@ -4,6 +4,8 @@ FROM golang:${golang_version}-bookworm as golang
 
 FROM python:3.12-alpine3.19
 
+ARG ansible_core_version=2.16.9
+
 RUN apk add --update --no-cache \
         openssh-client \
         git \
@@ -15,8 +17,9 @@ RUN pip3 install -U pip setuptools \
         cryptography \
         # Required library to execute ansible community.general.dig plugin
         dnspython \
-        ansible \
-    && ln /usr/local/bin/ansible-playbook /usr/bin/ansible-playbook
+        ansible-core==${ansible_core_version} \
+    && ln /usr/local/bin/ansible-playbook /usr/bin/ansible-playbook \
+    && ansible-galaxy collection install community.general
 
 COPY --from=golang /usr/local/go /usr/local/go
 
