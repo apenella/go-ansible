@@ -1099,6 +1099,7 @@ Here you have a list of examples:
 - [ansibleplaybook-simple](https://github.com/apenella/go-ansible/tree/master/examples/ansibleplaybook-simple)
 - [ansibleplaybook-skipping-failing](https://github.com/apenella/go-ansible/tree/master/examples/ansibleplaybook-skipping-failing)
 - [ansibleplaybook-ssh](https://github.com/apenella/go-ansible/tree/master/examples/ansibleplaybook-ssh)
+- [ansibleplaybook-ssh-become-root-with-password/](https://github.com/apenella/go-ansible/tree/master/examples/ansibleplaybook-ssh-become-root-with-password/)
 - [ansibleplaybook-time-measurement](https://github.com/apenella/go-ansible/tree/master/examples/ansibleplaybook-time-measurement)
 - [ansibleplaybook-walk-through-json-output](https://github.com/apenella/go-ansible/tree/master/examples/ansibleplaybook-walk-through-json-output)
 - [ansibleplaybook-with-executor-time-measurament](https://github.com/apenella/go-ansible/tree/master/examples/ansibleplaybook-with-executor-time-measurament)
