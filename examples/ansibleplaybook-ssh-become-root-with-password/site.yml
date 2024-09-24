@@ -8,7 +8,7 @@
     - name: ansibleplaybook-ssh
       ansible.builtin.debug:
         msg: |
-          Your are running 'ansibleplaybook-ssh-sudo' example
+          Your are running 'ansibleplaybook-ssh-become-root-with-password' example
 
           Remote server IP is: {{ hostvars['server']['ansible_facts']['eth0']['ipv4']['address'] }}
 
