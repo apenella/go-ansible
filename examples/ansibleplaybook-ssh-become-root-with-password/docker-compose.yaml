@@ -6,8 +6,8 @@ services:
       context: docker/ansible
       args:
         - golang_version=${GOLANG_VERSION}
+        - ansible_core_version=${ANSIBLE_CORE_VERSION}
     command: ["tail", "-f", "/dev/null"]
-    # command: ["ansible-playbook", "--help"]
     volumes:
       - ssh:/ssh
       - ../..:/code
@@ -20,7 +20,6 @@ services:
   server:
     build: 
       context: docker/server
-    # command: ["cat", "/etc/ssh/sshd_config"]
     volumes:
       - ssh:/ssh
     depends_on:
