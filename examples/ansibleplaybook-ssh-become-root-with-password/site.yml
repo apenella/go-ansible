@@ -1,0 +1,17 @@
+---
+
+- hosts: server
+  gather_facts: true
+  become: true
+
+  tasks:
+    - name: ansibleplaybook-ssh
+      ansible.builtin.debug:
+        msg: |
+          Your are running 'ansibleplaybook-ssh-become-root-with-password' example
+
+          Remote server IP is: {{ hostvars['server']['ansible_facts']['eth0']['ipv4']['address'] }}
+
+    - name: update apk cache
+      ansible.builtin.apk:
+        update_cache: yes
