@@ -8,7 +8,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ### Fixed
 
-- In the example _ansibleplaybook-embed-python_ upgrade the Ansible version to 2.17.4, which fixes an Ansible vulnerability. (https://github.com/apenella/go-ansible/security/dependabot/7)
+- In the example _ansibleplaybook-embed-python_ upgrade the Ansible version to 2.17.5, which fixes an Ansible vulnerability. (https://github.com/apenella/go-ansible/security/dependabot/7)
 
 ### Added
 
