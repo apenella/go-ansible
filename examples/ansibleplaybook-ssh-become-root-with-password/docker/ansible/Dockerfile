@@ -4,7 +4,7 @@ FROM golang:${golang_version}-bookworm as golang
 
 FROM python:3.12-alpine3.19
 
-ARG ansible_core_version=2.16.9
+ARG ansible_core_version=2.17.5
 
 RUN apk add --update --no-cache \
         openssh-client \
