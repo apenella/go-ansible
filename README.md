@@ -101,7 +101,7 @@ _**Important:** The master branch may contain unreleased or pre-released feature
 Use this command to fetch and install the _go-ansible_ module. You can install the release candidate version by executing the following command:
 
 ```sh
-go get github.com/apenella/go-ansible/v2@v2.0.1
+go get github.com/apenella/go-ansible/v2@v2.1.0
 ```
 
 You can also install the previous stable version by executing the following command:

@@ -1,10 +1,6 @@
 # Release notes
 
-## [unreleased]
-
-### Fixed
-
-- In the example _ansibleplaybook-embed-python_ upgrade the Ansible version to 2.17.5, which fixes an Ansible vulnerability. (https://github.com/apenella/go-ansible/security/dependabot/7)
+## [v2.1.0]
 
 ### Added
 
