@@ -22,7 +22,6 @@ func main() {
 
 	ansiblePlaybookOptions := &playbook.AnsiblePlaybookOptions{
 		Connection: "local",
-		User:       "apenella",
 		Inventory:  "127.0.0.1,",
 	}
 
