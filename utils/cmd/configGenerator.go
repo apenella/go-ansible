@@ -179,7 +179,7 @@ func main() {
 	invalidOptionsMsgErr := fmt.Sprintf("Invalid option.\n\n%s <options>\n\n OPTIONS:\n - const: Generate constants\n - method: generated methods\n - test: Generate tests\n\n", path.Base(os.Args[0]))
 
 	if len(args) != 1 {
-		log.Fatalf(invalidOptionsMsgErr)
+		log.Fatal(invalidOptionsMsgErr)
 	}
 
 	var f generateFunc
@@ -195,7 +195,7 @@ func main() {
 	case "test":
 		f = generateTests
 	default:
-		log.Fatalf(invalidOptionsMsgErr)
+		log.Fatal(invalidOptionsMsgErr)
 	}
 
 	configs := LoadConfigs(url)
