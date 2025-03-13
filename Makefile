@@ -21,7 +21,13 @@ help: ## Lists available targets
 static-analysis: vet golangci-lint ## Executes all static analysis tools
 test: unit-test
 
-vet: ## Executes the go vet
+go-version: ## Show golang version
+	@echo
+	@echo "$(COLOR_GREEN) Golang version:$(COLOR_END)"
+	@echo
+	@$(GOLANG_BINARY) version
+
+vet: go-version ## Executes the go vet
 	@echo
 	@echo "$(COLOR_GREEN) Executing go vet $(COLOR_END)"
 	@echo
@@ -33,7 +39,7 @@ golangci-lint: ## Executes golangci-lint
 	@echo
 	@$(GOLANGCI_LINT_BINARY) run
 
-unit-test: ## Run unit tests
+unit-test: go-version ## Run unit tests
 	@echo
 	@echo "$(COLOR_GREEN) Running unit tests...$(COLOR_END)"
 	@echo
