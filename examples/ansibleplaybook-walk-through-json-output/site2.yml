@@ -8,7 +8,7 @@
       ansible.builtin.shell: |
         printf '{"host": "%s", "message": "%s"}' "{{ inventory_hostname }}" "that is another example"
       args:
-        executable: /bin/bash
+        executable: /bin/sh
       register: output
 
     - name: ansibleplaybook-walk-through-json-output output
