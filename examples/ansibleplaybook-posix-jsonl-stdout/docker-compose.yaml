@@ -1,0 +1,15 @@
+---
+
+services:
+  ansible:
+    build: 
+      context: docker/ansible
+      args:
+        - golang_version=${GOLANG_VERSION}
+    command: ["tail", "-f", "/dev/null"]
+    # command: ["ansible-playbook", "--help"]
+    volumes:
+      - ../..:/code
+    working_dir: /code
+    ## Set the init flag to true lets the process 1 to reap all the zombie processes
+    init: true

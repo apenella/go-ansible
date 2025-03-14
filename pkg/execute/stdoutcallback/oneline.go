@@ -13,14 +13,17 @@ const (
 	OnelineStdoutCallback = "oneline"
 )
 
+// OnelineStdoutCallbackExecute defines an executor to run an ansible command with a oneline stdout callback
 type OnelineStdoutCallbackExecute struct {
 	executor ExecutorStdoutCallbackSetter
 }
 
+// NewOnelineStdoutCallbackExecute creates a OnelineStdoutCallbackExecute
 func NewOnelineStdoutCallbackExecute(executor ExecutorStdoutCallbackSetter) *OnelineStdoutCallbackExecute {
 	return &OnelineStdoutCallbackExecute{executor: executor}
 }
 
+// WithExecutor sets the executor for the OnelineStdoutCallbackExecute
 func (e *OnelineStdoutCallbackExecute) WithExecutor(exec ExecutorStdoutCallbackSetter) *OnelineStdoutCallbackExecute {
 	e.executor = exec
 	return e

@@ -13,14 +13,17 @@ const (
 	DefaultStdoutCallback = "default"
 )
 
+// DefaultStdoutCallbackExecute defines an executor to run an ansible command with a default stdout callback
 type DefaultStdoutCallbackExecute struct {
 	executor ExecutorStdoutCallbackSetter
 }
 
+// NewDefaultStdoutCallbackExecute creates a DefaultStdoutCallbackExecute
 func NewDefaultStdoutCallbackExecute(executor ExecutorStdoutCallbackSetter) *DefaultStdoutCallbackExecute {
 	return &DefaultStdoutCallbackExecute{executor: executor}
 }
 
+// WithExecutor sets the executor for the DefaultStdoutCallbackExecute
 func (e *DefaultStdoutCallbackExecute) WithExecutor(exec ExecutorStdoutCallbackSetter) *DefaultStdoutCallbackExecute {
 	e.executor = exec
 	return e

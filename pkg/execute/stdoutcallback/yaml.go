@@ -13,14 +13,17 @@ const (
 	YAMLStdoutCallback = "yaml"
 )
 
+// YAMLStdoutCallbackExecute defines an executor to run an ansible command with a yaml stdout callback
 type YAMLStdoutCallbackExecute struct {
 	executor ExecutorStdoutCallbackSetter
 }
 
+// NewYAMLStdoutCallbackExecute creates a YAMLStdoutCallbackExecute
 func NewYAMLStdoutCallbackExecute(executor ExecutorStdoutCallbackSetter) *YAMLStdoutCallbackExecute {
 	return &YAMLStdoutCallbackExecute{executor: executor}
 }
 
+// WithExecutor sets the executor for the YAMLStdoutCallbackExecute
 func (e *YAMLStdoutCallbackExecute) WithExecutor(exec ExecutorStdoutCallbackSetter) *YAMLStdoutCallbackExecute {
 	e.executor = exec
 	return e

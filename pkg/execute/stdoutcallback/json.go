@@ -13,14 +13,17 @@ const (
 	JSONStdoutCallback = "json"
 )
 
+// JSONStdoutCallbackExecute defines an executor to run an ansible command with a json stdout callback
 type JSONStdoutCallbackExecute struct {
 	executor ExecutorQuietStdoutCallbackSetter
 }
 
+// NewJSONStdoutCallbackExecute creates a JSONStdoutCallbackExecute
 func NewJSONStdoutCallbackExecute(executor ExecutorQuietStdoutCallbackSetter) *JSONStdoutCallbackExecute {
 	return &JSONStdoutCallbackExecute{executor: executor}
 }
 
+// WithExecutor sets the executor for the JSONStdoutCallbackExecute
 func (e *JSONStdoutCallbackExecute) WithExecutor(exec ExecutorQuietStdoutCallbackSetter) *JSONStdoutCallbackExecute {
 	e.executor = exec
 	return e

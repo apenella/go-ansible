@@ -13,14 +13,17 @@ const (
 	MinimalStdoutCallback = "minimal"
 )
 
+// MinimalStdoutCallbackExecute defines an executor to run an ansible command with a minimal stdout callback
 type MinimalStdoutCallbackExecute struct {
 	executor ExecutorStdoutCallbackSetter
 }
 
+// NewMinimalStdoutCallbackExecute creates a MinimalStdoutCallbackExecute
 func NewMinimalStdoutCallbackExecute(executor ExecutorStdoutCallbackSetter) *MinimalStdoutCallbackExecute {
 	return &MinimalStdoutCallbackExecute{executor: executor}
 }
 
+// WithExecutor sets the executor for the MinimalStdoutCallbackExecute
 func (e *MinimalStdoutCallbackExecute) WithExecutor(exec ExecutorStdoutCallbackSetter) *MinimalStdoutCallbackExecute {
 	e.executor = exec
 	return e
