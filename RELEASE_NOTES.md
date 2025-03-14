@@ -1,6 +1,6 @@
 # Release notes
 
-## [undefined]
+## [2.1.1] (2025-03-14)
 
 ## Changed
 
