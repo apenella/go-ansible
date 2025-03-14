@@ -13,14 +13,17 @@ const (
 	DenseStdoutCallback = "dense"
 )
 
+// DenseStdoutCallbackExecute defines an executor to run an ansible command with a dense stdout callback
 type DenseStdoutCallbackExecute struct {
 	executor ExecutorStdoutCallbackSetter
 }
 
+// NewDenseStdoutCallbackExecute creates a DenseStdoutCallbackExecute
 func NewDenseStdoutCallbackExecute(executor ExecutorStdoutCallbackSetter) *DenseStdoutCallbackExecute {
 	return &DenseStdoutCallbackExecute{executor: executor}
 }
 
+// WithExecutor sets the executor for the DenseStdoutCallbackExecute
 func (e *DenseStdoutCallbackExecute) WithExecutor(exec ExecutorStdoutCallbackSetter) *DenseStdoutCallbackExecute {
 	e.executor = exec
 	return e

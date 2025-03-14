@@ -1,12 +1,7 @@
 # Release notes
 
-## [2.1.1] (2025-03-14)
+## [unreleased]
 
-## Changed
+## Added
 
-- Bump from golang 1.22 to 1.23
-
-### Fixed
-
-- Bump golang.org/x/crypto from 0.22.0 to 0.31.0
-- Bump golang.org/x/net v0.24.0 to v0.36.0
+- New stdout callback executor to use the `ansible.posix.jsonl` callback plugin to write JSONL to stdout.

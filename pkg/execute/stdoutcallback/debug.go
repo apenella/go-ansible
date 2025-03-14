@@ -13,14 +13,17 @@ const (
 	DebugStdoutCallback = "debug"
 )
 
+// DebugStdoutCallbackExecute defines an executor to run an ansible command with a debug stdout callback
 type DebugStdoutCallbackExecute struct {
 	executor ExecutorStdoutCallbackSetter
 }
 
+// NewDebugStdoutCallbackExecute creates a DebugStdoutCallbackExecute
 func NewDebugStdoutCallbackExecute(executor ExecutorStdoutCallbackSetter) *DebugStdoutCallbackExecute {
 	return &DebugStdoutCallbackExecute{executor: executor}
 }
 
+// WithExecutor sets the executor for the DebugStdoutCallbackExecute
 func (e *DebugStdoutCallbackExecute) WithExecutor(exec ExecutorStdoutCallbackSetter) *DebugStdoutCallbackExecute {
 	e.executor = exec
 	return e

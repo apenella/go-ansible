@@ -1,0 +1,29 @@
+---
+
+- hosts: all
+  gather_facts: false
+  vars:
+    array:
+      - Your are running
+      - 'ansibleplaybook-posix-jsonl-stdout'
+      - third example
+    map:
+      intro: Your are running
+      what: ansibleplaybook-posix-jsonl-stdout
+      outro: third example
+
+  tasks:
+    - name: ansibleplaybook-posix-jsonl-stdout
+      debug:
+        msg: |
+          Your are running
+          'ansibleplaybook-posix-jsonl-stdout'
+          third example
+
+    - name: ansibleplaybook-posix-jsonl-stdout from array
+      debug:
+        msg: "{{ array }}"
+
+    - name: ansibleplaybook-posix-jsonl-stdout from map
+      debug:
+        msg: "{{ map }}"

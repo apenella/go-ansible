@@ -2,8 +2,6 @@ module github.com/apenella/go-ansible/v2
 
 go 1.23.0
 
-toolchain go1.23.7
-
 require (
 	github.com/PuerkitoBio/goquery v1.9.1
 	github.com/apenella/go-common-utils/data v0.0.0-20220913191136-86daaa87e7df

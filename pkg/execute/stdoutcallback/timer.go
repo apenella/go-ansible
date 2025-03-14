@@ -13,14 +13,17 @@ const (
 	TimerStdoutCallback = "timer"
 )
 
+// TimerStdoutCallbackExecute defines an executor to run an ansible command with a timer stdout callback
 type TimerStdoutCallbackExecute struct {
 	executor ExecutorStdoutCallbackSetter
 }
 
+// NewTimerStdoutCallbackExecute creates a TimerStdoutCallbackExecute
 func NewTimerStdoutCallbackExecute(executor ExecutorStdoutCallbackSetter) *TimerStdoutCallbackExecute {
 	return &TimerStdoutCallbackExecute{executor: executor}
 }
 
+// WithExecutor sets the executor for the TimerStdoutCallbackExecute
 func (e *TimerStdoutCallbackExecute) WithExecutor(exec ExecutorStdoutCallbackSetter) *TimerStdoutCallbackExecute {
 	e.executor = exec
 	return e
