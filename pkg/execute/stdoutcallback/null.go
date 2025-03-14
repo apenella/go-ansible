@@ -13,14 +13,17 @@ const (
 	NullStdoutCallback = "null"
 )
 
+// NullStdoutCallbackExecute defines an executor to run an ansible command with a null stdout callback
 type NullStdoutCallbackExecute struct {
 	executor ExecutorStdoutCallbackSetter
 }
 
+// NewNullStdoutCallbackExecute creates a NullStdoutCallbackExecute
 func NewNullStdoutCallbackExecute(executor ExecutorStdoutCallbackSetter) *NullStdoutCallbackExecute {
 	return &NullStdoutCallbackExecute{executor: executor}
 }
 
+// WithExecutor sets the executor for the NullStdoutCallbackExecute
 func (e *NullStdoutCallbackExecute) WithExecutor(exec ExecutorStdoutCallbackSetter) *NullStdoutCallbackExecute {
 	e.executor = exec
 	return e

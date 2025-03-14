@@ -733,6 +733,7 @@ The `github.com/apenella/go-ansible/v2/pkg/execute/stdoutcallback` package provi
 
 Each stdout callback method in _Ansible_ corresponds to a specific struct in _go-ansible_, making it easy to select and configure the desired method. Here are the available structs:
 
+- AnsiblePosixJsonlStdoutCallbackExecute
 - DebugStdoutCallbackExecute
 - DefaultStdoutCallbackExecute
 - DenseStdoutCallbackExecute

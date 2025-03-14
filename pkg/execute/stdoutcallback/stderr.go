@@ -13,14 +13,17 @@ const (
 	StderrStdoutCallback = "stderr"
 )
 
+// StderrStdoutCallbackExecute defines an executor to run an ansible command with a stderr stdout callback
 type StderrStdoutCallbackExecute struct {
 	executor ExecutorStdoutCallbackSetter
 }
 
+// NewStderrStdoutCallbackExecute creates a StderrStdoutCallbackExecute
 func NewStderrStdoutCallbackExecute(executor ExecutorStdoutCallbackSetter) *StderrStdoutCallbackExecute {
 	return &StderrStdoutCallbackExecute{executor: executor}
 }
 
+// WithExecutor sets the executor for the StderrStdoutCallbackExecute
 func (e *StderrStdoutCallbackExecute) WithExecutor(exec ExecutorStdoutCallbackSetter) *StderrStdoutCallbackExecute {
 	e.executor = exec
 	return e
