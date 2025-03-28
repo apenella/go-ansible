@@ -5,7 +5,7 @@ import (
 	"fmt"
 
 	"github.com/apenella/go-ansible/v2/pkg/execute/configuration"
-	defaultresult "github.com/apenella/go-ansible/v2/pkg/execute/result/default"
+	jsonresults "github.com/apenella/go-ansible/v2/pkg/execute/result/json"
 )
 
 const (
@@ -37,7 +37,7 @@ func (e *AnsiblePosixJsonlStdoutCallbackExecute) Execute(ctx context.Context) er
 	}
 
 	e.executor.Quiet()
-	e.executor.WithOutput(defaultresult.NewDefaultResults())
+	e.executor.WithOutput(jsonresults.NewAnsiblePosixJSONLResults())
 
 	return configuration.NewAnsibleWithConfigurationSettingsExecute(e.executor,
 		configuration.WithAnsibleStdoutCallback(AnsiblePosixJsonlStdoutCallback),
