@@ -41,7 +41,7 @@ func (r *JSONStdoutCallbackResults) Options(options ...result.OptionsFunc) {
 	}
 }
 
-// JSONStdoutCallbackResults method manges the ansible' JSON stdout callback and print the result stats
+// Print method manges the ansible' JSON stdout callback and print the result stats
 func (r *JSONStdoutCallbackResults) Print(ctx context.Context, reader io.Reader, writer io.Writer, options ...result.OptionsFunc) error {
 	var transformers []transformer.TransformerFunc
 
