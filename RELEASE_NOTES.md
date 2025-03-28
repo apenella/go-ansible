@@ -1,7 +1,8 @@
 # Release notes
 
-## [unreleased]
+## [2.2.0] (2025-03-28)
 
 ## Added
 
-- New stdout callback executor to use the `ansible.posix.jsonl` callback plugin to write JSONL to stdout.
+- Support the stdout callback plugin `ansible.posix.jsonl` by adding a stdout callback executor: `AnsiblePosixJsonlStdoutCallbackExecute`.
+- Include the `AnsiblePlaybookJSONLEventResults` struct into the `github.com/apenella/go-ansible/v2/pkg/execute/result/json` package that represent the `ansible.posix.jsonl` events.
