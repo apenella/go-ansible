@@ -4,6 +4,7 @@ import (
 	"strings"
 	"testing"
 
+	errors "github.com/apenella/go-common-utils/error"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -1027,6 +1028,121 @@ func TestParseJSONResultsStream(t *testing.T) {
 				t.Fatalf("unexpected error: %s", err)
 			}
 			assert.Equal(t, test.res, res, "Unexpected result")
+		})
+	}
+}
+
+func TestCheckStats(t *testing.T) {
+
+	tests := []struct {
+		desc    string
+		results *AnsiblePlaybookJSONResults
+		err     error
+	}{
+		{
+			desc:    "Testing check stats when stats is not defined",
+			results: &AnsiblePlaybookJSONResults{},
+			err:     nil,
+		},
+		{
+			desc: "Testing check stats when there are failures on the stats",
+			results: &AnsiblePlaybookJSONResults{
+				Stats: map[string]*AnsiblePlaybookJSONResultsStats{
+					"host1": {
+						Failures: 1,
+					},
+				},
+			},
+			err: errors.New(
+				"(results::JSONStdoutCallbackResults)",
+				"Host host1 finished with 1 failures",
+			),
+		},
+		{
+			desc: "Testing check stats when there are unreachable on the stats",
+			results: &AnsiblePlaybookJSONResults{
+				Stats: map[string]*AnsiblePlaybookJSONResultsStats{
+					"host1": {
+						Unreachable: 1,
+					},
+				},
+			},
+			err: errors.New(
+				"(results::JSONStdoutCallbackResults)",
+				"Host host1 finished with 1 unrecheable hosts",
+			),
+		},
+	}
+
+	for _, test := range tests {
+		t.Run(test.desc, func(t *testing.T) {
+			t.Log(test.desc)
+
+			err := test.results.CheckStats()
+			assert.Equal(t, test.err, err, "Unexpected error")
+		})
+	}
+}
+
+func TestAnsiblePlaybookJSONResults_String(t *testing.T) {
+	tests := []struct {
+		desc     string
+		results  *AnsiblePlaybookJSONResults
+		expected string
+	}{
+		{
+			desc: "Testing string representation of the results",
+			results: &AnsiblePlaybookJSONResults{
+				Plays: []AnsiblePlaybookJSONResultsPlay{
+					{
+						Play: &AnsiblePlaybookJSONResultsPlaysPlay{
+							Duration: &AnsiblePlaybookJSONResultsPlayDuration{
+								End:   "2025-03-28T06:55:29.890926Z",
+								Start: "2025-03-28T06:55:29.881536Z",
+							},
+							Id:   "play-id",
+							Name: "play-name",
+							Path: "play-path",
+						},
+						Tasks: []AnsiblePlaybookJSONResultsPlayTask{
+							{
+								Hosts: map[string]*AnsiblePlaybookJSONResultsPlayTaskHostsItem{
+									"host1": {
+										Action:  "debug",
+										Changed: false,
+										Msg:     "Your are running\n'json-stdout-ansibleplaybook'\nfirst example\n",
+									},
+								},
+								Task: &AnsiblePlaybookJSONResultsPlayTaskItem{
+									Duration: &AnsiblePlaybookJSONResultsPlayTaskItemDuration{
+										End:   "2025-03-28T06:55:29.890926Z",
+										Start: "2025-03-28T06:55:29.881536Z",
+									},
+									Id:   "task-id",
+									Name: "task-name",
+									Path: "task-path",
+								},
+							},
+						},
+					},
+				},
+				Stats: map[string]*AnsiblePlaybookJSONResultsStats{
+					"host1": {
+						Ok: 1,
+					},
+				},
+			},
+			expected: "[host1] (task-name)\tYour are running\n'json-stdout-ansibleplaybook'\nfirst example\n\n\nHost: host1\n Changed: 0 Failures: 0 Ignored: 0 Ok: 1 Rescued: 0 Skipped: 0 Unreachable: 0\n",
+		},
+	}
+
+	for _, test := range tests {
+		t.Run(test.desc, func(t *testing.T) {
+			t.Log(test.desc)
+
+			res := test.results.String()
+
+			assert.Equal(t, test.expected, res, "Unexpected result")
 		})
 	}
 }
