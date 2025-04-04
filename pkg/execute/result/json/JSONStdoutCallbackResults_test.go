@@ -17,7 +17,7 @@ import (
 
 const letterBytes = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
 
-func TestPrint(t *testing.T) {
+func TestJSONStdoutCallbackResults_Print(t *testing.T) {
 
 	longMessageLine := randStringBytes(512_000)
 	_ = longMessageLine
