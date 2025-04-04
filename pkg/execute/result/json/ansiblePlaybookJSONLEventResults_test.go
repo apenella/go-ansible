@@ -155,21 +155,6 @@ func TestString(t *testing.T) {
 	}
 }
 
-// // v2_playbook_on_play_start
-//
-//	{
-//	  "_event": "v2_playbook_on_play_start",
-//	  "_timestamp": "2025-03-24T12:34:56Z",
-//	  "play": {
-//	    "name": "Example Play",
-//	    "id": "12345-uuid-play",
-//	    "path": "/path/to/playbook.yml",
-//	    "duration": {
-//	      "start": "2025-03-24T12:34:56Z"
-//	    }
-//	  },
-//	  "tasks": []
-//	}
 func TestUnmarshalJSONV2PlaybookOnPlayStart(t *testing.T) {
 	t.Log("Testing unmarshal JSON with v2_playbook_on_play_start event")
 	t.Parallel()
@@ -209,21 +194,6 @@ func TestUnmarshalJSONV2PlaybookOnPlayStart(t *testing.T) {
 
 }
 
-// // v2_runner_on_start
-//
-//	{
-//	  "_event": "v2_runner_on_start",
-//	  "_timestamp": "2025-03-24T12:35:00Z",
-//	  "task": {
-//	    "name": "Example Task",
-//	    "id": "67890-uuid-task",
-//	    "path": "/path/to/playbook.yml",
-//	    "duration": {
-//	      "start": "2025-03-24T12:35:00Z"
-//	    }
-//	  },
-//	  "hosts": {}
-//	}
 func TestUnmarshalJSONV2OnRunnerStart(t *testing.T) {
 	t.Log("Testing unmarshal JSON with v2_runner_on_start event")
 	t.Parallel()

@@ -37,7 +37,7 @@ func (e *AnsiblePosixJsonlStdoutCallbackExecute) Execute(ctx context.Context) er
 	}
 
 	e.executor.Quiet()
-	e.executor.WithOutput(jsonresults.NewAnsiblePosixJSONLResults())
+	e.executor.WithOutput(jsonresults.NewJSONLEventStdoutCallbackResults())
 
 	return configuration.NewAnsibleWithConfigurationSettingsExecute(e.executor,
 		configuration.WithAnsibleStdoutCallback(AnsiblePosixJsonlStdoutCallback),
