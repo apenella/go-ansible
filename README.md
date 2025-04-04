@@ -56,6 +56,7 @@ _**Important:** The master branch may contain unreleased or pre-released feature
         - [Result package](#result-package)
           - [ResultsOutputer interface](#resultsoutputer-interface)
           - [DefaultResults struct](#defaultresults-struct)
+          - [JSONLEventStdoutCallbackResults struct](#jsonleventstdoutcallbackresults-struct)
           - [JSONStdoutCallbackResults struct](#jsonstdoutcallbackresults-struct)
           - [Transformer functions](#transformer-functions)
         - [Stdoutcallback package](#stdoutcallback-package)
@@ -101,7 +102,7 @@ _**Important:** The master branch may contain unreleased or pre-released feature
 Use this command to fetch and install the _go-ansible_ module. You can install the release candidate version by executing the following command:
 
 ```sh
-go get github.com/apenella/go-ansible/v2@v2.1.0
+go get github.com/apenella/go-ansible/v2@v2.2.0
 ```
 
 You can also install the previous stable version by executing the following command:
@@ -605,9 +606,21 @@ exec := execute.NewDefaultExecute(
 )
 ```
 
+###### JSONLEventStdoutCallbackResults struct
+
+The `JSONLEventStdoutCallbackResults` struct, located in the `github.com/apenella/go-ansible/v2/pkg/execute/result/json` package, is designed to handle the output of command execution when using the [ansible.posix.jsonl](https://docs.ansible.com/ansible/latest/collections/ansible/posix/jsonl_callback.html) stdout callback method. It implements the [ResultsOutputer](#resultsoutputer-interface) interface, providing functionality to parse and manipulate _JSONL-formatted_ output from _Ansible_ commands.
+
+When using the `AnsiblePosixJsonlStdoutCallbackExecute` executer, the output is managed by the `JSONLEventStdoutCallbackResults` struct.
+
+The `github.com/apenella/go-ansible/v2/pkg/execute/result/json` provides you with the `AnsiblePlaybookJSONLEventResults` struct, that represents a JSON event output from the `ansible.posix.jsonl`. You can use this struct to manage the events.
+
+You can refer to the [ansibleplaybook-posix-jsonl-stdout](https://github.com/apenella/go-ansible/tree/master/examples/ansibleplaybook-posix-jsonl-stdout) example to see how to manage the `JSONLEventStdoutCallbackResults` struct.
+
 ###### JSONStdoutCallbackResults struct
 
 The `JSONStdoutCallbackResults` struct, located in the `github.com/apenella/go-ansible/v2/pkg/execute/result/json` package, is designed to handle the output of command execution when using the `JSON` stdout callback method. It implements the [ResultsOutputer](#resultsoutputer-interface) interface, providing functionality to parse and manipulate _JSON-formatted_ output from _Ansible_ commands.
+
+When using the `JSONStdoutCallbackExecute` executor, the output is managed by the `JSONStdoutCallbackResults` struct.
 
 The package also includes the `ParseJSONResultsStream` function, which decodes the `JSON` output into an `AnsiblePlaybookJSONResults` data structure. This structure can be further manipulated to format the `JSON` output according to specific requirements. The expected `JSON` schema from _Ansible_ output is defined in the [json.py](https://github.com/ansible/ansible/blob/v2.9.11/lib/ansible/plugins/callback/json.py) file within the _Ansible_ repository.
 
@@ -1094,13 +1107,14 @@ Here you have a list of examples:
 - [ansibleplaybook-extravars](https://github.com/apenella/go-ansible/tree/master/examples/ansibleplaybook-extravars)
 - [ansibleplaybook-json-stdout](https://github.com/apenella/go-ansible/tree/master/examples/ansibleplaybook-json-stdout)
 - [ansibleplaybook-myexecutor](https://github.com/apenella/go-ansible/tree/master/examples/ansibleplaybook-myexecutor)
+- [ansibleplaybook-posix-jsonl-stdout](https://github.com/apenella/go-ansible/tree/master/examples/ansibleplaybook-posix-jsonl-stdout)
 - [ansibleplaybook-signals-and-cancellation](https://github.com/apenella/go-ansible/tree/master/examples/ansibleplaybook-signals-and-cancellation)
 - [ansibleplaybook-simple-embedfs](https://github.com/apenella/go-ansible/tree/master/examples/ansibleplaybook-simple-embedfs)
 - [ansibleplaybook-simple-with-prompt](https://github.com/apenella/go-ansible/tree/master/examples/ansibleplaybook-simple-with-prompt)
 - [ansibleplaybook-simple](https://github.com/apenella/go-ansible/tree/master/examples/ansibleplaybook-simple)
 - [ansibleplaybook-skipping-failing](https://github.com/apenella/go-ansible/tree/master/examples/ansibleplaybook-skipping-failing)
-- [ansibleplaybook-ssh](https://github.com/apenella/go-ansible/tree/master/examples/ansibleplaybook-ssh)
 - [ansibleplaybook-ssh-become-root-with-password/](https://github.com/apenella/go-ansible/tree/master/examples/ansibleplaybook-ssh-become-root-with-password/)
+- [ansibleplaybook-ssh](https://github.com/apenella/go-ansible/tree/master/examples/ansibleplaybook-ssh)
 - [ansibleplaybook-time-measurement](https://github.com/apenella/go-ansible/tree/master/examples/ansibleplaybook-time-measurement)
 - [ansibleplaybook-walk-through-json-output](https://github.com/apenella/go-ansible/tree/master/examples/ansibleplaybook-walk-through-json-output)
 - [ansibleplaybook-with-executor-time-measurament](https://github.com/apenella/go-ansible/tree/master/examples/ansibleplaybook-with-executor-time-measurament)
@@ -1117,9 +1131,9 @@ This section provides a reference guide for developing and contributing to the _
 
 To set up a development environment for the _go-ansible_ library, you need to have the following tools installed on your system:
 
-- [Docker Compose](https://docs.docker.com/compose/). The version used for development is `docker-compose version v2.26.1`.
-- [Docker](https://docs.docker.com/engine/reference/commandline/cli/). The version used for development is `Docker version 26.0.1`.
-- [Go](https://golang.org/). The version used for development is `1.22`.
+- [Docker Compose](https://docs.docker.com/compose/). The version used for development is `docker-compose version v2.34.0`.
+- [Docker](https://docs.docker.com/engine/reference/commandline/cli/). The version used for development is `Docker version 28.0.4`.
+- [Go](https://golang.org/). The version used for development is `1.23`.
 - [make](https://www.gnu.org/software/make/) utility. The version used for development is `GNU Make 4.3`. It is used to wrap the continuous integration and development processes, such us testing or linting.
 
 #### Testing
