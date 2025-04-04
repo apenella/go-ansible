@@ -9,15 +9,34 @@ import (
 	"iter"
 
 	"github.com/apenella/go-ansible/v2/pkg/execute/result"
+	"github.com/apenella/go-ansible/v2/pkg/execute/result/transformer"
 	errors "github.com/apenella/go-common-utils/error"
 )
 
 // JSONLEventStdoutCallbackResults handles the ansible.posix.jsonl callback plugin output
-type JSONLEventStdoutCallbackResults struct{}
+type JSONLEventStdoutCallbackResults struct {
+	trans []transformer.TransformerFunc
+}
 
 // NewJSONLEventStdoutCallbackResults creates a new JSONLEventStdoutCallbackResults instance
-func NewJSONLEventStdoutCallbackResults() *JSONLEventStdoutCallbackResults {
-	return &JSONLEventStdoutCallbackResults{}
+func NewJSONLEventStdoutCallbackResults(options ...result.OptionsFunc) *JSONLEventStdoutCallbackResults {
+	results := &JSONLEventStdoutCallbackResults{}
+	results.Options(options...)
+	return results
+}
+
+// WithJSONLEventTransformers sets a transformers list to JSONLEventStdoutCallbackResults
+func WithJSONLEventTransformers(trans ...transformer.TransformerFunc) result.OptionsFunc {
+	return func(r result.ResultsOutputer) {
+		r.(*JSONLEventStdoutCallbackResults).trans = append(r.(*JSONLEventStdoutCallbackResults).trans, trans...)
+	}
+}
+
+// Options executes the options functions received as a parameters to set the JSONLEventStdoutCallbackResults attributes
+func (r *JSONLEventStdoutCallbackResults) Options(options ...result.OptionsFunc) {
+	for _, opt := range options {
+		opt(r)
+	}
 }
 
 // Print handles the ansible.posix.jsonl callback plugin output
@@ -36,6 +55,8 @@ func (r *JSONLEventStdoutCallbackResults) Print(ctx context.Context, reader io.R
 		return errors.New(errContext, "JSONLEventStdoutCallbackResults requires a writer to print the output of the execution")
 	}
 
+	r.Options(options...)
+
 	go func() {
 		defer close(printChan)
 		defer close(errChan)
@@ -48,6 +69,16 @@ func (r *JSONLEventStdoutCallbackResults) Print(ctx context.Context, reader io.R
 				errs = append(errs, err)
 				continue
 			}
+
+			// TransformerFunc expects and returns a string so we need to convert the byte array to a string and back
+			if len(r.trans) > 0 {
+				dataString := string(data)
+				for _, t := range r.trans {
+					dataString = t(dataString)
+				}
+				data = []byte(dataString)
+			}
+
 			printChan <- data
 		}
 

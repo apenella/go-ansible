@@ -22,7 +22,7 @@ func (w *MockWriter) Write(p []byte) (n int, err error) {
 	return args.Int(0), args.Error(1)
 }
 
-var events = `{"_event":"v2_playbook_on_play_start","_timestamp":"2025-04-01T05:17:36.646328Z","play":{"duration":{"start":"2025-04-01T05:17:36.646322Z"},"id":"cdeaff0f-de61-3a76-e91c-000000000002","name":"all","path":"/site.yml:3"},"tasks":[]}`
+var events = `{"_event":"v2_playbook_on_play_start","_timestamp":"2025-04-01T05:17:36.646328Z","play":{"duration":{"start":"2025-04-01T05:17:36.646322Z"},"id":"cdeaff0f-de61-3a76-e91c-000000000002","name":"all","path":"site.yml:3"},"tasks":[]}`
 var invalidEvent = `{"_event":"v2_playbook_on_play_start",`
 
 func TestJSONLEventStdoutCallbackResults_Print(t *testing.T) {
@@ -44,7 +44,7 @@ func TestJSONLEventStdoutCallbackResults_Print(t *testing.T) {
 			reader:  strings.NewReader(events),
 			results: NewJSONLEventStdoutCallbackResults(),
 			arrangeFunc: func(t *testing.T, w *MockWriter) {
-				w.On("Write", []byte(events)).Return(len([]byte(events)), nil)
+				w.On("Write", []byte(events)).Return(len([]byte("data transformed")), nil)
 			},
 			assertFunc: func(t *testing.T, w *MockWriter) {
 				w.AssertExpectations(t)
@@ -73,6 +73,24 @@ func TestJSONLEventStdoutCallbackResults_Print(t *testing.T) {
 			results: NewJSONLEventStdoutCallbackResults(),
 			err:     fmt.Errorf("Error reading the results stream\n\tError processing the execution output\n\terror decoding JSON: unexpected end of JSON input"),
 		},
+		{
+			desc:    "Testing error in JSONLEventStdoutCallbackResults Print using a transformer",
+			context: context.TODO(),
+			writer:  &MockWriter{},
+			reader:  strings.NewReader(events),
+			results: NewJSONLEventStdoutCallbackResults(
+				WithJSONLEventTransformers(func(data string) string {
+					return "data transformed"
+				}),
+			),
+			arrangeFunc: func(t *testing.T, w *MockWriter) {
+				w.On("Write", []byte("data transformed")).Return(len([]byte("data transformed")), nil)
+			},
+			assertFunc: func(t *testing.T, w *MockWriter) {
+				w.AssertExpectations(t)
+			},
+			err: nil,
+		},
 	}
 
 	for _, test := range tests {
@@ -94,7 +112,6 @@ func TestJSONLEventStdoutCallbackResults_Print(t *testing.T) {
 					test.assertFunc(t, test.writer.(*MockWriter))
 				}
 			}
-
 		})
 	}
 }
