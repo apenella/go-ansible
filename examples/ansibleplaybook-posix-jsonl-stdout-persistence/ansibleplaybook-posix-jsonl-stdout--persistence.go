@@ -1,3 +1,11 @@
+/*
+
+	This example shows how to configure the go-ansible library executor to use a custom writer that writes events to a persistence layer, as well as how to use a transformer to update the original events returned by the ansible.posix.jsonl callback plugin.
+
+	Although the go-ansible library provides an executor that handles ansible.posix.jsonl stdout callback results, it does not allow the use of transformers to update the original events directly. In this case, you need to use the DefaultExecute executor, configure the transformer there, and then create an AnsibleWithConfigurationSettingsExecute executor with the ansible.posix.jsonl stdout callback plugin properly set.
+
+*/
+
 package main
 
 import (
@@ -16,7 +24,7 @@ import (
 )
 
 //
-// Content for the EnrichedJSONLEvent
+// Code for the EnrichedJSONLEvent struct. This struct is used to extend the original event data by adding a hash for enrichment purposes.
 //
 
 // EnrichedJSONLEvent is a struct that represents the enriched JSONL event
@@ -37,10 +45,10 @@ func NewEnrichedJSONLEvent(data string) EnrichedJSONLEvent {
 }
 
 //
-// Content for a transformer that generates a EnrichedJSONLEvent
+// Code for a transformer that generates a EnrichedJSONLEvent
 //
 
-// EnrichedJSONLEventTransformer is a function that transforms a JSONL event into an enriched JSONL event
+// EnrichedJSONLEventTransformer is a function that transforms a JSONL event into an enriched JSONL event. The function receives the original event as a string and returns the enriched event as a string.
 func EnrichedJSONLEventTransformer(event string) string {
 
 	enrichedEvent := NewEnrichedJSONLEvent(event)
@@ -53,7 +61,7 @@ func EnrichedJSONLEventTransformer(event string) string {
 }
 
 //
-// Content for the JSONLEventWriter
+// Code for the JSONLEventWriter. This component is responsible for writing the events to a persistence layer.
 //
 
 // JSONLEventWriter is a custom writer that implements the io.Writer interface
@@ -86,7 +94,7 @@ func (e *JSONLEventWriter) Write(data []byte) (n int, err error) {
 }
 
 //
-// Content for the Persistency
+// Code for the Persistency layer. This component is responsible for storing the events in a map.
 //
 
 // Persistency is a map that stores EnrichedJSONLEvent objects
@@ -135,12 +143,14 @@ func main() {
 		playbook.WithPlaybookOptions(ansiblePlaybookOptions),
 	)
 
+	// Create a new DefaultExecute executor using the playbook command. Set the writer to a custom JSONLEventWriter that persists events to a storage layer.
 	baseExec := execute.NewDefaultExecute(
 		execute.WithCmd(playbookCmd),
 		execute.WithErrorEnrich(playbook.NewAnsiblePlaybookErrorEnrich()),
 		execute.WithWrite(NewJSONLEventWriter(persistency, os.Stdout)),
 	)
 	baseExec.Quiet()
+	// Configure the DefaultExecute output to use JSONLEventStdoutCallbackResults and assign the EnrichedJSONLEventTransformer to enrich the event data.
 	baseExec.WithOutput(
 		jsonresults.NewJSONLEventStdoutCallbackResults(
 			jsonresults.WithJSONLEventTransformers(
@@ -149,9 +159,24 @@ func main() {
 		),
 	)
 
+	// Finally, create a new AnsibleWithConfigurationSettingsExecute executor using the previously defined base executor. This step manually sets the ansible.posix.jsonl stdout callback method.
 	exec := configuration.NewAnsibleWithConfigurationSettingsExecute(baseExec,
 		configuration.WithAnsibleStdoutCallback(stdoutcallback.AnsiblePosixJsonlStdoutCallback),
 	)
+
+	/*
+
+		   If you don't need to apply a transformer to the original event, you can use the AnsiblePosixJsonlStdoutCallbackExecute executor directly, as is show below in that comment. Keep in mind that this will change the behavior of the example: when reading events from persistence, they will be the original events returned by the ansible.posix.jsonl callback plugin, rather than EnrichedJSONLEvent objects.
+
+				  exec := stdoutcallback.NewAnsiblePosixJsonlStdoutCallbackExecute(
+						execute.NewDefaultExecute(
+							execute.WithCmd(playbookCmd),
+							execute.WithErrorEnrich(playbook.NewAnsiblePlaybookErrorEnrich()),
+							execute.WithWrite(NewJSONLEventWriter(persistency, os.Stdout)),
+						),
+				  )
+
+	*/
 
 	ctx, cancel := context.WithCancel(context.TODO())
 	defer cancel()
@@ -168,13 +193,18 @@ func main() {
 
 		err = json.Unmarshal(event, &enrichedEvent)
 		if err != nil {
-			fmt.Printf("Error unmarshaling event: %v\n", err)
+			fmt.Printf("Error unmarshaling EnrichedJSONLEvent: %v. Received event data: %s\n", err, string(event))
+			continue
+		}
+
+		if enrichedEvent.Data == "" {
+			fmt.Printf("EnrichedJSONLEvent data is empty. Received event data: %s\n", string(event))
 			continue
 		}
 
 		err = json.Unmarshal([]byte(enrichedEvent.Data), &eventOriginal)
 		if err != nil {
-			fmt.Printf("Error unmarshaling original event: %v\n", err)
+			fmt.Printf("Error unmarshaling original event: %v. Received event data: %s\n", err, string(event))
 			continue
 		}
 

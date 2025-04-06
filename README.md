@@ -610,11 +610,12 @@ exec := execute.NewDefaultExecute(
 
 The `JSONLEventStdoutCallbackResults` struct, located in the `github.com/apenella/go-ansible/v2/pkg/execute/result/json` package, is designed to handle the output of command execution when using the [ansible.posix.jsonl](https://docs.ansible.com/ansible/latest/collections/ansible/posix/jsonl_callback.html) stdout callback method. It implements the [ResultsOutputer](#resultsoutputer-interface) interface, providing functionality to parse and manipulate _JSONL-formatted_ output from _Ansible_ commands.
 
-When using the `AnsiblePosixJsonlStdoutCallbackExecute` executer, the output is managed by the `JSONLEventStdoutCallbackResults` struct.
+When using the `AnsiblePosixJsonlStdoutCallbackExecute` executer, the output is managed by the `JSONLEventStdoutCallbackResults` struct. The `AnsiblePosixJsonlStdoutCallbackExecute` can be also configured to update the output using a set of [transformers](#transformer-functions) to be applied to the output. These transformers enrich or update the output as needed.
 
 The `github.com/apenella/go-ansible/v2/pkg/execute/result/json` provides you with the `AnsiblePlaybookJSONLEventResults` struct, that represents a JSON event output from the `ansible.posix.jsonl`. You can use this struct to manage the events.
 
-You can refer to the [ansibleplaybook-posix-jsonl-stdout](https://github.com/apenella/go-ansible/tree/master/examples/ansibleplaybook-posix-jsonl-stdout) example to see how to manage the `JSONLEventStdoutCallbackResults` struct.
+You can refer to the [ansibleplaybook-posix-jsonl-stdout](https://github.com/apenella/go-ansible/tree/master/examples/ansibleplaybook-posix-jsonl-stdout) example to see how to work with the `JSONLEventStdoutCallbackResults` struct.  
+For a more advanced use case, such as persisting events to a database and applying a transformer, take a look at the [ansibleplaybook-posix-jsonl-stdout-persistence](https://github.com/apenella/go-ansible/tree/master/examples/ansibleplaybook-posix-jsonl-stdout-persistence) example.
 
 ###### JSONStdoutCallbackResults struct
 
@@ -1107,6 +1108,7 @@ Here you have a list of examples:
 - [ansibleplaybook-extravars](https://github.com/apenella/go-ansible/tree/master/examples/ansibleplaybook-extravars)
 - [ansibleplaybook-json-stdout](https://github.com/apenella/go-ansible/tree/master/examples/ansibleplaybook-json-stdout)
 - [ansibleplaybook-myexecutor](https://github.com/apenella/go-ansible/tree/master/examples/ansibleplaybook-myexecutor)
+- [ansibleplaybook-posix-jsonl-stdout-persistence](https://github.com/apenella/go-ansible/tree/master/examples/ansibleplaybook-posix-jsonl-stdout-persistence)
 - [ansibleplaybook-posix-jsonl-stdout](https://github.com/apenella/go-ansible/tree/master/examples/ansibleplaybook-posix-jsonl-stdout)
 - [ansibleplaybook-signals-and-cancellation](https://github.com/apenella/go-ansible/tree/master/examples/ansibleplaybook-signals-and-cancellation)
 - [ansibleplaybook-simple-embedfs](https://github.com/apenella/go-ansible/tree/master/examples/ansibleplaybook-simple-embedfs)
