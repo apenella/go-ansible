@@ -1,4 +1,3 @@
-
 # go-ansible
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT) ![Test](https://github.com/apenella/go-ansible/actions/workflows/ci.yml/badge.svg) [![Go Report Card](https://goreportcard.com/badge/github.com/apenella/go-ansible/v2)](https://goreportcard.com/report/github.com/apenella/go-ansible/v2) [![Go Reference](https://pkg.go.dev/badge/github.com/apenella/go-ansible/v2.svg)](https://pkg.go.dev/github.com/apenella/go-ansible/v2)[![Static Badge](https://img.shields.io/badge/Changelog-CHANGELOG.md-blue)
@@ -6,20 +5,37 @@
 
 ![go-ansible-logo](docs/logo/go-ansible_logo.png "Go-ansible Logo" )
 
-Go-ansible is a Go package that allows executing _Ansible_ commands, such as `ansible-playbook`, `ansible-inventory`, or `ansible`, directly from Golang applications. It offers a variety of options for each command, facilitating seamless integration of _Ansible_ functionality into your projects. It is important to highlight that _go-ansible_ is not an alternative implementation of _Ansible_, but rather a wrapper around the _Ansible_ commands.
-Let's dive in and explore the capabilities of _go-ansible_ together.
+## Overview
 
-_**Important:** The master branch may contain unreleased or pre-released features. Be cautious when using that branch in your projects. It is recommended to use the stable releases available in the [releases](https://github.com/apenella/go-ansible/releases)._
+Go-ansible is a Go library for executing Ansible commands (such as `ansible-playbook`, `ansible-inventory`, `ansible-galaxy`, and `ansible`) directly from Go applications. It acts as a wrapper around the Ansible CLI, enabling seamless integration of Ansible automation into Go projects.
 
-> **Note**
-> The latest major version of _go-ansible_, version _2.x_, introduced significant and breaking changes. The first change is that the package name has been changed from `github.com/apenella/go-ansible` to `github.com/apenella/go-ansible/v2`. So, you need to update your import paths to use the new module name.
-> To migrate your code from prior version to _2.x_, please refer to the [upgrade guide](https://github.com/apenella/go-ansible/blob/master/docs/upgrade_guide_to_2.x.md) for detailed information on how to migrate to version _2.x_.
-> The most relevant change is that [command structs](#command-generator) no longer execute commands. So, [AnsiblePlaybookCmd](#ansibleplaybookcmd-struct), [AnsibleInventoryCmd](#ansibleinventorycmd-struct) and [AnsibleAdhocCmd](#ansibleadhoccmd-struct) do not require an [executor](#executor) anymore. Instead, the _executor_ is responsible for receiving the command to execute and executing it.
+## Why go-ansible?
+
+Go-ansible was created to address the challenge of managing the execution of complex Ansible playbooks that required a large number of extra variables. Instead of reimplementing Ansible's logic, I built an abstraction layer over existing Ansible commands to streamline this process.
+
+Originally, the library was a wrapper around the `ansible-playbook` command and was tightly coupled with the [Stevedore](https://gostevedore.github.io/) project. However, thanks to the contributions, feedback, and advice from the community, it has evolved into a general-purpose solution. Today, _go-ansible_ supports various commands, including `ansible-playbook`, `ansible`, and `ansible-galaxy`, and allows fine-grained control over settings and output management to accommodate diverse use cases.
+
+## Key Features
+
+- **Ansible Command Execution**: Execute Ansible commands—including `ansible-playbook`, `ansible`, `ansible-galaxy`, and `ansible-inventory`, directly from Go applications.
+- **Workflow Orchestration**: Chain multiple Ansible executions into a workflow, allowing you to run commands sequentially (e.g., installing roles/collections and executing playbooks) in a single workflow.
+- **Flexible Configuration**: Customise Ansible environment variables and settings through Go code, supporting advanced use cases and bespoke workflows.
+- **Vault Integration**: Manage Ansible Vault secrets, including encrypted variables, password files, and multiple password sources.
+- **Versatile Output Management**: Handle command output in various formats (plain text, JSON, JSONL), with built-in and custom output handlers and transformers.
+- **Extensible Architecture**: Extend with custom executors, output handlers, and transformers to support complex requirements, advanced execution flows, and error enrichment.
+
+Additionally, the _go-ansible_ library provides a set of examples that demonstrate how to use the library in distinct scenarios. It is recommended to review the [examples](#examples) section.
 
 - [go-ansible](#go-ansible)
-  - [Install](#install)
-    - [Upgrade to 1.x](#upgrade-to-1x)
-    - [Upgrade to 2.x](#upgrade-to-2x)
+  - [Overview](#overview)
+  - [Why go-ansible?](#why-go-ansible)
+  - [Key Features](#key-features)
+  - [Getting Started](#getting-started)
+    - [Create the _AnsiblePlaybookCmd_ struct](#create-the-ansibleplaybookcmd-struct)
+    - [Create the _DefaultExecute_ executor](#create-the-defaultexecute-executor)
+    - [Manage the output of the command execution](#manage-the-output-of-the-command-execution)
+  - [Installation](#installation)
+    - [Upgrade Notes](#upgrade-notes)
   - [Concepts](#concepts)
     - [Executor](#executor)
     - [Command Generator](#command-generator)
@@ -27,10 +43,6 @@ _**Important:** The master branch may contain unreleased or pre-released feature
   - [Considerations](#considerations)
     - [Execute go-ansible inside a container](#execute-go-ansible-inside-a-container)
     - [Disable pseudo-terminal allocation](#disable-pseudo-terminal-allocation)
-  - [Getting Started](#getting-started)
-    - [Create the _AnsiblePlaybookCmd_ struct](#create-the-ansibleplaybookcmd-struct)
-    - [Create the _DefaultExecute_ executor](#create-the-defaultexecute-executor)
-    - [Manage the output of the command execution](#manage-the-output-of-the-command-execution)
   - [Usage Reference](#usage-reference)
     - [Adhoc package](#adhoc-package)
       - [AnsibleAdhocCmd struct](#ansibleadhoccmd-struct)
@@ -97,61 +109,6 @@ _**Important:** The master branch may contain unreleased or pre-released feature
     - [Code Of Conduct](#code-of-conduct)
   - [License](#license)
 
-## Install
-
-Use this command to fetch and install the _go-ansible_ module. You can install the release candidate version by executing the following command:
-
-```sh
-go get github.com/apenella/go-ansible/v2@v2.2.0
-```
-
-You can also install the previous stable version by executing the following command:
-
-```sh
-go get github.com/apenella/go-ansible
-```
-
-### Upgrade to 1.x
-
-If you are currently using a _go-ansible_ version before _1.x_, note that there have been significant breaking changes introduced in version _1.0.0_ and beyond. Before proceeding with the upgrade, we highly recommend reading the [changelog](https://github.com/apenella/go-ansible/blob/master/CHANGELOG.md) and the [upgrade guide](https://github.com/apenella/go-ansible/blob/master/docs/upgrade_guide_to_1.x.md) carefully. These resources provide detailed information on the changes and steps required for a smooth transition to the new version.
-
-### Upgrade to 2.x
-
-Version _2.0.0_ introduced notable changes since the major version _1_, including several breaking changes. The [upgrade guide](https://github.com/apenella/go-ansible/blob/master/docs/upgrade_guide_to_2.x.md) conveys the necessary information to migrate to version _2.x_. Thoroughly read that document and the [changelog](https://github.com/apenella/go-ansible/blob/master/CHANGELOG.md) before upgrading from version _1.x_ to _2.x_.
-
-## Concepts
-
-There are a few concepts that you need to understand before using the _go-ansible_ library. These concepts are essential to effectively use the library and to understand the examples and usage references provided in this document.
-
-### Executor
-
-An _executor_ is a component that executes commands and handles the results from the execution output. The library includes the [DefaultExecute](#defaultexecute-struct) executor, which is a ready-to-go implementation of an executor. If the `DefaultExecute` does not meet your requirements, you can also create a custom executor.
-To know more about the `DefaultExecute`, refer to [that](#defaultexecute-struct) section.
-
-### Command Generator
-
-A _command generator_ or a _commander_ is responsible for generating the command to be executed. The [AnsiblePlaybookCmd](#ansibleplaybookcmd-struct) and [AnsibleAdhocCmd](#ansibleadhoccmd-struct) structs are examples of command generators. That concept has been introduced in the major version _2.0.0_.
-
-### Results Handler
-
-A _results handler_ or a _results outputer_ is responsible for managing the output of the command execution. The library includes two output mechanisms: the [DefaultResults](#defaultresults-struct) and the [JSONStdoutCallbackResults](#jsonstdoutcallbackresults-struct) structs.
-
-## Considerations
-
-Before you proceed further, please take note of the following considerations to ensure optimal usage of the go-ansible library.
-
-### Execute go-ansible inside a container
-
-When executing _Ansible_ commands using the _go-ansible_ library inside a container, ensure that the container has configured an init system. The init system is necessary to manage the child processes created by the _Ansible_ commands. If the container does not have an init system, the child processes may not be correctly managed, leading to unexpected behavior such as zombie processes.
-
-You can read more about that in the issue [139](https://github.com/apenella/go-ansible/issues/139) and [here](https://github.com/ansible/ansible/issues/49270#issuecomment-462306244).
-
-### Disable pseudo-terminal allocation
-
-_Ansible_ commands force the pseudo-terminal allocation when executed in a terminal. That configuration can cause the SSH connection leave zombie processes when the command finished. If you are experiencing this issue, you can disable the pseudo-terminal allocation by setting the `-T` to the SSH extra arguments, which will disable the pseudo-terminal allocation.
-
-You can read more about that in the issue [139](https://github.com/apenella/go-ansible/issues/139) and [here](https://groups.google.com/g/ansible-project/c/IQoTNwDBIiA/m/qiHUTgg31lkJ).
-
 ## Getting Started
 
 This section will guide you through the step-by-step process of using the _go-ansible_ library. Follow these instructions to create an application that utilizes the `ansible-playbook` utility. The same guidelines can be applied to other _Ansible_ commands, such as the `ansible` or `ansible-inventory` command.
@@ -159,7 +116,7 @@ This section will guide you through the step-by-step process of using the _go-an
 > **Note**
 > The following example will guide you through a complete process of creating all the components necessary to execute an `ansible-playbook` command. For a simpler example utilizing the [AnsiblePlaybookExecute](#ansibleplaybookexecute-struct) struct, please refer to the [ansibleplaybook-simple](https://github.com/apenella/go-ansible/blob/master/examples/ansibleplaybook-simple/ansibleplaybook-simple.go) example in the repository.
 
-Before proceeding, ensure you have installed the latest version of the _go-ansible_ library. If not, please refer to the [Installation section](#install) for instructions.
+Before proceeding, ensure you have installed the latest version of the _go-ansible_ library. If not, please refer to the [Installation section](#installation) for instructions.
 
 To create an application that launches the `ansible-playbook` command you need to create an [AnsiblePlaybookCmd](#ansibleplaybookcmd-struct) struct. This struct generates the _Ansible_ command to be run. Then, you need to execute the command using an [executor](#executor)](#executor). In that guided example, you will use the [DefaultExecute](#defaultexecute-struct) executor, an _executor_ provided by the _go-ansible_ library.
 
@@ -232,10 +189,70 @@ By default, the [DefaultExecute](#defaultexecute-struct) uses the [DefaultResult
  ── Playbook run took 0 days, 0 hours, 0 minutes, 0 seconds
 ```
 
+## Installation
+
+> **⚠️ Important:**
+>
+> - The `master` branch may contain unreleased or pre-released features. For production use, it is recommended to use the stable releases available in the [releases page](https://github.com/apenella/go-ansible/releases).
+> - Major version upgrades (e.g., 1.x to 2.x) introduce breaking changes. Please review the [changelog](https://github.com/apenella/go-ansible/blob/master/CHANGELOG.md) and the relevant upgrade guides before upgrading:
+>   - [Upgrade guide to 1.x](https://github.com/apenella/go-ansible/blob/master/docs/upgrade_guide_to_1.x.md)
+>   - [Upgrade guide to 2.x](https://github.com/apenella/go-ansible/blob/master/docs/upgrade_guide_to_2.x.md)
+> - Update your import paths to match the correct module version (e.g., `github.com/apenella/go-ansible/v2` for version 2.x).
+
+To install the release candidate version:
+
+```sh
+go get github.com/apenella/go-ansible/v2@v2.2.0
+```
+
+To install the previous stable version:
+
+```sh
+go get github.com/apenella/go-ansible
+```
+
+### Upgrade Notes
+
+- For upgrading from versions prior to 1.x or 2.x, see the [upgrade guide to 1.x](https://github.com/apenella/go-ansible/blob/master/docs/upgrade_guide_to_1.x.md) and [upgrade guide to 2.x](https://github.com/apenella/go-ansible/blob/master/docs/upgrade_guide_to_2.x.md).
+- Review the [changelog](https://github.com/apenella/go-ansible/blob/master/CHANGELOG.md) for details on breaking changes and migration steps.
+
+## Concepts
+
+There are a few concepts that you need to understand before using the _go-ansible_ library. These concepts are essential to effectively use the library and to understand the examples and usage references provided in this document.
+
+### Executor
+
+An _executor_ is a component that executes commands and handles the results from the execution output. The library includes the [DefaultExecute](#defaultexecute-struct) executor, which is a ready-to-go implementation of an executor. If the `DefaultExecute` does not meet your requirements, you can also create a custom executor.
+To know more about the `DefaultExecute`, refer to [that](#defaultexecute-struct) section.
+
+### Command Generator
+
+A _command generator_ or a _commander_ is responsible for generating the command to be executed. The [AnsiblePlaybookCmd](#ansibleplaybookcmd-struct) and [AnsibleAdhocCmd](#ansibleadhoccmd-struct) structs are examples of command generators. That concept has been introduced in the major version _2.0.0_.
+
+### Results Handler
+
+A _results handler_ or a _results outputer_ is responsible for managing the output of the command execution. The library includes two output mechanisms: the [DefaultResults](#defaultresults-struct) and the [JSONStdoutCallbackResults](#jsonstdoutcallbackresults-struct) structs.
+
+## Considerations
+
+Before you proceed further, please take note of the following considerations to ensure optimal usage of the go-ansible library.
+
+### Execute go-ansible inside a container
+
+When executing _Ansible_ commands using the _go-ansible_ library inside a container, ensure that the container has configured an init system. The init system is necessary to manage the child processes created by the _Ansible_ commands. If the container does not have an init system, the child processes may not be correctly managed, leading to unexpected behavior such as zombie processes.
+
+You can read more about that in the issue [139](https://github.com/apenella/go-ansible/issues/139) and in the related [Ansible GitHub issue comment](https://github.com/ansible/ansible/issues/49270#issuecomment-462306244).
+
+### Disable pseudo-terminal allocation
+
+_Ansible_ commands force the pseudo-terminal allocation when executed in a terminal. That configuration can cause the SSH connection leave zombie processes when the command finished. If you are experiencing this issue, you can disable the pseudo-terminal allocation by setting the `-T` to the SSH extra arguments, which will disable the pseudo-terminal allocation.
+
+You can read more about that in the issue [139](https://github.com/apenella/go-ansible/issues/139) and in [this Google Groups discussion](https://groups.google.com/g/ansible-project/c/IQoTNwDBIiA/m/qiHUTgg31lkJ).
+
 ## Usage Reference
 
 The Usage Reference section provides an overview of the different packages and their main resources available in the _go-ansible_ library. Here you will find the details to effectively use the library to execute _Ansible_ commands, such as `ansible-playbook` and `ansible`.
-For detailed information on the library's packages, structs, methods, and functions, please refer to the complete reference available [here](https://pkg.go.dev/github.com/apenella/go-ansible/v2).
+For detailed information on the library's packages, structs, methods, and functions, please refer to the [go-ansible GoDoc reference](https://pkg.go.dev/github.com/apenella/go-ansible/v2).
 
 ### Adhoc package
 
@@ -623,7 +640,7 @@ The `JSONStdoutCallbackResults` struct, located in the `github.com/apenella/go-a
 
 When using the `JSONStdoutCallbackExecute` executor, the output is managed by the `JSONStdoutCallbackResults` struct.
 
-The package also includes the `ParseJSONResultsStream` function, which decodes the `JSON` output into an `AnsiblePlaybookJSONResults` data structure. This structure can be further manipulated to format the `JSON` output according to specific requirements. The expected `JSON` schema from _Ansible_ output is defined in the [json.py](https://github.com/ansible/ansible/blob/v2.9.11/lib/ansible/plugins/callback/json.py) file within the _Ansible_ repository.
+The package also includes the `ParseJSONResultsStream` function, which decodes the `JSON` output into an `AnsiblePlaybookJSONResults` data structure. You can use this structure to format the `JSON` output according to specific requirements. The expected `JSON` schema from _Ansible_ output is defined in the [json.py](https://github.com/ansible/ansible/blob/v2.9.11/lib/ansible/plugins/callback/json.py) file within the _Ansible_ repository.
 
 When creating a new instance of `JSONStdoutCallbackResults`, you can specify a list of [transformers](#transformer-functions) to be applied to the output. These transformers enrich or update the output as needed. By default, the `JSONStdoutCallbackResults` struct applies the `IgnoreMessage` transformer to ignore any `non-JSON` lines defined in the `skipPatterns` array.
 
@@ -1156,7 +1173,7 @@ make static-analysis
 
 ### Contributing
 
-Thank you for your interest in contributing to go-ansible! All contributions are welcome, whether they are bug reports, feature requests, or code contributions. Please read the contributor's guide [here](https://github.com/apenella/go-ansible/blob/master/CONTRIBUTING.md) to learn more about how to contribute.
+Thank you for your interest in contributing to go-ansible! All contributions are welcome, whether they are bug reports, feature requests, or code contributions. Please read the [contributor's guide](https://github.com/apenella/go-ansible/blob/master/CONTRIBUTING.md) to learn more about how to contribute.
 
 ### Code Of Conduct
 
@@ -1164,7 +1181,7 @@ The _go-ansible_ project is committed to providing a friendly, safe and welcomin
 
 We expect all contributors, users, and community members to follow this code of conduct. This includes all interactions within the _go-ansible_ community, whether online, in person, or otherwise.
 
-Please to know more about the code of conduct refer [here](https://github.com/apenella/go-ansible/blob/master/CODE-OF-CONDUCT.md).
+Please refer to the [go-ansible Code of Conduct](https://github.com/apenella/go-ansible/blob/master/CODE-OF-CONDUCT.md) for more information.
 
 ## License
 
