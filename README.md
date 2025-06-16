@@ -11,13 +11,13 @@ Go-ansible is a Go library for executing Ansible commands (such as `ansible-play
 
 ## Why go-ansible?
 
-Go-ansible was created to address the challenge of managing the execution of complex Ansible playbooks that required a large number of extra variables. Instead of reimplementing Ansible's logic, I built an abstraction layer over existing Ansible commands to streamline this process.
+Go-ansible was created to address the challenge of managing complex Ansible playbooks that require a large number of extra variables. Rather than reimplementing Ansible’s logic, the library provides an abstraction layer over the existing Ansible commands, streamlining their execution from a Go application.
 
-Originally, the library was a wrapper around the `ansible-playbook` command and was tightly coupled with the [Stevedore](https://gostevedore.github.io/) project. However, thanks to the contributions, feedback, and advice from the community, it has evolved into a general-purpose solution. Today, _go-ansible_ supports various commands, including `ansible-playbook`, `ansible`, and `ansible-galaxy`, and allows fine-grained control over settings and output management to accommodate diverse use cases.
+Originally, the library was a wrapper around the `ansible-playbook` command and was tightly coupled with the [Stevedore](https://gostevedore.github.io/) project. However, thanks to the contributions, feedback, and advice from the community, it has evolved into a general-purpose solution. Today, _go-ansible_ supports the execution of various commands, including `ansible-playbook`, `ansible`, and `ansible-galaxy`, and allows fine-grained control over settings and output management to accommodate diverse use cases.
 
 ## Key Features
 
-- **Ansible Command Execution**: Execute Ansible commands—including `ansible-playbook`, `ansible`, `ansible-galaxy`, and `ansible-inventory`, directly from Go applications.
+- **Ansible Command Execution**: Execute Ansible commands, including `ansible-playbook`, `ansible`, `ansible-galaxy`, and `ansible-inventory`, directly from Go applications.
 - **Workflow Orchestration**: Chain multiple Ansible executions into a workflow, allowing you to run commands sequentially (e.g., installing roles/collections and executing playbooks) in a single workflow.
 - **Flexible Configuration**: Customise Ansible environment variables and settings through Go code, supporting advanced use cases and bespoke workflows.
 - **Vault Integration**: Manage Ansible Vault secrets, including encrypted variables, password files, and multiple password sources.
@@ -26,10 +26,13 @@ Originally, the library was a wrapper around the `ansible-playbook` command and 
 
 Additionally, the _go-ansible_ library provides a set of examples that demonstrate how to use the library in distinct scenarios. It is recommended to review the [examples](#examples) section.
 
+## Table of Contents
+
 - [go-ansible](#go-ansible)
   - [Overview](#overview)
   - [Why go-ansible?](#why-go-ansible)
   - [Key Features](#key-features)
+  - [Table of Contents](#table-of-contents)
   - [Getting Started](#getting-started)
     - [Create the _AnsiblePlaybookCmd_ struct](#create-the-ansibleplaybookcmd-struct)
     - [Create the _DefaultExecute_ executor](#create-the-defaultexecute-executor)
@@ -111,18 +114,16 @@ Additionally, the _go-ansible_ library provides a set of examples that demonstra
 
 ## Getting Started
 
-This section will guide you through the step-by-step process of using the _go-ansible_ library. Follow these instructions to create an application that utilizes the `ansible-playbook` utility. The same guidelines can be applied to other _Ansible_ commands, such as the `ansible` or `ansible-inventory` command.
+The following section walks you through an example, showing how to set up and execute an Ansible playbook step by step using go-ansible. The same approach can be applied to other Ansible commands, such as `ansible` or `ansible-inventory`. If you want to see a complete example to run an Ansible playbook from Go, check out the [ansibleplaybook-simple example](https://github.com/apenella/go-ansible/blob/master/examples/ansibleplaybook-simple/ansibleplaybook-simple.go).
 
 > **Note**
-> The following example will guide you through a complete process of creating all the components necessary to execute an `ansible-playbook` command. For a simpler example utilizing the [AnsiblePlaybookExecute](#ansibleplaybookexecute-struct) struct, please refer to the [ansibleplaybook-simple](https://github.com/apenella/go-ansible/blob/master/examples/ansibleplaybook-simple/ansibleplaybook-simple.go) example in the repository.
+> Before proceeding, ensure you have installed the latest version of the _go-ansible_ library. If not, please refer to the [Installation section](#installation) for instructions.
 
-Before proceeding, ensure you have installed the latest version of the _go-ansible_ library. If not, please refer to the [Installation section](#installation) for instructions.
-
-To create an application that launches the `ansible-playbook` command you need to create an [AnsiblePlaybookCmd](#ansibleplaybookcmd-struct) struct. This struct generates the _Ansible_ command to be run. Then, you need to execute the command using an [executor](#executor)](#executor). In that guided example, you will use the [DefaultExecute](#defaultexecute-struct) executor, an _executor_ provided by the _go-ansible_ library.
+To create an application that launches the `ansible-playbook` command, you need to create an [AnsiblePlaybookCmd](#ansibleplaybookcmd-struct) struct. This struct generates the Ansible command to be run. Then, you need to execute the command using an [executor](#executor). In this example, you will use the [DefaultExecute](#defaultexecute-struct) executor provided by the go-ansible library.
 
 ### Create the _AnsiblePlaybookCmd_ struct
 
-To execute `ansible-playbook` commands, first, define the necessary connection, playbook, and privilege escalation options.
+To execute `ansible-playbook` commands, first define the necessary connection, playbook, and privilege escalation options.
 
 Start by creating the [AnsiblePlaybookOptions](#ansibleplaybookoptions-struct) struct:
 
@@ -141,14 +142,13 @@ playbookCmd := playbook.NewAnsiblePlaybookCmd(
   playbook.WithPlaybooks("site.yml", "site2.yml"),
   playbook.WithPlaybookOptions(ansiblePlaybookOptions),
 )
-
 ```
 
 Once the `AnsiblePlaybookCmd` is defined, provide the command to an [executor](#executor) to run the command.
 
 ### Create the _DefaultExecute_ executor
 
-We will use the [DefaultExecute](#defaultexecute-struct) struct, provided by the _go-ansible_ library, to execute the `ansible-playbook` command. It requires a [Commander](#commander-interface) responsible for generating the command to be executed. In that example, you will use the [AnsiblePlaybookCmd](#ansibleplaybookcmd-struct) previously defined.
+We will use the [DefaultExecute](#defaultexecute-struct) struct, provided by the go-ansible library, to execute the `ansible-playbook` command. It requires a [Commander](#commander-interface) responsible for generating the command to be executed. In this example, you will use the [AnsiblePlaybookCmd](#ansibleplaybookcmd-struct) previously defined.
 
 ```go
 // PlaybookCmd is the Commander responsible for generating the command to execute
@@ -158,7 +158,7 @@ exec := execute.NewDefaultExecute(
 )
 ```
 
-Once you have defined the [DefaultExecute](#defaultexecute-struct), execute the _Ansible_ command using the following code:
+Once you have defined the [DefaultExecute](#defaultexecute-struct), execute the Ansible command using the following code:
 
 ```go
 err := exec.Execute(context.Background())
@@ -193,7 +193,7 @@ By default, the [DefaultExecute](#defaultexecute-struct) uses the [DefaultResult
 
 > **⚠️ Important:**
 >
-> - The `master` branch may contain unreleased or pre-released features. For production use, it is recommended to use the stable releases available in the [releases page](https://github.com/apenella/go-ansible/releases).
+> - The `master` branch may contain unreleased or pre-released features. It is recommended to use the stable releases available in the [releases page](https://github.com/apenella/go-ansible/releases).
 > - Major version upgrades (e.g., 1.x to 2.x) introduce breaking changes. Please review the [changelog](https://github.com/apenella/go-ansible/blob/master/CHANGELOG.md) and the relevant upgrade guides before upgrading:
 >   - [Upgrade guide to 1.x](https://github.com/apenella/go-ansible/blob/master/docs/upgrade_guide_to_1.x.md)
 >   - [Upgrade guide to 2.x](https://github.com/apenella/go-ansible/blob/master/docs/upgrade_guide_to_2.x.md)
@@ -214,7 +214,7 @@ go get github.com/apenella/go-ansible
 ### Upgrade Notes
 
 - For upgrading from versions prior to 1.x or 2.x, see the [upgrade guide to 1.x](https://github.com/apenella/go-ansible/blob/master/docs/upgrade_guide_to_1.x.md) and [upgrade guide to 2.x](https://github.com/apenella/go-ansible/blob/master/docs/upgrade_guide_to_2.x.md).
-- Review the [changelog](https://github.com/apenella/go-ansible/blob/master/CHANGELOG.md) for details on breaking changes and migration steps.
+- Review the [changelog](https://github.com/apenella/go-ansible/blob/master/CHANGELOG.md) for details on changes, new features, and bug fixes.
 
 ## Concepts
 
