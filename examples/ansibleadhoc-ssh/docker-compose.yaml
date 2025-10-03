@@ -1,0 +1,43 @@
+---
+
+services:
+  ansible:
+    build: 
+      context: docker/ansible
+      args:
+        - golang_version=${GOLANG_VERSION}
+    command: ["tail", "-f", "/dev/null"]
+    # command: ["ansible-playbook", "--help"]
+    volumes:
+      - ssh:/ssh
+      - ../..:/code
+    working_dir: /code
+    ## Set the init flag to true lets the process 1 to reap all the zombie processes
+    init: true
+    depends_on:
+      - server
+
+  server:
+    build: 
+      context: docker/server
+    # command: ["cat", "/etc/ssh/sshd_config"]
+    volumes:
+      - ssh:/ssh
+    depends_on:
+      - openssh-client
+    ports:
+      - "22220:22"
+
+  openssh-client:
+    build: 
+      context: docker/openssh-client
+    working_dir: /ssh
+    volumes:
+      - ssh:/ssh
+    deploy:
+      resources:
+        limits:
+          memory: 10M
+
+volumes:
+  ssh:
