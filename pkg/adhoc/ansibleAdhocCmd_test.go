@@ -61,7 +61,7 @@ func TestCommand(t *testing.T) {
 
 	adhoc := &AnsibleAdhocCmd{
 		Binary:  "custom-binary",
-		Pattern: "pattenr",
+		Pattern: "pattern",
 		AdhocOptions: &AnsibleAdhocOptions{
 			Args:        "args",
 			Background:  11,
@@ -76,22 +76,15 @@ func TestCommand(t *testing.T) {
 
 	expected := []string{
 		"custom-binary",
-		"pattenr",
-		"--args",
-		"args",
-		"--background",
-		"11",
-		"--module-name",
-		"module-name",
+		"pattern",
+		"--args=args",
+		"--background=11",
+		"--module-name=module-name",
 		"--one-line",
-		"--playbook-dir",
-		"playbook-dir",
-		"--poll",
-		"12",
-		"--tree",
-		"tree",
-		"--connection",
-		"local",
+		"--playbook-dir=playbook-dir",
+		"--poll=12",
+		"--tree=tree",
+		"--connection=local",
 	}
 
 	res, _ := adhoc.Command()
@@ -118,7 +111,7 @@ func TestString(t *testing.T) {
 		},
 	}
 
-	expected := "custom-binary pattern  --args 'args' --background 11 --module-name module-name --one-line --playbook-dir playbook-dir --poll 12 --tree tree --connection local"
+	expected := "custom-binary pattern  --args='args' --background=11 --module-name=module-name --one-line --playbook-dir=playbook-dir --poll=12 --tree=tree --connection=local"
 
 	res := adhoc.String()
 
