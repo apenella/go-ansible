@@ -306,8 +306,7 @@ func (o *AnsibleAdhocOptions) GenerateAnsibleAdhocOptions() ([]string, error) {
 	}
 
 	if o.Args != "" {
-		cmd = append(cmd, ArgsFlag)
-		cmd = append(cmd, o.Args)
+		cmd = append(cmd, fmt.Sprintf("%s=%s", ArgsFlag, o.Args))
 	}
 
 	if o.AskVaultPassword {
@@ -315,8 +314,7 @@ func (o *AnsibleAdhocOptions) GenerateAnsibleAdhocOptions() ([]string, error) {
 	}
 
 	if o.Background > 0 {
-		cmd = append(cmd, BackgroundFlag)
-		cmd = append(cmd, fmt.Sprint(o.Background))
+		cmd = append(cmd, fmt.Sprintf("%s=%s", BackgroundFlag, fmt.Sprint(o.Background)))
 	}
 
 	if o.Check {
@@ -328,32 +326,27 @@ func (o *AnsibleAdhocOptions) GenerateAnsibleAdhocOptions() ([]string, error) {
 	}
 
 	if len(o.ExtraVars) > 0 {
-		cmd = append(cmd, ExtraVarsFlag)
 		extraVars, err := o.generateExtraVarsCommand()
 		if err != nil {
 			return nil, errors.New("(adhoc::GenerateAnsibleAdhocOptions)", "Error generating extra-vars", err)
 		}
-		cmd = append(cmd, extraVars)
+		cmd = append(cmd, fmt.Sprintf("%s=%s", ExtraVarsFlag, extraVars))
 	}
 
 	for _, extraVarsFile := range o.ExtraVarsFile {
-		cmd = append(cmd, ExtraVarsFlag)
-		cmd = append(cmd, extraVarsFile)
+		cmd = append(cmd, fmt.Sprintf("%s=%s", ExtraVarsFlag, extraVarsFile))
 	}
 
 	if o.Forks != "" {
-		cmd = append(cmd, ForksFlag)
-		cmd = append(cmd, o.Forks)
+		cmd = append(cmd, fmt.Sprintf("%s=%s", ForksFlag, o.Forks))
 	}
 
 	if o.Inventory != "" {
-		cmd = append(cmd, InventoryFlag)
-		cmd = append(cmd, o.Inventory)
+		cmd = append(cmd, fmt.Sprintf("%s=%s", InventoryFlag, o.Inventory))
 	}
 
 	if o.Limit != "" {
-		cmd = append(cmd, LimitFlag)
-		cmd = append(cmd, o.Limit)
+		cmd = append(cmd, fmt.Sprintf("%s=%s", LimitFlag, o.Limit))
 	}
 
 	if o.ListHosts {
@@ -361,13 +354,11 @@ func (o *AnsibleAdhocOptions) GenerateAnsibleAdhocOptions() ([]string, error) {
 	}
 
 	if o.ModuleName != "" {
-		cmd = append(cmd, ModuleNameFlag)
-		cmd = append(cmd, o.ModuleName)
+		cmd = append(cmd, fmt.Sprintf("%s=%s", ModuleNameFlag, o.ModuleName))
 	}
 
 	if o.ModulePath != "" {
-		cmd = append(cmd, ModulePathFlag)
-		cmd = append(cmd, o.ModulePath)
+		cmd = append(cmd, fmt.Sprintf("%s=%s", ModulePathFlag, o.ModulePath))
 	}
 
 	if o.OneLine {
@@ -375,13 +366,11 @@ func (o *AnsibleAdhocOptions) GenerateAnsibleAdhocOptions() ([]string, error) {
 	}
 
 	if o.PlaybookDir != "" {
-		cmd = append(cmd, PlaybookDirFlag)
-		cmd = append(cmd, o.PlaybookDir)
+		cmd = append(cmd, fmt.Sprintf("%s=%s", PlaybookDirFlag, o.PlaybookDir))
 	}
 
 	if o.Poll > 0 {
-		cmd = append(cmd, PollFlag)
-		cmd = append(cmd, fmt.Sprint(o.Poll))
+		cmd = append(cmd, fmt.Sprintf("%s=%s", PollFlag, fmt.Sprint(o.Poll)))
 	}
 
 	if o.SyntaxCheck {
@@ -389,18 +378,15 @@ func (o *AnsibleAdhocOptions) GenerateAnsibleAdhocOptions() ([]string, error) {
 	}
 
 	if o.Tree != "" {
-		cmd = append(cmd, TreeFlag)
-		cmd = append(cmd, o.Tree)
+		cmd = append(cmd, fmt.Sprintf("%s=%s", TreeFlag, o.Tree))
 	}
 
 	if o.VaultID != "" {
-		cmd = append(cmd, VaultIDFlag)
-		cmd = append(cmd, o.VaultID)
+		cmd = append(cmd, fmt.Sprintf("%s=%s", VaultIDFlag, o.VaultID))
 	}
 
 	if o.VaultPasswordFile != "" {
-		cmd = append(cmd, VaultPasswordFileFlag)
-		cmd = append(cmd, o.VaultPasswordFile)
+		cmd = append(cmd, fmt.Sprintf("%s=%s", VaultPasswordFileFlag, o.VaultPasswordFile))
 	}
 
 	if o.Verbose {
@@ -418,43 +404,35 @@ func (o *AnsibleAdhocOptions) GenerateAnsibleAdhocOptions() ([]string, error) {
 	}
 
 	if o.Connection != "" {
-		cmd = append(cmd, ConnectionFlag)
-		cmd = append(cmd, o.Connection)
+		cmd = append(cmd, fmt.Sprintf("%s=%s", ConnectionFlag, o.Connection))
 	}
 
 	if o.PrivateKey != "" {
-		cmd = append(cmd, PrivateKeyFlag)
-		cmd = append(cmd, o.PrivateKey)
+		cmd = append(cmd, fmt.Sprintf("%s=%s", PrivateKeyFlag, o.PrivateKey))
 	}
 
 	if o.SCPExtraArgs != "" {
-		cmd = append(cmd, SCPExtraArgsFlag)
-		cmd = append(cmd, o.SCPExtraArgs)
+		cmd = append(cmd, fmt.Sprintf("%s=%s", SCPExtraArgsFlag, o.SCPExtraArgs))
 	}
 
 	if o.SFTPExtraArgs != "" {
-		cmd = append(cmd, SFTPExtraArgsFlag)
-		cmd = append(cmd, o.SFTPExtraArgs)
+		cmd = append(cmd, fmt.Sprintf("%s=%s", SFTPExtraArgsFlag, o.SFTPExtraArgs))
 	}
 
 	if o.SSHCommonArgs != "" {
-		cmd = append(cmd, SSHCommonArgsFlag)
-		cmd = append(cmd, o.SSHCommonArgs)
+		cmd = append(cmd, fmt.Sprintf("%s=%s", SSHCommonArgsFlag, o.SSHCommonArgs))
 	}
 
 	if o.SSHExtraArgs != "" {
-		cmd = append(cmd, SSHExtraArgsFlag)
-		cmd = append(cmd, o.SSHExtraArgs)
+		cmd = append(cmd, fmt.Sprintf("%s=%s", SSHExtraArgsFlag, o.SSHExtraArgs))
 	}
 
 	if o.Timeout > 0 {
-		cmd = append(cmd, TimeoutFlag)
-		cmd = append(cmd, fmt.Sprint(o.Timeout))
+		cmd = append(cmd, fmt.Sprintf("%s=%s", TimeoutFlag, fmt.Sprint(o.Timeout)))
 	}
 
 	if o.User != "" {
-		cmd = append(cmd, UserFlag)
-		cmd = append(cmd, o.User)
+		cmd = append(cmd, fmt.Sprintf("%s=%s", UserFlag, o.User))
 	}
 
 	// Privilege escalation options
@@ -468,13 +446,11 @@ func (o *AnsibleAdhocOptions) GenerateAnsibleAdhocOptions() ([]string, error) {
 	}
 
 	if o.BecomeMethod != "" {
-		cmd = append(cmd, BecomeMethodFlag)
-		cmd = append(cmd, o.BecomeMethod)
+		cmd = append(cmd, fmt.Sprintf("%s=%s", BecomeMethodFlag, o.BecomeMethod))
 	}
 
 	if o.BecomeUser != "" {
-		cmd = append(cmd, BecomeUserFlag)
-		cmd = append(cmd, o.BecomeUser)
+		cmd = append(cmd, fmt.Sprintf("%s=%s", BecomeUserFlag, o.BecomeUser))
 	}
 
 	return cmd, nil
@@ -520,7 +496,7 @@ func (o *AnsibleAdhocOptions) String() string {
 	str := ""
 
 	if o.Args != "" {
-		str = fmt.Sprintf("%s %s '%s'", str, ArgsFlag, o.Args)
+		str = fmt.Sprintf("%s %s='%s'", str, ArgsFlag, o.Args)
 	}
 
 	if o.AskVaultPassword {
@@ -528,7 +504,7 @@ func (o *AnsibleAdhocOptions) String() string {
 	}
 
 	if o.Background > 0 {
-		str = fmt.Sprintf("%s %s %d", str, BackgroundFlag, o.Background)
+		str = fmt.Sprintf("%s %s=%d", str, BackgroundFlag, o.Background)
 	}
 
 	if o.Check {
@@ -541,23 +517,23 @@ func (o *AnsibleAdhocOptions) String() string {
 
 	if len(o.ExtraVars) > 0 {
 		extraVars, _ := o.generateExtraVarsCommand()
-		str = fmt.Sprintf("%s %s %s", str, ExtraVarsFlag, fmt.Sprintf("'%s'", extraVars))
+		str = fmt.Sprintf("%s %s='%s'", str, ExtraVarsFlag, extraVars)
 	}
 
 	for _, file := range o.ExtraVarsFile {
-		str = fmt.Sprintf("%s %s %s", str, ExtraVarsFlag, file)
+		str = fmt.Sprintf("%s %s=%s", str, ExtraVarsFlag, file)
 	}
 
 	if o.Forks != "" {
-		str = fmt.Sprintf("%s %s %s", str, ForksFlag, o.Forks)
+		str = fmt.Sprintf("%s %s=%s", str, ForksFlag, o.Forks)
 	}
 
 	if o.Inventory != "" {
-		str = fmt.Sprintf("%s %s %s", str, InventoryFlag, o.Inventory)
+		str = fmt.Sprintf("%s %s=%s", str, InventoryFlag, o.Inventory)
 	}
 
 	if o.Limit != "" {
-		str = fmt.Sprintf("%s %s %s", str, LimitFlag, o.Limit)
+		str = fmt.Sprintf("%s %s=%s", str, LimitFlag, o.Limit)
 	}
 
 	if o.ListHosts {
@@ -565,11 +541,11 @@ func (o *AnsibleAdhocOptions) String() string {
 	}
 
 	if o.ModuleName != "" {
-		str = fmt.Sprintf("%s %s %s", str, ModuleNameFlag, o.ModuleName)
+		str = fmt.Sprintf("%s %s=%s", str, ModuleNameFlag, o.ModuleName)
 	}
 
 	if o.ModulePath != "" {
-		str = fmt.Sprintf("%s %s %s", str, ModulePathFlag, o.ModulePath)
+		str = fmt.Sprintf("%s %s=%s", str, ModulePathFlag, o.ModulePath)
 	}
 
 	if o.OneLine {
@@ -577,11 +553,11 @@ func (o *AnsibleAdhocOptions) String() string {
 	}
 
 	if o.PlaybookDir != "" {
-		str = fmt.Sprintf("%s %s %s", str, PlaybookDirFlag, o.PlaybookDir)
+		str = fmt.Sprintf("%s %s=%s", str, PlaybookDirFlag, o.PlaybookDir)
 	}
 
 	if o.Poll > 0 {
-		str = fmt.Sprintf("%s %s %d", str, PollFlag, o.Poll)
+		str = fmt.Sprintf("%s %s=%d", str, PollFlag, o.Poll)
 	}
 
 	if o.SyntaxCheck {
@@ -589,15 +565,15 @@ func (o *AnsibleAdhocOptions) String() string {
 	}
 
 	if o.Tree != "" {
-		str = fmt.Sprintf("%s %s %s", str, TreeFlag, o.Tree)
+		str = fmt.Sprintf("%s %s=%s", str, TreeFlag, o.Tree)
 	}
 
 	if o.VaultID != "" {
-		str = fmt.Sprintf("%s %s %s", str, VaultIDFlag, o.VaultID)
+		str = fmt.Sprintf("%s %s=%s", str, VaultIDFlag, o.VaultID)
 	}
 
 	if o.VaultPasswordFile != "" {
-		str = fmt.Sprintf("%s %s %s", str, VaultPasswordFileFlag, o.VaultPasswordFile)
+		str = fmt.Sprintf("%s %s=%s", str, VaultPasswordFileFlag, o.VaultPasswordFile)
 	}
 
 	verbosityString, _ := o.generateVerbosityFlag()
@@ -616,35 +592,35 @@ func (o *AnsibleAdhocOptions) String() string {
 	}
 
 	if o.Connection != "" {
-		str = fmt.Sprintf("%s %s %s", str, ConnectionFlag, o.Connection)
+		str = fmt.Sprintf("%s %s=%s", str, ConnectionFlag, o.Connection)
 	}
 
 	if o.PrivateKey != "" {
-		str = fmt.Sprintf("%s %s %s", str, PrivateKeyFlag, o.PrivateKey)
+		str = fmt.Sprintf("%s %s=%s", str, PrivateKeyFlag, o.PrivateKey)
 	}
 
 	if o.SCPExtraArgs != "" {
-		str = fmt.Sprintf("%s %s '%s'", str, SCPExtraArgsFlag, o.SCPExtraArgs)
+		str = fmt.Sprintf("%s %s='%s'", str, SCPExtraArgsFlag, o.SCPExtraArgs)
 	}
 
 	if o.SFTPExtraArgs != "" {
-		str = fmt.Sprintf("%s %s '%s'", str, SFTPExtraArgsFlag, o.SFTPExtraArgs)
+		str = fmt.Sprintf("%s %s='%s'", str, SFTPExtraArgsFlag, o.SFTPExtraArgs)
 	}
 
 	if o.SSHCommonArgs != "" {
-		str = fmt.Sprintf("%s %s '%s'", str, SSHCommonArgsFlag, o.SSHCommonArgs)
+		str = fmt.Sprintf("%s %s='%s'", str, SSHCommonArgsFlag, o.SSHCommonArgs)
 	}
 
 	if o.SSHExtraArgs != "" {
-		str = fmt.Sprintf("%s %s '%s'", str, SSHExtraArgsFlag, o.SSHExtraArgs)
+		str = fmt.Sprintf("%s %s='%s'", str, SSHExtraArgsFlag, o.SSHExtraArgs)
 	}
 
 	if o.Timeout > 0 {
-		str = fmt.Sprintf("%s %s %d", str, TimeoutFlag, o.Timeout)
+		str = fmt.Sprintf("%s %s=%d", str, TimeoutFlag, o.Timeout)
 	}
 
 	if o.User != "" {
-		str = fmt.Sprintf("%s %s %s", str, UserFlag, o.User)
+		str = fmt.Sprintf("%s %s=%s", str, UserFlag, o.User)
 	}
 
 	// Privilege escalation options
@@ -658,11 +634,11 @@ func (o *AnsibleAdhocOptions) String() string {
 	}
 
 	if o.BecomeMethod != "" {
-		str = fmt.Sprintf("%s %s %s", str, BecomeMethodFlag, o.BecomeMethod)
+		str = fmt.Sprintf("%s %s=%s", str, BecomeMethodFlag, o.BecomeMethod)
 	}
 
 	if o.BecomeUser != "" {
-		str = fmt.Sprintf("%s %s %s", str, BecomeUserFlag, o.BecomeUser)
+		str = fmt.Sprintf("%s %s=%s", str, BecomeUserFlag, o.BecomeUser)
 	}
 
 	return str
