@@ -248,18 +248,15 @@ func (o *AnsibleInventoryOptions) GenerateCommandOptions() ([]string, error) {
 	}
 
 	if o.Host != "" {
-		cmd = append(cmd, HostFlag)
-		cmd = append(cmd, o.Host)
+		cmd = append(cmd, fmt.Sprintf("%s=%s", HostFlag, o.Host))
 	}
 
 	if o.Inventory != "" {
-		cmd = append(cmd, InventoryFlag)
-		cmd = append(cmd, o.Inventory)
+		cmd = append(cmd, fmt.Sprintf("%s=%s", InventoryFlag, o.Inventory))
 	}
 
 	if o.Limit != "" {
-		cmd = append(cmd, LimitFlag)
-		cmd = append(cmd, o.Limit)
+		cmd = append(cmd, fmt.Sprintf("%s=%s", LimitFlag, o.Limit))
 	}
 
 	if o.List {
@@ -267,13 +264,11 @@ func (o *AnsibleInventoryOptions) GenerateCommandOptions() ([]string, error) {
 	}
 
 	if o.Output != "" {
-		cmd = append(cmd, OutputFlag)
-		cmd = append(cmd, o.Output)
+		cmd = append(cmd, fmt.Sprintf("%s=%s", OutputFlag, o.Output))
 	}
 
 	if o.PlaybookDir != "" {
-		cmd = append(cmd, PlaybookDirFlag)
-		cmd = append(cmd, o.PlaybookDir)
+		cmd = append(cmd, fmt.Sprintf("%s=%s", PlaybookDirFlag, o.PlaybookDir))
 	}
 
 	if o.Toml {
@@ -285,13 +280,11 @@ func (o *AnsibleInventoryOptions) GenerateCommandOptions() ([]string, error) {
 	}
 
 	if o.VaultID != "" {
-		cmd = append(cmd, VaultIdFlag)
-		cmd = append(cmd, o.VaultID)
+		cmd = append(cmd, fmt.Sprintf("%s=%s", VaultIdFlag, o.VaultID))
 	}
 
 	if o.VaultPasswordFile != "" {
-		cmd = append(cmd, VaultPasswordFileFlag)
-		cmd = append(cmd, o.VaultPasswordFile)
+		cmd = append(cmd, fmt.Sprintf("%s=%s", VaultPasswordFileFlag, o.VaultPasswordFile))
 	}
 
 	if o.Version {
@@ -358,15 +351,15 @@ func (o *AnsibleInventoryOptions) String() string {
 	}
 
 	if o.Host != "" {
-		str = fmt.Sprintf("%s %s %s", str, HostFlag, o.Host)
+		str = fmt.Sprintf("%s %s=%s", str, HostFlag, o.Host)
 	}
 
 	if o.Inventory != "" {
-		str = fmt.Sprintf("%s %s %s", str, InventoryFlag, o.Inventory)
+		str = fmt.Sprintf("%s %s=%s", str, InventoryFlag, o.Inventory)
 	}
 
 	if o.Limit != "" {
-		str = fmt.Sprintf("%s %s %s", str, LimitFlag, o.Limit)
+		str = fmt.Sprintf("%s %s=%s", str, LimitFlag, o.Limit)
 	}
 
 	if o.List {
@@ -374,11 +367,11 @@ func (o *AnsibleInventoryOptions) String() string {
 	}
 
 	if o.Output != "" {
-		str = fmt.Sprintf("%s %s %s", str, OutputFlag, o.Output)
+		str = fmt.Sprintf("%s %s=%s", str, OutputFlag, o.Output)
 	}
 
 	if o.PlaybookDir != "" {
-		str = fmt.Sprintf("%s %s %s", str, PlaybookDirFlag, o.PlaybookDir)
+		str = fmt.Sprintf("%s %s=%s", str, PlaybookDirFlag, o.PlaybookDir)
 	}
 
 	if o.Toml {
@@ -390,11 +383,11 @@ func (o *AnsibleInventoryOptions) String() string {
 	}
 
 	if o.VaultID != "" {
-		str = fmt.Sprintf("%s %s %s", str, VaultIdFlag, o.VaultID)
+		str = fmt.Sprintf("%s %s=%s", str, VaultIdFlag, o.VaultID)
 	}
 
 	if o.VaultPasswordFile != "" {
-		str = fmt.Sprintf("%s %s %s", str, VaultPasswordFileFlag, o.VaultPasswordFile)
+		str = fmt.Sprintf("%s %s=%s", str, VaultPasswordFileFlag, o.VaultPasswordFile)
 	}
 
 	if o.Verbose {
