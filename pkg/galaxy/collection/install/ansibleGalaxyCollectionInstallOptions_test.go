@@ -1,6 +1,7 @@
 package galaxycollectioninstall
 
 import (
+	"fmt"
 	"testing"
 
 	errors "github.com/apenella/go-common-utils/error"
@@ -59,28 +60,28 @@ func TestAnsibleGalaxyCollectionInstallOptionsGenerateCommandOptions(t *testing.
 			},
 			err: nil,
 			expect: []string{
-				APIKeyFlag, "apikey",
+				fmt.Sprintf("%s=%s", APIKeyFlag, "apikey"),
 				ClearResponseCacheFlag,
 				DisableGPGVerifyFlag,
 				ForceWithDepsFlag,
 				IgnoreSignatureStatusCodeFlag,
-				IgnoreSignatureStatusCodesFlag, "ignore_codes",
-				KeyringFlag, "keyring",
+				fmt.Sprintf("%s=%s", IgnoreSignatureStatusCodesFlag, "ignore_codes"),
+				fmt.Sprintf("%s=%s", KeyringFlag, "keyring"),
 				NoCacheFlag,
 				OfflineFlag,
 				PreFlag,
-				RequiredValidSignatureCountFlag, "1",
-				SignatureFlag, "signature",
-				TimeoutFlag, "10",
-				TokenFlag, "token",
+				fmt.Sprintf("%s=%s", RequiredValidSignatureCountFlag, "1"),
+				fmt.Sprintf("%s=%s", SignatureFlag, "signature"),
+				fmt.Sprintf("%s=%s", TimeoutFlag, "10"),
+				fmt.Sprintf("%s=%s", TokenFlag, "token"),
 				UpgradeFlag,
 				IgnoreCertsFlag,
 				ForceFlag,
 				IgnoreErrorsFlag,
 				NoDepsFlag,
-				CollectionsPathFlag, "path",
-				RequirementsFileFlag, "requirements",
-				ServerFlag, "server",
+				fmt.Sprintf("%s=%s", CollectionsPathFlag, "path"),
+				fmt.Sprintf("%s=%s", RequirementsFileFlag, "requirements"),
+				fmt.Sprintf("%s=%s", ServerFlag, "server"),
 				VerboseFlag,
 				VersionFlag,
 			},
@@ -142,7 +143,7 @@ func TestAnsibleGalaxyCollectionInstallOptionsString(t *testing.T) {
 				Verbose:                     true,
 				Version:                     true,
 			},
-			expect: "--api-key apikey --clear-response-cache --disable-gpg-verify --force-with-deps --ignore-signature-status-code --ignore-signature-status-codes ignore_codes --keyring keyring --no-cache --offline --pre --required-valid-signature-count 1 --signature signature --timeout 10 --token token --upgrade --ignore-certs --force --ignore-errors --no-deps --collections-path path --requirements-file requirements --server server --verbose --version",
+			expect: "--api-key=apikey --clear-response-cache --disable-gpg-verify --force-with-deps --ignore-signature-status-code --ignore-signature-status-codes=ignore_codes --keyring=keyring --no-cache --offline --pre --required-valid-signature-count=1 --signature=signature --timeout=10 --token=token --upgrade --ignore-certs --force --ignore-errors --no-deps --collections-path=path --requirements-file=requirements --server=server --verbose --version",
 		},
 	}
 
