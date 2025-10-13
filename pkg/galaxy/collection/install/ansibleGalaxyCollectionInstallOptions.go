@@ -2,7 +2,6 @@ package galaxycollectioninstall
 
 import (
 	"fmt"
-	"strconv"
 	"strings"
 
 	errors "github.com/apenella/go-common-utils/error"
@@ -167,7 +166,7 @@ func (o *AnsibleGalaxyCollectionInstallOptions) GenerateCommandOptions() ([]stri
 	}
 
 	if o.APIKey != "" {
-		options = append(options, APIKeyFlag, o.APIKey)
+		options = append(options, fmt.Sprintf("%s=%s", APIKeyFlag, o.APIKey))
 	}
 
 	if o.ClearResponseCache {
@@ -187,11 +186,11 @@ func (o *AnsibleGalaxyCollectionInstallOptions) GenerateCommandOptions() ([]stri
 	}
 
 	if o.IgnoreSignatureStatusCodes != "" {
-		options = append(options, IgnoreSignatureStatusCodesFlag, o.IgnoreSignatureStatusCodes)
+		options = append(options, fmt.Sprintf("%s=%s", IgnoreSignatureStatusCodesFlag, o.IgnoreSignatureStatusCodes))
 	}
 
 	if o.Keyring != "" {
-		options = append(options, KeyringFlag, o.Keyring)
+		options = append(options, fmt.Sprintf("%s=%s", KeyringFlag, o.Keyring))
 	}
 
 	if o.NoCache {
@@ -207,19 +206,19 @@ func (o *AnsibleGalaxyCollectionInstallOptions) GenerateCommandOptions() ([]stri
 	}
 
 	if o.RequiredValidSignatureCount > 0 {
-		options = append(options, RequiredValidSignatureCountFlag, strconv.Itoa(o.RequiredValidSignatureCount))
+		options = append(options, fmt.Sprintf("%s=%d", RequiredValidSignatureCountFlag, o.RequiredValidSignatureCount))
 	}
 
 	if o.Signature != "" {
-		options = append(options, SignatureFlag, o.Signature)
+		options = append(options, fmt.Sprintf("%s=%s", SignatureFlag, o.Signature))
 	}
 
 	if o.Timeout != "" {
-		options = append(options, TimeoutFlag, o.Timeout)
+		options = append(options, fmt.Sprintf("%s=%s", TimeoutFlag, o.Timeout))
 	}
 
 	if o.Token != "" {
-		options = append(options, TokenFlag, o.Token)
+		options = append(options, fmt.Sprintf("%s=%s", TokenFlag, o.Token))
 	}
 
 	if o.Upgrade {
@@ -243,15 +242,15 @@ func (o *AnsibleGalaxyCollectionInstallOptions) GenerateCommandOptions() ([]stri
 	}
 
 	if o.CollectionsPath != "" {
-		options = append(options, CollectionsPathFlag, o.CollectionsPath)
+		options = append(options, fmt.Sprintf("%s=%s", CollectionsPathFlag, o.CollectionsPath))
 	}
 
 	if o.RequirementsFile != "" {
-		options = append(options, RequirementsFileFlag, o.RequirementsFile)
+		options = append(options, fmt.Sprintf("%s=%s", RequirementsFileFlag, o.RequirementsFile))
 	}
 
 	if o.Server != "" {
-		options = append(options, ServerFlag, o.Server)
+		options = append(options, fmt.Sprintf("%s=%s", ServerFlag, o.Server))
 	}
 
 	if o.Verbose {
@@ -270,7 +269,7 @@ func (o *AnsibleGalaxyCollectionInstallOptions) String() string {
 	str := ""
 
 	if o.APIKey != "" {
-		str = fmt.Sprintf("%s %s %s", str, APIKeyFlag, o.APIKey)
+		str = fmt.Sprintf("%s %s=%s", str, APIKeyFlag, o.APIKey)
 	}
 
 	if o.ClearResponseCache {
@@ -290,11 +289,11 @@ func (o *AnsibleGalaxyCollectionInstallOptions) String() string {
 	}
 
 	if o.IgnoreSignatureStatusCodes != "" {
-		str = fmt.Sprintf("%s %s %s", str, IgnoreSignatureStatusCodesFlag, o.IgnoreSignatureStatusCodes)
+		str = fmt.Sprintf("%s %s=%s", str, IgnoreSignatureStatusCodesFlag, o.IgnoreSignatureStatusCodes)
 	}
 
 	if o.Keyring != "" {
-		str = fmt.Sprintf("%s %s %s", str, KeyringFlag, o.Keyring)
+		str = fmt.Sprintf("%s %s=%s", str, KeyringFlag, o.Keyring)
 	}
 
 	if o.NoCache {
@@ -310,19 +309,19 @@ func (o *AnsibleGalaxyCollectionInstallOptions) String() string {
 	}
 
 	if o.RequiredValidSignatureCount > 0 {
-		str = fmt.Sprintf("%s %s %d", str, RequiredValidSignatureCountFlag, o.RequiredValidSignatureCount)
+		str = fmt.Sprintf("%s %s=%d", str, RequiredValidSignatureCountFlag, o.RequiredValidSignatureCount)
 	}
 
 	if o.Signature != "" {
-		str = fmt.Sprintf("%s %s %s", str, SignatureFlag, o.Signature)
+		str = fmt.Sprintf("%s %s=%s", str, SignatureFlag, o.Signature)
 	}
 
 	if o.Timeout != "" {
-		str = fmt.Sprintf("%s %s %s", str, TimeoutFlag, o.Timeout)
+		str = fmt.Sprintf("%s %s=%s", str, TimeoutFlag, o.Timeout)
 	}
 
 	if o.Token != "" {
-		str = fmt.Sprintf("%s %s %s", str, TokenFlag, o.Token)
+		str = fmt.Sprintf("%s %s=%s", str, TokenFlag, o.Token)
 	}
 
 	if o.Upgrade {
@@ -346,15 +345,15 @@ func (o *AnsibleGalaxyCollectionInstallOptions) String() string {
 	}
 
 	if o.CollectionsPath != "" {
-		str = fmt.Sprintf("%s %s %s", str, CollectionsPathFlag, o.CollectionsPath)
+		str = fmt.Sprintf("%s %s=%s", str, CollectionsPathFlag, o.CollectionsPath)
 	}
 
 	if o.RequirementsFile != "" {
-		str = fmt.Sprintf("%s %s %s", str, RequirementsFileFlag, o.RequirementsFile)
+		str = fmt.Sprintf("%s %s=%s", str, RequirementsFileFlag, o.RequirementsFile)
 	}
 
 	if o.Server != "" {
-		str = fmt.Sprintf("%s %s %s", str, ServerFlag, o.Server)
+		str = fmt.Sprintf("%s %s=%s", str, ServerFlag, o.Server)
 	}
 
 	if o.Verbose {
