@@ -132,7 +132,7 @@ func (o *AnsibleGalaxyRoleInstallOptions) GenerateCommandOptions() ([]string, er
 	}
 
 	if o.ApiKey != "" {
-		options = append(options, APIKeyFlag, o.ApiKey)
+		options = append(options, fmt.Sprintf("%s=%s", APIKeyFlag, o.ApiKey))
 	}
 
 	if o.Force {
@@ -160,23 +160,23 @@ func (o *AnsibleGalaxyRoleInstallOptions) GenerateCommandOptions() ([]string, er
 	}
 
 	if o.RoleFile != "" {
-		options = append(options, RoleFileFlag, o.RoleFile)
+		options = append(options, fmt.Sprintf("%s=%s", RoleFileFlag, o.RoleFile))
 	}
 
 	if o.RolesPath != "" {
-		options = append(options, RolesPathFlag, o.RolesPath)
+		options = append(options, fmt.Sprintf("%s=%s", RolesPathFlag, o.RolesPath))
 	}
 
 	if o.Server != "" {
-		options = append(options, ServerFlag, o.Server)
+		options = append(options, fmt.Sprintf("%s=%s", ServerFlag, o.Server))
 	}
 
 	if o.Timeout != "" {
-		options = append(options, TimeoutFlag, o.Timeout)
+		options = append(options, fmt.Sprintf("%s=%s", TimeoutFlag, o.Timeout))
 	}
 
 	if o.Token != "" {
-		options = append(options, TokenFlag, o.Token)
+		options = append(options, fmt.Sprintf("%s=%s", TokenFlag, o.Token))
 	}
 
 	verboseFlag, err := o.generateVerbosityFlag()
@@ -225,7 +225,7 @@ func (o *AnsibleGalaxyRoleInstallOptions) String() string {
 	str := ""
 
 	if o.ApiKey != "" {
-		str = fmt.Sprintf("%s %s %s", str, APIKeyFlag, o.ApiKey)
+		str = fmt.Sprintf("%s %s=%s", str, APIKeyFlag, o.ApiKey)
 	}
 
 	if o.Force {
@@ -253,23 +253,23 @@ func (o *AnsibleGalaxyRoleInstallOptions) String() string {
 	}
 
 	if o.RoleFile != "" {
-		str = fmt.Sprintf("%s %s %s", str, RoleFileFlag, o.RoleFile)
+		str = fmt.Sprintf("%s %s=%s", str, RoleFileFlag, o.RoleFile)
 	}
 
 	if o.RolesPath != "" {
-		str = fmt.Sprintf("%s %s %s", str, RolesPathFlag, o.RolesPath)
+		str = fmt.Sprintf("%s %s=%s", str, RolesPathFlag, o.RolesPath)
 	}
 
 	if o.Server != "" {
-		str = fmt.Sprintf("%s %s %s", str, ServerFlag, o.Server)
+		str = fmt.Sprintf("%s %s=%s", str, ServerFlag, o.Server)
 	}
 
 	if o.Timeout != "" {
-		str = fmt.Sprintf("%s %s %s", str, TimeoutFlag, o.Timeout)
+		str = fmt.Sprintf("%s %s=%s", str, TimeoutFlag, o.Timeout)
 	}
 
 	if o.Token != "" {
-		str = fmt.Sprintf("%s %s %s", str, TokenFlag, o.Token)
+		str = fmt.Sprintf("%s %s=%s", str, TokenFlag, o.Token)
 	}
 
 	if o.Verbose {
