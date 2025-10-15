@@ -1,6 +1,7 @@
 package galaxyroleinstall
 
 import (
+	"fmt"
 	"testing"
 
 	errors "github.com/apenella/go-common-utils/error"
@@ -53,18 +54,18 @@ func TestAnsibleGalaxyRoleInstallOptionsGenerateCommandOptions(t *testing.T) {
 			},
 			err: nil,
 			expect: []string{
-				APIKeyFlag, "apikey",
+				fmt.Sprintf("%s=%s", APIKeyFlag, "apikey"),
 				ForceFlag,
 				ForceWithDepsFlag,
 				IgnoreCertsFlag,
 				IgnoreErrorsFlag,
 				KeepSCMMetaFlag,
 				NoDepsFlag,
-				RoleFileFlag, "rolefile",
-				RolesPathFlag, "rolespath",
-				ServerFlag, "server",
-				TimeoutFlag, "timeout",
-				TokenFlag, "token",
+				fmt.Sprintf("%s=%s", RoleFileFlag, "rolefile"),
+				fmt.Sprintf("%s=%s", RolesPathFlag, "rolespath"),
+				fmt.Sprintf("%s=%s", ServerFlag, "server"),
+				fmt.Sprintf("%s=%s", TimeoutFlag, "timeout"),
+				fmt.Sprintf("%s=%s", TokenFlag, "token"),
 				VerboseVVVVFlag,
 				VersionFlag,
 			},
@@ -192,7 +193,7 @@ func TestAnsibleGalaxyRoleInstallOptionsString(t *testing.T) {
 				VerboseVVVV:   true,
 				Version:       true,
 			},
-			expect: " --api-key apikey --force --force-with-deps --ignore-certs --ignore-errors --keep-scm-meta --no-deps --role-file rolefile --roles-path rolespath --server server --timeout timeout --token token -vvvv -v -vv -vvv -vvvv --version",
+			expect: " --api-key=apikey --force --force-with-deps --ignore-certs --ignore-errors --keep-scm-meta --no-deps --role-file=rolefile --roles-path=rolespath --server=server --timeout=timeout --token=token -vvvv -v -vv -vvv -vvvv --version",
 		},
 	}
 

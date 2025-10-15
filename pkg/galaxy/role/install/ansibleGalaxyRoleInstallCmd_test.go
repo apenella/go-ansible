@@ -1,6 +1,7 @@
 package galaxyroleinstall
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/apenella/go-ansible/v2/pkg/galaxy"
@@ -67,18 +68,18 @@ func TestAnsibleGalaxyRoleInstallCmdCommand(t *testing.T) {
 				galaxy.DefaultAnsibleGalaxyBinary,
 				galaxyrole.AnsibleGalaxyRoleSubCommand,
 				AnsibleGalaxyRoleInstallSubCommand,
-				APIKeyFlag, "apikey",
+				fmt.Sprintf("%s=%s", APIKeyFlag, "apikey"),
 				ForceFlag,
 				ForceWithDepsFlag,
 				IgnoreCertsFlag,
 				IgnoreErrorsFlag,
 				KeepSCMMetaFlag,
 				NoDepsFlag,
-				RoleFileFlag, "rolefile",
-				RolesPathFlag, "rolespath",
-				ServerFlag, "server",
-				TimeoutFlag, "timeout",
-				TokenFlag, "token",
+				fmt.Sprintf("%s=%s", RoleFileFlag, "rolefile"),
+				fmt.Sprintf("%s=%s", RolesPathFlag, "rolespath"),
+				fmt.Sprintf("%s=%s", ServerFlag, "server"),
+				fmt.Sprintf("%s=%s", TimeoutFlag, "timeout"),
+				fmt.Sprintf("%s=%s", TokenFlag, "token"),
 				VerboseVVVVFlag,
 				VersionFlag,
 				"role-name",
@@ -115,18 +116,18 @@ func TestAnsibleGalaxyRoleInstallCmdCommand(t *testing.T) {
 				"ansible-galaxy-binary",
 				galaxyrole.AnsibleGalaxyRoleSubCommand,
 				AnsibleGalaxyRoleInstallSubCommand,
-				APIKeyFlag, "apikey",
+				fmt.Sprintf("%s=%s", APIKeyFlag, "apikey"),
 				ForceFlag,
 				ForceWithDepsFlag,
 				IgnoreCertsFlag,
 				IgnoreErrorsFlag,
 				KeepSCMMetaFlag,
 				NoDepsFlag,
-				RoleFileFlag, "rolefile",
-				RolesPathFlag, "rolespath",
-				ServerFlag, "server",
-				TimeoutFlag, "timeout",
-				TokenFlag, "token",
+				fmt.Sprintf("%s=%s", RoleFileFlag, "rolefile"),
+				fmt.Sprintf("%s=%s", RolesPathFlag, "rolespath"),
+				fmt.Sprintf("%s=%s", ServerFlag, "server"),
+				fmt.Sprintf("%s=%s", TimeoutFlag, "timeout"),
+				fmt.Sprintf("%s=%s", TokenFlag, "token"),
 				VerboseVVVVFlag,
 				VersionFlag,
 				"role-name",
@@ -181,7 +182,7 @@ func TestAnsibleGalaxyRoleInstallCmdString(t *testing.T) {
 					Version:       true,
 				}),
 			),
-			command: "ansible-galaxy role install  --api-key apikey --force --force-with-deps --ignore-certs --ignore-errors --keep-scm-meta --no-deps --role-file rolefile --roles-path rolespath --server server --timeout timeout --token token -vvvv -v -vv -vvv -vvvv --version role-name",
+			command: "ansible-galaxy role install  --api-key=apikey --force --force-with-deps --ignore-certs --ignore-errors --keep-scm-meta --no-deps --role-file=rolefile --roles-path=rolespath --server=server --timeout=timeout --token=token -vvvv -v -vv -vvv -vvvv --version role-name",
 		},
 		{
 			desc: "Testing generate a command for AnsibleGalaxyRoleInstallCmd with all flags",
@@ -209,7 +210,7 @@ func TestAnsibleGalaxyRoleInstallCmdString(t *testing.T) {
 					Version:       true,
 				}),
 			),
-			command: "ansible-galaxy-binary role install  --api-key apikey --force --force-with-deps --ignore-certs --ignore-errors --keep-scm-meta --no-deps --role-file rolefile --roles-path rolespath --server server --timeout timeout --token token -vvvv -v -vv -vvv -vvvv --version role-name",
+			command: "ansible-galaxy-binary role install  --api-key=apikey --force --force-with-deps --ignore-certs --ignore-errors --keep-scm-meta --no-deps --role-file=rolefile --roles-path=rolespath --server=server --timeout=timeout --token=token -vvvv -v -vv -vvv -vvvv --version role-name",
 		},
 	}
 
