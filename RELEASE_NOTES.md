@@ -1,7 +1,8 @@
 # Release notes
 
-## [undefined] (yyyy-mm-dd)
+## [2.3.0] (2025-10-31)
 
-## Changed
+### Changed
 
-- Bump golang.org/x/net from 0.36.0 to 0.38.0
+- Use the GNU convention arg=value to create arguments. This fixes an issue detected generating SSH extra arguments.
+- Update dependencies
