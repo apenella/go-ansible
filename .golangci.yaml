@@ -1,0 +1,13 @@
+version: "2"
+
+run:
+  timeout: 5m
+  tests: true
+  allow-parallel-runners: true
+  go: '1.24'
+
+linters:
+  exclusions:
+    paths:
+      - examples
+      - mocks

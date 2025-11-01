@@ -44,7 +44,7 @@ func (e *WorkflowExecute) WithTrace() *WorkflowExecute {
 
 // Execute runs the executors
 func (e *WorkflowExecute) Execute(ctx context.Context) error {
-	var errList []error = make([]error, 0)
+	errList := make([]error, 0)
 
 	for executionNum, executor := range e.ExecutorList {
 
