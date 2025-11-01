@@ -60,12 +60,12 @@ func TestRead(t *testing.T) {
 		{
 			desc:   "Testing error resolving the password reader when ReadPasswordResolve is not initialized",
 			reader: nil,
-			err:    errors.New("The component to resolve read password mechanism has not been initialized."),
+			err:    errors.New("the component to resolve read password mechanism has not been initialized"),
 		},
 		{
 			desc:   "Testing error resolve the password reader when no reader is found",
 			reader: NewReadPasswordResolve(),
-			err:    errors.New("The component to resolve read password does not found a password."),
+			err:    errors.New("the component to resolve read password does not found a password"),
 		},
 	}
 

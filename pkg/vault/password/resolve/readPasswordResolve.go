@@ -41,7 +41,7 @@ func (s *ReadPasswordResolve) Options(opts ...OptionsFunc) {
 // Read looks for the first reader defined into the reader attribute which returns a password
 func (s *ReadPasswordResolve) Read() (string, error) {
 	if s == nil {
-		return "", errors.New("The component to resolve read password mechanism has not been initialized.")
+		return "", errors.New("the component to resolve read password mechanism has not been initialized")
 	}
 
 	for _, reader := range s.reader {
@@ -51,5 +51,5 @@ func (s *ReadPasswordResolve) Read() (string, error) {
 		}
 	}
 
-	return "", errors.New("The component to resolve read password does not found a password.")
+	return "", errors.New("the component to resolve read password does not found a password")
 }

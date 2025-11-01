@@ -25,12 +25,12 @@ func TestRead(t *testing.T) {
 		{
 			desc:   "Testing error reading a password from text when text is an empty string",
 			reader: NewReadPasswordFromText(),
-			err:    errors.New("Text must be specified to use the password input from text."),
+			err:    errors.New("text must be specified to use the password input from text"),
 		},
 		{
 			desc:   "Testing error reading a password from text when ReadPasswordFromText has not been initialized",
 			reader: nil,
-			err:    errors.New("Password input from text has not been initialized."),
+			err:    errors.New("password input from text has not been initialized"),
 		},
 	}
 

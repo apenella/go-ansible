@@ -37,11 +37,11 @@ func (s *ReadPasswordFromText) Options(opts ...OptionsFunc) {
 // Read returns a password save the text attribute from the ReadPasswordFromText struct
 func (s *ReadPasswordFromText) Read() (string, error) {
 	if s == nil {
-		return "", errors.New("Password input from text has not been initialized.")
+		return "", errors.New("password input from text has not been initialized")
 	}
 
 	if len(s.text) <= 0 {
-		return "", errors.New("Text must be specified to use the password input from text.")
+		return "", errors.New("text must be specified to use the password input from text")
 	}
 
 	return s.text, nil
