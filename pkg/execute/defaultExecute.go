@@ -254,7 +254,7 @@ func (e *DefaultExecute) Execute(ctx context.Context) (err error) {
 
 		// when using the default results func DefaultStdoutCallbackResults,
 		// reads from ansible's stdout and writes to main process' stdout
-		e.Output.Print(ctx, cmdStdout, e.Write)
+		_ = e.Output.Print(ctx, cmdStdout, e.Write)
 
 		wg.Done()
 		execErrChan <- err
@@ -263,7 +263,7 @@ func (e *DefaultExecute) Execute(ctx context.Context) (err error) {
 	// stderr management
 	go func() {
 		// show stderr messages using default stdout callback results
-		e.Output.Print(ctx, cmdStderr, e.WriterError)
+		_ = e.Output.Print(ctx, cmdStderr, e.WriterError)
 		wg.Done()
 	}()
 
@@ -277,7 +277,7 @@ func (e *DefaultExecute) Execute(ctx context.Context) (err error) {
 	if err != nil {
 
 		if ctx.Err() != nil {
-			fmt.Fprintf(e.Write, "%s\n", fmt.Sprintf("\nWhoops! %s\n", ctx.Err()))
+			_, _ = fmt.Fprintf(e.Write, "%s\n", fmt.Sprintf("\nWhoops! %s\n", ctx.Err()))
 		} else {
 
 			if e.ErrorEnrich != nil {
