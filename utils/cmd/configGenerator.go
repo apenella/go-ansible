@@ -32,7 +32,11 @@ func LoadConfigs(url string) []*config {
 	if err != nil {
 		log.Fatalln(err)
 	}
-	defer resp.Body.Close()
+
+	defer func() {
+		err := resp.Body.Close()
+		log.Fatal(err)
+	}()
 
 	doc, err := goquery.NewDocumentFromReader(resp.Body)
 	if err != nil {

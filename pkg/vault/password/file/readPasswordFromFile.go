@@ -47,9 +47,7 @@ func (s *ReadPasswordFromFile) Options(opts ...OptionsFunc) {
 }
 
 // Read returns a password from a file. It return an error when the file does not exist or the content of the file can not be read.
-func (s *ReadPasswordFromFile) Read() (string, error) {
-	var password string
-	var err error
+func (s *ReadPasswordFromFile) Read() (password string, err error) {
 	var passwordFile afero.File
 
 	if s == nil {
@@ -73,7 +71,13 @@ func (s *ReadPasswordFromFile) Read() (string, error) {
 	if err != nil {
 		return "", errors.Wrap(err, fmt.Sprintf("Error opening the file '%s'.", s.file))
 	}
-	defer passwordFile.Close()
+
+	defer func() {
+		cerr := passwordFile.Close()
+		if cerr != nil {
+			err = errors.Wrap(cerr, "error closing password file")
+		}
+	}()
 
 	scanner := bufio.NewScanner(passwordFile)
 
