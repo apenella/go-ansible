@@ -10,6 +10,7 @@ import (
 	"github.com/apenella/go-ansible/v2/pkg/execute/result"
 	"github.com/apenella/go-ansible/v2/pkg/execute/result/transformer"
 	errors "github.com/apenella/go-common-utils/error"
+	"golang.org/x/sync/errgroup"
 )
 
 const (
@@ -69,11 +70,8 @@ func (r *DefaultResults) Print(ctx context.Context, reader io.Reader, writer io.
 
 // output processes the output data with the transformers coming from the execution an writes it to the input writer
 func output(ctx context.Context, r io.Reader, w io.Writer, trans ...transformer.TransformerFunc) error {
-	printChan := make(chan string)
-	errChan := make(chan error)
-	done := make(chan struct{})
-
 	errContext := "(DefaultResults::output)"
+	goroutine, ctx := errgroup.WithContext(ctx)
 
 	if r == nil {
 		return errors.New(errContext, "Reader is not defined")
@@ -87,46 +85,59 @@ func output(ctx context.Context, r io.Reader, w io.Writer, trans ...transformer.
 		trans = []transformer.TransformerFunc{}
 	}
 
-	go func() {
-		defer close(done)
-		defer close(errChan)
-		defer close(printChan)
+	// buffered channel to decouple reader/writer
+	dataChan := make(chan string, 10)
+	goroutine.Go(func() error {
+
+		defer close(dataChan)
 
 		reader := bufio.NewReader(r)
 		for {
 			line, err := readLine(reader)
 			if err != nil {
-				if err != io.EOF {
-					errChan <- err
+				if err == io.EOF {
+					return nil
 				}
-
-				break
+				return errors.New(errContext, "error reading line", err)
 			}
 
+			// Apply transformers
 			for _, t := range trans {
 				line = t(line)
 			}
 
-			printChan <- line
-		}
-		done <- struct{}{}
-	}()
-
-	for {
-		select {
-		case line := <-printChan:
-			_, err := fmt.Fprintln(w, line)
-			if err != nil {
-				return err
+			select {
+			case dataChan <- line:
+			case <-ctx.Done():
+				return ctx.Err()
 			}
-		case err := <-errChan:
-			return err
-		case <-done:
-			return nil
-		case <-ctx.Done():
-			return nil
 		}
+	})
+
+	goroutine.Go(func() error {
+		for {
+			select {
+			case <-ctx.Done():
+				return ctx.Err()
+			case line, ok := <-dataChan:
+				if !ok {
+					// channel closed => finished
+					return nil
+				}
+				if _, err := fmt.Fprintln(w, line); err != nil {
+					return errors.New(errContext, "error writing the received data", err)
+				}
+			}
+		}
+	})
+
+	// wait for both goroutines to complete or fail. The expected behaviour is that when there are no more lines to read, the first goroutine finishes, and the errgroup cancels the second goroutine, which handles the writing operations.
+	err := goroutine.Wait()
+	if err != nil {
+		return errors.New(errContext, "error processing output", err)
 	}
+
+	return nil
 }
 
 func readLine(r *bufio.Reader) (string, error) {
@@ -137,7 +148,7 @@ func readLine(r *bufio.Reader) (string, error) {
 			return "", err
 		}
 
-		// Avoid the copy if the first call produced a full line.
+		// avoid the copy if the first call produced a full line.
 		if line == nil && !more {
 			return string(l), nil
 		}

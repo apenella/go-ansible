@@ -150,10 +150,14 @@ func TestOutput(t *testing.T) {
 					reader.(*mocks.MockIOReader).On(
 						"Read",
 						mock.Anything,
-					).Return(0, errors.New(errContext, "error while reading"))
+					).Return(0, errors.New(errContext, "test error"))
 				}
 			},
-			err: errors.New(errContext, "error while reading"),
+			err: errors.New(errContext, "error processing output",
+				errors.New(errContext, "error reading line",
+					errors.New(errContext, "test error"),
+				),
+			),
 		},
 		{
 			desc:   "Testing error writing output message",
@@ -165,10 +169,14 @@ func TestOutput(t *testing.T) {
 					writer.(*mocks.MockIOWriter).On(
 						"Write",
 						mock.Anything,
-					).Return(0, errors.New(errContext, "error while writing"))
+					).Return(0, errors.New(errContext, "test error"))
 				}
 			},
-			err: errors.New(errContext, "error while writing"),
+			err: errors.New(errContext, "error processing output",
+				errors.New(errContext, "error writing the received data",
+					errors.New(errContext, "test error"),
+				),
+			),
 		},
 	}
 

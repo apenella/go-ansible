@@ -7,13 +7,13 @@ import (
 	"os"
 	osexec "os/exec"
 	"strings"
-	"sync"
 
 	"github.com/apenella/go-ansible/v2/pkg/execute/exec"
 	"github.com/apenella/go-ansible/v2/pkg/execute/result"
 	defaultresults "github.com/apenella/go-ansible/v2/pkg/execute/result/default"
 	"github.com/apenella/go-ansible/v2/pkg/execute/result/transformer"
 	errors "github.com/apenella/go-common-utils/error"
+	"golang.org/x/sync/errgroup"
 )
 
 const (
@@ -160,13 +160,9 @@ func (e *DefaultExecute) Execute(ctx context.Context) (err error) {
 
 	var errCmd error
 	var cmdStderr, cmdStdout io.ReadCloser
-	var wg sync.WaitGroup
-
 	errContext := "(execute::DefaultExecute::Execute)"
 
 	defer e.checkCompatibility()
-
-	execErrChan := make(chan error)
 
 	// default stdout and stderr for the main process
 	if e.Write == nil {
@@ -245,31 +241,20 @@ func (e *DefaultExecute) Execute(ctx context.Context) (err error) {
 		return errors.New(errContext, "Error starting command", err)
 	}
 
-	// Waig for stdout and stderr
-	wg.Add(2)
+	goroutine, ctx := errgroup.WithContext(ctx)
 
-	// stdout management
-	go func() {
-		defer close(execErrChan)
+	// handling command's stdout
+	goroutine.Go(func() error {
+		return e.Output.Print(ctx, cmdStdout, e.Write)
+	})
+	// handling commmand's stderr
+	goroutine.Go(func() error {
+		return e.Output.Print(ctx, cmdStderr, e.WriterError)
+	})
 
-		// when using the default results func DefaultStdoutCallbackResults,
-		// reads from ansible's stdout and writes to main process' stdout
-		_ = e.Output.Print(ctx, cmdStdout, e.Write)
-
-		wg.Done()
-		execErrChan <- err
-	}()
-
-	// stderr management
-	go func() {
-		// show stderr messages using default stdout callback results
-		_ = e.Output.Print(ctx, cmdStderr, e.WriterError)
-		wg.Done()
-	}()
-
-	wg.Wait()
-
-	if err := <-execErrChan; err != nil {
+	// waiting for the completion or failure of one of the previously initialised goroutines. It does not waits for both routines.
+	err = goroutine.Wait()
+	if err != nil {
 		return errors.New(errContext, "Error managing results output", err)
 	}
 

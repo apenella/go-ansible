@@ -11,6 +11,7 @@ import (
 	"github.com/apenella/go-ansible/v2/pkg/execute/result"
 	"github.com/apenella/go-ansible/v2/pkg/execute/result/transformer"
 	errors "github.com/apenella/go-common-utils/error"
+	"golang.org/x/sync/errgroup"
 )
 
 // JSONLEventStdoutCallbackResults handles the ansible.posix.jsonl callback plugin output
@@ -41,10 +42,9 @@ func (r *JSONLEventStdoutCallbackResults) Options(options ...result.OptionsFunc)
 
 // Print handles the ansible.posix.jsonl callback plugin output
 func (r *JSONLEventStdoutCallbackResults) Print(ctx context.Context, reader io.Reader, writer io.Writer, options ...result.OptionsFunc) error {
-	printChan := make(chan []byte)
-	errChan := make(chan error)
-	done := make(chan struct{})
 
+	goroutine, ctx := errgroup.WithContext(ctx)
+	dataChan := make(chan []byte)
 	errContext := "(result::json::JSONLEventStdoutCallbackResults::Print)"
 
 	if reader == nil {
@@ -57,20 +57,17 @@ func (r *JSONLEventStdoutCallbackResults) Print(ctx context.Context, reader io.R
 
 	r.Options(options...)
 
-	go func() {
-		defer close(printChan)
-		defer close(errChan)
-		defer close(done)
+	goroutine.Go(func() error {
+		defer close(dataChan)
 
 		errs := []error{}
-
 		for data, err := range readResultsStream(reader) {
 			if err != nil {
 				errs = append(errs, err)
 				continue
 			}
 
-			// TransformerFunc expects and returns a string so we need to convert the byte array to a string and back
+			// transformerFunc expects and returns a string so we need to convert the byte array to a string and back
 			if len(r.trans) > 0 {
 				dataString := string(data)
 				for _, t := range r.trans {
@@ -79,33 +76,42 @@ func (r *JSONLEventStdoutCallbackResults) Print(ctx context.Context, reader io.R
 				data = []byte(dataString)
 			}
 
-			printChan <- data
+			// while there is data it is written to the print channel
+			dataChan <- data
 		}
 
 		if len(errs) > 0 {
-			errChan <- errors.New(errContext, "Error processing the execution output", errs...)
+			return errors.New(errContext, "error processing the execution output", errs...)
 		}
 
-		done <- struct{}{}
-	}()
+		return nil
+	})
 
-	for {
-		select {
-		case data := <-printChan:
-			_, err := writer.Write(data)
-			if err != nil {
-				return errors.New(errContext, "Error writing to writer", err)
+	goroutine.Go(func() error {
+		for {
+			select {
+			case data, ok := <-dataChan:
+				if !ok {
+					return nil
+				}
+
+				_, err := writer.Write(data)
+				if err != nil {
+					return errors.New(errContext, "error writing to writer", err)
+				}
+			case <-ctx.Done():
+				return ctx.Err()
 			}
-		case err := <-errChan:
-			if err != nil {
-				return errors.New(errContext, "Error reading the results stream", err)
-			}
-		case <-done:
-			return nil
-		case <-ctx.Done():
-			return nil
 		}
+	})
+
+	// wait for both goroutines to complete or fail. The expected behaviour is that when there are no more lines to read, the first goroutine finishes, and the errgroup cancels the second goroutine, which handles the writing operations.
+	err := goroutine.Wait()
+	if err != nil {
+		return errors.New(errContext, "error handling the results stream", err)
 	}
+
+	return nil
 }
 
 func readResultsStream(reader io.Reader) iter.Seq2[[]byte, error] {
@@ -113,29 +119,16 @@ func readResultsStream(reader io.Reader) iter.Seq2[[]byte, error] {
 		scanner := bufio.NewScanner(reader)
 
 		for scanner.Scan() {
-			line := scanner.Text()
+			event := scanner.Bytes()
 
-			// Validate if the line is a properly formed JSON object
-			var event any
-			err := json.Unmarshal([]byte(line), &event)
-			if err != nil {
-				if !yield(nil, fmt.Errorf("error decoding JSON: %w", err)) {
+			if !json.Valid(event) {
+				if !yield(nil, fmt.Errorf("invalid JSON event")) {
 					return
 				}
 				continue
 			}
 
-			// Convert the JSON object back to a byte array
-			eventByteArray, err := json.Marshal(event)
-			if err != nil {
-				if !yield(nil, fmt.Errorf("error converting event to string: %w", err)) {
-					return
-				}
-				continue
-			}
-
-			// Yield the valid JSON byte array
-			if !yield(eventByteArray, nil) {
+			if !yield(append([]byte(nil), event...), nil) { // copy buffer safely
 				return
 			}
 		}

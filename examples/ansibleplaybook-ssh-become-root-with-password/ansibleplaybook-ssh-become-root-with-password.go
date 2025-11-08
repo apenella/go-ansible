@@ -7,7 +7,6 @@ import (
 
 	"github.com/apenella/go-ansible/v2/pkg/execute"
 	"github.com/apenella/go-ansible/v2/pkg/execute/configuration"
-	"github.com/apenella/go-ansible/v2/pkg/execute/stdoutcallback"
 	"github.com/apenella/go-ansible/v2/pkg/playbook"
 )
 
@@ -37,7 +36,6 @@ func main() {
 			execute.WithErrorEnrich(playbook.NewAnsiblePlaybookErrorEnrich()),
 		),
 		configuration.WithAnsibleForceColor(),
-		configuration.WithAnsibleStdoutCallback(stdoutcallback.YAMLStdoutCallback),
 	)
 
 	fmt.Printf("Executing command: '%s'", cmd.String())
