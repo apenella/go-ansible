@@ -1,9 +1,11 @@
 # Release notes
 
-## [2.3.0] (2025-10-31)
+## [2.4.0] (2025-11-08)
 
 ### Changed
 
-- Use the GNU convention arg=value to create arguments. This fixes an issue detected generating SSH extra arguments.
-- Update dependencies
-- Use Golang 1.24
+- Use [errgroup](https://pkg.go.dev/golang.org/x/sync/errgroup) to manage the concurrent operations in the defaultExecutor and results structs.
+
+### Fixed
+
+- Fixed a deadlock in the defaultExecutor that occurred while handling the stdout and stderr output messages. #176
