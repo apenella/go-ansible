@@ -202,7 +202,7 @@ By default, the [DefaultExecute](#defaultexecute-struct) uses the [DefaultResult
 To install the release candidate version:
 
 ```sh
-go get github.com/apenella/go-ansible/v2@v2.3.0
+go get github.com/apenella/go-ansible/v2@v2.4.0
 ```
 
 To install the previous stable version:

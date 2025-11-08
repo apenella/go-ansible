@@ -4,6 +4,16 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/), and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.4.0] (2025-11-08)
+
+### Changed
+
+- Use [errgroup](https://pkg.go.dev/golang.org/x/sync/errgroup) to manage the concurrent operations in the defaultExecutor and results structs.
+
+### Fixed
+
+- Fixed a deadlock in the defaultExecutor that occurred while handling the stdout and stderr output messages. #176
+
 ## [2.3.0] (2025-10-31)
 
 ### Changed
