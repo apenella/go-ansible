@@ -58,12 +58,17 @@ func TestJSONLEventStdoutCallbackResults_Print(t *testing.T) {
 			reader:  strings.NewReader(events),
 			results: NewJSONLEventStdoutCallbackResults(),
 			arrangeFunc: func(t *testing.T, w *MockWriter) {
-				w.On("Write", []byte(events)).Return(0, fmt.Errorf("error from writer"))
+				w.On("Write", []byte(events)).Return(0, fmt.Errorf("testing error"))
 			},
 			assertFunc: func(t *testing.T, w *MockWriter) {
 				w.AssertExpectations(t)
 			},
-			err: errors.New("(result::json::JSONLEventStdoutCallbackResults::Print)", "Error writing to writer", fmt.Errorf("error from writer")),
+			err: errors.New("(result::json::JSONLEventStdoutCallbackResults::Print)",
+				"error handling the results stream",
+				errors.New("(result::json::JSONLEventStdoutCallbackResults::Print)", "error writing to writer",
+					fmt.Errorf("testing error"),
+				),
+			),
 		},
 		{
 			desc:    "Testing error in JSONLEventStdoutCallbackResults Print method when received data is not a JSON",
@@ -71,7 +76,7 @@ func TestJSONLEventStdoutCallbackResults_Print(t *testing.T) {
 			writer:  &MockWriter{},
 			reader:  strings.NewReader(invalidEvent),
 			results: NewJSONLEventStdoutCallbackResults(),
-			err:     fmt.Errorf("Error reading the results stream\n\tError processing the execution output\n\terror decoding JSON: unexpected end of JSON input"),
+			err:     fmt.Errorf("error handling the results stream\n\terror processing the execution output\n\tinvalid JSON event"),
 		},
 		{
 			desc:    "Testing error in JSONLEventStdoutCallbackResults Print using a transformer",

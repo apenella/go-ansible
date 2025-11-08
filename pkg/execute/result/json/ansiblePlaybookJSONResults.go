@@ -187,7 +187,7 @@ func JSONParse(data []byte) (*AnsiblePlaybookJSONResults, error) {
 
 	err := json.Unmarshal(data, result)
 	if err != nil {
-		return nil, errors.New("(results::JSONParser)", "Unmarshall error", err)
+		return nil, errors.New("(results::JSONParser)", "unmarshall error", err)
 	}
 
 	return result, nil
@@ -203,7 +203,7 @@ func ParseJSONResultsStream(stream io.Reader) (*AnsiblePlaybookJSONResults, erro
 			break
 		}
 		if err != nil {
-			return nil, errors.New("(results::JSONParser)", "Error decoding results", err)
+			return nil, errors.New("(results::JSONParser)", "error decoding results", err)
 		}
 	}
 

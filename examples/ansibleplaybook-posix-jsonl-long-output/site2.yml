@@ -1,0 +1,16 @@
+---
+
+- hosts: all
+  gather_facts: false
+
+  tasks:
+    - name: ansibleplaybook-posix-jsonl-long-output
+      ansible.builtin.command:
+        cmd: dd if=/dev/zero of=/dev/stdout bs=7K count=1
+      register: output    
+
+    - name: show output ansibleplaybook-posix-jsonl-long-output
+      ansible.builtin.debug:
+        msg: |
+          "INIT{{ output.stdout_lines }}END"
+
