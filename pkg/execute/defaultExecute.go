@@ -247,7 +247,7 @@ func (e *DefaultExecute) Execute(ctx context.Context) (err error) {
 	goroutine.Go(func() error {
 		return e.Output.Print(groupCtx, cmdStdout, e.Write)
 	})
-	// handling commmand's stderr
+	// handling command's stderr
 	goroutine.Go(func() error {
 		return e.Output.Print(groupCtx, cmdStderr, e.WriterError)
 	})
