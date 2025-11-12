@@ -241,15 +241,15 @@ func (e *DefaultExecute) Execute(ctx context.Context) (err error) {
 		return errors.New(errContext, "Error starting command", err)
 	}
 
-	goroutine, ctx := errgroup.WithContext(ctx)
+	goroutine, groupCtx := errgroup.WithContext(ctx)
 
 	// handling command's stdout
 	goroutine.Go(func() error {
-		return e.Output.Print(ctx, cmdStdout, e.Write)
+		return e.Output.Print(groupCtx, cmdStdout, e.Write)
 	})
 	// handling commmand's stderr
 	goroutine.Go(func() error {
-		return e.Output.Print(ctx, cmdStderr, e.WriterError)
+		return e.Output.Print(groupCtx, cmdStderr, e.WriterError)
 	})
 
 	// waiting for the completion or failure of one of the previously initialised goroutines. It does not waits for both routines.
@@ -263,26 +263,26 @@ func (e *DefaultExecute) Execute(ctx context.Context) (err error) {
 
 		if ctx.Err() != nil {
 			_, _ = fmt.Fprintf(e.Write, "%s\n", fmt.Sprintf("\nWhoops! %s\n", ctx.Err()))
-		} else {
-
-			if e.ErrorEnrich != nil {
-				errCmd = e.ErrorEnrich.Enrich(err)
-			} else {
-				errCmd = err
-			}
-
-			errorMessage := fmt.Sprintf(" Command executed: %s\n", e.Cmd.String())
-			if len(e.EnvVars) > 0 {
-				errorMessage = fmt.Sprintf("%s\n Environment variables:\n%s\n", errorMessage, strings.Join(e.EnvVars.Environ(), "\n"))
-			}
-
-			stderrErrorMessage := string(err.(*osexec.ExitError).Stderr)
-			if len(stderrErrorMessage) > 0 {
-				errorMessage = fmt.Sprintf("%s\n'%s'\n", errorMessage, stderrErrorMessage)
-			}
-
-			return errors.New(errContext, fmt.Sprintf("Error during command execution.\n%s", errorMessage), errCmd)
+			return errors.New(errContext, "Command execution canceled", ctx.Err())
 		}
+
+		if e.ErrorEnrich != nil {
+			errCmd = e.ErrorEnrich.Enrich(err)
+		} else {
+			errCmd = err
+		}
+
+		errorMessage := fmt.Sprintf(" Command executed: %s\n", e.Cmd.String())
+		if len(e.EnvVars) > 0 {
+			errorMessage = fmt.Sprintf("%s\n Environment variables:\n%s\n", errorMessage, strings.Join(e.EnvVars.Environ(), "\n"))
+		}
+
+		stderrErrorMessage := string(err.(*osexec.ExitError).Stderr)
+		if len(stderrErrorMessage) > 0 {
+			errorMessage = fmt.Sprintf("%s\n'%s'\n", errorMessage, stderrErrorMessage)
+		}
+
+		return errors.New(errContext, fmt.Sprintf("Error during command execution.\n%s", errorMessage), errCmd)
 	}
 
 	return nil
