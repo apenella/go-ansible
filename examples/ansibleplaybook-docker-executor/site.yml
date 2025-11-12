@@ -1,0 +1,8 @@
+---
+
+- hosts: all
+
+  tasks:
+    - name: ansibleplaybook-docker-executor
+      debug:
+        msg: Your are running 'ansibleplayook-docker-executor' example
