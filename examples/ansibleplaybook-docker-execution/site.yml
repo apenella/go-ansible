@@ -7,9 +7,15 @@
       debug:
         msg: Your are running 'ansibleplayook-docker-executor' example
     
+<<<<<<< HEAD
     - name: Wait for 2 seconds
       pause:
         seconds: 2
+=======
+    - name: Wait for 10 seconds
+      pause:
+        seconds: 10
+>>>>>>> f904139 (create an example to execute Ansible within a container)
 
     - name: ansibleplaybook-docker-executor completed
       debug:

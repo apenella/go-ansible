@@ -1,6 +1,7 @@
 ---
 
 services:
+<<<<<<< HEAD
   runner:
     build: 
       context: ../../
@@ -23,3 +24,17 @@ services:
     init: true
     ## Enable privileged mode to be able to run docker dind
     privileged: true
+=======
+  ansible:
+    build: 
+      context: docker/ansible
+      args:
+        - golang_version=${GOLANG_VERSION}
+    command: ["tail", "-f", "/dev/null"]
+    # command: ["ansible-playbook", "--help"]
+    volumes:
+      - ../..:/code
+    working_dir: /code
+    ## Set the init flag to true lets the process 1 to reap all the zombie processes
+    init: true
+>>>>>>> f904139 (create an example to execute Ansible within a container)
