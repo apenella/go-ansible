@@ -76,7 +76,7 @@ func TestJSONLEventStdoutCallbackResults_Print(t *testing.T) {
 			writer:  &MockWriter{},
 			reader:  strings.NewReader(invalidEvent),
 			results: NewJSONLEventStdoutCallbackResults(),
-			err:     fmt.Errorf("error handling the results stream\n\terror processing the execution output\n\tinvalid JSON event"),
+			err:     fmt.Errorf("error handling the results stream\n error processing the execution output\n invalid JSON event"),
 		},
 		{
 			desc:    "Testing error in JSONLEventStdoutCallbackResults Print using a transformer",

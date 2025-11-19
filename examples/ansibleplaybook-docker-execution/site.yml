@@ -1,0 +1,16 @@
+---
+
+- hosts: all
+
+  tasks:
+    - name: ansibleplaybook-docker-executor
+      debug:
+        msg: Your are running 'ansibleplayook-docker-executor' example
+    
+    - name: Wait for 10 seconds
+      pause:
+        seconds: 10
+
+    - name: ansibleplaybook-docker-executor completed
+      debug:
+        msg: Your 'ansibleplayook-docker-executor' example has been completed
