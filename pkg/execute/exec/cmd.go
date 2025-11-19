@@ -10,6 +10,8 @@ type Cmd struct {
 	cmd *exec.Cmd
 }
 
+var _ = Cmder(&Cmd{})
+
 // NewCmd return a wa
 func NewCmd(cmd *exec.Cmd) *Cmd {
 	return &Cmd{cmd}
