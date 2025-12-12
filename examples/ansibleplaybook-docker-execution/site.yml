@@ -8,6 +8,7 @@
         msg: Your are running 'ansibleplayook-docker-executor' example
     
 <<<<<<< HEAD
+<<<<<<< HEAD
     - name: Wait for 2 seconds
       pause:
         seconds: 2
@@ -16,6 +17,11 @@
       pause:
         seconds: 10
 >>>>>>> f904139 (create an example to execute Ansible within a container)
+=======
+    - name: Wait for 2 seconds
+      pause:
+        seconds: 2
+>>>>>>> a2a1d16 (Add example for executing Ansible playbooks in Docker)
 
     - name: ansibleplaybook-docker-executor completed
       debug:

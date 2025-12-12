@@ -21,6 +21,9 @@ func main() {
 	defer apiClient.Close()
 
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> a2a1d16 (Add example for executing Ansible playbooks in Docker)
 	executable := NewDockerExec(
 		apiClient,
 		WithEnv(
@@ -29,9 +32,12 @@ func main() {
 			},
 		),
 	)
+<<<<<<< HEAD
 =======
 	executable := NewDockerExec(apiClient)
 >>>>>>> f904139 (create an example to execute Ansible within a container)
+=======
+>>>>>>> a2a1d16 (Add example for executing Ansible playbooks in Docker)
 
 	ansiblePlaybookOptions := &playbook.AnsiblePlaybookOptions{
 		Connection: "local",

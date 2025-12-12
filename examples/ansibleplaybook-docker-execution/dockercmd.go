@@ -12,9 +12,13 @@ import (
 	"github.com/apenella/go-docker-builder/pkg/build"
 	contextpath "github.com/apenella/go-docker-builder/pkg/build/context/path"
 <<<<<<< HEAD
+<<<<<<< HEAD
 	"github.com/containerd/containerd/errdefs"
 =======
 >>>>>>> f904139 (create an example to execute Ansible within a container)
+=======
+	"github.com/containerd/containerd/errdefs"
+>>>>>>> a2a1d16 (Add example for executing Ansible playbooks in Docker)
 	"github.com/docker/docker/api/types"
 	"github.com/docker/docker/api/types/container"
 	"github.com/docker/docker/api/types/mount"
@@ -23,6 +27,7 @@ import (
 	"github.com/docker/docker/pkg/stdcopy"
 )
 
+<<<<<<< HEAD
 <<<<<<< HEAD
 // dockerExecOptionsFunc is a function type that modifies dockerExec options
 type dockerExecOptionsFunc func(*DockerExec)
@@ -56,18 +61,43 @@ func (e *DockerExec) Options(opts ...dockerExecOptionsFunc) *DockerExec {
 	}
 	return e
 =======
+=======
+// dockerExecOptionsFunc is a function type that modifies dockerExec options
+type dockerExecOptionsFunc func(*DockerExec)
+
+>>>>>>> a2a1d16 (Add example for executing Ansible playbooks in Docker)
 // DockerExec struct implements the Executable interface
 type DockerExec struct {
 	client *client.Client
+
+	Env []string
 }
 
+// Ensure DockerExec implements the Executabler interface
 var _ = execute.Executabler(&DockerExec{})
 
-func NewDockerExec(client *client.Client) *DockerExec {
-	return &DockerExec{
+// NewDockerExec creates a new DockerExec instance
+func NewDockerExec(client *client.Client, opts ...dockerExecOptionsFunc) *DockerExec {
+	exec := &DockerExec{
 		client: client,
+		Env:    []string{},
 	}
+<<<<<<< HEAD
 >>>>>>> f904139 (create an example to execute Ansible within a container)
+=======
+
+	exec = exec.Options(opts...)
+
+	return exec
+}
+
+// Options applies the given options to the DockerExec instance
+func (e *DockerExec) Options(opts ...dockerExecOptionsFunc) *DockerExec {
+	for _, opt := range opts {
+		opt(e)
+	}
+	return e
+>>>>>>> a2a1d16 (Add example for executing Ansible playbooks in Docker)
 }
 
 // Command is a wrapper of exec.Command
@@ -81,12 +111,17 @@ func (e *DockerExec) CommandContext(ctx context.Context, name string, arg ...str
 	cmd := NewDockerCmd(e.client)
 	cmd.ContainerName = "ansible_playbook_executor"
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 	cmd.Env = append([]string{}, e.Env...)
 =======
 	cmd.Env = os.Environ()
 
 >>>>>>> f904139 (create an example to execute Ansible within a container)
+=======
+
+	cmd.Env = append([]string{}, e.Env...)
+>>>>>>> a2a1d16 (Add example for executing Ansible playbooks in Docker)
 	cmd.Cmd = append([]string{}, name)
 	cmd.Cmd = append(cmd.Cmd, arg...)
 
@@ -94,14 +129,20 @@ func (e *DockerExec) CommandContext(ctx context.Context, name string, arg ...str
 }
 
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> a2a1d16 (Add example for executing Ansible playbooks in Docker)
 func WithEnv(env []string) dockerExecOptionsFunc {
 	return func(exec *DockerExec) {
 		exec.Env = env
 	}
 }
 
+<<<<<<< HEAD
 =======
 >>>>>>> f904139 (create an example to execute Ansible within a container)
+=======
+>>>>>>> a2a1d16 (Add example for executing Ansible playbooks in Docker)
 // dockerCmdOptionsFunc is a function type that modifies dockerCmd options
 type dockerCmdOptionsFunc func(*dockerCmd)
 
@@ -115,10 +156,13 @@ type dockerCmd struct {
 	Cmd           []string
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 	AutoRemove bool
 
 >>>>>>> f904139 (create an example to execute Ansible within a container)
+=======
+>>>>>>> a2a1d16 (Add example for executing Ansible playbooks in Docker)
 	imagePathContext string
 	mounts           []mount.Mount
 	workingDir       string
@@ -130,9 +174,13 @@ type dockerCmd struct {
 }
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 // Ensure dockerCmd implements the Cmder interface
 =======
 >>>>>>> f904139 (create an example to execute Ansible within a container)
+=======
+// Ensure dockerCmd implements the Cmder interface
+>>>>>>> a2a1d16 (Add example for executing Ansible playbooks in Docker)
 var _ = exec.Cmder(&dockerCmd{})
 
 // NewDockerCmd creates a new dockerCmd instance
@@ -145,9 +193,12 @@ func NewDockerCmd(client *client.Client, opts ...dockerCmdOptionsFunc) *dockerCm
 		panic(err)
 	}
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 	_ = ex
 >>>>>>> f904139 (create an example to execute Ansible within a container)
+=======
+>>>>>>> a2a1d16 (Add example for executing Ansible playbooks in Docker)
 
 	cmd := &dockerCmd{
 		client: client,
@@ -183,10 +234,14 @@ func (cmd *dockerCmd) CombinedOutput() ([]byte, error) {
 // Environ returns the environment variables for the command.
 func (cmd *dockerCmd) Environ() []string {
 <<<<<<< HEAD
+<<<<<<< HEAD
 	return cmd.Env
 =======
 	return nil
 >>>>>>> f904139 (create an example to execute Ansible within a container)
+=======
+	return cmd.Env
+>>>>>>> a2a1d16 (Add example for executing Ansible playbooks in Docker)
 }
 
 // Output runs the command and returns its standard output.
@@ -248,15 +303,20 @@ func (cmd *dockerCmd) Start() (err error) {
 		AttachStdout: true,
 		AttachStderr: true,
 <<<<<<< HEAD
+<<<<<<< HEAD
 		Env:          cmd.Env,
 =======
 >>>>>>> f904139 (create an example to execute Ansible within a container)
+=======
+		Env:          cmd.Env,
+>>>>>>> a2a1d16 (Add example for executing Ansible playbooks in Docker)
 	}
 
 	containerCreateResp, err = cmd.client.ContainerCreate(
 		ctx,
 		containerConfig,
 		&container.HostConfig{
+<<<<<<< HEAD
 <<<<<<< HEAD
 			AutoRemove:     true,
 			Mounts:         cmd.mounts,
@@ -265,6 +325,11 @@ func (cmd *dockerCmd) Start() (err error) {
 			AutoRemove: cmd.AutoRemove,
 			Mounts:     cmd.mounts,
 >>>>>>> f904139 (create an example to execute Ansible within a container)
+=======
+			AutoRemove:     true,
+			Mounts:         cmd.mounts,
+			ReadonlyRootfs: false,
+>>>>>>> a2a1d16 (Add example for executing Ansible playbooks in Docker)
 		},
 		&network.NetworkingConfig{},
 		nil,
@@ -297,13 +362,19 @@ func (cmd *dockerCmd) Start() (err error) {
 		defer cmd.stderrPipeWriter.Close()
 		// Copying stdout and stderr from the container to the respective pipes
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> a2a1d16 (Add example for executing Ansible playbooks in Docker)
 		_, err := stdcopy.StdCopy(cmd.stdoutPipeWriter, cmd.stderrPipeWriter, attach.Reader)
 		if err != nil {
 			fmt.Println("Error copying output from container:", err)
 		}
+<<<<<<< HEAD
 =======
 		_, _ = stdcopy.StdCopy(cmd.stdoutPipeWriter, cmd.stdoutPipeWriter, attach.Reader)
 >>>>>>> f904139 (create an example to execute Ansible within a container)
+=======
+>>>>>>> a2a1d16 (Add example for executing Ansible playbooks in Docker)
 	}()
 
 	err = cmd.client.ContainerStart(ctx, cmd.containerID, container.StartOptions{})
@@ -349,9 +420,12 @@ func (cmd *dockerCmd) Wait() error {
 
 	case status := <-statusCh:
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 
 >>>>>>> f904139 (create an example to execute Ansible within a container)
+=======
+>>>>>>> a2a1d16 (Add example for executing Ansible playbooks in Docker)
 		if status.StatusCode != 0 {
 			err = fmt.Errorf("container exited with code %d", status.StatusCode)
 		}
@@ -367,6 +441,9 @@ func (cmd *dockerCmd) Wait() error {
 
 func (cmd *dockerCmd) cleanup() error {
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> a2a1d16 (Add example for executing Ansible playbooks in Docker)
 	ctx := context.TODO()
 
 	// Inspect the container to check its state
@@ -393,28 +470,41 @@ func (cmd *dockerCmd) cleanup() error {
 
 	// Try to remove the container
 	err = cmd.client.ContainerRemove(ctx, cmd.containerID, container.RemoveOptions{
+<<<<<<< HEAD
 =======
 	err := cmd.client.ContainerRemove(context.TODO(), cmd.containerID, container.RemoveOptions{
 >>>>>>> f904139 (create an example to execute Ansible within a container)
+=======
+>>>>>>> a2a1d16 (Add example for executing Ansible playbooks in Docker)
 		Force:         true,
 		RemoveVolumes: true,
 	})
 	if err != nil {
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> a2a1d16 (Add example for executing Ansible playbooks in Docker)
 		// If already removed, ignore
 		if errdefs.IsNotFound(err) {
 			fmt.Println("Container already removed")
 			return nil
 		}
+<<<<<<< HEAD
 		return fmt.Errorf("failed to remove container: %w", err)
 	}
 
 	fmt.Println("Container cleaned up successfully")
 	return nil
 =======
+=======
+>>>>>>> a2a1d16 (Add example for executing Ansible playbooks in Docker)
 		return fmt.Errorf("failed to remove container: %w", err)
 	}
-	return nil
 
+<<<<<<< HEAD
 >>>>>>> f904139 (create an example to execute Ansible within a container)
+=======
+	fmt.Println("Container cleaned up successfully")
+	return nil
+>>>>>>> a2a1d16 (Add example for executing Ansible playbooks in Docker)
 }
