@@ -11,6 +11,7 @@ import (
 	"github.com/apenella/go-ansible/v2/pkg/execute/exec"
 	"github.com/apenella/go-docker-builder/pkg/build"
 	contextpath "github.com/apenella/go-docker-builder/pkg/build/context/path"
+	"github.com/containerd/containerd/errdefs"
 	"github.com/docker/docker/api/types"
 	"github.com/docker/docker/api/types/container"
 	"github.com/docker/docker/api/types/mount"
@@ -19,17 +20,37 @@ import (
 	"github.com/docker/docker/pkg/stdcopy"
 )
 
+// dockerExecOptionsFunc is a function type that modifies dockerExec options
+type dockerExecOptionsFunc func(*DockerExec)
+
 // DockerExec struct implements the Executable interface
 type DockerExec struct {
 	client *client.Client
+
+	Env []string
 }
 
+// Ensure DockerExec implements the Executabler interface
 var _ = execute.Executabler(&DockerExec{})
 
-func NewDockerExec(client *client.Client) *DockerExec {
-	return &DockerExec{
+// NewDockerExec creates a new DockerExec instance
+func NewDockerExec(client *client.Client, opts ...dockerExecOptionsFunc) *DockerExec {
+	exec := &DockerExec{
 		client: client,
+		Env:    []string{},
 	}
+
+	exec = exec.Options(opts...)
+
+	return exec
+}
+
+// Options applies the given options to the DockerExec instance
+func (e *DockerExec) Options(opts ...dockerExecOptionsFunc) *DockerExec {
+	for _, opt := range opts {
+		opt(e)
+	}
+	return e
 }
 
 // Command is a wrapper of exec.Command
@@ -42,12 +63,18 @@ func (e *DockerExec) CommandContext(ctx context.Context, name string, arg ...str
 
 	cmd := NewDockerCmd(e.client)
 	cmd.ContainerName = "ansible_playbook_executor"
-	cmd.Env = os.Environ()
 
+	cmd.Env = append([]string{}, e.Env...)
 	cmd.Cmd = append([]string{}, name)
 	cmd.Cmd = append(cmd.Cmd, arg...)
 
 	return cmd
+}
+
+func WithEnv(env []string) dockerExecOptionsFunc {
+	return func(exec *DockerExec) {
+		exec.Env = env
+	}
 }
 
 // dockerCmdOptionsFunc is a function type that modifies dockerCmd options
@@ -62,8 +89,6 @@ type dockerCmd struct {
 	Env           []string
 	Cmd           []string
 
-	AutoRemove bool
-
 	imagePathContext string
 	mounts           []mount.Mount
 	workingDir       string
@@ -74,6 +99,7 @@ type dockerCmd struct {
 	stderrPipeWriter io.WriteCloser
 }
 
+// Ensure dockerCmd implements the Cmder interface
 var _ = exec.Cmder(&dockerCmd{})
 
 // NewDockerCmd creates a new dockerCmd instance
@@ -85,7 +111,6 @@ func NewDockerCmd(client *client.Client, opts ...dockerCmdOptionsFunc) *dockerCm
 	if err != nil {
 		panic(err)
 	}
-	_ = ex
 
 	cmd := &dockerCmd{
 		client: client,
@@ -120,7 +145,7 @@ func (cmd *dockerCmd) CombinedOutput() ([]byte, error) {
 
 // Environ returns the environment variables for the command.
 func (cmd *dockerCmd) Environ() []string {
-	return nil
+	return cmd.Env
 }
 
 // Output runs the command and returns its standard output.
@@ -181,14 +206,16 @@ func (cmd *dockerCmd) Start() (err error) {
 		AttachStdin:  true,
 		AttachStdout: true,
 		AttachStderr: true,
+		Env:          cmd.Env,
 	}
 
 	containerCreateResp, err = cmd.client.ContainerCreate(
 		ctx,
 		containerConfig,
 		&container.HostConfig{
-			AutoRemove: cmd.AutoRemove,
-			Mounts:     cmd.mounts,
+			AutoRemove:     true,
+			Mounts:         cmd.mounts,
+			ReadonlyRootfs: false,
 		},
 		&network.NetworkingConfig{},
 		nil,
@@ -220,7 +247,10 @@ func (cmd *dockerCmd) Start() (err error) {
 		defer cmd.stdoutPipeWriter.Close()
 		defer cmd.stderrPipeWriter.Close()
 		// Copying stdout and stderr from the container to the respective pipes
-		_, _ = stdcopy.StdCopy(cmd.stdoutPipeWriter, cmd.stdoutPipeWriter, attach.Reader)
+		_, err := stdcopy.StdCopy(cmd.stdoutPipeWriter, cmd.stderrPipeWriter, attach.Reader)
+		if err != nil {
+			fmt.Println("Error copying output from container:", err)
+		}
 	}()
 
 	err = cmd.client.ContainerStart(ctx, cmd.containerID, container.StartOptions{})
@@ -265,7 +295,6 @@ func (cmd *dockerCmd) Wait() error {
 	case err = <-errCh:
 
 	case status := <-statusCh:
-
 		if status.StatusCode != 0 {
 			err = fmt.Errorf("container exited with code %d", status.StatusCode)
 		}
@@ -280,13 +309,44 @@ func (cmd *dockerCmd) Wait() error {
 }
 
 func (cmd *dockerCmd) cleanup() error {
-	err := cmd.client.ContainerRemove(context.TODO(), cmd.containerID, container.RemoveOptions{
+	ctx := context.TODO()
+
+	// Inspect the container to check its state
+	response, err := cmd.client.ContainerInspect(ctx, cmd.containerID)
+	if err != nil {
+		// If the container is already removed, nothing to do
+		if errdefs.IsNotFound(err) {
+			fmt.Println("Container already removed")
+			return nil
+		}
+		return fmt.Errorf("failed to inspect container: %w", err)
+	}
+
+	// If running, try to stop it gracefully
+	if response.State != nil && response.State.Running {
+		timeout := 10 // seconds
+		if err := cmd.client.ContainerStop(ctx, cmd.containerID, container.StopOptions{Timeout: &timeout}); err != nil {
+			// If already stopped or not found, ignore
+			if errdefs.IsNotFound(err) {
+				fmt.Printf("Warning: failed to stop container: %v\n", err)
+			}
+		}
+	}
+
+	// Try to remove the container
+	err = cmd.client.ContainerRemove(ctx, cmd.containerID, container.RemoveOptions{
 		Force:         true,
 		RemoveVolumes: true,
 	})
 	if err != nil {
+		// If already removed, ignore
+		if errdefs.IsNotFound(err) {
+			fmt.Println("Container already removed")
+			return nil
+		}
 		return fmt.Errorf("failed to remove container: %w", err)
 	}
-	return nil
 
+	fmt.Println("Container cleaned up successfully")
+	return nil
 }

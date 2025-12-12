@@ -29,11 +29,11 @@ ps: ## List containers
 logs: ## Show all logs
 	@$(DOCKER_COMPOSE_BINARY) --project-name $(PROJECT_NAME) logs
 
-attach-ansible: ## Attach to the ansible container
-	@$(DOCKER_COMPOSE_BINARY) --project-name $(PROJECT_NAME) exec --workdir /code/examples/$$(basename $$(pwd)) ansible /bin/sh
+attach-runner: ## Attach to the runner container
+	@$(DOCKER_COMPOSE_BINARY) --project-name $(PROJECT_NAME) exec runner /bin/sh
 
 project-name: ## Show the project name
 	@echo $(PROJECT_NAME)
 
 run: ## Run the playbook
-	@$(DOCKER_COMPOSE_BINARY) --project-name $(PROJECT_NAME) run --build --rm --workdir /code/examples/$$(basename $$(pwd)) ansible go run $$(find . -type f -name '*.go')
+	@$(DOCKER_COMPOSE_BINARY) --project-name $(PROJECT_NAME) run --build --rm --workdir /code runner /code/app

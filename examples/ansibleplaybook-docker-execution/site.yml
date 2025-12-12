@@ -7,9 +7,9 @@
       debug:
         msg: Your are running 'ansibleplayook-docker-executor' example
     
-    - name: Wait for 10 seconds
+    - name: Wait for 2 seconds
       pause:
-        seconds: 10
+        seconds: 2
 
     - name: ansibleplaybook-docker-executor completed
       debug:

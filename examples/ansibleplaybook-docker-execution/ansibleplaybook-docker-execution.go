@@ -20,7 +20,14 @@ func main() {
 	}
 	defer apiClient.Close()
 
-	executable := NewDockerExec(apiClient)
+	executable := NewDockerExec(
+		apiClient,
+		WithEnv(
+			[]string{
+				"ANSIBLE_FORCE_COLOR=true",
+			},
+		),
+	)
 
 	ansiblePlaybookOptions := &playbook.AnsiblePlaybookOptions{
 		Connection: "local",

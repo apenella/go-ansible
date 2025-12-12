@@ -1,27 +1,27 @@
-ARG golang_version=1.23
+FROM python:3.14-alpine3.23
 
-FROM golang:${golang_version}-bookworm AS golang
+# Create a non-root user and group (ansible)
+RUN addgroup -S ansible \
+    && adduser -S ansible -G ansible \
+    && mkdir -p /home/ansible/.ansible \
+    && chown -R ansible:ansible /home/ansible
 
-FROM python:3.12-alpine3.19
-
+# Install required packages
 RUN apk add --update --no-cache \
         openssh-client \
         git \
-    && rm -rf /var/cache/apk/*
+        && rm -rf /var/cache/apk/*
 
+# Switch to the non-root user
+USER ansible:ansible
+
+# Install ansible and required python packages
 RUN pip3 install -U pip setuptools \
     && pip3 install --no-cache-dir \
         setuptools-rust \
         cryptography \
         # Required library to execute ansible community.general.dig plugin
         dnspython \
-        ansible \
-    && ln /usr/local/bin/ansible-playbook /usr/bin/ansible-playbook
+        ansible
 
-COPY --from=golang /usr/local/go /usr/local/go
-
-# Configure Go
-ENV GOROOT /usr/local/go
-ENV PATH /usr/local/go/bin:/go/bin:$PATH
-
-RUN mkdir -p ${GOPATH}/src ${GOPATH}/bin
+ENV PATH /home/ansible/.local/bin:$PATH 
