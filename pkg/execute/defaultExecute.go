@@ -84,6 +84,9 @@ type DefaultExecute struct {
 	WriterError io.Writer
 }
 
+// Ensure DefaultExecute implements the Executor interface
+var _ = Executor(&DefaultExecute{})
+
 // NewDefaultExecute return a new DefaultExecute instance with all options
 func NewDefaultExecute(options ...ExecuteOptions) *DefaultExecute {
 	execute := &DefaultExecute{
@@ -230,7 +233,6 @@ func (e *DefaultExecute) Execute(ctx context.Context) (err error) {
 	}
 
 	if e.Output == nil {
-
 		e.Output = defaultresults.NewDefaultResults(
 			defaultresults.WithTransformers(trans...),
 		)
@@ -266,10 +268,9 @@ func (e *DefaultExecute) Execute(ctx context.Context) (err error) {
 			return errors.New(errContext, "Command execution canceled", ctx.Err())
 		}
 
+		errCmd = err
 		if e.ErrorEnrich != nil {
 			errCmd = e.ErrorEnrich.Enrich(err)
-		} else {
-			errCmd = err
 		}
 
 		errorMessage := fmt.Sprintf(" Command executed: %s\n", e.Cmd.String())
@@ -277,9 +278,9 @@ func (e *DefaultExecute) Execute(ctx context.Context) (err error) {
 			errorMessage = fmt.Sprintf("%s\n Environment variables:\n%s\n", errorMessage, strings.Join(e.EnvVars.Environ(), "\n"))
 		}
 
-		stderrErrorMessage := string(err.(*osexec.ExitError).Stderr)
-		if len(stderrErrorMessage) > 0 {
-			errorMessage = fmt.Sprintf("%s\n'%s'\n", errorMessage, stderrErrorMessage)
+		osExecErr, isOsExecErr := err.(*osexec.ExitError)
+		if isOsExecErr && len(osExecErr.Stderr) > 0 {
+			errorMessage = fmt.Sprintf("%s\n'%s'\n", errorMessage, string(osExecErr.Stderr))
 		}
 
 		return errors.New(errContext, fmt.Sprintf("Error during command execution.\n%s", errorMessage), errCmd)
