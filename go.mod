@@ -9,11 +9,8 @@ require (
 	github.com/apenella/go-common-utils/data v0.0.0-20220913191136-86daaa87e7df
 	github.com/apenella/go-common-utils/error v0.0.0-20221227202648-5452d804e940
 	github.com/apenella/go-docker-builder v0.10.0
-<<<<<<< HEAD
 	github.com/docker/docker v28.5.2+incompatible
-=======
 	github.com/containerd/containerd v1.7.29
->>>>>>> 5229e65 (update dependencies)
 	github.com/fatih/color v1.18.0
 	github.com/go-errors/errors v1.5.1
 	github.com/iancoleman/strcase v0.3.0
