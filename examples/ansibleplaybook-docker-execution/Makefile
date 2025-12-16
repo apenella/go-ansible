@@ -1,7 +1,8 @@
 
 DOCKER_COMPOSE_BINARY := $(shell docker compose version > /dev/null 2>&1 && echo "docker compose" || (which docker-compose > /dev/null 2>&1 && echo "docker-compose" || (echo "docker compose not found. Aborting." >&2; exit 1)))
-
 PROJECT_NAME := go-ansible-$(shell basename ${PWD})
+
+.PHONY: help build up down restart ps logs attach-runner project-name run
 
 # dafault target
 .DEFAULT_GOAL: help
@@ -29,29 +30,11 @@ ps: ## List containers
 logs: ## Show all logs
 	@$(DOCKER_COMPOSE_BINARY) --project-name $(PROJECT_NAME) logs
 
-<<<<<<< HEAD
-<<<<<<< HEAD
 attach-runner: ## Attach to the runner container
 	@$(DOCKER_COMPOSE_BINARY) --project-name $(PROJECT_NAME) exec runner /bin/sh
-=======
-attach-ansible: ## Attach to the ansible container
-	@$(DOCKER_COMPOSE_BINARY) --project-name $(PROJECT_NAME) exec --workdir /code/examples/$$(basename $$(pwd)) ansible /bin/sh
->>>>>>> f904139 (create an example to execute Ansible within a container)
-=======
-attach-runner: ## Attach to the runner container
-	@$(DOCKER_COMPOSE_BINARY) --project-name $(PROJECT_NAME) exec runner /bin/sh
->>>>>>> a2a1d16 (Add example for executing Ansible playbooks in Docker)
 
 project-name: ## Show the project name
 	@echo $(PROJECT_NAME)
 
 run: ## Run the playbook
-<<<<<<< HEAD
-<<<<<<< HEAD
 	@$(DOCKER_COMPOSE_BINARY) --project-name $(PROJECT_NAME) run --build --rm --workdir /code runner /code/app
-=======
-	@$(DOCKER_COMPOSE_BINARY) --project-name $(PROJECT_NAME) run --build --rm --workdir /code/examples/$$(basename $$(pwd)) ansible go run $$(find . -type f -name '*.go')
->>>>>>> f904139 (create an example to execute Ansible within a container)
-=======
-	@$(DOCKER_COMPOSE_BINARY) --project-name $(PROJECT_NAME) run --build --rm --workdir /code runner /code/app
->>>>>>> a2a1d16 (Add example for executing Ansible playbooks in Docker)

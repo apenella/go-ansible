@@ -9,8 +9,8 @@ require (
 	github.com/apenella/go-common-utils/data v0.0.0-20220913191136-86daaa87e7df
 	github.com/apenella/go-common-utils/error v0.0.0-20221227202648-5452d804e940
 	github.com/apenella/go-docker-builder v0.10.0
-	github.com/docker/docker v28.5.2+incompatible
 	github.com/containerd/containerd v1.7.29
+	github.com/docker/docker v28.5.2+incompatible
 	github.com/fatih/color v1.18.0
 	github.com/go-errors/errors v1.5.1
 	github.com/iancoleman/strcase v0.3.0
@@ -33,7 +33,6 @@ require (
 	github.com/containerd/errdefs/pkg v0.3.0 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/distribution/reference v0.6.0 // indirect
-	github.com/docker/docker v28.5.2+incompatible
 	github.com/docker/go-connections v0.6.0 // indirect
 	github.com/docker/go-units v0.5.0 // indirect
 	github.com/felixge/httpsnoop v1.0.4 // indirect

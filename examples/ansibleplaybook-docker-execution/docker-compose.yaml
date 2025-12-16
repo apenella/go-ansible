@@ -1,8 +1,6 @@
 ---
 
 services:
-<<<<<<< HEAD
-<<<<<<< HEAD
   runner:
     build: 
       context: ../../
@@ -17,41 +15,13 @@ services:
       - /dev/null
     environment:
       - DOCKER_BUILDKIT=1
-    # command: ["ansible-playbook", "--help"]
+
+    # Uncomment below to mount the code directory inside the container
+    # working_dir: /code/examples/ansibleplaybook-docker-execution
     # volumes:
     #   - ../..:/code
-    # working_dir: /code/examples/ansibleplaybook-docker-execution
+
     ## Set the init flag to true lets the process 1 to reap all the zombie processes
     init: true
     ## Enable privileged mode to be able to run docker dind
     privileged: true
-=======
-  ansible:
-=======
-  runner:
->>>>>>> a2a1d16 (Add example for executing Ansible playbooks in Docker)
-    build: 
-      context: ../../
-      dockerfile: ./examples/ansibleplaybook-docker-execution/docker/runner/Dockerfile
-      args:
-        - golang_version=${GOLANG_VERSION}
-        - docker_version=${DOCKER_VERSION}
-        - program_name=ansibleplaybook-docker-execution
-    command:
-      - tail
-      - -f
-      - /dev/null
-    environment:
-      - DOCKER_BUILDKIT=1
-    # command: ["ansible-playbook", "--help"]
-    # volumes:
-    #   - ../..:/code
-    # working_dir: /code/examples/ansibleplaybook-docker-execution
-    ## Set the init flag to true lets the process 1 to reap all the zombie processes
-    init: true
-<<<<<<< HEAD
->>>>>>> f904139 (create an example to execute Ansible within a container)
-=======
-    ## Enable privileged mode to be able to run docker dind
-    privileged: true
->>>>>>> a2a1d16 (Add example for executing Ansible playbooks in Docker)
