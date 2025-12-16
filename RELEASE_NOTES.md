@@ -1,7 +1,7 @@
 # Release notes
 
-## [2.4.1] (2025-11-13)
+## [Unknown]
 
-### Fixed
+### Added
 
-- When ansible-playbook fails it return a nil instead of an error [#178](https://github.com/apenella/go-ansible/issues/178)
+- New example that show how to run Ansible commands within a Docker Container [#116](https://github.com/apenella/go-ansible/issues/116)

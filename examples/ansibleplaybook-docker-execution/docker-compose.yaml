@@ -1,0 +1,27 @@
+---
+
+services:
+  runner:
+    build: 
+      context: ../../
+      dockerfile: ./examples/ansibleplaybook-docker-execution/docker/runner/Dockerfile
+      args:
+        - golang_version=${GOLANG_VERSION}
+        - docker_version=${DOCKER_VERSION}
+        - program_name=ansibleplaybook-docker-execution
+    command:
+      - tail
+      - -f
+      - /dev/null
+    environment:
+      - DOCKER_BUILDKIT=1
+
+    # Uncomment below to mount the code directory inside the container
+    # working_dir: /code/examples/ansibleplaybook-docker-execution
+    # volumes:
+    #   - ../..:/code
+
+    ## Set the init flag to true lets the process 1 to reap all the zombie processes
+    init: true
+    ## Enable privileged mode to be able to run docker dind
+    privileged: true

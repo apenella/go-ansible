@@ -1139,6 +1139,7 @@ Here you have a list of examples:
 - [ansibleplaybook-with-executor-time-measurament](https://github.com/apenella/go-ansible/tree/master/examples/ansibleplaybook-with-executor-time-measurament)
 - [ansibleplaybook-with-timeout](https://github.com/apenella/go-ansible/tree/master/examples/ansibleplaybook-with-timeout)
 - [ansibleplaybook-with-vaulted-extravar](https://github.com/apenella/go-ansible/tree/master/examples/ansibleplaybook-with-vaulted-extravar)
+- [ansibleplaybook-docker-execution](https://github.com/apenella/go-ansible/tree/master/examples/ansibleplaybook-docker-execution)
 - [workflowexecute-simple](https://github.com/apenella/go-ansible/tree/master/examples/workflowexecute-simple)
 - [workflowexecute-time-measurament](https://github.com/apenella/go-ansible/tree/master/examples/workflowexecute-time-measurament)
 
