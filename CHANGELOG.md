@@ -10,6 +10,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 - New example that show how to run Ansible commands within a Docker Container [#116](https://github.com/apenella/go-ansible/issues/116)
 
+### Changed
+
+- Use Golang 1.25
+- Use Docker images python:3.14-alpine3.23 and golang:1.25-trixie on the examples and test
+
 ## [2.4.1] (2025-11-13)
 
 ### Fixed

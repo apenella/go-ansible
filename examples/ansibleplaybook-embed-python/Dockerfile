@@ -1,8 +1,8 @@
 ARG golang_version=1.23
 
-FROM golang:${golang_version}-bookworm AS golang
+FROM golang:${golang_version}-trixie AS golang
 
-FROM python:3.12-bookworm as builder
+FROM python:3.12-trixie AS builder
 
 RUN apt-get update \
     && apt-get install -y \
