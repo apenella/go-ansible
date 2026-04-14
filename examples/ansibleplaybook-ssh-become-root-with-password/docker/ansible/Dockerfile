@@ -1,8 +1,8 @@
 ARG golang_version=1.23
 
-FROM golang:${golang_version}-bookworm AS golang
+FROM golang:${golang_version}-trixie AS golang
 
-FROM python:3.12-alpine3.19
+FROM python:3.14-alpine3.23
 
 ARG ansible_core_version=2.17.5
 
