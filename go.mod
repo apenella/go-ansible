@@ -7,7 +7,7 @@ require (
 	github.com/apenella/go-common-utils/data v0.0.0-20220913191136-86daaa87e7df
 	github.com/apenella/go-common-utils/error v0.0.0-20221227202648-5452d804e940
 	github.com/apenella/go-docker-builder v0.10.0
-	github.com/containerd/containerd v1.7.29
+	github.com/containerd/containerd v1.7.32
 	github.com/docker/docker v28.5.2+incompatible
 	github.com/fatih/color v1.18.0
 	github.com/go-errors/errors v1.5.1
