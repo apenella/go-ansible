@@ -4,7 +4,7 @@ run:
   timeout: 5m
   tests: true
   allow-parallel-runners: true
-  go: '1.25'
+  go: '1.26'
 
 linters:
   exclusions:
