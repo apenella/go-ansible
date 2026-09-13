@@ -11,13 +11,12 @@ import (
 	"github.com/apenella/go-ansible/v2/pkg/execute/exec"
 	"github.com/apenella/go-docker-builder/pkg/build"
 	contextpath "github.com/apenella/go-docker-builder/pkg/build/context/path"
-	errdefs "github.com/containerd/containerd/errdefs"
-	"github.com/docker/docker/api/types"
-	"github.com/docker/docker/api/types/container"
-	"github.com/docker/docker/api/types/mount"
-	"github.com/docker/docker/api/types/network"
-	"github.com/docker/docker/client"
-	"github.com/docker/docker/pkg/stdcopy"
+	"github.com/containerd/errdefs"
+	"github.com/moby/moby/api/pkg/stdcopy"
+	"github.com/moby/moby/api/types/container"
+	"github.com/moby/moby/api/types/mount"
+	"github.com/moby/moby/api/types/network"
+	"github.com/moby/moby/client"
 )
 
 // dockerExecOptionsFunc is a function type that modifies dockerExec options
@@ -187,8 +186,8 @@ func (cmd *dockerCmd) imageBuild(ctx context.Context, imageName string) error {
 
 // Start starts the command but does not wait for it to complete.
 func (cmd *dockerCmd) Start() (err error) {
-	var containerCreateResp container.CreateResponse
-	var attach types.HijackedResponse
+	var containerCreateResp client.ContainerCreateResult
+	var attach client.ContainerAttachResult
 
 	ctx := context.TODO()
 	imageName := "ansibleplaybook-docker-executor"
@@ -211,15 +210,16 @@ func (cmd *dockerCmd) Start() (err error) {
 
 	containerCreateResp, err = cmd.client.ContainerCreate(
 		ctx,
-		containerConfig,
-		&container.HostConfig{
-			AutoRemove:     true,
-			Mounts:         cmd.mounts,
-			ReadonlyRootfs: false,
+		client.ContainerCreateOptions{
+			Config: containerConfig,
+			HostConfig: &container.HostConfig{
+				AutoRemove:     true,
+				Mounts:         cmd.mounts,
+				ReadonlyRootfs: false,
+			},
+			NetworkingConfig: &network.NetworkingConfig{},
+			Name:             cmd.ContainerName,
 		},
-		&network.NetworkingConfig{},
-		nil,
-		cmd.ContainerName,
 	)
 	if err != nil {
 		return fmt.Errorf("failed to create container: %w", err)
@@ -231,7 +231,7 @@ func (cmd *dockerCmd) Start() (err error) {
 	attach, err = cmd.client.ContainerAttach(
 		ctx,
 		cmd.containerID,
-		container.AttachOptions{
+		client.ContainerAttachOptions{
 			Stdin:  false,
 			Stdout: true,
 			Stderr: true,
@@ -253,7 +253,7 @@ func (cmd *dockerCmd) Start() (err error) {
 		}
 	}()
 
-	err = cmd.client.ContainerStart(ctx, cmd.containerID, container.StartOptions{})
+	_, err = cmd.client.ContainerStart(ctx, cmd.containerID, client.ContainerStartOptions{})
 	if err != nil {
 		return fmt.Errorf("failed to start container: %w", err)
 	}
@@ -285,16 +285,18 @@ func (cmd *dockerCmd) String() string {
 func (cmd *dockerCmd) Wait() error {
 	var err error
 
-	statusCh, errCh := cmd.client.ContainerWait(
+	waitResult := cmd.client.ContainerWait(
 		context.TODO(),
 		cmd.containerID,
-		container.WaitConditionNotRunning,
+		client.ContainerWaitOptions{
+			Condition: container.WaitConditionNotRunning,
+		},
 	)
 
 	select {
-	case err = <-errCh:
+	case err = <-waitResult.Error:
 
-	case status := <-statusCh:
+	case status := <-waitResult.Result:
 		if status.StatusCode != 0 {
 			err = fmt.Errorf("container exited with code %d", status.StatusCode)
 		}
@@ -312,7 +314,7 @@ func (cmd *dockerCmd) cleanup() error {
 	ctx := context.TODO()
 
 	// Inspect the container to check its state
-	response, err := cmd.client.ContainerInspect(ctx, cmd.containerID)
+	inspectResult, err := cmd.client.ContainerInspect(ctx, cmd.containerID, client.ContainerInspectOptions{})
 	if err != nil {
 		// If the container is already removed, nothing to do
 		if errdefs.IsNotFound(err) {
@@ -322,10 +324,12 @@ func (cmd *dockerCmd) cleanup() error {
 		return fmt.Errorf("failed to inspect container: %w", err)
 	}
 
+	response := inspectResult.Container
+
 	// If running, try to stop it gracefully
 	if response.State != nil && response.State.Running {
 		timeout := 10 // seconds
-		if err := cmd.client.ContainerStop(ctx, cmd.containerID, container.StopOptions{Timeout: &timeout}); err != nil {
+		if _, err := cmd.client.ContainerStop(ctx, cmd.containerID, client.ContainerStopOptions{Timeout: &timeout}); err != nil {
 			// If already stopped or not found, ignore
 			if errdefs.IsNotFound(err) {
 				fmt.Printf("Warning: failed to stop container: %v\n", err)
@@ -334,7 +338,7 @@ func (cmd *dockerCmd) cleanup() error {
 	}
 
 	// Try to remove the container
-	err = cmd.client.ContainerRemove(ctx, cmd.containerID, container.RemoveOptions{
+	_, err = cmd.client.ContainerRemove(ctx, cmd.containerID, client.ContainerRemoveOptions{
 		Force:         true,
 		RemoveVolumes: true,
 	})

@@ -8,13 +8,13 @@ import (
 	"github.com/apenella/go-ansible/v2/pkg/execute"
 	"github.com/apenella/go-ansible/v2/pkg/execute/result/transformer"
 	"github.com/apenella/go-ansible/v2/pkg/playbook"
-	"github.com/docker/docker/client"
+	"github.com/moby/moby/client"
 )
 
 func main() {
 
 	// ctx := context.Background()
-	apiClient, err := client.NewClientWithOpts(client.FromEnv, client.WithAPIVersionNegotiation())
+	apiClient, err := client.New(client.FromEnv)
 	if err != nil {
 		panic(err)
 	}
