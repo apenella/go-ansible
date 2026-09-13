@@ -1,17 +1,15 @@
 # Release notes
 
-## [2.4.2] (2026-09-12)
-
-### Added
-
-- New example that show how to run Ansible commands within a Docker Container [#116](https://github.com/apenella/go-ansible/issues/116)
+## [Unknown]
 
 ### Changed
 
-- Use Golang 1.25
-- Use Docker images python:3.14-alpine3.23 and golang:1.25-trixie on the examples and test
-- Bump github.com/containerd/containerd from 1.7.29 to 1.7.35
-- Bump go.opentelemetry.io/otel/exporters/otlp/otlptrace/otlptracehttp
-- Bump golang.org/x/crypto from 0.43.0 to 0.52.0
-- Bump golang.org/x/net from 0.52.0 to 0.55.0
-- Bump google.golang.org/grpc from 1.80.0 to 1.83.2
+- Migrate examples/ansibleplaybook-docker-execution from the deprecated github.com/docker/docker to github.com/moby/moby/client v0.6.0 and github.com/moby/moby/api v1.56.0
+- Bump github.com/apenella/go-docker-builder from 0.10.0 to 0.13.0
+- Remove github.com/docker/docker and github.com/containerd/containerd direct dependencies
+- Bump github.com/stretchr/testify from 1.11.1 to 1.12.1
+- Bump github.com/docker/go-connections from 0.6.0 to 0.8.1
+- Bump github.com/felixge/httpsnoop from 1.0.4 to 1.1.0
+- Bump github.com/go-logr/logr from 1.4.3 to 1.4.4
+- Bump go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp from 0.64.0 to 0.71.0
+- Bump go.opentelemetry.io/otel, go.opentelemetry.io/otel/metric and go.opentelemetry.io/otel/trace from 1.44.0 to 1.46.0
