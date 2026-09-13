@@ -1,4 +1,4 @@
-ARG golang_version=1.23
+ARG golang_version=1.26
 
 FROM golang:${golang_version}-trixie AS golang
 

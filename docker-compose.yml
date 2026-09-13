@@ -1,6 +1,6 @@
 services:
   golang-ci:
-    image: golang:${GOLANG_VERSION:-1.19}-alpine
+    image: golang:${GOLANG_VERSION:-1.26}-alpine
     volumes:
       - .:/app
     working_dir: /app

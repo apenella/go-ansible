@@ -1,5 +1,5 @@
 # Based on https://github.com/timberio/docker-client/blob/master/Dockerfile
-ARG golang_version="1.23"
+ARG golang_version="1.26"
 ARG docker_version="27.1"
 ARG program_name="example"
 
