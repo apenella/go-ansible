@@ -2,8 +2,6 @@ module github.com/apenella/go-ansible/v2/examples/ansibleplaybook-embed-python
 
 go 1.26.0
 
-toolchain go1.26.0
-
 require (
 	github.com/apenella/go-ansible/v2 v2.0.2-0.20241114073458-df85b88b0587
 	github.com/kluctl/go-embed-python v0.0.0-3.12.2-20240224-1
