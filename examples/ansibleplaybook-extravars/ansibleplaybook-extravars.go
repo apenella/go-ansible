@@ -28,10 +28,13 @@ func main() {
 
 	fmt.Println("Command: ", playbookCmd.String())
 
-	yamlexec := stdoutcallback.NewYAMLStdoutCallbackExecute(
+	yamlexec := stdoutcallback.NewMinimalStdoutCallbackExecute(
 		execute.NewDefaultExecute(
 			execute.WithCmd(playbookCmd),
 			execute.WithErrorEnrich(playbook.NewAnsiblePlaybookErrorEnrich()),
+			execute.WithEnvVars(map[string]string{
+				"ANSIBLE_HOST_KEY_CHECKING": "False",
+			}),
 		),
 	)
 
