@@ -5,6 +5,7 @@ import (
 	"context"
 	"io"
 	"os"
+	"strings"
 	"testing"
 
 	"github.com/apenella/go-ansible/v2/mocks"
@@ -150,6 +151,44 @@ func TestExecute(t *testing.T) {
 			}
 		})
 	}
+}
+
+// TestExecuteWithStdin tests that the reader set by WithStdin is connected to the command standard input
+func TestExecuteWithStdin(t *testing.T) {
+	var stdout, stderr bytes.Buffer
+	stdin := strings.NewReader("configured stdin")
+
+	executor := NewDefaultExecute(
+		WithCmd(mocks.NewMockAnsibleCmd([]string{os.Args[0], "-test.run=TestExecuteWithStdinHelperProcess"}, nil)),
+		WithEnvVars(map[string]string{"GO_WANT_HELPER_PROCESS": "1"}),
+		WithStdin(stdin),
+		WithWrite(&stdout),
+		WithWriteError(&stderr),
+	)
+
+	err := executor.Execute(context.Background())
+
+	assert.NoError(t, err)
+	assert.Equal(t, "configured stdin\n", stdout.String())
+	assert.Empty(t, stderr.String())
+}
+
+// TestExecuteWithStdinHelperProcess is not a real test. TestExecuteWithStdin re-executes the test binary
+// running only this function, which copies its standard input to its standard output
+func TestExecuteWithStdinHelperProcess(t *testing.T) {
+	if os.Getenv("GO_WANT_HELPER_PROCESS") != "1" {
+		return
+	}
+
+	stdin, err := io.ReadAll(os.Stdin)
+	if err != nil {
+		t.Fatal(err)
+	}
+	_, err = os.Stdout.Write(append(stdin, '\n'))
+	if err != nil {
+		t.Fatal(err)
+	}
+	os.Exit(0)
 }
 
 // func TestExecuteFunctional(t *testing.T) {

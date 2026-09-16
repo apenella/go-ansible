@@ -1,6 +1,7 @@
 package execute
 
 import (
+	"bytes"
 	"os"
 	"testing"
 
@@ -53,6 +54,17 @@ func TestOptionsWithWriteError(t *testing.T) {
 	)
 
 	assert.Equal(t, execute.WriterError, write)
+}
+
+// TestOptionsWithStdin tests the function WithStdin
+func TestOptionsWithStdin(t *testing.T) {
+	stdin := bytes.NewBufferString("stdin")
+
+	execute := NewDefaultExecute(
+		WithStdin(stdin),
+	)
+
+	assert.Equal(t, stdin, execute.Stdin)
 }
 
 // TestOptionsWithCmdRunDir tests the function WithCmdRunDir

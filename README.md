@@ -389,6 +389,7 @@ The following functions can be provided when creating a new instance of the `Def
 - `WithErrorEnricher(errEnricher ErrorEnricher) ExecuteOptions`: Define the component responsible for enriching the error message.
 - `WithExecutable(executable Executabler) ExecuteOptions`: Define the component responsible for executing the command.
 - `WithOutput(output result.ResultsOutputer) ExecuteOptions`: Specify the component responsible for managing command output.
+- `WithStdin(r io.Reader) ExecuteOptions`: Set the reader for command input.
 - `WithTransformers(trans ...transformer.TransformerFunc) ExecuteOptions`: Add transformers to modify command output.
 - `WithWrite(w io.Writer) ExecuteOptions`: Set the writer for command output.
 - `WithWriteError(w io.Writer) ExecuteOptions`: Set the writer for command error output.
