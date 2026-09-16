@@ -38,6 +38,16 @@ func WithWriteError(w io.Writer) ExecuteOptions {
 	}
 }
 
+// WithStdin sets the reader to be connected to the command standard input. It defaults to os.Stdin.
+// An *os.File is passed to the command as is. Any other reader is copied to the command through a
+// pipe, so a reader that never returns EOF (such as an interactive terminal) keeps Execute blocked
+// after the command exits.
+func WithStdin(r io.Reader) ExecuteOptions {
+	return func(e *DefaultExecute) {
+		e.Stdin = r
+	}
+}
+
 // WithCmdRunDir set the command run directory to be used by DefaultExecutor
 func WithCmdRunDir(cmdRunDir string) ExecuteOptions {
 	return func(e *DefaultExecute) {

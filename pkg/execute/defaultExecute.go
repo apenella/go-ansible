@@ -76,6 +76,8 @@ type DefaultExecute struct {
 	Output result.ResultsOutputer
 	// quiet is a flag to set the executor in quiet mode
 	quiet bool
+	// Stdin is connected to the command standard input. Defaults to os.Stdin.
+	Stdin io.Reader
 	// Transformers is the list of transformers func for the output
 	Transformers []transformer.TransformerFunc
 	// Writer is where is written the command stdout
@@ -209,8 +211,12 @@ func (e *DefaultExecute) Execute(ctx context.Context) (err error) {
 			cmd.(*osexec.Cmd).Env = append(os.Environ(), e.EnvVars.Environ()...)
 		}
 
-		// connects the main process' stdin to ansible's stdin
-		cmd.(*osexec.Cmd).Stdin = os.Stdin
+		// Connect the configured stdin to the command, preserving os.Stdin as the default.
+		if e.Stdin != nil {
+			cmd.(*osexec.Cmd).Stdin = e.Stdin
+		} else {
+			cmd.(*osexec.Cmd).Stdin = os.Stdin
+		}
 	}
 
 	trans := make([]transformer.TransformerFunc, 0)
