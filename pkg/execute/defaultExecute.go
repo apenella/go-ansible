@@ -249,6 +249,7 @@ func (e *DefaultExecute) Execute(ctx context.Context) (err error) {
 		return errors.New(errContext, "Error starting command", err)
 	}
 
+	// Drain stdout and stderr concurrently: both pipes are bounded, so the command would block and deadlock if either one is not consumed while it runs. The errgroup joins both streamers, returns the first error, and cancels the sibling through groupCtx on failure or parent context cancellation.
 	goroutine, groupCtx := errgroup.WithContext(ctx)
 
 	// handling command's stdout
@@ -260,7 +261,7 @@ func (e *DefaultExecute) Execute(ctx context.Context) (err error) {
 		return e.Output.Print(groupCtx, cmdStderr, e.WriterError)
 	})
 
-	// waiting for the completion or failure of one of the previously initialised goroutines. It does not waits for both routines.
+	// Wait for both streamers to finish (EOF on each pipe) and return the first error, if any.
 	err = goroutine.Wait()
 	if err != nil {
 		return errors.New(errContext, "Error managing results output", err)
