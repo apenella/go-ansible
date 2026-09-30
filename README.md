@@ -199,16 +199,16 @@ By default, the [DefaultExecute](#defaultexecute-struct) uses the [DefaultResult
 >   - [Upgrade guide to 2.x](https://github.com/apenella/go-ansible/blob/master/docs/upgrade_guide_to_2.x.md)
 > - Update your import paths to match the correct module version (e.g., `github.com/apenella/go-ansible/v2` for version 2.x).
 
-To install the release candidate version:
+To install the latests released version:
 
 ```sh
-go get github.com/apenella/go-ansible/v2@v2.5.0
+go get github.com/apenella/go-ansible/v2
 ```
 
-To install the previous stable version:
+To install a specific version:
 
 ```sh
-go get github.com/apenella/go-ansible
+go get github.com/apenella/go-ansible/v2@1.2.3-rc1
 ```
 
 ### Upgrade Notes
