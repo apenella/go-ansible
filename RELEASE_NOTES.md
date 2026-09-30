@@ -1,6 +1,14 @@
 # Release notes
 
-## [Unknown]
+## [2.5.0] (2026-09-30)
+
+### Added
+
+- Add `WithStdin` option to `DefaultExecute` to configure the command standard input, defaulting to `os.Stdin` [#200](https://github.com/apenella/go-ansible/issues/200)
+
+### Fixed
+
+- Fix `examples/ansibleplaybook-extravars`: disable host key checking via `ANSIBLE_HOST_KEY_CHECKING=False`, use minimal stdout callback, and replace deprecated facts with `ansible_facts.*` in site.yml
 
 ### Changed
 
